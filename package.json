@@ -26,7 +26,15 @@
 				],
 				"extensions": [
 					".ga"
-				]
+				],
+				"configuration": "./src/language-configurations/json.language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "galaxyworkflow",
+				"scopeName": "source.json",
+				"path": "./src/syntaxes/json.tmLanguage.json"
 			}
 		]
 	},
