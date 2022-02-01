@@ -6,9 +6,10 @@
 		{
 			"type": "npm",
 			"script": "compile-web",
-			"group": {
-				"kind": "build",
-				"isDefault": true
+			"group": "build",
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
 			},
 			"problemMatcher": [
 				"$ts-webpack",
@@ -18,8 +19,15 @@
 		{
 			"type": "npm",
 			"script": "watch-web",
-			"group": "build",
 			"isBackground": true,
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"panel": "dedicated",
+				"reveal": "never"
+			},
 			"problemMatcher": [
 				"$ts-webpack-watch",
 				"$tslint-webpack-watch"
