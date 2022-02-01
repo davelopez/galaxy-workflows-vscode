@@ -17,9 +17,5 @@
     },
     "dependencies": {
         "vscode-languageclient": "^7.0.0"
-    },
-    "devDependencies": {
-        "@types/vscode": "^1.63.0",
-        "@vscode/test-web": "^0.0.19"
     }
 }
