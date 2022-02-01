@@ -2,6 +2,7 @@ import { createConnection, BrowserMessageReader, BrowserMessageWriter } from "vs
 
 import { InitializeParams, InitializeResult, ServerCapabilities, TextDocuments } from "vscode-languageserver/browser";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import * as formatProvider from "../providers/formatProvider";
 
 console.log("running server galaxy-workflow-language-server-native");
 
@@ -26,6 +27,21 @@ const documents = new TextDocuments(TextDocument);
 documents.listen(connection);
 
 // Register providers
+connection.onDocumentFormatting((params) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document === undefined) {
+    return undefined;
+  }
+  return formatProvider.onDocumentFormatting(document, params);
+});
+
+connection.onDocumentRangeFormatting((params) => {
+  const document = documents.get(params.textDocument.uri);
+  if (document === undefined) {
+    return undefined;
+  }
+  return formatProvider.onDocumentRangeFormatting(document, params);
+});
 
 // Listen on the connection
 connection.listen();
