@@ -6,33 +6,40 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Run Web Extension ",
+			"name": "Launch Client",
 			"type": "pwa-extensionHost",
 			"debugWebWorkerHost": true,
 			"request": "launch",
 			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionDevelopmentPath=${workspaceRoot}",
 				"--extensionDevelopmentKind=web"
 			],
 			"outFiles": [
-				"${workspaceFolder}/dist/web/**/*.js"
+				"${workspaceRoot}/client/dist/**/*.js"
 			],
-			"preLaunchTask": "npm: watch-web"
+			"preLaunchTask": {
+				"type": "npm",
+				"script": "watch-web"
+			}
 		},
 		{
-			"name": "Extension Tests",
-			"type": "extensionHost",
-			"debugWebWorkerHost": true,
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionDevelopmentKind=web",
-				"--extensionTestsPath=${workspaceFolder}/dist/web/test/suite/index"
-			],
+			"type": "node",
+			"request": "attach",
+			"name": "Attach to Server",
+			"port": 6009,
+			"restart": true,
 			"outFiles": [
-				"${workspaceFolder}/dist/web/**/*.js"
-			],
-			"preLaunchTask": "npm: watch-web"
+				"${workspaceRoot}/server/dist/**/*.js"
+			]
+		}
+	],
+	"compounds": [
+		{
+			"name": "Client + Server",
+			"configurations": [
+				"Launch Client",
+				"Attach to Server"
+			]
 		}
 	]
 }
