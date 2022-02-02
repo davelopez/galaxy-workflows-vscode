@@ -40,6 +40,9 @@ import {
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 
+import { DocumentFormattingParams, DocumentRangeFormattingParams } from "vscode-languageserver/browser";
+import { WorkflowDocument } from "./models/workflowDocument";
+
 export {
   TextDocument,
   Range,
@@ -78,8 +81,16 @@ export {
   TextDocumentEdit,
   VersionedTextDocumentIdentifier,
   DocumentHighlightKind,
+  DocumentFormattingParams,
+  DocumentRangeFormattingParams,
+  WorkflowDocument,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
   insertFinalNewline?: boolean;
+}
+
+export interface WorkflowLanguageService {
+  format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
+  parseWorkflowDocument(document: TextDocument): WorkflowDocument;
 }

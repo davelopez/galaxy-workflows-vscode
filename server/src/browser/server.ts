@@ -1,47 +1,16 @@
 import { createConnection, BrowserMessageReader, BrowserMessageWriter } from "vscode-languageserver/browser";
-
-import { InitializeParams, InitializeResult, ServerCapabilities, TextDocuments } from "vscode-languageserver/browser";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import * as formatProvider from "../providers/formatProvider";
+import { GalaxyWorkflowLanguageServer } from "../server";
+import { NativeWorkflowLanguageService } from "../languageService";
 
 console.log("running server galaxy-workflow-language-server-native");
-
-/* browser specific setup code */
 
 const messageReader = new BrowserMessageReader(self);
 const messageWriter = new BrowserMessageWriter(self);
 
 const connection = createConnection(messageReader, messageWriter);
 
-/* from here on, all code is non-browser specific and could be shared with a regular extension */
+const languageService = new NativeWorkflowLanguageService();
+const server = new GalaxyWorkflowLanguageServer(connection, languageService);
+server.start();
 
-connection.onInitialize((params: InitializeParams): InitializeResult => {
-  const capabilities: ServerCapabilities = {
-    documentFormattingProvider: true,
-  };
-  return { capabilities };
-});
-
-// Track open, change and close text document events
-const documents = new TextDocuments(TextDocument);
-documents.listen(connection);
-
-// Register providers
-connection.onDocumentFormatting((params) => {
-  const document = documents.get(params.textDocument.uri);
-  if (document === undefined) {
-    return undefined;
-  }
-  return formatProvider.onDocumentFormatting(document, params);
-});
-
-connection.onDocumentRangeFormatting((params) => {
-  const document = documents.get(params.textDocument.uri);
-  if (document === undefined) {
-    return undefined;
-  }
-  return formatProvider.onDocumentRangeFormatting(document, params);
-});
-
-// Listen on the connection
-connection.listen();
+console.log("galaxy-workflow-language-server-native STARTED");
