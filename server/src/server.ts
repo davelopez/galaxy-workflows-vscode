@@ -6,6 +6,7 @@ import {
   TextDocuments,
   WorkspaceFolder,
 } from "vscode-languageserver";
+import { CleanWorkflowCommand } from "./commands/cleanWorkflow";
 import { WorkflowLanguageService, TextDocument } from "./languageTypes";
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { FormattingProvider } from "./providers/formattingProvider";
@@ -25,6 +26,8 @@ export class GalaxyWorkflowLanguageServer {
     this.connection.onInitialize((params) => this.initialize(params));
 
     this.registerProviders();
+
+    this.registerCommands();
 
     this.connection.onShutdown(() => this.cleanup());
   }
@@ -49,6 +52,10 @@ export class GalaxyWorkflowLanguageServer {
   private registerProviders() {
     FormattingProvider.register(this);
     HoverProvider.register(this);
+  }
+
+  private registerCommands() {
+    CleanWorkflowCommand.register(this);
   }
 
   private trackDocumentChanges(connection: Connection) {

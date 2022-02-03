@@ -40,6 +40,18 @@
 				"scopeName": "source.json",
 				"path": "./workflow-languages/syntaxes/json.tmLanguage.json"
 			}
+		],
+		"commands": [
+			{
+				"command": "galaxy-workflows.previewCleanWorkflow",
+				"title": "Galaxy Workflows: Preview clean workflow",
+				"enablement": "editorLangId == galaxyworkflow"
+			},
+			{
+				"command": "galaxy-workflows.compareCleanWorkflow",
+				"title": "Galaxy Workflows: Compare clean workflow",
+				"enablement": "editorLangId == galaxyworkflow"
+			}
 		]
 	},
 	"scripts": {
