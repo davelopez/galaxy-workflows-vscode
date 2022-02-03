@@ -1,3 +1,4 @@
+import { JSONDocument } from "vscode-json-languageservice";
 import { TextDocument } from "../languageTypes";
 
 /**
@@ -5,9 +6,12 @@ import { TextDocument } from "../languageTypes";
  */
 export class WorkflowDocument {
   private _textDocument: TextDocument;
+  private _jsonDocument: JSONDocument;
 
-  constructor(textDocument: TextDocument) {
+  //TODO do not pass jsonDocument directly
+  constructor(textDocument: TextDocument, jsonDocument: JSONDocument) {
     this._textDocument = textDocument;
+    this._jsonDocument = jsonDocument;
   }
 
   public get documentUri(): string {
@@ -16,5 +20,9 @@ export class WorkflowDocument {
 
   public get textDocument(): TextDocument {
     return this._textDocument;
+  }
+
+  public get jsonDocument(): JSONDocument {
+    return this._jsonDocument;
   }
 }

@@ -40,10 +40,28 @@ import {
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 
-import { DocumentFormattingParams, DocumentRangeFormattingParams } from "vscode-languageserver/browser";
+import { DocumentFormattingParams, DocumentRangeFormattingParams, HoverParams } from "vscode-languageserver/browser";
 import { WorkflowDocument } from "./models/workflowDocument";
+import {
+  ASTNode,
+  ArrayASTNode,
+  ObjectASTNode,
+  PropertyASTNode,
+  StringASTNode,
+  BooleanASTNode,
+  NumberASTNode,
+  NullASTNode,
+} from "vscode-json-languageservice";
 
 export {
+  ASTNode,
+  ArrayASTNode,
+  ObjectASTNode,
+  PropertyASTNode,
+  StringASTNode,
+  BooleanASTNode,
+  NumberASTNode,
+  NullASTNode,
   TextDocument,
   Range,
   Position,
@@ -69,6 +87,7 @@ export {
   DocumentSymbol,
   Location,
   Hover,
+  HoverParams,
   MarkedString,
   CodeActionContext,
   Command,
