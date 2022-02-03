@@ -9,6 +9,7 @@ import {
 import { WorkflowLanguageService, TextDocument } from "./languageTypes";
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { FormattingProvider } from "./providers/formattingProvider";
+import { HoverProvider } from "./providers/hoverProvider";
 
 export class GalaxyWorkflowLanguageServer {
   public readonly languageService: WorkflowLanguageService;
@@ -37,6 +38,7 @@ export class GalaxyWorkflowLanguageServer {
 
     const capabilities: ServerCapabilities = {
       documentFormattingProvider: true,
+      hoverProvider: true,
     };
 
     return {
@@ -46,6 +48,7 @@ export class GalaxyWorkflowLanguageServer {
 
   private registerProviders() {
     FormattingProvider.register(this);
+    HoverProvider.register(this);
   }
 
   private trackDocumentChanges(connection: Connection) {

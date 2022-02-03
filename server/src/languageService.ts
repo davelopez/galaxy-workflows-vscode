@@ -1,4 +1,4 @@
-import { getLanguageService, LanguageService } from "vscode-json-languageservice";
+import { ASTNode, getLanguageService, LanguageService } from "vscode-json-languageservice";
 import {
   TextDocument,
   Range,
@@ -20,10 +20,15 @@ export class NativeWorkflowLanguageService implements WorkflowLanguageService {
   }
 
   public parseWorkflowDocument(document: TextDocument): WorkflowDocument {
-    return new WorkflowDocument(document);
+    const jsonDocument = this._jsonLanguageService.parseJSONDocument(document);
+    return new WorkflowDocument(document, jsonDocument);
   }
 
   public format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[] {
     return this._jsonLanguageService.format(document, range, options);
   }
+}
+
+export function getRange(document: TextDocument, node: ASTNode) {
+  return Range.create(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
 }
