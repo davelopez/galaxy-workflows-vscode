@@ -12,7 +12,7 @@ export function activate(context: ExtensionContext) {
 
   setupProviders(context, client);
 
-  setupCommands(context);
+  setupCommands(context, client);
 }
 
 export function deactivate() {}

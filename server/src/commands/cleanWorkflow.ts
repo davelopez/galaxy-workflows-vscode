@@ -1,19 +1,20 @@
-import { RequestType, URI } from "vscode-languageserver";
+import { RequestType } from "vscode-languageserver";
 import { WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
-import { CustomCommand } from "./common";
+import { CustomCommand, LSRequestIdentifiers } from "./common";
 
 export interface CleanWorkflowDocumentParams {
-  uri: URI;
+  uri: string;
 }
 
 export interface CleanWorkflowDocument {
   contents: string;
 }
 
+//TODO move this to a common lib
 export namespace CleanWorkflowDocumentRequest {
   export const type = new RequestType<CleanWorkflowDocumentParams, CleanWorkflowDocument, void>(
-    "galaxy-workflows-ls.cleanWorkflow"
+    LSRequestIdentifiers.CLEAN_WORKFLOW
   );
 }
 
@@ -24,22 +25,22 @@ export class CleanWorkflowCommand extends CustomCommand {
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
+  }
 
+  protected listenToRequests(): void {
     this.connection.onRequest(CleanWorkflowDocumentRequest.type, async (params) => {
-      this.connection.console.log(`ON REQUEST CleanWorkflowDocumentRequest params: ${params.uri}`);
       const workflowDocument = this.workflowDocuments.get(params.uri);
-      if (!workflowDocument) {
-        this.connection.console.log(`WORKFLOW ${params.uri} NOT FOUND`);
-        return undefined;
+      if (workflowDocument) {
+        return await this.cleanWorkflowDocument(workflowDocument);
       }
-      this.connection.console.log(`WORKFLOW: ${workflowDocument.documentUri}`);
-      return await this.cleanWorkflow(workflowDocument);
+      return undefined;
     });
   }
 
-  private async cleanWorkflow(workflowDocument: WorkflowDocument): Promise<CleanWorkflowDocument> {
+  private async cleanWorkflowDocument(workflowDocument: WorkflowDocument): Promise<CleanWorkflowDocument> {
+    const contents = workflowDocument.textDocument.getText().replace("position", "");
     const result: CleanWorkflowDocument = {
-      contents: workflowDocument.textDocument.getText().replace("position", ""),
+      contents: contents,
     };
     return result;
   }

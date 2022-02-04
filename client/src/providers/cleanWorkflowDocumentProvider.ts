@@ -1,6 +1,7 @@
 import { EventEmitter, ExtensionContext, TextDocumentContentProvider, Uri, workspace } from "vscode";
 import { LanguageClient, RequestType } from "vscode-languageclient/browser";
-import { Constants } from "../constants";
+import { Constants, LSRequestIdentifiers } from "../constants";
+import { getWorkspaceScheme, replaceUriScheme } from "../utils";
 
 interface CleanWorkflowDocumentParams {
   uri: string;
@@ -10,9 +11,10 @@ interface CleanWorkflowDocument {
   contents: string;
 }
 
+//TODO move this to a common lib
 namespace CleanWorkflowDocumentRequest {
   export const type = new RequestType<CleanWorkflowDocumentParams, CleanWorkflowDocument, void>(
-    "galaxy-workflows-ls.cleanWorkflow"
+    LSRequestIdentifiers.CLEAN_WORKFLOW
   );
 }
 
@@ -30,12 +32,19 @@ export class CleanWorkflowDocumentProvider implements TextDocumentContentProvide
   onDidChange = this.onDidChangeEmitter.event;
 
   async provideTextDocumentContent(uri: Uri): Promise<string> {
-    const originalUri = Uri.parse(uri.toString().replace(Constants.CLEAN_WORKFLOW_DOCUMENT_SCHEME, "file"));
-    let params: CleanWorkflowDocumentParams = { uri: this.languageClient.code2ProtocolConverter.asUri(originalUri) };
+    const realDocumentUri = this.convertToWorkspaceUri(uri);
+    let params: CleanWorkflowDocumentParams = {
+      uri: this.languageClient.code2ProtocolConverter.asUri(realDocumentUri),
+    };
     const result = await this.languageClient.sendRequest(CleanWorkflowDocumentRequest.type, params);
     if (!result) {
-      return "Can not clean the requested document.";
+      throw new Error("Cannot clean the requested document. The server returned no content");
     }
     return result.contents;
+  }
+
+  private convertToWorkspaceUri(uri: Uri) {
+    const targetScheme = getWorkspaceScheme();
+    return replaceUriScheme(uri, targetScheme);
   }
 }
