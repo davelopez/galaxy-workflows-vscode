@@ -1,0 +1,163 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "This is the annotation",
+    "creator": [
+        {
+            "class": "Person",
+            "identifier": "",
+            "name": "Tester"
+        }
+    ],
+    "format-version": "0.1",
+    "license": "MIT",
+    "name": "Test Workflow",
+    "steps": {
+        "0": {
+            "annotation": "This dataset should contain some text",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "This dataset should contain some text",
+                    "name": "The Input"
+                }
+            ],
+            "label": "The Input",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 525.78125,
+                "height": 61.78125,
+                "left": 676,
+                "right": 876,
+                "top": 464,
+                "width": 200,
+                "x": 676,
+                "y": 464
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "27b63e2f-0a85-46a6-8411-7fbf93adb8f6",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "bb97d879-d320-4a60-a2d4-2851452375b0"
+                }
+            ]
+        },
+        "1": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/1.1.1",
+            "errors": null,
+            "id": 1,
+            "input_connections": {
+                "infile": {
+                    "id": 0,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool Replace Text",
+                    "name": "infile"
+                }
+            ],
+            "label": null,
+            "name": "Replace Text",
+            "outputs": [
+                {
+                    "name": "outfile",
+                    "type": "input"
+                }
+            ],
+            "position": {
+                "bottom": 653.171875,
+                "height": 93.171875,
+                "left": 961,
+                "right": 1161,
+                "top": 560,
+                "width": 200,
+                "x": 961,
+                "y": 560
+            },
+            "post_job_actions": {
+                "HideDatasetActionoutfile": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "outfile"
+                }
+            },
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/text_processing/tp_replace_in_line/1.1.1",
+            "tool_shed_repository": {
+                "changeset_revision": "74a8bef53a00",
+                "name": "text_processing",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"find_pattern\": \"\", \"infile\": {\"__class__\": \"RuntimeValue\"}, \"replace_pattern\": \"\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "1.1.1",
+            "type": "tool",
+            "uuid": "19f20675-1df7-44b5-aad7-1bbb53031168",
+            "workflow_outputs": []
+        },
+        "2": {
+            "annotation": "",
+            "content_id": "ChangeCase",
+            "errors": null,
+            "id": 2,
+            "input_connections": {
+                "input": {
+                    "id": 1,
+                    "output_name": "outfile"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool Change Case",
+                    "name": "input"
+                }
+            ],
+            "label": null,
+            "name": "Change Case",
+            "outputs": [
+                {
+                    "name": "out_file1",
+                    "type": "tabular"
+                }
+            ],
+            "position": {
+                "bottom": 799.171875,
+                "height": 93.171875,
+                "left": 1217,
+                "right": 1417,
+                "top": 706,
+                "width": 200,
+                "x": 1217,
+                "y": 706
+            },
+            "post_job_actions": {},
+            "tool_id": "ChangeCase",
+            "tool_state": "{\"casing\": \"up\", \"cols\": \"c1,c2\", \"delimiter\": \"TAB\", \"input\": {\"__class__\": \"RuntimeValue\"}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "1.0.0",
+            "type": "tool",
+            "uuid": "50f2aa6c-4678-4c3c-8fc9-29bedf3e7206",
+            "workflow_outputs": [
+                {
+                    "label": "The output",
+                    "output_name": "out_file1",
+                    "uuid": "5c3853c9-dfc8-44b9-8835-2a0765de2ea9"
+                }
+            ]
+        }
+    },
+    "tags": [
+        "CoolWorkflow"
+    ],
+    "uuid": "34cf1746-913b-4290-bed3-51d8cc235197",
+    "version": 3
+}
