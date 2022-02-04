@@ -1,6 +1,6 @@
 {
     "a_galaxy_workflow": "true",
-    "annotation": "This is the annotation",
+    "annotation": "This is the new annotation",
     "creator": [
         {
             "class": "Person",
@@ -10,7 +10,7 @@
     ],
     "format-version": "0.1",
     "license": "MIT",
-    "name": "Test Workflow",
+    "name": "Updated Test Workflow",
     "steps": {
         "0": {
             "annotation": "This dataset should contain some text",
@@ -28,14 +28,14 @@
             "name": "Input dataset",
             "outputs": [],
             "position": {
-                "bottom": 601.28125,
+                "bottom": 683.78125,
                 "height": 61.78125,
-                "left": 325,
-                "right": 525,
-                "top": 539.5,
+                "left": 665,
+                "right": 865,
+                "top": 622,
                 "width": 200,
-                "x": 325,
-                "y": 539.5
+                "x": 665,
+                "y": 622
             },
             "tool_id": null,
             "tool_state": "{\"optional\": false, \"tag\": \"\"}",
@@ -65,14 +65,14 @@
                 }
             ],
             "position": {
-                "bottom": 728.671875,
+                "bottom": 699.171875,
                 "height": 93.171875,
-                "left": 610,
-                "right": 810,
-                "top": 635.5,
+                "left": 943,
+                "right": 1143,
+                "top": 606,
                 "width": 200,
-                "x": 610,
-                "y": 635.5
+                "x": 943,
+                "y": 606
             },
             "post_job_actions": {
                 "HideDatasetActionoutfile": {
@@ -115,14 +115,14 @@
                 }
             ],
             "position": {
-                "bottom": 874.671875,
+                "bottom": 699.171875,
                 "height": 93.171875,
-                "left": 866,
-                "right": 1066,
-                "top": 781.5,
+                "left": 1221,
+                "right": 1421,
+                "top": 606,
                 "width": 200,
-                "x": 866,
-                "y": 781.5
+                "x": 1221,
+                "y": 606
             },
             "post_job_actions": {},
             "tool_id": "ChangeCase",
@@ -134,7 +134,7 @@
                 {
                     "label": "The output",
                     "output_name": "out_file1",
-                    "uuid": "a8635967-4bb6-4f78-84ba-6dc6df80f0c0"
+                    "uuid": "34e044eb-f970-462a-877a-5489d69fcb01"
                 }
             ]
         },
@@ -153,14 +153,14 @@
             "name": "Cool workflow",
             "outputs": [],
             "position": {
-                "bottom": 731.171875,
+                "bottom": 718.171875,
                 "height": 93.171875,
-                "left": 1147,
-                "right": 1347,
-                "top": 638,
+                "left": 1499,
+                "right": 1699,
+                "top": 625,
                 "width": 200,
-                "x": 1147,
-                "y": 638
+                "x": 1499,
+                "y": 625
             },
             "subworkflow": {
                 "a_galaxy_workflow": "true",
@@ -269,12 +269,12 @@
             },
             "tool_id": "50ecf4f5e8772b3e",
             "type": "subworkflow",
-            "uuid": "62057a41-f92d-4e13-9e0a-9781effb95a4",
+            "uuid": "8b1dbd6f-6470-4ead-8cf0-8568ecb7715a",
             "workflow_outputs": [
                 {
                     "label": "Final Result",
                     "output_name": "Text Count Result",
-                    "uuid": "b5c7ebc4-d8a2-4688-90c0-a6c39009c8b6"
+                    "uuid": "57c28ea8-5521-45bc-b194-27363592d36f"
                 }
             ]
         }
@@ -282,6 +282,6 @@
     "tags": [
         "CoolWorkflow"
     ],
-    "uuid": "a47faac1-9ee2-45f9-9b8d-04c4107a9aee",
-    "version": 5
+    "uuid": "e5652781-d218-4e68-9b87-e11e1ce640e4",
+    "version": 10
 }
