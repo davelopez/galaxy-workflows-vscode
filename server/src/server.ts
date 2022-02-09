@@ -71,7 +71,8 @@ export class GalaxyWorkflowLanguageServer {
   }
 
   private onDidChangeContent(document: TextDocument) {
-    //TODO
+    const workflowDocument = this.languageService.parseWorkflowDocument(document);
+    this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
   }
 
   private onDidClose(document: TextDocument) {
