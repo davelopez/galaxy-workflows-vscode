@@ -48,3 +48,7 @@ export class CleanWorkflowDocumentProvider implements TextDocumentContentProvide
     return replaceUriScheme(uri, targetScheme);
   }
 }
+
+export function toCleanWorkflowUri(uri: Uri): Uri {
+  return Uri.parse(uri.toString().replace(uri.scheme, Constants.CLEAN_WORKFLOW_DOCUMENT_SCHEME));
+}

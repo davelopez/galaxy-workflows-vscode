@@ -1,4 +1,4 @@
-import { Uri, workspace } from "vscode";
+import { OutputChannel, Uri, workspace } from "vscode";
 
 /**
  * Determines if the current workspace contains
@@ -24,4 +24,14 @@ export function getWorkspaceScheme() {
  */
 export function replaceUriScheme(uri: Uri, targetScheme: string): Uri {
   return Uri.parse(uri.toString().replace(uri.scheme, targetScheme));
+}
+
+/** Just for debugging */
+export function debugPrintCommandArgs(command: string, args: any[], outputChannel: OutputChannel) {
+  outputChannel.appendLine(`Command ${command} args:`);
+  for (let index = 0; index < args.length; index++) {
+    const element = args[index];
+    outputChannel.appendLine(` [${index}] ${JSON.stringify(element)}`);
+  }
+  outputChannel.appendLine(`---\n`);
 }

@@ -44,15 +44,38 @@
 		"commands": [
 			{
 				"command": "galaxy-workflows.previewCleanWorkflow",
-				"title": "Galaxy Workflows: Preview clean workflow",
-				"enablement": "editorLangId == galaxyworkflow"
+				"title": "Preview clean workflow",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(eye)",
+				"category": "Galaxy Workflows"
 			},
 			{
-				"command": "galaxy-workflows.compareCleanWorkflow",
-				"title": "Galaxy Workflows: Compare clean workflow",
-				"enablement": "editorLangId == galaxyworkflow"
+				"command": "galaxy-workflows.compareCleanWorkflows",
+				"title": "Compare clean workflows",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(diff)",
+				"category": "Galaxy Workflows"
 			}
-		]
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "galaxy-workflows.previewCleanWorkflow",
+					"when": "activeEditor"
+				},
+				{
+					"command": "galaxy-workflows.compareCleanWorkflows",
+					"when": "false"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "galaxy-workflows.compareCleanWorkflows",
+					"group": "navigation",
+					"when": "resourceLangId == galaxyworkflow"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
