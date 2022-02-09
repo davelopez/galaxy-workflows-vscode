@@ -55,6 +55,13 @@
 				"enablement": "resourceLangId == galaxyworkflow",
 				"icon": "$(diff)",
 				"category": "Galaxy Workflows"
+			},
+			{
+				"command": "galaxy-workflows.compareCleanWith",
+				"title": "Clean compare with this workflow",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(diff)",
+				"category": "Galaxy Workflows"
 			}
 		],
 		"menus": {
@@ -73,6 +80,13 @@
 					"command": "galaxy-workflows.compareCleanWorkflows",
 					"group": "navigation",
 					"when": "resourceLangId == galaxyworkflow"
+				}
+			],
+			"timeline/item/context": [
+				{
+					"command": "galaxy-workflows.compareCleanWith",
+					"group": "3_compare@1",
+					"when": "config.git.enabled && !git.missing && git.timeline.selectedForCompare && !listMultiSelection"
 				}
 			]
 		}

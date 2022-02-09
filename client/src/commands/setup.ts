@@ -1,5 +1,6 @@
 import { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/browser";
+import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
 import { CompareCleanWorkflowsCommand } from "./compareCleanWorkflows";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 
@@ -11,4 +12,5 @@ import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 export function setupCommands(context: ExtensionContext, client: LanguageClient) {
   context.subscriptions.push(new PreviewCleanWorkflowCommand(client).register());
   context.subscriptions.push(new CompareCleanWorkflowsCommand(client).register());
+  context.subscriptions.push(new CompareCleanWithWorkflowsCommand(client).register());
 }

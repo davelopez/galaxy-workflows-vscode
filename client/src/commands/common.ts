@@ -4,6 +4,7 @@ import { LanguageClient } from "vscode-languageclient/browser";
 export namespace CommandIds {
   export const PREVIEW_CLEAN_WORKFLOW = getExtensionCommand("previewCleanWorkflow");
   export const COMPARE_CLEAN_WORKFLOWS = getExtensionCommand("compareCleanWorkflows");
+  export const COMPARE_CLEAN_WITH = getExtensionCommand("compareCleanWith");
 }
 
 function getExtensionCommand(command: string) {
