@@ -1,9 +1,10 @@
 import { window, workspace } from "vscode";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
-import { CommandIds, CustomCommand } from "./common";
+import { CustomCommand, getCommandFullIdentifier } from "./common";
 
 export class PreviewCleanWorkflowCommand extends CustomCommand {
-  readonly identifier: string = CommandIds.PREVIEW_CLEAN_WORKFLOW;
+  public static id = getCommandFullIdentifier("previewCleanWorkflow");
+  readonly identifier: string = PreviewCleanWorkflowCommand.id;
 
   async execute(args: any[]): Promise<void> {
     if (!window.activeTextEditor) {

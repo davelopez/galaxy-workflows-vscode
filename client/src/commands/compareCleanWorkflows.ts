@@ -1,10 +1,11 @@
 import { commands } from "vscode";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
 import { debugPrintCommandArgs } from "../utils";
-import { CommandIds, CustomCommand } from "./common";
+import { CustomCommand, getCommandFullIdentifier } from "./common";
 
 export class CompareCleanWorkflowsCommand extends CustomCommand {
-  readonly identifier: string = CommandIds.COMPARE_CLEAN_WORKFLOWS;
+  public static id = getCommandFullIdentifier("compareCleanWorkflows");
+  readonly identifier: string = CompareCleanWorkflowsCommand.id;
 
   async execute(args: any[]): Promise<void> {
     debugPrintCommandArgs(this.identifier, args, this.client.outputChannel);

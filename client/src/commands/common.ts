@@ -1,17 +1,22 @@
 import { commands, Disposable } from "vscode";
 import { LanguageClient } from "vscode-languageclient/browser";
 
-export namespace CommandIds {
-  export const PREVIEW_CLEAN_WORKFLOW = getExtensionCommand("previewCleanWorkflow");
-  export const COMPARE_CLEAN_WORKFLOWS = getExtensionCommand("compareCleanWorkflows");
-  export const COMPARE_CLEAN_WITH = getExtensionCommand("compareCleanWith");
-}
-
-function getExtensionCommand(command: string) {
+/**
+ * Gets the fully-qualified identifier of the command by prefixing
+ * the extension name to the identifier.
+ * @param command Command unique ID
+ * @returns Fully-qualified identifier of the command
+ */
+export function getCommandFullIdentifier(command: string) {
   return `galaxy-workflows.${command}`;
 }
 
+/**
+ * Context information or services that may be useful for the
+ * command.
+ */
 export abstract class CommandContext {
+  /** Allows to access language features. */
   protected client: LanguageClient;
 
   constructor(client: LanguageClient) {
