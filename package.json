@@ -73,6 +73,10 @@
 				{
 					"command": "galaxy-workflows.compareCleanWorkflows",
 					"when": "false"
+				},
+				{
+					"command": "galaxy-workflows.compareCleanWith",
+					"when": "false"
 				}
 			],
 			"editor/title": [
