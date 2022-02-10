@@ -40,7 +40,60 @@
 				"scopeName": "source.json",
 				"path": "./workflow-languages/syntaxes/json.tmLanguage.json"
 			}
-		]
+		],
+		"commands": [
+			{
+				"command": "galaxy-workflows.previewCleanWorkflow",
+				"title": "Preview clean workflow",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(eye)",
+				"category": "Galaxy Workflows"
+			},
+			{
+				"command": "galaxy-workflows.compareCleanWorkflows",
+				"title": "Compare clean workflows",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(diff)",
+				"category": "Galaxy Workflows"
+			},
+			{
+				"command": "galaxy-workflows.compareCleanWith",
+				"title": "Clean compare with this workflow",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(diff)",
+				"category": "Galaxy Workflows"
+			}
+		],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "galaxy-workflows.previewCleanWorkflow",
+					"when": "activeEditor"
+				},
+				{
+					"command": "galaxy-workflows.compareCleanWorkflows",
+					"when": "false"
+				},
+				{
+					"command": "galaxy-workflows.compareCleanWith",
+					"when": "false"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "galaxy-workflows.compareCleanWorkflows",
+					"group": "navigation",
+					"when": "resourceLangId == galaxyworkflow"
+				}
+			],
+			"timeline/item/context": [
+				{
+					"command": "galaxy-workflows.compareCleanWith",
+					"group": "3_compare@1",
+					"when": "config.git.enabled && !git.missing && git.timeline.selectedForCompare && !listMultiSelection"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
