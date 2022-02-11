@@ -73,7 +73,7 @@
 				},
 				{
 					"command": "galaxy-workflows.compareCleanWorkflows",
-					"when": "false"
+					"when": "activeEditor == workbench.editors.textDiffEditor"
 				},
 				{
 					"command": "galaxy-workflows.compareCleanWith",
@@ -84,14 +84,7 @@
 				{
 					"command": "galaxy-workflows.compareCleanWorkflows",
 					"group": "navigation",
-					"when": "resourceLangId == galaxyworkflow"
-				}
-			],
-			"timeline/item/context": [
-				{
-					"command": "galaxy-workflows.compareCleanWith",
-					"group": "3_compare@1",
-					"when": "config.git.enabled && !git.missing && git.timeline.selectedForCompare && !listMultiSelection"
+					"when": "activeEditor == workbench.editors.textDiffEditor"
 				}
 			]
 		}
