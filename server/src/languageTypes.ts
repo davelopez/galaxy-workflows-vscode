@@ -45,6 +45,7 @@ import {
   DocumentFormattingParams,
   DocumentRangeFormattingParams,
   HoverParams,
+  DocumentSymbolParams,
 } from "vscode-languageserver/browser";
 import { WorkflowDocument } from "./models/workflowDocument";
 import {
@@ -110,6 +111,7 @@ export {
   DocumentFormattingParams,
   DocumentRangeFormattingParams,
   WorkflowDocument,
+  DocumentSymbolParams,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
