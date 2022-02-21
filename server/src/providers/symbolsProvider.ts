@@ -60,10 +60,13 @@ export class SymbolsProvider extends Provider {
           const valueNode = property.valueNode;
           if (valueNode) {
             let name = undefined;
+            let customSymbol = undefined;
             if (this.isStepProperty(property)) {
               name = this.getNodeName(property.valueNode);
+              customSymbol = "step";
             }
             name = name || this.getKeyLabel(property);
+            customSymbol = customSymbol || name;
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
@@ -71,8 +74,8 @@ export class SymbolsProvider extends Provider {
             const selectionRange = getRange(document, property.keyNode);
             const children: DocumentSymbol[] = [];
             const symbol: DocumentSymbol = {
-              name: name || this.getKeyLabel(property),
-              kind: this.getSymbolKind(valueNode.type),
+              name: name,
+              kind: this.getSymbolKind(customSymbol),
               range,
               selectionRange,
               children,
@@ -105,12 +108,29 @@ export class SymbolsProvider extends Provider {
 
   private getSymbolKind(nodeType: string): SymbolKind {
     switch (nodeType) {
+      case "step":
+      case "subworkflow":
+        return SymbolKind.Function;
+      case "tool_id":
+        return SymbolKind.Property;
+      case "type":
+        return SymbolKind.TypeParameter;
+      case "class":
+        return SymbolKind.Class;
       case "object":
         return SymbolKind.Module;
       case "string":
         return SymbolKind.String;
+      case "annotation":
+      case "description":
+        return SymbolKind.Key;
+      case "id":
       case "number":
+      case "identifier":
         return SymbolKind.Number;
+      case "steps":
+      case "inputs":
+      case "outputs":
       case "array":
         return SymbolKind.Array;
       case "boolean":
