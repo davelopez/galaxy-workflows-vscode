@@ -11,6 +11,8 @@ import {
 import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
 
+const IGNORE_SYMBOL_NAMES = new Set(["a_galaxy_workflow", "position", "uuid", "errors", "format-version", "version"]);
+
 export class SymbolsProvider extends Provider {
   public static register(server: GalaxyWorkflowLanguageServer): SymbolsProvider {
     return new SymbolsProvider(server);
@@ -42,9 +44,12 @@ export class SymbolsProvider extends Provider {
       if (node.type === "array") {
         node.items.forEach((node, index) => {
           if (node) {
+            const name = this.getNodeName(node) || String(index);
+            if (IGNORE_SYMBOL_NAMES.has(name)) {
+              return;
+            }
             const range = getRange(document, node);
             const selectionRange = range;
-            const name = this.getNodeName(node) || String(index);
             const symbol = { name, kind: this.getSymbolKind(node.type), range, selectionRange, children: [] };
             result.push(symbol);
             toVisit.push({ result: symbol.children, node });
@@ -54,10 +59,14 @@ export class SymbolsProvider extends Provider {
         node.properties.forEach((property: PropertyASTNode) => {
           const valueNode = property.valueNode;
           if (valueNode) {
-            const name = this.isStepProperty(property)
-              ? this.getNodeName(property.valueNode)
-              : this.getKeyLabel(property);
-
+            let name = undefined;
+            if (this.isStepProperty(property)) {
+              name = this.getNodeName(property.valueNode);
+            }
+            name = name || this.getKeyLabel(property);
+            if (IGNORE_SYMBOL_NAMES.has(name)) {
+              return;
+            }
             const range = getRange(document, property);
             const selectionRange = getRange(document, property.keyNode);
             const children: DocumentSymbol[] = [];
