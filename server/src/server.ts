@@ -9,6 +9,7 @@ import {
 import { CleanWorkflowCommand } from "./commands/cleanWorkflow";
 import { WorkflowLanguageService, TextDocument } from "./languageTypes";
 import { WorkflowDocuments } from "./models/workflowDocuments";
+import { SymbolsProvider } from "./providers/symbolsProvider";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hoverProvider";
 
@@ -42,6 +43,7 @@ export class GalaxyWorkflowLanguageServer {
     const capabilities: ServerCapabilities = {
       documentFormattingProvider: true,
       hoverProvider: true,
+      documentSymbolProvider: true,
     };
 
     return {
@@ -52,6 +54,7 @@ export class GalaxyWorkflowLanguageServer {
   private registerProviders() {
     FormattingProvider.register(this);
     HoverProvider.register(this);
+    SymbolsProvider.register(this);
   }
 
   private registerCommands() {
