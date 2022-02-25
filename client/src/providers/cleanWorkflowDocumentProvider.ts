@@ -1,5 +1,5 @@
 import { EventEmitter, ExtensionContext, TextDocumentContentProvider, Uri, workspace } from "vscode";
-import { LanguageClient, RequestType } from "vscode-languageclient/browser";
+import { CommonLanguageClient, RequestType } from "vscode-languageclient";
 import { Constants, LSRequestIdentifiers } from "../constants";
 import { getWorkspaceScheme, replaceUriScheme } from "../utils";
 
@@ -19,14 +19,14 @@ namespace CleanWorkflowDocumentRequest {
 }
 
 export class CleanWorkflowDocumentProvider implements TextDocumentContentProvider {
-  public static register(context: ExtensionContext, client: LanguageClient) {
+  public static register(context: ExtensionContext, client: CommonLanguageClient) {
     const provider = new CleanWorkflowDocumentProvider(client);
     context.subscriptions.push(
       workspace.registerTextDocumentContentProvider(Constants.CLEAN_WORKFLOW_DOCUMENT_SCHEME, provider)
     );
   }
 
-  constructor(private readonly languageClient: LanguageClient) {}
+  constructor(private readonly languageClient: CommonLanguageClient) {}
 
   onDidChangeEmitter = new EventEmitter<Uri>();
   onDidChange = this.onDidChangeEmitter.event;
