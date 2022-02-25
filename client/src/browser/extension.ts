@@ -45,7 +45,7 @@ function createWorkerLanguageClient(context: ExtensionContext, clientOptions: La
 
 function createServerWorker(context: ExtensionContext) {
   // The worker main file implements the language server.
-  const serverMain = Uri.joinPath(context.extensionUri, "server/dist/browserServerMain.js");
+  const serverMain = Uri.joinPath(context.extensionUri, "server/dist/web/nativeServer.js");
   const worker = new Worker(serverMain.toString());
   return worker;
 }
