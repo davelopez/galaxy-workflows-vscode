@@ -2,25 +2,34 @@ import * as path from "path";
 import { ExtensionContext } from "vscode";
 import { LanguageClientOptions } from "vscode-languageclient";
 import { LanguageClient, ServerOptions, TransportKind } from "vscode-languageclient/node";
-import { setupCommands } from "./commands/setup";
-import { buildLanguageClientOptions } from "./common";
-import { CleanWorkflowDocumentProvider } from "./providers/cleanWorkflowDocumentProvider";
+import { buildLanguageClientOptions, initExtension } from "./common";
 
 export function activate(context: ExtensionContext) {
   console.log(`${context.extension.id} is now active in the web extension host.`);
 
   const client = startLanguageClient(context);
 
-  setupProviders(context, client);
-
-  setupCommands(context, client);
+  initExtension(context, client);
 }
 
 export function deactivate() {}
 
 function startLanguageClient(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = buildLanguageClientOptions();
+  const serverOptions: ServerOptions = buildServerOptions(context);
 
+  const client = createLanguageClient(context, serverOptions, clientOptions);
+
+  const disposable = client.start();
+  context.subscriptions.push(disposable);
+
+  client.onReady().then(() => {
+    console.log(`${context.extension.id} server is ready.`);
+  });
+  return client;
+}
+
+function buildServerOptions(context: ExtensionContext) {
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(path.join("server", "dist", "nativeServer.js"));
   // The debug options for the server
@@ -37,16 +46,7 @@ function startLanguageClient(context: ExtensionContext) {
       options: debugOptions,
     },
   };
-
-  const client = createLanguageClient(context, serverOptions, clientOptions);
-
-  const disposable = client.start();
-  context.subscriptions.push(disposable);
-
-  client.onReady().then(() => {
-    console.log(`${context.extension.id} server is ready.`);
-  });
-  return client;
+  return serverOptions;
 }
 
 function createLanguageClient(
@@ -60,8 +60,4 @@ function createLanguageClient(
     serverOptions,
     clientOptions
   );
-}
-
-function setupProviders(context: ExtensionContext, client: LanguageClient) {
-  CleanWorkflowDocumentProvider.register(context, client);
 }
