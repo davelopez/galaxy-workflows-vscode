@@ -19,6 +19,13 @@ export function buildLanguageClientOptions() {
 export function initExtension(context: ExtensionContext, client: CommonLanguageClient) {
   setupProviders(context, client);
   setupCommands(context, client);
+
+  const disposable = client.start();
+  context.subscriptions.push(disposable);
+
+  client.onReady().then(() => {
+    console.log(`${context.extension.id} server is ready.`);
+  });
 }
 
 function setupProviders(context: ExtensionContext, client: CommonLanguageClient) {

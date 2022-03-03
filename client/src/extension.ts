@@ -5,28 +5,22 @@ import { LanguageClient, ServerOptions, TransportKind } from "vscode-languagecli
 import { buildLanguageClientOptions, initExtension } from "./common";
 
 export function activate(context: ExtensionContext) {
-  console.log(`${context.extension.id} is now active in the web extension host.`);
-
-  const client = startLanguageClient(context);
+  const client = buildLanguageClient(context);
 
   initExtension(context, client);
 }
 
 export function deactivate() {}
 
-function startLanguageClient(context: ExtensionContext) {
+function buildLanguageClient(context: ExtensionContext) {
   const clientOptions: LanguageClientOptions = buildLanguageClientOptions();
   const serverOptions: ServerOptions = buildServerOptions(context);
-
-  const client = createLanguageClient(context, serverOptions, clientOptions);
-
-  const disposable = client.start();
-  context.subscriptions.push(disposable);
-
-  client.onReady().then(() => {
-    console.log(`${context.extension.id} server is ready.`);
-  });
-  return client;
+  return new LanguageClient(
+    "galaxy-workflow-language-client-native",
+    "Galaxy Workflows LS",
+    serverOptions,
+    clientOptions
+  );
 }
 
 function buildServerOptions(context: ExtensionContext) {
@@ -47,17 +41,4 @@ function buildServerOptions(context: ExtensionContext) {
     },
   };
   return serverOptions;
-}
-
-function createLanguageClient(
-  context: ExtensionContext,
-  serverOptions: ServerOptions,
-  clientOptions: LanguageClientOptions
-) {
-  return new LanguageClient(
-    "galaxy-workflow-language-client-native",
-    "Galaxy Workflows LS",
-    serverOptions,
-    clientOptions
-  );
 }
