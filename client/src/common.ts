@@ -3,6 +3,7 @@ import { CommonLanguageClient, LanguageClientOptions } from "vscode-languageclie
 import { setupCommands } from "./commands/setup";
 import { Constants } from "./constants";
 import { CleanWorkflowDocumentProvider } from "./providers/cleanWorkflowDocumentProvider";
+import { CleanWorkflowProvider } from "./providers/cleanWorkflowProvider";
 
 export function buildLanguageClientOptions() {
   const documentSelector = [{ language: Constants.NATIVE_WORKFLOW_LANGUAGE_ID }];
@@ -29,5 +30,6 @@ export function initExtension(context: ExtensionContext, client: CommonLanguageC
 }
 
 function setupProviders(context: ExtensionContext, client: CommonLanguageClient) {
-  CleanWorkflowDocumentProvider.register(context, client);
+  const cleanWorkflowProvider = new CleanWorkflowProvider(client);
+  CleanWorkflowDocumentProvider.register(context, cleanWorkflowProvider);
 }
