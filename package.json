@@ -51,13 +51,6 @@
 				"category": "Galaxy Workflows"
 			},
 			{
-				"command": "galaxy-workflows.compareCleanWorkflows",
-				"title": "Compare clean workflows",
-				"enablement": "resourceLangId == galaxyworkflow",
-				"icon": "$(diff)",
-				"category": "Galaxy Workflows"
-			},
-			{
 				"command": "galaxy-workflows.selectForCleanCompare",
 				"title": "Select for clean compare",
 				"enablement": "resourceLangId == galaxyworkflow",
@@ -79,23 +72,12 @@
 					"when": "activeEditor"
 				},
 				{
-					"command": "galaxy-workflows.compareCleanWorkflows",
-					"when": "activeEditor == workbench.editors.textDiffEditor"
-				},
-				{
 					"command": "galaxy-workflows.selectForCleanCompare",
 					"when": "false"
 				},
 				{
 					"command": "galaxy-workflows.compareCleanWith",
 					"when": "false"
-				}
-			],
-			"editor/title": [
-				{
-					"command": "galaxy-workflows.compareCleanWorkflows",
-					"group": "navigation",
-					"when": "activeEditor == workbench.editors.textDiffEditor"
 				}
 			],
 			"timeline/item/context": [
