@@ -1,22 +1,13 @@
 import { EventEmitter, ExtensionContext, TextDocumentContentProvider, Uri, workspace } from "vscode";
-import { CommonLanguageClient, RequestType } from "vscode-languageclient";
-import { Constants, LSRequestIdentifiers } from "../constants";
+import { CommonLanguageClient } from "vscode-languageclient";
+import { Constants } from "../constants";
+import {
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsRequest,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentRequest,
+} from "../requestsDefinitions";
 import { getWorkspaceScheme, replaceUriScheme } from "../utils";
-
-interface CleanWorkflowDocumentParams {
-  uri: string;
-}
-
-interface CleanWorkflowDocument {
-  contents: string;
-}
-
-//TODO move this to a common lib
-namespace CleanWorkflowDocumentRequest {
-  export const type = new RequestType<CleanWorkflowDocumentParams, CleanWorkflowDocument, void>(
-    LSRequestIdentifiers.CLEAN_WORKFLOW
-  );
-}
 
 export class CleanWorkflowDocumentProvider implements TextDocumentContentProvider {
   public static register(context: ExtensionContext, client: CommonLanguageClient) {
@@ -31,7 +22,11 @@ export class CleanWorkflowDocumentProvider implements TextDocumentContentProvide
   onDidChangeEmitter = new EventEmitter<Uri>();
   onDidChange = this.onDidChangeEmitter.event;
 
-  async provideTextDocumentContent(uri: Uri): Promise<string> {
+  public async provideTextDocumentContent(uri: Uri): Promise<string> {
+    return this.cleanFromDocumentUri(uri);
+  }
+
+  private async cleanFromDocumentUri(uri: Uri): Promise<string> {
     const realDocumentUri = this.convertToWorkspaceUri(uri);
     let params: CleanWorkflowDocumentParams = {
       uri: this.languageClient.code2ProtocolConverter.asUri(realDocumentUri),

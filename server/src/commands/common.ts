@@ -1,10 +1,6 @@
 import { ServerContext } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 
-export namespace LSRequestIdentifiers {
-  export const CLEAN_WORKFLOW = "galaxy-workflows-ls.cleanWorkflow";
-}
-
 export abstract class CustomCommand extends ServerContext {
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);

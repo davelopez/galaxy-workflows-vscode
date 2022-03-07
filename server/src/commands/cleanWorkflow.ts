@@ -1,22 +1,12 @@
-import { RequestType } from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { ASTNode, PropertyASTNode, WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
-import { CustomCommand, LSRequestIdentifiers } from "./common";
-
-export interface CleanWorkflowDocumentParams {
-  uri: string;
-}
-
-export interface CleanWorkflowDocument {
-  contents: string;
-}
-
-//TODO move this to a common lib
-export namespace CleanWorkflowDocumentRequest {
-  export const type = new RequestType<CleanWorkflowDocumentParams, CleanWorkflowDocument, void>(
-    LSRequestIdentifiers.CLEAN_WORKFLOW
-  );
-}
+import { CustomCommand } from "./common";
+import {
+  CleanWorkflowContentsRequest,
+  CleanWorkflowDocument,
+  CleanWorkflowDocumentRequest,
+} from "./requestsDefinitions";
 
 const CLEANABLE_PROPERTY_NAMES = new Set(["position", "uuid", "errors", "version"]);
 
