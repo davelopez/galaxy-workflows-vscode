@@ -1,4 +1,4 @@
-import { commands, Disposable } from "vscode";
+import { commands, Disposable, Uri } from "vscode";
 import { CommonLanguageClient } from "vscode-languageclient";
 
 /**
@@ -47,4 +47,13 @@ export abstract class CustomCommand extends CommandContext {
    * @param args The arguments passed when invoking the command
    */
   abstract execute(args: any[]): Promise<void>;
+}
+
+export class ComparableWorkflow {
+  uri: Uri;
+  ref: string;
+}
+
+export interface ComparableWorkflowProvider {
+  getSelectedForCompare(): ComparableWorkflow | undefined;
 }
