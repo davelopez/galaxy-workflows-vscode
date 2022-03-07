@@ -6,7 +6,27 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch Client",
+			"name": "Launch Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}",
+			],
+			"smartStep": true,
+			"sourceMaps": true,
+			"outFiles": [
+				"${workspaceFolder}/client/dist/**/*.js"
+			],
+			"preLaunchTask": {
+				"type": "npm",
+				"script": "compile"
+			},
+			"sourceMapPathOverrides": {
+				"webpack://?:*/*": "${workspaceFolder}/client/*"
+			}
+		},
+		{
+			"name": "Launch Extension in Webworker",
 			"type": "pwa-extensionHost",
 			"debugWebWorkerHost": true,
 			"request": "launch",
@@ -14,12 +34,14 @@
 				"--extensionDevelopmentPath=${workspaceRoot}",
 				"--extensionDevelopmentKind=web"
 			],
+			"smartStep": true,
+			"sourceMaps": true,
 			"outFiles": [
-				"${workspaceRoot}/client/dist/**/*.js"
+				"${workspaceRoot}/client/dist/web/**/*.js"
 			],
 			"preLaunchTask": {
 				"type": "npm",
-				"script": "watch-web"
+				"script": "compile"
 			}
 		},
 		{
@@ -30,15 +52,6 @@
 			"restart": true,
 			"outFiles": [
 				"${workspaceRoot}/server/dist/**/*.js"
-			]
-		}
-	],
-	"compounds": [
-		{
-			"name": "Client + Server",
-			"configurations": [
-				"Launch Client",
-				"Attach to Server"
 			]
 		}
 	]

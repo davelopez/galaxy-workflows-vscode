@@ -22,6 +22,6 @@ TBA
   ```
 - Build
   ```sh
-  npm run compile-web
+  npm run compile
   ```
-- Run the `Launch Client` configuration from the `Run and Debug` action bar (or press F5).
+- Run the `Launch Extension` configuration from the `Run and Debug` action bar (or press F5).

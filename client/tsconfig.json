@@ -7,7 +7,7 @@
             "WebWorker"
         ],
         "rootDir": "src",
-        "sourceMap": true
+        "sourceMap": true,
     },
     "include": [
         "src"
