@@ -5,6 +5,10 @@ import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
 import { addRefToUri } from "../utils";
 import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from "./common";
 
+/**
+ * Compares (diff) a previously selected workflow document revision with
+ * the target workflow document revision.
+ */
 export class CompareCleanWithWorkflowsCommand extends CustomCommand {
   public static id = getCommandFullIdentifier("compareCleanWith");
   readonly identifier: string = CompareCleanWithWorkflowsCommand.id;

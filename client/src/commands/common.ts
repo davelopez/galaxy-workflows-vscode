@@ -49,11 +49,19 @@ export abstract class CustomCommand extends CommandContext {
   abstract execute(args: any[]): Promise<void>;
 }
 
+/**
+ * Contains the URI and git ref of a particular workflow
+ * document revision.
+ */
 export class ComparableWorkflow {
   uri: Uri;
   ref: string;
 }
 
+/**
+ * Interface for retrieving a previously selected workflow document
+ * revision.
+ */
 export interface ComparableWorkflowProvider {
   getSelectedForCompare(): ComparableWorkflow | undefined;
 }

@@ -1,6 +1,10 @@
 import { commands } from "vscode";
 import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from "./common";
 
+/**
+ * Command to select a workflow for comparison with another. This workflow will
+ * be the left part of the diff.
+ */
 export class SelectForCleanCompareCommand extends CustomCommand implements ComparableWorkflowProvider {
   public static id = getCommandFullIdentifier("selectForCleanCompare");
   readonly identifier: string = SelectForCleanCompareCommand.id;

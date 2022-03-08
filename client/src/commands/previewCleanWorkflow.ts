@@ -2,6 +2,9 @@ import { window, workspace } from "vscode";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
 import { CustomCommand, getCommandFullIdentifier } from "./common";
 
+/**
+ * Command to display a 'clean' version of the selected workflow document.
+ */
 export class PreviewCleanWorkflowCommand extends CustomCommand {
   public static id = getCommandFullIdentifier("previewCleanWorkflow");
   readonly identifier: string = PreviewCleanWorkflowCommand.id;

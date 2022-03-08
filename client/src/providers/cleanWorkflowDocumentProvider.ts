@@ -2,9 +2,20 @@ import { EventEmitter, ExtensionContext, TextDocumentContentProvider, Uri, works
 import { Constants } from "../constants";
 import { CleanWorkflowProvider } from "./cleanWorkflowProvider";
 
+/**
+ * Converts a regular document URI to a 'clean' workflow document URI.
+ * @param uri The regular document URI.
+ * @returns The URI with the scheme for clean workflows.
+ */
 export function toCleanWorkflowUri(uri: Uri): Uri {
   return Uri.parse(uri.toString().replace(uri.scheme, Constants.CLEAN_WORKFLOW_DOCUMENT_SCHEME));
 }
+
+/**
+ * Implements the TextDocumentContentProvider for URIs with the `galaxy-clean-workflow`
+ * scheme.
+ * This will provide a document with the `clean contents` of the original workflow document.
+ */
 export class CleanWorkflowDocumentProvider implements TextDocumentContentProvider {
   public static register(context: ExtensionContext, cleanWorkflowProvider: CleanWorkflowProvider) {
     const provider = new CleanWorkflowDocumentProvider(cleanWorkflowProvider);
