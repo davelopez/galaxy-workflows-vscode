@@ -1,6 +1,6 @@
 {
     "a_galaxy_workflow": "true",
-    "annotation": "simple workflow",
+    "annotation": "simple workflow B",
     "format-version": "0.1",
     "name": "TestWorkflow1",
     "steps": {
@@ -17,8 +17,8 @@
             "name": "Input dataset",
             "outputs": [],
             "position": {
-                "left": 199.55555772781372,
-                "top": 200.66666460037231
+                "left": 199.65468,
+                "top": 200.8487
             },
             "tool_errors": null,
             "tool_id": null,
@@ -40,8 +40,8 @@
             "name": "Input dataset",
             "outputs": [],
             "position": {
-                "left": 206.22221422195435,
-                "top": 327.33335161209106
+                "left": 206,
+                "top": 327
             },
             "tool_errors": null,
             "tool_id": null,
@@ -60,7 +60,7 @@
                 },
                 "queries_0|input2": {
                     "id": 1,
-                    "output_name": "output"
+                    "output_name": "outputB"
                 }
             },
             "inputs": [],
