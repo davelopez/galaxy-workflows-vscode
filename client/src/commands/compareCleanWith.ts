@@ -1,18 +1,34 @@
 import { commands } from "vscode";
+import { CommonLanguageClient } from "vscode-languageclient";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
-import { debugPrintCommandArgs } from "../utils";
-import { CustomCommand, getCommandFullIdentifier } from "./common";
+import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
+import { addRefToUri } from "../utils";
+import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from "./common";
 
 export class CompareCleanWithWorkflowsCommand extends CustomCommand {
   public static id = getCommandFullIdentifier("compareCleanWith");
   readonly identifier: string = CompareCleanWithWorkflowsCommand.id;
 
-  /** TODO: Implement the real command, this is just a placeholder */
-  async execute(args: any[]): Promise<void> {
-    debugPrintCommandArgs(this.identifier, args, this.client.outputChannel);
+  constructor(
+    client: CommonLanguageClient,
+    readonly comparableWorkflowProvider: ComparableWorkflowProvider,
+    readonly cleanWorkflowProvider: CleanWorkflowProvider
+  ) {
+    super(client);
+  }
 
-    const left = args[1];
-    const right = toCleanWorkflowUri(left);
-    commands.executeCommand("vscode.diff", left, right);
+  async execute(args: any[]): Promise<void> {
+    const leftComparable = this.comparableWorkflowProvider.getSelectedForCompare();
+    const rightComparable: ComparableWorkflow = { uri: args[1], ref: args[0].ref };
+
+    const leftUri = this.buildCleanWorkflowUriWithRef(leftComparable);
+    const rightUri = this.buildCleanWorkflowUriWithRef(rightComparable);
+
+    commands.executeCommand("vscode.diff", leftUri, rightUri);
+  }
+
+  private buildCleanWorkflowUriWithRef(comparableWorkflow: ComparableWorkflow) {
+    const uriWithRef = addRefToUri(comparableWorkflow.uri, comparableWorkflow.ref);
+    return toCleanWorkflowUri(uriWithRef);
   }
 }

@@ -52,14 +52,14 @@
 			},
 			{
 				"command": "galaxy-workflows.selectForCleanCompare",
-				"title": "Select for clean compare",
+				"title": "Select workflow for (clean) compare",
 				"enablement": "resourceLangId == galaxyworkflow",
 				"icon": "$(diff)",
 				"category": "Galaxy Workflows"
 			},
 			{
 				"command": "galaxy-workflows.compareCleanWith",
-				"title": "Clean compare with this workflow",
+				"title": "Compare with this workflow (clean)",
 				"enablement": "resourceLangId == galaxyworkflow",
 				"icon": "$(diff)",
 				"category": "Galaxy Workflows"
@@ -89,7 +89,7 @@
 				{
 					"command": "galaxy-workflows.selectForCleanCompare",
 					"group": "3_compare@2",
-					"when": "config.git.enabled && !git.missing && timelineItem =~ /git:file\\b/"
+					"when": "config.git.enabled && !git.missing && timelineItem =~ /git:file\\b/ && galaxy-workflows.gitProviderInitialized"
 				}
 			]
 		}
