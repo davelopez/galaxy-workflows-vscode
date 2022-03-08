@@ -23,16 +23,18 @@ export class CompareCleanWithWorkflowsCommand extends CustomCommand {
 
   async execute(args: any[]): Promise<void> {
     const leftComparable = this.comparableWorkflowProvider.getSelectedForCompare();
-    const rightComparable: ComparableWorkflow = { uri: args[1], ref: args[0].ref };
+    const rightComparable = ComparableWorkflow.buildFromArgs(args);
 
-    const leftUri = this.buildCleanWorkflowUriWithRef(leftComparable);
-    const rightUri = this.buildCleanWorkflowUriWithRef(rightComparable);
+    const leftUri = this.buildCleanWorkflowUri(leftComparable);
+    const rightUri = this.buildCleanWorkflowUri(rightComparable);
 
     commands.executeCommand("vscode.diff", leftUri, rightUri);
   }
 
-  private buildCleanWorkflowUriWithRef(comparableWorkflow: ComparableWorkflow) {
-    const uriWithRef = addRefToUri(comparableWorkflow.uri, comparableWorkflow.ref);
-    return toCleanWorkflowUri(uriWithRef);
+  private buildCleanWorkflowUri(comparableWorkflow: ComparableWorkflow) {
+    const uri = comparableWorkflow.ref
+      ? addRefToUri(comparableWorkflow.uri, comparableWorkflow.ref)
+      : comparableWorkflow.uri;
+    return toCleanWorkflowUri(uri);
   }
 }

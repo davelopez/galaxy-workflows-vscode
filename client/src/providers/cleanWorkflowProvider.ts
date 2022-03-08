@@ -1,11 +1,6 @@
-import { Uri, window } from "vscode";
+import { Uri, window, workspace } from "vscode";
 import { CommonLanguageClient } from "vscode-languageclient";
-import {
-  CleanWorkflowContentsParams,
-  CleanWorkflowContentsRequest,
-  CleanWorkflowDocumentParams,
-  CleanWorkflowDocumentRequest,
-} from "../requestsDefinitions";
+import { CleanWorkflowContentsParams, CleanWorkflowContentsRequest } from "../requestsDefinitions";
 import { getWorkspaceScheme, replaceUriScheme } from "../utils";
 import { GitProvider } from "./git/common";
 
@@ -71,14 +66,9 @@ export class CleanWorkflowProvider {
    * @returns The 'clean' contents of the given workflow document.
    */
   private async requestCleanDocumentFromUri(uri: Uri) {
-    let params: CleanWorkflowDocumentParams = {
-      uri: this.languageClient.code2ProtocolConverter.asUri(uri),
-    };
-    const result = await this.languageClient.sendRequest(CleanWorkflowDocumentRequest.type, params);
-    if (!result) {
-      throw new Error("Cannot clean the requested document. The server returned no content");
-    }
-    return result.contents;
+    const workflowDocument = await workspace.openTextDocument(uri);
+    const contents = workflowDocument.getText();
+    return this.requestCleanContents(contents);
   }
 
   private convertToWorkspaceUri(uri: Uri) {

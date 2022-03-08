@@ -56,6 +56,21 @@ export abstract class CustomCommand extends CommandContext {
 export class ComparableWorkflow {
   uri: Uri;
   ref: string;
+
+  public static buildFromArgs(args: any[]): ComparableWorkflow | undefined {
+    if (args.length >= 2) {
+      const firstArg = args[0];
+      const secondArg = args[1];
+      if (firstArg.hasOwnProperty("ref")) {
+        // Comes from source control timeline
+        return { uri: secondArg, ref: firstArg.ref };
+      } else if (firstArg.hasOwnProperty("scheme")) {
+        // Comes from file explorer
+        return { uri: firstArg, ref: undefined };
+      }
+    }
+    return undefined;
+  }
 }
 
 /**

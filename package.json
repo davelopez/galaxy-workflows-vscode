@@ -91,6 +91,18 @@
 					"group": "3_compare@2",
 					"when": "config.git.enabled && !git.missing && timelineItem =~ /git:file\\b/ && galaxy-workflows.gitProviderInitialized"
 				}
+			],
+			"explorer/context": [
+				{
+					"command": "galaxy-workflows.compareCleanWith",
+					"group": "3_compare@1",
+					"when": "config.git.enabled && !git.missing && galaxy-workflows.selectForCleanCompare"
+				},
+				{
+					"command": "galaxy-workflows.selectForCleanCompare",
+					"group": "3_compare@2",
+					"when": "config.git.enabled && !git.missing && galaxy-workflows.gitProviderInitialized"
+				}
 			]
 		}
 	},

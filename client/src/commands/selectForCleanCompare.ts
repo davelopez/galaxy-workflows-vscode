@@ -11,9 +11,13 @@ export class SelectForCleanCompareCommand extends CustomCommand implements Compa
 
   private static _selectedForCompare: ComparableWorkflow | undefined;
 
-  async execute(args: any[]): Promise<void> {
-    SelectForCleanCompareCommand._selectedForCompare = { uri: args[1], ref: args[0].ref };
-    await commands.executeCommand("setContext", "galaxy-workflows.selectForCleanCompare", true);
+  public async execute(args: any[]): Promise<void> {
+    SelectForCleanCompareCommand._selectedForCompare = ComparableWorkflow.buildFromArgs(args);
+    await commands.executeCommand(
+      "setContext",
+      "galaxy-workflows.selectForCleanCompare",
+      SelectForCleanCompareCommand._selectedForCompare !== undefined
+    );
   }
 
   public getSelectedForCompare(): ComparableWorkflow | undefined {
