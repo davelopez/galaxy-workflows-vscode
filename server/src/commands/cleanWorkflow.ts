@@ -27,6 +27,15 @@ export class CleanWorkflowCommand extends CustomCommand {
       }
       return undefined;
     });
+
+    this.connection.onRequest(CleanWorkflowContentsRequest.type, async (params) => {
+      const tempDocument = TextDocument.create("temp://temp-workflow.json", "galaxyworkflow", 0, params.contents);
+      const workflowDocument = this.languageService.parseWorkflowDocument(tempDocument);
+      if (workflowDocument) {
+        return await this.cleanWorkflowDocument(workflowDocument);
+      }
+      return undefined;
+    });
   }
 
   private async cleanWorkflowDocument(workflowDocument: WorkflowDocument): Promise<CleanWorkflowDocument> {
