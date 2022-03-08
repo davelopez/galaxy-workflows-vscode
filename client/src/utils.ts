@@ -26,6 +26,16 @@ export function replaceUriScheme(uri: Uri, targetScheme: string): Uri {
   return Uri.parse(uri.toString().replace(uri.scheme, targetScheme));
 }
 
+/**
+ * Adds a `ref` value to the URI query.
+ * @param uri The URI to be modified
+ * @param ref The git ref to add to the URI query
+ * @returns The URI with a ref query value set
+ */
+export function addRefToUri(uri: Uri, ref: string): Uri {
+  return Uri.parse(uri.toString() + `?ref=${ref}`);
+}
+
 /** Just for debugging */
 export function debugPrintCommandArgs(command: string, args: any[], outputChannel: OutputChannel) {
   outputChannel.appendLine(`Command ${command} args:`);
