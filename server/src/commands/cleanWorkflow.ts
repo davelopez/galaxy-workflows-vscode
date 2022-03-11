@@ -1,22 +1,8 @@
-import { RequestType } from "vscode-languageserver";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { ASTNode, PropertyASTNode, WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
-import { CustomCommand, LSRequestIdentifiers } from "./common";
-
-export interface CleanWorkflowDocumentParams {
-  uri: string;
-}
-
-export interface CleanWorkflowDocument {
-  contents: string;
-}
-
-//TODO move this to a common lib
-export namespace CleanWorkflowDocumentRequest {
-  export const type = new RequestType<CleanWorkflowDocumentParams, CleanWorkflowDocument, void>(
-    LSRequestIdentifiers.CLEAN_WORKFLOW
-  );
-}
+import { CustomCommand } from "./common";
+import { CleanWorkflowContentsRequest, CleanWorkflowContentsResult } from "./requestsDefinitions";
 
 const CLEANABLE_PROPERTY_NAMES = new Set(["position", "uuid", "errors", "version"]);
 
@@ -30,19 +16,24 @@ export class CleanWorkflowCommand extends CustomCommand {
   }
 
   protected listenToRequests(): void {
-    this.connection.onRequest(CleanWorkflowDocumentRequest.type, async (params) => {
-      const workflowDocument = this.workflowDocuments.get(params.uri);
+    this.connection.onRequest(CleanWorkflowContentsRequest.type, async (params) => {
+      const tempDocument = this.createTempWorkflowDocumentWithContents(params.contents);
+      const workflowDocument = this.languageService.parseWorkflowDocument(tempDocument);
       if (workflowDocument) {
-        return await this.cleanWorkflowDocument(workflowDocument);
+        return await this.CleanWorkflowContentsResult(workflowDocument);
       }
       return undefined;
     });
   }
 
-  private async cleanWorkflowDocument(workflowDocument: WorkflowDocument): Promise<CleanWorkflowDocument> {
+  private createTempWorkflowDocumentWithContents(contents: string) {
+    return TextDocument.create("temp://temp-workflow", "galaxyworkflow", 0, contents);
+  }
+
+  private async CleanWorkflowContentsResult(workflowDocument: WorkflowDocument): Promise<CleanWorkflowContentsResult> {
     const nodesToRemove = this.getNonEssentialNodes(workflowDocument.jsonDocument.root);
     const contents = this.getCleanContents(workflowDocument.textDocument.getText(), nodesToRemove.reverse());
-    const result: CleanWorkflowDocument = {
+    const result: CleanWorkflowContentsResult = {
       contents: contents,
     };
     return result;

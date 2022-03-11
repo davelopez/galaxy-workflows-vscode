@@ -1,8 +1,11 @@
-import { ExtensionContext } from "vscode";
+import { commands, ExtensionContext } from "vscode";
 import { CommonLanguageClient, LanguageClientOptions } from "vscode-languageclient";
 import { setupCommands } from "./commands/setup";
 import { Constants } from "./constants";
 import { CleanWorkflowDocumentProvider } from "./providers/cleanWorkflowDocumentProvider";
+import { CleanWorkflowProvider } from "./providers/cleanWorkflowProvider";
+import { GitProvider } from "./providers/git/common";
+import { BuiltinGitProvider } from "./providers/git/gitProvider";
 
 export function buildLanguageClientOptions() {
   const documentSelector = [{ language: Constants.NATIVE_WORKFLOW_LANGUAGE_ID }];
@@ -17,17 +20,24 @@ export function buildLanguageClientOptions() {
 }
 
 export function initExtension(context: ExtensionContext, client: CommonLanguageClient) {
-  setupProviders(context, client);
-  setupCommands(context, client);
+  const gitProvider = new BuiltinGitProvider();
+  setupProviders(context, client, gitProvider);
+  setupCommands(context, client, gitProvider);
 
   const disposable = client.start();
   context.subscriptions.push(disposable);
+
+  gitProvider.initialize().then(() => {
+    commands.executeCommand("setContext", "galaxy-workflows.gitProviderInitialized", gitProvider.isInitialized);
+    console.log(`${context.extension.id} Git initialized is ${gitProvider.isInitialized}.`);
+  });
 
   client.onReady().then(() => {
     console.log(`${context.extension.id} server is ready.`);
   });
 }
 
-function setupProviders(context: ExtensionContext, client: CommonLanguageClient) {
-  CleanWorkflowDocumentProvider.register(context, client);
+function setupProviders(context: ExtensionContext, client: CommonLanguageClient, gitProvider: GitProvider) {
+  const cleanWorkflowProvider = new CleanWorkflowProvider(client, gitProvider);
+  CleanWorkflowDocumentProvider.register(context, cleanWorkflowProvider);
 }

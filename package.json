@@ -51,15 +51,15 @@
 				"category": "Galaxy Workflows"
 			},
 			{
-				"command": "galaxy-workflows.compareCleanWorkflows",
-				"title": "Compare clean workflows",
+				"command": "galaxy-workflows.selectForCleanCompare",
+				"title": "Select workflow for (clean) compare",
 				"enablement": "resourceLangId == galaxyworkflow",
 				"icon": "$(diff)",
 				"category": "Galaxy Workflows"
 			},
 			{
 				"command": "galaxy-workflows.compareCleanWith",
-				"title": "Clean compare with this workflow",
+				"title": "Compare with this workflow (clean)",
 				"enablement": "resourceLangId == galaxyworkflow",
 				"icon": "$(diff)",
 				"category": "Galaxy Workflows"
@@ -72,7 +72,7 @@
 					"when": "activeEditor"
 				},
 				{
-					"command": "galaxy-workflows.compareCleanWorkflows",
+					"command": "galaxy-workflows.selectForCleanCompare",
 					"when": "false"
 				},
 				{
@@ -80,18 +80,28 @@
 					"when": "false"
 				}
 			],
-			"editor/title": [
-				{
-					"command": "galaxy-workflows.compareCleanWorkflows",
-					"group": "navigation",
-					"when": "resourceLangId == galaxyworkflow"
-				}
-			],
 			"timeline/item/context": [
 				{
 					"command": "galaxy-workflows.compareCleanWith",
 					"group": "3_compare@1",
-					"when": "config.git.enabled && !git.missing && git.timeline.selectedForCompare && !listMultiSelection"
+					"when": "config.git.enabled && !git.missing && galaxy-workflows.selectForCleanCompare"
+				},
+				{
+					"command": "galaxy-workflows.selectForCleanCompare",
+					"group": "3_compare@2",
+					"when": "config.git.enabled && !git.missing && timelineItem =~ /git:file\\b/ && galaxy-workflows.gitProviderInitialized"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "galaxy-workflows.compareCleanWith",
+					"group": "3_compare@1",
+					"when": "config.git.enabled && !git.missing && galaxy-workflows.selectForCleanCompare"
+				},
+				{
+					"command": "galaxy-workflows.selectForCleanCompare",
+					"group": "3_compare@2",
+					"when": "config.git.enabled && !git.missing && galaxy-workflows.gitProviderInitialized"
 				}
 			]
 		}

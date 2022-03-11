@@ -1,4 +1,4 @@
-import { commands, Disposable } from "vscode";
+import { commands, Disposable, Uri } from "vscode";
 import { CommonLanguageClient } from "vscode-languageclient";
 
 /**
@@ -47,4 +47,36 @@ export abstract class CustomCommand extends CommandContext {
    * @param args The arguments passed when invoking the command
    */
   abstract execute(args: any[]): Promise<void>;
+}
+
+/**
+ * Contains the URI and git ref of a particular workflow
+ * document revision.
+ */
+export class ComparableWorkflow {
+  uri: Uri;
+  ref: string;
+
+  public static buildFromArgs(args: any[]): ComparableWorkflow | undefined {
+    if (args.length >= 2) {
+      const firstArg = args[0];
+      const secondArg = args[1];
+      if (firstArg.hasOwnProperty("ref")) {
+        // Comes from source control timeline
+        return { uri: secondArg, ref: firstArg.ref };
+      } else if (firstArg.hasOwnProperty("scheme")) {
+        // Comes from file explorer
+        return { uri: firstArg, ref: undefined };
+      }
+    }
+    return undefined;
+  }
+}
+
+/**
+ * Interface for retrieving a previously selected workflow document
+ * revision.
+ */
+export interface ComparableWorkflowProvider {
+  getSelectedForCompare(): ComparableWorkflow | undefined;
 }
