@@ -117,7 +117,13 @@
 			],
 			"editor/context": [
 				{
+					"command": "galaxy-workflows.previewCleanWorkflow",
+					"group": "galaxyworkflow@1",
+					"when": "resourceLangId == galaxyworkflow"
+				},
+				{
 					"command": "galaxy-workflows.cleanWorkflow",
+					"group": "galaxyworkflow@2",
 					"when": "resourceLangId == galaxyworkflow"
 				}
 			]
