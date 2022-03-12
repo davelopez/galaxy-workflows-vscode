@@ -51,6 +51,13 @@
 				"category": "Galaxy Workflows"
 			},
 			{
+				"command": "galaxy-workflows.cleanWorkflow",
+				"title": "Clean workflow",
+				"enablement": "resourceLangId == galaxyworkflow",
+				"icon": "$(edit)",
+				"category": "Galaxy Workflows"
+			},
+			{
 				"command": "galaxy-workflows.selectForCleanCompare",
 				"title": "Select workflow for (clean) compare",
 				"enablement": "resourceLangId == galaxyworkflow",
@@ -69,6 +76,10 @@
 			"commandPalette": [
 				{
 					"command": "galaxy-workflows.previewCleanWorkflow",
+					"when": "activeEditor"
+				},
+				{
+					"command": "galaxy-workflows.cleanWorkflow",
 					"when": "activeEditor"
 				},
 				{
