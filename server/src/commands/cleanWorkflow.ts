@@ -12,8 +12,19 @@ import {
   CleanWorkflowDocumentResult,
 } from "./requestsDefinitions";
 
+/**
+ * A set of property names that are unrelated to the workflow logic.
+ * Usually used by other tools like the workflow editor.
+ */
 const CLEANABLE_PROPERTY_NAMES = new Set(["position", "uuid", "errors", "version"]);
 
+/**
+ * Command for handling workflow `cleaning` requests.
+ * Supports both, direct contents (raw document text), and document uri requests
+ * for cleaning.
+ * When requesting with a document uri, the workflow document must be already registered in the server
+ * as a workflow document.
+ */
 export class CleanWorkflowCommand extends CustomCommand {
   public static register(server: GalaxyWorkflowLanguageServer): CleanWorkflowCommand {
     return new CleanWorkflowCommand(server);
@@ -32,6 +43,12 @@ export class CleanWorkflowCommand extends CustomCommand {
     );
   }
 
+  /**
+   * Processes a `CleanWorkflowContentsRequest` by returning the `clean` contents
+   * of a workflow document given the raw text contents of the workflow document.
+   * @param params The request parameters containing the raw text contents of the workflow
+   * @returns The `clean` contents of the workflow document
+   */
   private async onCleanWorkflowContentsRequest(
     params: CleanWorkflowContentsParams
   ): Promise<CleanWorkflowContentsResult | undefined> {
@@ -43,6 +60,12 @@ export class CleanWorkflowCommand extends CustomCommand {
     return undefined;
   }
 
+  /**
+   * Applies the necessary text edits to the workflow document identified by the given URI to
+   * remove all the properties in the workflow that are unrelated to the essential workflow logic.
+   * @param params The request parameters containing the URI of the workflow document.
+   * @returns An error message if something went wrong
+   */
   private async onCleanWorkflowDocumentRequest(
     params: CleanWorkflowDocumentParams
   ): Promise<CleanWorkflowDocumentResult> {
@@ -73,7 +96,7 @@ export class CleanWorkflowCommand extends CustomCommand {
   }
 
   private getTextEditsToCleanWorkflow(workflowDocument: WorkflowDocument): TextEdit[] {
-    const nodesToRemove = this.getNonEssentialNodes(workflowDocument.jsonDocument.root);
+    const nodesToRemove = this.getNonEssentialNodes(workflowDocument, CLEANABLE_PROPERTY_NAMES);
     const changes: TextEdit[] = [];
     nodesToRemove.forEach((node) => {
       const range = this.getReplaceRange(workflowDocument.textDocument, node);
@@ -87,7 +110,7 @@ export class CleanWorkflowCommand extends CustomCommand {
   }
 
   private async cleanWorkflowContentsResult(workflowDocument: WorkflowDocument): Promise<CleanWorkflowContentsResult> {
-    const nodesToRemove = this.getNonEssentialNodes(workflowDocument.jsonDocument.root);
+    const nodesToRemove = this.getNonEssentialNodes(workflowDocument, CLEANABLE_PROPERTY_NAMES);
     const contents = this.getCleanContents(workflowDocument.textDocument.getText(), nodesToRemove.reverse());
     const result: CleanWorkflowContentsResult = {
       contents: contents,
@@ -95,7 +118,11 @@ export class CleanWorkflowCommand extends CustomCommand {
     return result;
   }
 
-  private getNonEssentialNodes(root: ASTNode | undefined): PropertyASTNode[] {
+  private getNonEssentialNodes(
+    workflowDocument: WorkflowDocument,
+    cleanablePropertyNames: Set<string>
+  ): PropertyASTNode[] {
+    const root = workflowDocument.jsonDocument.root;
     if (!root) {
       return [];
     }
@@ -113,7 +140,7 @@ export class CleanWorkflowCommand extends CustomCommand {
       } else if (node.type === "object") {
         node.properties.forEach((property: PropertyASTNode) => {
           const key = property.keyNode.value;
-          if (CLEANABLE_PROPERTY_NAMES.has(key)) {
+          if (cleanablePropertyNames.has(key)) {
             result.push(property);
           }
           if (property.valueNode) {
@@ -144,6 +171,13 @@ export class CleanWorkflowCommand extends CustomCommand {
     return result;
   }
 
+  /**
+   * Gets the range offsets (`start` and `end`) for a given syntax node including
+   * the blank spaces/indentation before and after the node and possible ending comma.
+   * @param documentText The full workflow document text
+   * @param node The syntax node
+   * @returns The `start` and `end` offsets for the given syntax node
+   */
   private getFullNodeRangeOffsets(documentText: string, node: ASTNode) {
     let startPos = node.offset;
     let endPos = node.offset + node.length;
