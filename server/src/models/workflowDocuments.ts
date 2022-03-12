@@ -16,17 +16,17 @@ export class WorkflowDocuments {
   }
 
   public addOrReplaceWorkflowDocument(document: WorkflowDocument) {
-    console.log("registered workflow file: ", document.documentUri);
     this._documentsCache.set(document.documentUri, document);
+    //console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
   public removeWorkflowDocument(documentUri: string) {
-    console.log("unregistered workflow file: ", documentUri);
     this._documentsCache.delete(documentUri);
+    //console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
   public dispose() {
     this._documentsCache.clear();
-    console.log("workflow document cache cleared");
+    //console.debug("workflow document cache cleared");
   }
 }
