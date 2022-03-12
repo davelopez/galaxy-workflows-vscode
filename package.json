@@ -114,6 +114,12 @@
 					"group": "3_compare@2",
 					"when": "config.git.enabled && !git.missing && galaxy-workflows.gitProviderInitialized"
 				}
+			],
+			"editor/context": [
+				{
+					"command": "galaxy-workflows.cleanWorkflow",
+					"when": "resourceLangId == galaxyworkflow"
+				}
 			]
 		}
 	},
