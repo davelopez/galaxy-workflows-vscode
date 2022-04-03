@@ -121,6 +121,7 @@ export interface FormattingOptions extends LSPFormattingOptions {
 export interface WorkflowLanguageService {
   format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   parseWorkflowDocument(document: TextDocument): WorkflowDocument;
+  doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 }
 
 export abstract class ServerContext {

@@ -7,7 +7,7 @@ import {
   WorkspaceFolder,
 } from "vscode-languageserver";
 import { CleanWorkflowCommand } from "./commands/cleanWorkflow";
-import { WorkflowLanguageService, TextDocument } from "./languageTypes";
+import { WorkflowLanguageService, TextDocument, WorkflowDocument } from "./languageTypes";
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { SymbolsProvider } from "./providers/symbolsProvider";
 import { FormattingProvider } from "./providers/formattingProvider";
@@ -68,14 +68,16 @@ export class GalaxyWorkflowLanguageServer {
     this.documents.onDidClose((event) => this.onDidClose(event.document));
   }
 
-  private onDocumentOpen(document: TextDocument) {
-    const workflowDocument = this.languageService.parseWorkflowDocument(document);
+  private onDocumentOpen(textDocument: TextDocument) {
+    const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
     this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
+    this.validate(workflowDocument);
   }
 
   private onDidChangeContent(document: TextDocument) {
     const workflowDocument = this.languageService.parseWorkflowDocument(document);
     this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
+    this.validate(workflowDocument);
   }
 
   private onDidClose(document: TextDocument) {
@@ -84,5 +86,11 @@ export class GalaxyWorkflowLanguageServer {
 
   private cleanup() {
     this.workflowDocuments.dispose();
+  }
+
+  private validate(workflowDocument: WorkflowDocument) {
+    this.languageService.doValidation(workflowDocument).then((diagnostics) => {
+      this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
+    });
   }
 }

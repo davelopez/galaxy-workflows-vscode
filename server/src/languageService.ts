@@ -1,4 +1,12 @@
-import { ASTNode, getLanguageService, LanguageService } from "vscode-json-languageservice";
+import {
+  ASTNode,
+  getLanguageService,
+  LanguageService,
+  LanguageServiceParams,
+  DocumentLanguageSettings,
+  Diagnostic,
+  JSONSchema,
+} from "vscode-json-languageservice";
 import {
   TextDocument,
   Range,
@@ -7,6 +15,7 @@ import {
   WorkflowDocument,
   WorkflowLanguageService,
 } from "./languageTypes";
+import NativeSchema from "../../workflow-languages/schemas/native.schema.json";
 
 /**
  * A wrapper around the JSON Language Service to support language features
@@ -14,9 +23,15 @@ import {
  */
 export class NativeWorkflowLanguageService implements WorkflowLanguageService {
   private _jsonLanguageService: LanguageService;
+  private _galaxyNativeWorkflowSchema: JSONSchema = NativeSchema;
+  private _documentSettings: DocumentLanguageSettings;
 
   constructor() {
-    this._jsonLanguageService = getLanguageService({});
+    const params: LanguageServiceParams = {};
+    this._jsonLanguageService = getLanguageService(params);
+    this._documentSettings = {
+      schemaValidation: "error",
+    };
   }
 
   public parseWorkflowDocument(document: TextDocument): WorkflowDocument {
@@ -26,6 +41,16 @@ export class NativeWorkflowLanguageService implements WorkflowLanguageService {
 
   public format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[] {
     return this._jsonLanguageService.format(document, range, options);
+  }
+
+  public async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+    const schemaValidationResults = await this._jsonLanguageService.doValidation(
+      workflowDocument.textDocument,
+      workflowDocument.jsonDocument,
+      this._documentSettings,
+      this._galaxyNativeWorkflowSchema
+    );
+    return schemaValidationResults;
   }
 }
 
