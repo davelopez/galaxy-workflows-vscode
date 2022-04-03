@@ -74,14 +74,15 @@ export class GalaxyWorkflowLanguageServer {
     this.validate(workflowDocument);
   }
 
-  private onDidChangeContent(document: TextDocument) {
-    const workflowDocument = this.languageService.parseWorkflowDocument(document);
+  private onDidChangeContent(textDocument: TextDocument) {
+    const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
     this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
     this.validate(workflowDocument);
   }
 
-  private onDidClose(document: TextDocument) {
-    this.workflowDocuments.removeWorkflowDocument(document.uri);
+  private onDidClose(textDocument: TextDocument) {
+    this.workflowDocuments.removeWorkflowDocument(textDocument.uri);
+    this.clearValidation(textDocument);
   }
 
   private cleanup() {
@@ -92,5 +93,9 @@ export class GalaxyWorkflowLanguageServer {
     this.languageService.doValidation(workflowDocument).then((diagnostics) => {
       this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
     });
+  }
+
+  private clearValidation(textDocument: TextDocument) {
+    this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [] });
   }
 }
