@@ -1,0 +1,199 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "a_galaxy_workflow": {
+            "type": "string"
+        },
+        "annotation": {
+            "type": "string"
+        },
+        "creator": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "class": {
+                            "type": "string"
+                        },
+                        "identifier": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "class",
+                        "identifier",
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "format-version": {
+            "type": "string"
+        },
+        "license": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "release": {
+            "type": "string"
+        },
+        "steps": {
+            "type": "object",
+            "$ref": "#/definitions/stepDef"
+        },
+        "tags": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "uuid": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "a_galaxy_workflow",
+        "annotation",
+        "creator",
+        "format-version",
+        "license",
+        "name",
+        "release",
+        "steps",
+        "tags",
+        "uuid"
+    ],
+    "definitions": {
+        "stepDef": {
+            "type": "object",
+            "patternProperties": {
+                "[0-9]*": {
+                    "type": "object",
+                    "properties": {
+                        "annotation": {
+                            "type": "string"
+                        },
+                        "content_id": {
+                            "type": "string"
+                        },
+                        "errors": {
+                            "type": "null"
+                        },
+                        "id": {
+                            "type": "integer"
+                        },
+                        "input_connections": {
+                            "type": "object"
+                        },
+                        "inputs": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "description",
+                                        "name"
+                                    ]
+                                }
+                            ]
+                        },
+                        "label": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "outputs": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "position": {
+                            "type": "object",
+                            "properties": {
+                                "bottom": {
+                                    "type": "number"
+                                },
+                                "height": {
+                                    "type": "number"
+                                },
+                                "left": {
+                                    "type": "number"
+                                },
+                                "right": {
+                                    "type": "number"
+                                },
+                                "top": {
+                                    "type": "number"
+                                },
+                                "width": {
+                                    "type": "integer"
+                                },
+                                "x": {
+                                    "type": "number"
+                                },
+                                "y": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "tool_id": {
+                            "type": "null"
+                        },
+                        "tool_state": {
+                            "type": "string"
+                        },
+                        "tool_version": {
+                            "type": "null"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "uuid": {
+                            "type": "string"
+                        },
+                        "workflow_outputs": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    },
+                    "required": [
+                        "annotation",
+                        "content_id",
+                        "id",
+                        "input_connections",
+                        "inputs",
+                        "name",
+                        "outputs",
+                        "position",
+                        "tool_id",
+                        "tool_state",
+                        "tool_version",
+                        "type",
+                        "uuid",
+                        "workflow_outputs"
+                    ]
+                }
+            }
+        }
+    }
+}
