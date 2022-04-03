@@ -76,7 +76,7 @@ export class NativeWorkflowLanguageService implements WorkflowLanguageService {
 
   private getWorkflowSchemaConfig(): SchemaConfiguration {
     return {
-      uri: this.schema.$id ?? "",
+      uri: this.schema.id ?? "",
       fileMatch: ["**.ga"],
       schema: this.schema,
     };
