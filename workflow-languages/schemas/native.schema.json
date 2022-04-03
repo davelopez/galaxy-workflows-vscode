@@ -4,7 +4,13 @@
     "type": "object",
     "properties": {
         "a_galaxy_workflow": {
-            "type": "string"
+            "type": "string",
+            "title": "## Galaxy Workflow indicator",
+            "markdownDescription": "Indicates that this JSON document is a **Galaxy Workflow**",
+            "default": "true",
+            "enum": [
+                "true"
+            ]
         },
         "annotation": {
             "type": "string"
@@ -47,7 +53,7 @@
         },
         "steps": {
             "type": "object",
-            "$ref": "#/definitions/stepDef"
+            "$ref": "#/definitions/step"
         },
         "tags": {
             "type": "array",
@@ -77,17 +83,18 @@
         "uuid"
     ],
     "definitions": {
-        "stepDef": {
+        "step": {
             "type": "object",
+            "additionalProperties": false,
             "patternProperties": {
-                "[0-9]*": {
+                "^[0-9]*$": {
                     "type": "object",
                     "properties": {
                         "annotation": {
                             "type": "string"
                         },
                         "content_id": {
-                            "type": "string"
+                            "$ref": "#/definitions/optionalString"
                         },
                         "errors": {
                             "type": "null"
@@ -119,7 +126,7 @@
                             ]
                         },
                         "label": {
-                            "type": "string"
+                            "$ref": "#/definitions/optionalString"
                         },
                         "name": {
                             "type": "string"
@@ -158,13 +165,13 @@
                             }
                         },
                         "tool_id": {
-                            "type": "null"
+                            "$ref": "#/definitions/optionalString"
                         },
                         "tool_state": {
                             "type": "string"
                         },
                         "tool_version": {
-                            "type": "null"
+                            "$ref": "#/definitions/optionalString"
                         },
                         "type": {
                             "type": "string"
@@ -179,7 +186,6 @@
                     },
                     "required": [
                         "annotation",
-                        "content_id",
                         "id",
                         "input_connections",
                         "inputs",
@@ -187,14 +193,18 @@
                         "outputs",
                         "position",
                         "tool_id",
-                        "tool_state",
-                        "tool_version",
                         "type",
                         "uuid",
                         "workflow_outputs"
                     ]
                 }
             }
+        },
+        "optionalString": {
+            "type": [
+                "string",
+                "null"
+            ]
         }
     }
 }
