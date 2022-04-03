@@ -1,12 +1,11 @@
-import { getRange } from "../languageService";
 import {
-  TextDocument,
   DocumentSymbolParams,
   DocumentSymbol,
   SymbolKind,
   ASTNode,
   PropertyASTNode,
   ObjectASTNode,
+  WorkflowDocument,
 } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
@@ -26,13 +25,14 @@ export class SymbolsProvider extends Provider {
   public onDocumentSymbol(params: DocumentSymbolParams): DocumentSymbol[] {
     const workflowDocument = this.workflowDocuments.get(params.textDocument.uri);
     if (workflowDocument) {
-      const symbols = this.getSymbols(workflowDocument.textDocument, workflowDocument.jsonDocument.root);
+      const symbols = this.getSymbols(workflowDocument);
       return symbols;
     }
     return [];
   }
 
-  private getSymbols(document: TextDocument, root: ASTNode | undefined): DocumentSymbol[] {
+  private getSymbols(workflowDocument: WorkflowDocument): DocumentSymbol[] {
+    const root = workflowDocument.jsonDocument.root;
     if (!root) {
       return [];
     }
@@ -48,7 +48,7 @@ export class SymbolsProvider extends Provider {
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
-            const range = getRange(document, node);
+            const range = workflowDocument.getNodeRange(node);
             const selectionRange = range;
             const symbol = { name, kind: this.getSymbolKind(node.type), range, selectionRange, children: [] };
             result.push(symbol);
@@ -70,8 +70,8 @@ export class SymbolsProvider extends Provider {
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
-            const range = getRange(document, property);
-            const selectionRange = getRange(document, property.keyNode);
+            const range = workflowDocument.getNodeRange(property);
+            const selectionRange = workflowDocument.getNodeRange(property.keyNode);
             const children: DocumentSymbol[] = [];
             const symbol: DocumentSymbol = {
               name: name,

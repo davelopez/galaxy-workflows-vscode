@@ -1,11 +1,12 @@
 import {
-  ASTNode,
   getLanguageService,
   LanguageService,
   LanguageServiceParams,
   DocumentLanguageSettings,
   Diagnostic,
   JSONSchema,
+  LanguageSettings,
+  SchemaConfiguration,
 } from "vscode-json-languageservice";
 import {
   TextDocument,
@@ -14,8 +15,10 @@ import {
   TextEdit,
   WorkflowDocument,
   WorkflowLanguageService,
+  Position,
+  Hover,
 } from "./languageTypes";
-import NativeSchema from "../../workflow-languages/schemas/native.schema.json";
+import NativeWorkflowSchema from "../../workflow-languages/schemas/native.schema.json";
 
 /**
  * A wrapper around the JSON Language Service to support language features
@@ -23,15 +26,17 @@ import NativeSchema from "../../workflow-languages/schemas/native.schema.json";
  */
 export class NativeWorkflowLanguageService implements WorkflowLanguageService {
   private _jsonLanguageService: LanguageService;
-  private _galaxyNativeWorkflowSchema: JSONSchema = NativeSchema;
-  private _documentSettings: DocumentLanguageSettings;
+  private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
   constructor() {
     const params: LanguageServiceParams = {};
+    const settings = this.getLanguageSettings();
     this._jsonLanguageService = getLanguageService(params);
-    this._documentSettings = {
-      schemaValidation: "error",
-    };
+    this._jsonLanguageService.configure(settings);
+  }
+
+  public get schema(): JSONSchema {
+    return NativeWorkflowSchema;
   }
 
   public parseWorkflowDocument(document: TextDocument): WorkflowDocument {
@@ -48,12 +53,32 @@ export class NativeWorkflowLanguageService implements WorkflowLanguageService {
       workflowDocument.textDocument,
       workflowDocument.jsonDocument,
       this._documentSettings,
-      this._galaxyNativeWorkflowSchema
+      this.schema
     );
     return schemaValidationResults;
   }
-}
 
-export function getRange(document: TextDocument, node: ASTNode) {
-  return Range.create(document.positionAt(node.offset), document.positionAt(node.offset + node.length));
+  public async doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
+    const hover = await this._jsonLanguageService.doHover(
+      workflowDocument.textDocument,
+      position,
+      workflowDocument.jsonDocument
+    );
+    return hover;
+  }
+
+  private getLanguageSettings(): LanguageSettings {
+    const settings: LanguageSettings = {
+      schemas: [this.getWorkflowSchemaConfig()],
+    };
+    return settings;
+  }
+
+  private getWorkflowSchemaConfig(): SchemaConfiguration {
+    return {
+      uri: this.schema.$id ?? "",
+      fileMatch: ["**.ga"],
+      schema: this.schema,
+    };
+  }
 }
