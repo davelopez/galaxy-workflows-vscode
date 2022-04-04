@@ -1,7 +1,6 @@
-import { Hover, HoverParams, MarkupKind, Position, ASTNode, WorkflowDocument, PropertyASTNode } from "../languageTypes";
+import { Hover, HoverParams, MarkupKind, ASTNode, PropertyASTNode } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
-import { getRange } from "../languageService";
 import { ArrayASTNode, BooleanASTNode, NullASTNode, NumberASTNode, StringASTNode } from "vscode-json-languageservice";
 
 export class HoverProvider extends Provider {
@@ -23,12 +22,12 @@ export class HoverProvider extends Provider {
     if (!workflowDocument) {
       return undefined;
     }
-    const node = this.getNodeAtDocumentPosition(workflowDocument, params.position);
+    const node = workflowDocument.getNodeAtPosition(params.position);
     if (!node) {
       return undefined;
     }
     const contentLines = this.printNode(node);
-    const hoverRange = getRange(workflowDocument.textDocument, node);
+    const hoverRange = workflowDocument.getNodeRange(node);
     const markdown = {
       kind: MarkupKind.Markdown,
       value: contentLines.join("\n\n"),
@@ -38,13 +37,6 @@ export class HoverProvider extends Provider {
       range: hoverRange,
     };
     return result;
-  }
-
-  private getNodeAtDocumentPosition(workflowDocument: WorkflowDocument, position: Position): ASTNode | undefined {
-    const document = workflowDocument.textDocument;
-    const offset = document.offsetAt(position);
-    const node = workflowDocument.jsonDocument.getNodeFromOffset(offset);
-    return node;
   }
 
   private printNode(node: ASTNode): string[] {

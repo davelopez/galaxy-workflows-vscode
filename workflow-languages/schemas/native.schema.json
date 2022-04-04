@@ -1,0 +1,210 @@
+{
+    "id": "https://galaxyproject.org/schemas/workflow/native",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "a_galaxy_workflow": {
+            "type": "string",
+            "title": "## Galaxy Workflow indicator",
+            "markdownDescription": "Indicates that this JSON document is a **Galaxy Workflow**",
+            "default": "true",
+            "enum": [
+                "true"
+            ]
+        },
+        "annotation": {
+            "type": "string"
+        },
+        "creator": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "class": {
+                            "type": "string"
+                        },
+                        "identifier": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "class",
+                        "identifier",
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "format-version": {
+            "type": "string"
+        },
+        "license": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "release": {
+            "type": "string"
+        },
+        "steps": {
+            "type": "object",
+            "$ref": "#/definitions/step"
+        },
+        "tags": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "string"
+                }
+            ]
+        },
+        "uuid": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "a_galaxy_workflow",
+        "annotation",
+        "creator",
+        "format-version",
+        "license",
+        "name",
+        "release",
+        "steps",
+        "tags",
+        "uuid"
+    ],
+    "definitions": {
+        "step": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^[0-9]*$": {
+                    "type": "object",
+                    "properties": {
+                        "annotation": {
+                            "type": "string"
+                        },
+                        "content_id": {
+                            "$ref": "#/definitions/optionalString"
+                        },
+                        "errors": {
+                            "type": "null"
+                        },
+                        "id": {
+                            "type": "integer"
+                        },
+                        "input_connections": {
+                            "type": "object"
+                        },
+                        "inputs": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "description",
+                                        "name"
+                                    ]
+                                }
+                            ]
+                        },
+                        "label": {
+                            "$ref": "#/definitions/optionalString"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "outputs": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "position": {
+                            "type": "object",
+                            "properties": {
+                                "bottom": {
+                                    "type": "number"
+                                },
+                                "height": {
+                                    "type": "number"
+                                },
+                                "left": {
+                                    "type": "number"
+                                },
+                                "right": {
+                                    "type": "number"
+                                },
+                                "top": {
+                                    "type": "number"
+                                },
+                                "width": {
+                                    "type": "integer"
+                                },
+                                "x": {
+                                    "type": "number"
+                                },
+                                "y": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "tool_id": {
+                            "$ref": "#/definitions/optionalString"
+                        },
+                        "tool_state": {
+                            "type": "string"
+                        },
+                        "tool_version": {
+                            "$ref": "#/definitions/optionalString"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "uuid": {
+                            "type": "string"
+                        },
+                        "workflow_outputs": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    },
+                    "required": [
+                        "annotation",
+                        "id",
+                        "input_connections",
+                        "inputs",
+                        "name",
+                        "outputs",
+                        "position",
+                        "tool_id",
+                        "type",
+                        "uuid",
+                        "workflow_outputs"
+                    ]
+                }
+            }
+        },
+        "optionalString": {
+            "type": [
+                "string",
+                "null"
+            ]
+        }
+    }
+}
