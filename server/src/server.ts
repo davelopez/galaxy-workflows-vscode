@@ -11,7 +11,8 @@ import { WorkflowLanguageService, TextDocument, WorkflowDocument } from "./langu
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { SymbolsProvider } from "./providers/symbolsProvider";
 import { FormattingProvider } from "./providers/formattingProvider";
-import { HoverProvider } from "./providers/hoverProvider";
+import { HoverProvider } from "./providers/hover/hoverProvider";
+import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 
 export class GalaxyWorkflowLanguageServer {
   public readonly languageService: WorkflowLanguageService;
@@ -53,7 +54,9 @@ export class GalaxyWorkflowLanguageServer {
 
   private registerProviders() {
     FormattingProvider.register(this);
-    HoverProvider.register(this);
+    HoverProvider.register(this, [
+      new DebugHoverContentContributor(), //TODO remove debug before release
+    ]);
     SymbolsProvider.register(this);
   }
 
