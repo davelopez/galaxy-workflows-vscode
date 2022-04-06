@@ -55,7 +55,7 @@ export class GalaxyWorkflowLanguageServer {
   private registerProviders() {
     FormattingProvider.register(this);
     HoverProvider.register(this, [
-      new DebugHoverContentContributor(), //TODO remove debug before release
+      // new DebugHoverContentContributor(), //TODO remove this contributor before release
     ]);
     SymbolsProvider.register(this);
   }
