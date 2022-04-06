@@ -118,10 +118,20 @@ export interface FormattingOptions extends LSPFormattingOptions {
   insertFinalNewline?: boolean;
 }
 
+export interface HoverContentContributor {
+  /**
+   * Gets the contents that will be contributed to a new section of the Hover message
+   * @param workflowDocument The workflow document
+   * @param position The hover position
+   */
+  onHoverContent(workflowDocument: WorkflowDocument, position: Position): string;
+}
+
 export interface WorkflowLanguageService {
   format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   parseWorkflowDocument(document: TextDocument): WorkflowDocument;
   doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+  doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
 }
 
 export abstract class ServerContext {
