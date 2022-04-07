@@ -5,7 +5,7 @@
     "properties": {
         "a_galaxy_workflow": {
             "type": "string",
-            "title": "## Galaxy Workflow indicator",
+            "title": "Galaxy Workflow indicator",
             "markdownDescription": "Indicates that this JSON document is a **Galaxy Workflow**",
             "default": "true",
             "enum": [
