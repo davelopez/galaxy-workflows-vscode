@@ -17,6 +17,7 @@ import {
   WorkflowLanguageService,
   Position,
   Hover,
+  CompletionList,
 } from "./languageTypes";
 import NativeWorkflowSchema from "../../workflow-languages/schemas/native.schema.json";
 
@@ -65,6 +66,15 @@ export class NativeWorkflowLanguageService implements WorkflowLanguageService {
       workflowDocument.jsonDocument
     );
     return hover;
+  }
+
+  public async doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null> {
+    const completionResult = await this._jsonLanguageService.doComplete(
+      workflowDocument.textDocument,
+      position,
+      workflowDocument.jsonDocument
+    );
+    return completionResult;
   }
 
   private getLanguageSettings(): LanguageSettings {
