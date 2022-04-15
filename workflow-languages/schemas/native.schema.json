@@ -86,6 +86,22 @@
         "step": {
             "type": "object",
             "additionalProperties": false,
+            "defaultSnippets": [
+                {
+                    "label": "Workflow Step",
+                    "description": "Defines a workflow step with basic properties",
+                    "body": {
+                        "${1:0}": {
+                            "id": "^$1",
+                            "name": "$2",
+                            "label": "$3",
+                            "annotation": "$4",
+                            "inputs": [],
+                            "outputs": []
+                        }
+                    }
+                }
+            ],
             "patternProperties": {
                 "^[0-9]*$": {
                     "type": "object",
