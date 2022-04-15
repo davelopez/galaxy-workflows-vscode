@@ -13,6 +13,7 @@ import { SymbolsProvider } from "./providers/symbolsProvider";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
 import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
+import { CompletionProvider } from "./providers/completionProvider";
 
 export class GalaxyWorkflowLanguageServer {
   public readonly languageService: WorkflowLanguageService;
@@ -44,6 +45,10 @@ export class GalaxyWorkflowLanguageServer {
     const capabilities: ServerCapabilities = {
       documentFormattingProvider: true,
       hoverProvider: true,
+      completionProvider: {
+        resolveProvider: false,
+        triggerCharacters: ['"', ":"],
+      },
       documentSymbolProvider: true,
     };
 
@@ -58,6 +63,7 @@ export class GalaxyWorkflowLanguageServer {
       // new DebugHoverContentContributor(), //TODO remove this contributor before release
     ]);
     SymbolsProvider.register(this);
+    CompletionProvider.register(this);
   }
 
   private registerCommands() {
