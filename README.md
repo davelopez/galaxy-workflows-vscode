@@ -3,7 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 ![GitHub release (latest SemVer)](https://img.shields.io/badge/release-unreleased-orange)
 
-_Early development stage_
+VSCode extension to assist in editing [Galaxy Workflow](https://galaxyproject.org/) files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html) for maintaining them.
+
+The initial version of the extension is focused on supporting the current **Galaxy Workflow _native_** format (documents with **.ga** extension) but the idea is to include support for the next format called **Format 2** (also known as [gxformat2](https://github.com/galaxyproject/gxformat2)) in the near future.
 
 ## Features
 
