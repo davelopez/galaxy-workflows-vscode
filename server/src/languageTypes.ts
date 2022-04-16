@@ -132,6 +132,7 @@ export interface WorkflowLanguageService {
   parseWorkflowDocument(document: TextDocument): WorkflowDocument;
   doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
   doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
+  doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
 }
 
 export abstract class ServerContext {
