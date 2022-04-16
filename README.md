@@ -1,6 +1,7 @@
 # Galaxy Workflows VSCode Extension
 
-VSCode extension to assist in [Galaxy](https://galaxyproject.org/) workflows editing.
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+![GitHub release (latest SemVer)](https://img.shields.io/badge/release-unreleased-orange)
 
 _Early development stage_
 
