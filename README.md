@@ -75,7 +75,7 @@ Back to [Features](#features)
 
 ### Simplified Workflow Diffs
 
-> :warning: This feature is experimental and is only available using a local git repository.
+> ⚠️ This feature is experimental and is only available using a local git repository.
 
 Sometimes you want to compare different revisions of the same workflow and see what has changed between them. If the workflow has been through the Galaxy editor or some of the nodes have been moved around, there can be many changes that are just cosmetical and not part of the workflow logic. In those cases, you may want to get a 'simplified' diff so you can focus on the 'real' changes. You can do so in the `Timeline` or the `File Explorer` by using `Select workflow for (clean) compare` in one revision and then `Compare with this workflow (clean)` on the other revision, this will compare both revisions using the 'clean' version of the workflow (see the clean workflow command), meaning the non-essential parts are removed from them before the comparison.
 
@@ -87,20 +87,8 @@ Back to [Features](#features)
 
 See the [full changelog here](docs/CHANGELOG.md).
 
-## Development
+## Contributing
 
-- Clone this repo (or your own fork) and open it in VSCode:
-  ```sh
-  git clone https://github.com/davelopez/galaxy-workflows-vscode.git
-  cd galaxy-workflows-vscode
-  code .
-  ```
-- Install dependencies:
-  ```sh
-  npm install
-  ```
-- Build
-  ```sh
-  npm run compile
-  ```
-- Run the `Launch Extension` configuration from the `Run and Debug` action bar (or press F5).
+:sparkles: Contributors are welcome! :sparkles:
+
+Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) :wink:
