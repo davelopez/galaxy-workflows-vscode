@@ -5,11 +5,11 @@
 
 VSCode extension to assist in editing [Galaxy Workflow](https://galaxyproject.org/) files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html) for maintaining them.
 
-The initial version of the extension is focused on supporting the current **Galaxy Workflow _native_** format (documents with **.ga** extension) but the idea is to include support for the next format called **Format 2** (also known as [gxformat2](https://github.com/galaxyproject/gxformat2)) in the near future.
+The extension can be installed either locally, or in a web context, like [github.dev](https://github.dev) or [vscode.dev](https://vscode.dev). The aim is to support the maximum number of features in both modes but the web mode may have some limitations.
+
+Although the initial version of the extension is focused on supporting the current **Galaxy Workflow _native_** format (documents with **.ga** extension), the idea is to include support for the next format called **Format 2** (also known as [gxformat2](https://github.com/galaxyproject/gxformat2)) in the near future.
 
 ## Features
-
-The extension is being developed with VSCode **Web** support in mind, meaning that most of the features should work directly in a web context, like [github.dev](https://github.dev) or [vscode.dev](https://vscode.dev).
 
 The following table shows all the implemented features and the current support for each workflow format.
 
@@ -31,7 +31,7 @@ You will get diagnostics for every syntax error or incorrect property value as y
 
 ![Workflow Validation Demo](images/validation-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ### Documentation on Hover
 
@@ -39,7 +39,7 @@ Hover over properties to get a description of what they are and how can you use 
 
 ![Documentation on Hover Demo](images/doc-hover-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ### IntelliSense
 
@@ -47,23 +47,23 @@ Get [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense#:~:tex
 
 ![IntelliSense Demo](images/intellisense-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ### Formatting
 
-Keep your Workflow document consistently formatted. Is recommended to enable your VSCode setting to `Format on Save` so you don't have to manually format after the changes.
+Keep your workflow document consistently formatted. We recommend enabling your VSCode setting to `Format on Save` so you don't have to manually format after the changes.
 
 ![Auto Formatting Demo](images/format-document-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ### Custom Outline
 
-The `Custom Outline` allows you to navigate and find different parts of the Workflow faster using the Outline panel or the [Breadcrumbs](). The Outline representation has been enhanced, in comparison to the standard JSON Outline, by displaying relevant information more prominently (like using the workflow step name instead of the index on step nodes) or hiding non-essential nodes.
+The `Custom Outline` allows you to navigate and find different parts of the Workflow faster using the Outline panel or the [Breadcrumbs](https://code.visualstudio.com/docs/editor/editingevolved#_breadcrumbs). The Outline representation has been enhanced, in comparison to the standard JSON Outline, by displaying relevant information more prominently (like using the workflow step name instead of the index on step nodes) or hiding non-essential nodes.
 
 ![Custom Outline Demo](images/custom-outline-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ### Workflow Cleanup Command
 
@@ -71,7 +71,7 @@ You can clean up the non-essential properties of a workflow with this command. T
 
 ![Cleanup Command Demo](images/clean-up-command-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ### Simplified Workflow Diffs
 
@@ -81,7 +81,7 @@ Sometimes you want to compare different revisions of the same workflow and see w
 
 ![Simplified Workflow Diffs Demo](images/clean-diff-native.gif)
 
-Back to [Features](#features)
+Back to [Features](#features) :arrow_up:
 
 ## Changelog
 
