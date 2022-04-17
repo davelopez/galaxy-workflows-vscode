@@ -15,13 +15,13 @@ The following table shows all the implemented features and the current support f
 
 | Feature                                                    | Native Workflows (.ga) | Format 2 Workflows (gxformat2) |
 | ---------------------------------------------------------- | :--------------------: | :----------------------------: |
-| [Validation](#workflow-validation)                         |   :heavy_check_mark:   |              :x:               |
-| [Documentation on Hover](#documentation-on-hover)          |   :heavy_check_mark:   |              :x:               |
-| [IntelliSense](#intellisense)                              |   :heavy_check_mark:   |              :x:               |
-| [Formatting](#formatting)                                  |   :heavy_check_mark:   |              :x:               |
-| [Custom Outline](#custom-outline)                          |   :heavy_check_mark:   |              :x:               |
-| [Workflow Cleanup Command](#workflow-cleanup-command)      |   :heavy_check_mark:   |              :x:               |
-| [Simplified Workflow Diffs](#simplified-workflow-diffs) \* |   :heavy_check_mark:   |              :x:               |
+| [Validation](#workflow-validation)                         |           ✔️           |               ❌               |
+| [Documentation on Hover](#documentation-on-hover)          |           ✔️           |               ❌               |
+| [IntelliSense](#intellisense)                              |           ✔️           |               ❌               |
+| [Formatting](#formatting)                                  |           ✔️           |               ❌               |
+| [Custom Outline](#custom-outline)                          |           ✔️           |               ❌               |
+| [Workflow Cleanup Command](#workflow-cleanup-command)      |           ✔️           |               ❌               |
+| [Simplified Workflow Diffs](#simplified-workflow-diffs) \* |           ✔️           |               ❌               |
 
 (\*) This feature is not supported in _Web_ mode or _Virtual File Systems_.
 
@@ -31,7 +31,7 @@ You will get diagnostics for every syntax error or incorrect property value as y
 
 ![Workflow Validation Demo](images/validation-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ### Documentation on Hover
 
@@ -39,7 +39,7 @@ Hover over properties to get a description of what they are and how can you use 
 
 ![Documentation on Hover Demo](images/doc-hover-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ### IntelliSense
 
@@ -47,7 +47,7 @@ Get [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense#:~:tex
 
 ![IntelliSense Demo](images/intellisense-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ### Formatting
 
@@ -55,7 +55,7 @@ Keep your workflow document consistently formatted. We recommend enabling your V
 
 ![Auto Formatting Demo](images/format-document-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ### Custom Outline
 
@@ -63,7 +63,7 @@ The `Custom Outline` allows you to navigate and find different parts of the Work
 
 ![Custom Outline Demo](images/custom-outline-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ### Workflow Cleanup Command
 
@@ -71,7 +71,7 @@ You can clean up the non-essential properties of a workflow with this command. T
 
 ![Cleanup Command Demo](images/clean-up-command-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ### Simplified Workflow Diffs
 
@@ -81,7 +81,7 @@ Sometimes you want to compare different revisions of the same workflow and see w
 
 ![Simplified Workflow Diffs Demo](images/clean-diff-native.gif)
 
-Back to [Features](#features) :arrow_up:
+[Back to Features ⬆️](#features)
 
 ## Changelog
 
@@ -89,6 +89,6 @@ See the [full changelog here](docs/CHANGELOG.md).
 
 ## Contributing
 
-:sparkles: Contributors are welcome! :sparkles:
+✨ Contributors are welcome! ✨
 
-Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) :wink:
+Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) 😉
