@@ -83,6 +83,10 @@ Sometimes you want to compare different revisions of the same workflow and see w
 
 Back to [Features](#features)
 
+## Changelog
+
+See the [full changelog here](docs/CHANGELOG.md).
+
 ## Development
 
 - Clone this repo (or your own fork) and open it in VSCode:
