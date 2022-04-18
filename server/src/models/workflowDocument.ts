@@ -1,5 +1,6 @@
 import { JSONDocument } from "vscode-json-languageservice";
 import { TextDocument, Range, Position, ASTNode } from "../languageTypes";
+import { URI } from "vscode-uri";
 
 /**
  * This class contains information about workflow semantics.
@@ -7,15 +8,17 @@ import { TextDocument, Range, Position, ASTNode } from "../languageTypes";
 export class WorkflowDocument {
   private _textDocument: TextDocument;
   private _jsonDocument: JSONDocument;
+  private _documentUri: URI;
 
   //TODO do not pass jsonDocument directly
   constructor(textDocument: TextDocument, jsonDocument: JSONDocument) {
     this._textDocument = textDocument;
     this._jsonDocument = jsonDocument;
+    this._documentUri = URI.parse(this._textDocument.uri);
   }
 
-  public get documentUri(): string {
-    return this._textDocument.uri;
+  public get uri(): URI {
+    return this._documentUri;
   }
 
   public get textDocument(): TextDocument {
