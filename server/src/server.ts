@@ -72,17 +72,13 @@ export class GalaxyWorkflowLanguageServer {
 
   private trackDocumentChanges(connection: Connection) {
     this.documents.listen(connection);
-    this.documents.onDidOpen((event) => this.onDocumentOpen(event.document));
     this.documents.onDidChangeContent((event) => this.onDidChangeContent(event.document));
     this.documents.onDidClose((event) => this.onDidClose(event.document));
   }
 
-  private onDocumentOpen(textDocument: TextDocument) {
-    const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
-    this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
-    this.validate(workflowDocument);
-  }
-
+  /**
+   * An event that fires when a workflow document has been opened or the content changes.
+   */
   private onDidChangeContent(textDocument: TextDocument) {
     const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
     this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);

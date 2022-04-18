@@ -25,11 +25,13 @@ export class WorkflowDocuments {
       return;
     }
     this._documentsCache.set(document.uri.toString(), document);
+    // console.debug("Registering: ", document.uri.toString());
     // console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
   public removeWorkflowDocument(documentUri: string) {
     this._documentsCache.delete(documentUri);
+    // console.debug("Un-registering: ", documentUri);
     // console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
