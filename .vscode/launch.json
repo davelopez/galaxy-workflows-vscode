@@ -14,9 +14,6 @@
 			],
 			"smartStep": true,
 			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceFolder}/client/dist/**/*.js"
-			],
 			"preLaunchTask": {
 				"type": "npm",
 				"script": "compile"
@@ -36,9 +33,6 @@
 			],
 			"smartStep": true,
 			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceRoot}/client/dist/web/**/*.js"
-			],
 			"preLaunchTask": {
 				"type": "npm",
 				"script": "compile"
@@ -50,9 +44,9 @@
 			"name": "Attach to Server",
 			"port": 6009,
 			"restart": true,
-			"outFiles": [
-				"${workspaceRoot}/server/dist/**/*.js"
-			]
-		}
+			"sourceMapPathOverrides": {
+				"webpack://?:*/*": "${workspaceFolder}/server/*"
+			}
+		},
 	]
 }

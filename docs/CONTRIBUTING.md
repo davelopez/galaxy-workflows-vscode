@@ -46,6 +46,8 @@ npm run compile
 
 Run the `Launch Extension` configuration from the `Run and Debug` action bar (or press F5).
 
+If you want to debug the _Workflow Language Server_, select and run the `Attach to Server` configuration when the extension is already running.
+
 ### Test the extension on [vscode.dev](https://vscode.dev/)
 
 After you get your extension working locally, follow the [instructions here](https://code.visualstudio.com/api/extension-guides/web-extensions#test-your-web-extension-in-on-vscode.dev) to try it in _Web_ mode.
