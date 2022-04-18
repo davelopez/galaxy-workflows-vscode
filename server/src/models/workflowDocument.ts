@@ -43,6 +43,27 @@ export class WorkflowDocument {
     return node ? this.getNodeRange(node) : this.getDefaultRangeAtPosition(position);
   }
 
+  public isLastNodeInParent(node: ASTNode): boolean {
+    const parent = node.parent;
+    if (!parent || !parent.children) {
+      return true; // Must be root
+    }
+    const lastNode = parent.children[parent.children.length - 1];
+    return node === lastNode;
+  }
+
+  public getPreviousSiblingNode(node: ASTNode): ASTNode | null {
+    const parent = node.parent;
+    if (!parent || !parent.children) {
+      return null;
+    }
+    const previousNodeIndex = parent.children.indexOf(node) - 1;
+    if (previousNodeIndex < 0) {
+      return null;
+    }
+    return parent.children[previousNodeIndex];
+  }
+
   private getDefaultRangeAtPosition(position: Position): Range {
     const offset = this.textDocument.offsetAt(position);
     return Range.create(this.textDocument.positionAt(offset), this.textDocument.positionAt(offset + 1));
