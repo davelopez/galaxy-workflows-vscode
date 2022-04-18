@@ -3,6 +3,11 @@ import { WorkflowDocument } from "./workflowDocument";
 export class WorkflowDocuments {
   private _documentsCache: Map<string, WorkflowDocument>;
 
+  /**
+   * Workflow document URI schemes that represent temporal or readonly documents.
+   */
+  public static schemesToSkip = ["temp", "galaxy-clean-workflow"];
+
   constructor() {
     this._documentsCache = new Map<string, WorkflowDocument>();
   }
@@ -16,6 +21,9 @@ export class WorkflowDocuments {
   }
 
   public addOrReplaceWorkflowDocument(document: WorkflowDocument) {
+    if (WorkflowDocuments.schemesToSkip.includes(document.uri.scheme)) {
+      return;
+    }
     this._documentsCache.set(document.uri.toString(), document);
     // console.debug("workflow files registered: ", this._documentsCache.size);
   }

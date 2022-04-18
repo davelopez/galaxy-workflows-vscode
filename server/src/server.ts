@@ -99,6 +99,9 @@ export class GalaxyWorkflowLanguageServer {
   }
 
   private validate(workflowDocument: WorkflowDocument) {
+    if (WorkflowDocuments.schemesToSkip.includes(workflowDocument.uri.scheme)) {
+      return;
+    }
     this.languageService.doValidation(workflowDocument).then((diagnostics) => {
       this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
     });
