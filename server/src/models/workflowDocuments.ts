@@ -3,6 +3,11 @@ import { WorkflowDocument } from "./workflowDocument";
 export class WorkflowDocuments {
   private _documentsCache: Map<string, WorkflowDocument>;
 
+  /**
+   * Workflow document URI schemes that represent temporal or readonly documents.
+   */
+  public static schemesToSkip = ["temp", "galaxy-clean-workflow"];
+
   constructor() {
     this._documentsCache = new Map<string, WorkflowDocument>();
   }
@@ -16,13 +21,18 @@ export class WorkflowDocuments {
   }
 
   public addOrReplaceWorkflowDocument(document: WorkflowDocument) {
-    this._documentsCache.set(document.documentUri, document);
-    //console.debug("workflow files registered: ", this._documentsCache.size);
+    if (WorkflowDocuments.schemesToSkip.includes(document.uri.scheme)) {
+      return;
+    }
+    this._documentsCache.set(document.uri.toString(), document);
+    // console.debug("Registering: ", document.uri.toString());
+    // console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
   public removeWorkflowDocument(documentUri: string) {
     this._documentsCache.delete(documentUri);
-    //console.debug("workflow files registered: ", this._documentsCache.size);
+    // console.debug("Un-registering: ", documentUri);
+    // console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
   public dispose() {

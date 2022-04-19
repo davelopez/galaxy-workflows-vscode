@@ -66,8 +66,12 @@ export class CleanWorkflowProvider {
    * @returns The 'clean' contents of the given workflow document.
    */
   private async requestCleanDocumentFromUri(uri: Uri) {
+    // Opening the document will fire the onDidOpen and onDidChangeContent events
     const workflowDocument = await workspace.openTextDocument(uri);
     const contents = workflowDocument.getText();
+    // After this point we no longer need the document but there is no programmatically way of closing it.
+    // The Editor takes care of the document lifecycle so, at some point, it will
+    // automatically close the document and then fire the OnDidClose event
     return this.requestCleanContents(contents);
   }
 

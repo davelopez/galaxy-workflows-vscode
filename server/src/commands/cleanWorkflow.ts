@@ -99,8 +99,22 @@ export class CleanWorkflowCommand extends CustomCommand {
     const nodesToRemove = this.getNonEssentialNodes(workflowDocument, CLEANABLE_PROPERTY_NAMES);
     const changes: TextEdit[] = [];
     nodesToRemove.forEach((node) => {
-      const range = this.getReplaceRange(workflowDocument.textDocument, node);
+      const range = this.getFullNodeRange(workflowDocument.textDocument, node);
       changes.push(TextEdit.replace(range, ""));
+
+      // Remove trailing comma in previous property node
+      const isLastNode = workflowDocument.isLastNodeInParent(node);
+      if (isLastNode) {
+        const previousNode = workflowDocument.getPreviousSiblingNode(node);
+        if (previousNode) {
+          const range = this.getFullNodeRange(workflowDocument.textDocument, previousNode);
+          const nodeText = workflowDocument.textDocument.getText(range);
+          if (nodeText.endsWith(",")) {
+            const nodeTextWithoutTrailingComma = nodeText.slice(0, -1);
+            changes.push(TextEdit.replace(range, nodeTextWithoutTrailingComma));
+          }
+        }
+      }
     });
     return changes;
   }
@@ -188,7 +202,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     return { start: startPos, end: endPos };
   }
 
-  private getReplaceRange(document: TextDocument, node: ASTNode): Range {
+  private getFullNodeRange(document: TextDocument, node: ASTNode): Range {
     const documentText = document.getText();
     const rangeOffsets = this.getFullNodeRangeOffsets(documentText, node);
     return Range.create(document.positionAt(rangeOffsets.start), document.positionAt(rangeOffsets.end));
