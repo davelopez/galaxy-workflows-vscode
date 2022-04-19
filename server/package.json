@@ -22,5 +22,8 @@
         "vscode-json-languageservice": "^4.2.0",
         "vscode-uri": "^3.0.3"
     },
-    "scripts": {}
+    "scripts": {
+        "webpack": "webpack",
+        "watch": "webpack --watch --progress"
+    }
 }

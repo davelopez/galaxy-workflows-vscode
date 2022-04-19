@@ -16,7 +16,7 @@
 			"sourceMaps": true,
 			"preLaunchTask": {
 				"type": "npm",
-				"script": "compile"
+				"script": "watch"
 			},
 			"sourceMapPathOverrides": {
 				"webpack://?:*/*": "${workspaceFolder}/client/*"

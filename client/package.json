@@ -17,5 +17,9 @@
     },
     "dependencies": {
         "vscode-languageclient": "^7.0.0"
+    },
+    "scripts": {
+        "webpack": "webpack",
+        "watch": "webpack --watch --progress"
     }
 }
