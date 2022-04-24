@@ -49,7 +49,7 @@ export class CleanWorkflowProvider {
    * @returns The 'clean' contents of the workflow document.
    */
   private async requestCleanContents(contents: string): Promise<string> {
-    let params: CleanWorkflowContentsParams = {
+    const params: CleanWorkflowContentsParams = {
       contents: contents,
     };
     const result = await this.languageClient.sendRequest(CleanWorkflowContentsRequest.type, params);

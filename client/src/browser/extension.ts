@@ -3,15 +3,17 @@ import { LanguageClientOptions } from "vscode-languageclient";
 import { LanguageClient } from "vscode-languageclient/browser";
 import { buildLanguageClientOptions, initExtension } from "../common";
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): void {
   const client = buildWebLanguageClient(context);
 
   initExtension(context, client);
 }
 
-export function deactivate() {}
+export function deactivate(): void {
+  // Nothing to do yet
+}
 
-function buildWebLanguageClient(context: ExtensionContext) {
+function buildWebLanguageClient(context: ExtensionContext): LanguageClient {
   const clientOptions: LanguageClientOptions = buildLanguageClientOptions();
   const serverPath = Uri.joinPath(context.extensionUri, "server/dist/web/nativeServer.js");
   const worker = new Worker(serverPath.toString());

@@ -4,15 +4,17 @@ import { LanguageClientOptions } from "vscode-languageclient";
 import { LanguageClient, ServerOptions, TransportKind } from "vscode-languageclient/node";
 import { buildLanguageClientOptions, initExtension } from "./common";
 
-export function activate(context: ExtensionContext) {
+export function activate(context: ExtensionContext): void {
   const client = buildLanguageClient(context);
 
   initExtension(context, client);
 }
 
-export function deactivate() {}
+export function deactivate(): void {
+  // Nothing to do yet
+}
 
-function buildLanguageClient(context: ExtensionContext) {
+function buildLanguageClient(context: ExtensionContext): LanguageClient {
   const clientOptions: LanguageClientOptions = buildLanguageClientOptions();
   const serverOptions: ServerOptions = buildServerOptions(context);
   return new LanguageClient(
@@ -23,7 +25,7 @@ function buildLanguageClient(context: ExtensionContext) {
   );
 }
 
-function buildServerOptions(context: ExtensionContext) {
+function buildServerOptions(context: ExtensionContext): ServerOptions {
   // The server is implemented in node
   const serverModule = context.asAbsolutePath(path.join("server", "dist", "nativeServer.js"));
   // The debug options for the server

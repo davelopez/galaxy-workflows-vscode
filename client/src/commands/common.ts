@@ -7,7 +7,7 @@ import { CommonLanguageClient } from "vscode-languageclient";
  * @param command Command unique ID
  * @returns Fully-qualified identifier of the command
  */
-export function getCommandFullIdentifier(command: string) {
+export function getCommandFullIdentifier(command: string): string {
   return `galaxy-workflows.${command}`;
 }
 
@@ -61,10 +61,10 @@ export class ComparableWorkflow {
     if (args.length >= 2) {
       const firstArg = args[0];
       const secondArg = args[1];
-      if (firstArg.hasOwnProperty("ref")) {
+      if (Object.prototype.hasOwnProperty.call(firstArg, "ref")) {
         // Comes from source control timeline
         return { uri: secondArg, ref: firstArg.ref };
-      } else if (firstArg.hasOwnProperty("scheme")) {
+      } else if (Object.prototype.hasOwnProperty.call(firstArg, "scheme")) {
         // Comes from file explorer
         return { uri: firstArg, ref: undefined };
       }
