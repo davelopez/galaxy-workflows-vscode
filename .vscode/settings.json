@@ -10,5 +10,6 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
-  }
+  },
+  "gitlens.advanced.blame.customArguments": ["--ignore-revs-file", ".git-blame-ignore-revs"]
 }
