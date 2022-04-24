@@ -48,5 +48,37 @@
 				"webpack://?:*/*": "${workspaceFolder}/server/*"
 			}
 		},
+		{
+			"type": "node",
+			"name": "Debug Unit Tests",
+			"program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+			"request": "launch",
+			"args": [
+				"-i"
+			],
+			"internalConsoleOptions": "openOnSessionStart",
+			"preLaunchTask": {
+				"type": "npm",
+				"script": "watch"
+			},
+		},
+		{
+			"name": "Debug e2e Tests",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--disable-extensions",
+				"--extensionDevelopmentPath=${workspaceFolder}",
+				"--extensionTestsPath=${workspaceFolder}/client/out/e2e/suite/index"
+			],
+			"outFiles": [
+				"${workspaceFolder}client/out/e2e/**/*.js"
+			],
+			"preLaunchTask": {
+				"type": "npm",
+				"script": "test-compile"
+			},
+		}
 	]
 }
