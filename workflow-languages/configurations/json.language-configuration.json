@@ -1,70 +1,47 @@
 {
-    "comments": {
-        "lineComment": "//",
-        "blockComment": [
-            "/*",
-            "*/"
-        ]
+  "comments": {
+    "lineComment": "//",
+    "blockComment": ["/*", "*/"]
+  },
+  "brackets": [
+    ["{", "}"],
+    ["[", "]"]
+  ],
+  "autoClosingPairs": [
+    {
+      "open": "{",
+      "close": "}",
+      "notIn": ["string"]
     },
-    "brackets": [
-        [
-            "{",
-            "}"
-        ],
-        [
-            "[",
-            "]"
-        ]
-    ],
-    "autoClosingPairs": [
-        {
-            "open": "{",
-            "close": "}",
-            "notIn": [
-                "string"
-            ]
-        },
-        {
-            "open": "[",
-            "close": "]",
-            "notIn": [
-                "string"
-            ]
-        },
-        {
-            "open": "(",
-            "close": ")",
-            "notIn": [
-                "string"
-            ]
-        },
-        {
-            "open": "'",
-            "close": "'",
-            "notIn": [
-                "string"
-            ]
-        },
-        {
-            "open": "\"",
-            "close": "\"",
-            "notIn": [
-                "string",
-                "comment"
-            ]
-        },
-        {
-            "open": "`",
-            "close": "`",
-            "notIn": [
-                "string",
-                "comment"
-            ]
-        }
-    ],
-    "wordPattern": "(\"(?:[^\\\\\\\"]*(?:\\\\.)?)*\"?)|[^\\s{}\\[\\],:]+",
-    "indentationRules": {
-        "increaseIndentPattern": "({+(?=([^\"]*\"[^\"]*\")*[^\"}]*$))|(\\[+(?=([^\"]*\"[^\"]*\")*[^\"\\]]*$))",
-        "decreaseIndentPattern": "^\\s*[}\\]],?\\s*$"
+    {
+      "open": "[",
+      "close": "]",
+      "notIn": ["string"]
+    },
+    {
+      "open": "(",
+      "close": ")",
+      "notIn": ["string"]
+    },
+    {
+      "open": "'",
+      "close": "'",
+      "notIn": ["string"]
+    },
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": "`",
+      "close": "`",
+      "notIn": ["string", "comment"]
     }
+  ],
+  "wordPattern": "(\"(?:[^\\\\\\\"]*(?:\\\\.)?)*\"?)|[^\\s{}\\[\\],:]+",
+  "indentationRules": {
+    "increaseIndentPattern": "({+(?=([^\"]*\"[^\"]*\")*[^\"}]*$))|(\\[+(?=([^\"]*\"[^\"]*\")*[^\"\\]]*$))",
+    "decreaseIndentPattern": "^\\s*[}\\]],?\\s*$"
+  }
 }

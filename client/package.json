@@ -1,26 +1,26 @@
 {
-    "name": "galaxy-workflows-client",
-    "description": "VSCode extension implementation for Galaxy Workflows.",
-    "version": "0.1.0",
-    "author": {
-        "name": "galaxyproject",
-        "url": "https://galaxyproject.org/"
-    },
-    "license": "MIT",
-    "publisher": "galaxyproject",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/davelopez/galaxy-workflows-vscode"
-    },
-    "engines": {
-        "vscode": "^1.63.0"
-    },
-    "dependencies": {
-        "vscode-languageclient": "^7.0.0"
-    },
-    "scripts": {
-        "webpack": "webpack",
-        "watch": "webpack --watch --progress",
-        "test-unit": "jest"
-    }
+  "name": "galaxy-workflows-client",
+  "description": "VSCode extension implementation for Galaxy Workflows.",
+  "version": "0.1.0",
+  "author": {
+    "name": "galaxyproject",
+    "url": "https://galaxyproject.org/"
+  },
+  "license": "MIT",
+  "publisher": "galaxyproject",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davelopez/galaxy-workflows-vscode"
+  },
+  "engines": {
+    "vscode": "^1.63.0"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  },
+  "scripts": {
+    "webpack": "webpack",
+    "watch": "webpack --watch --progress",
+    "test-unit": "jest"
+  }
 }
