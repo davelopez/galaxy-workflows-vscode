@@ -140,6 +140,9 @@
 		"test": "jest",
 		"test-unit-client": "cd client && npm run test-unit && cd ..",
 		"test-unit-server": "cd server && npm run test-unit && cd ..",
+		"test-compile": "tsc --project ./client --outDir client/out",
+		"pretest:e2e": "npm run test-compile",
+		"test:e2e": "node ./client/out/e2e/runTests.js"
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.1.0",
@@ -148,6 +151,7 @@
 		"@types/webpack-env": "^1.16.3",
 		"@typescript-eslint/eslint-plugin": "^5.10.1",
 		"@typescript-eslint/parser": "^5.10.1",
+		"@vscode/test-electron": "^2.1.3",
 		"jest": "^27.5.1",
 		"rimraf": "^2.6.3",
 		"ts-jest": "^27.1.4",
