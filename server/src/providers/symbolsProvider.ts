@@ -40,7 +40,7 @@ export class SymbolsProvider extends Provider {
     const toVisit: { node: ASTNode; result: DocumentSymbol[] }[] = [{ node: root, result }];
     let nextToVisit = 0;
 
-    const collectOutlineEntries = (node: ASTNode, result: DocumentSymbol[]) => {
+    const collectOutlineEntries = (node: ASTNode, result: DocumentSymbol[]): void => {
       if (node.type === "array") {
         node.items.forEach((node, index) => {
           if (node) {
@@ -157,7 +157,7 @@ export class SymbolsProvider extends Provider {
     return undefined;
   }
 
-  private getKeyLabel(property: PropertyASTNode) {
+  private getKeyLabel(property: PropertyASTNode): string {
     let name = property.keyNode.value;
     if (name) {
       name = name.replace(/[\n]/g, "↵");
@@ -168,7 +168,7 @@ export class SymbolsProvider extends Provider {
     return `"${name}"`;
   }
 
-  private getDetail(node: ASTNode | undefined) {
+  private getDetail(node: ASTNode | undefined): string | undefined {
     if (!node) {
       return undefined;
     }

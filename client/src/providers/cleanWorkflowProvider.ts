@@ -65,7 +65,7 @@ export class CleanWorkflowProvider {
    * @param uri The 'dirty' workflow document URI.
    * @returns The 'clean' contents of the given workflow document.
    */
-  private async requestCleanDocumentFromUri(uri: Uri) {
+  private async requestCleanDocumentFromUri(uri: Uri): Promise<string> {
     // Opening the document will fire the onDidOpen and onDidChangeContent events
     const workflowDocument = await workspace.openTextDocument(uri);
     const contents = workflowDocument.getText();
@@ -75,12 +75,12 @@ export class CleanWorkflowProvider {
     return this.requestCleanContents(contents);
   }
 
-  private convertToWorkspaceUri(uri: Uri) {
+  private convertToWorkspaceUri(uri: Uri): Uri {
     const targetScheme = getWorkspaceScheme();
     return replaceUriScheme(uri, targetScheme);
   }
 
-  private uriHasGitRef(uri: Uri) {
+  private uriHasGitRef(uri: Uri): boolean {
     return uri.query && uri.query.startsWith("ref=");
   }
 

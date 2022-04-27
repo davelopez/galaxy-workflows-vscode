@@ -46,7 +46,7 @@ export abstract class CustomCommand extends CommandContext {
    * Executes the command with the given arguments.
    * @param args The arguments passed when invoking the command
    */
-  abstract execute(args: any[]): Promise<void>;
+  abstract execute(args: unknown[]): Promise<void>;
 }
 
 /**
@@ -57,16 +57,14 @@ export class ComparableWorkflow {
   uri: Uri;
   ref: string;
 
-  public static buildFromArgs(args: any[]): ComparableWorkflow | undefined {
+  public static buildFromArgs(args: unknown[]): ComparableWorkflow | undefined {
     if (args.length >= 2) {
-      const firstArg = args[0];
-      const secondArg = args[1];
-      if (Object.prototype.hasOwnProperty.call(firstArg, "ref")) {
+      if (Object.prototype.hasOwnProperty.call(args[0], "ref")) {
         // Comes from source control timeline
-        return { uri: secondArg, ref: firstArg.ref };
-      } else if (Object.prototype.hasOwnProperty.call(firstArg, "scheme")) {
+        return { uri: args[1] as Uri, ref: args[0]["ref"] };
+      } else if (Object.prototype.hasOwnProperty.call(args[0], "scheme")) {
         // Comes from file explorer
-        return { uri: firstArg, ref: undefined };
+        return { uri: args[0] as Uri, ref: undefined };
       }
     }
     return undefined;

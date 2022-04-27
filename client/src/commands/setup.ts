@@ -12,7 +12,7 @@ import { CleanWorkflowCommand } from "./cleanWorkflow";
  * @param context The extension context
  * @param client The language client
  */
-export function setupCommands(context: ExtensionContext, client: CommonLanguageClient, gitProvider: GitProvider) {
+export function setupCommands(context: ExtensionContext, client: CommonLanguageClient, gitProvider: GitProvider): void {
   context.subscriptions.push(new PreviewCleanWorkflowCommand(client).register());
   context.subscriptions.push(new CleanWorkflowCommand(client).register());
   const selectForCompareProvider = new SelectForCleanCompareCommand(client);

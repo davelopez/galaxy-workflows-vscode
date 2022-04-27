@@ -7,7 +7,7 @@ import { CleanWorkflowProvider } from "./providers/cleanWorkflowProvider";
 import { GitProvider } from "./providers/git/common";
 import { BuiltinGitProvider } from "./providers/git/gitProvider";
 
-export function buildLanguageClientOptions() {
+export function buildLanguageClientOptions(): LanguageClientOptions {
   const documentSelector = [{ language: Constants.NATIVE_WORKFLOW_LANGUAGE_ID }];
 
   // Options to control the language client
@@ -19,7 +19,7 @@ export function buildLanguageClientOptions() {
   return clientOptions;
 }
 
-export function initExtension(context: ExtensionContext, client: CommonLanguageClient) {
+export function initExtension(context: ExtensionContext, client: CommonLanguageClient): void {
   const gitProvider = new BuiltinGitProvider();
   setupProviders(context, client, gitProvider);
   setupCommands(context, client, gitProvider);
@@ -37,7 +37,7 @@ export function initExtension(context: ExtensionContext, client: CommonLanguageC
   });
 }
 
-function setupProviders(context: ExtensionContext, client: CommonLanguageClient, gitProvider: GitProvider) {
+function setupProviders(context: ExtensionContext, client: CommonLanguageClient, gitProvider: GitProvider): void {
   const cleanWorkflowProvider = new CleanWorkflowProvider(client, gitProvider);
   CleanWorkflowDocumentProvider.register(context, cleanWorkflowProvider);
 }

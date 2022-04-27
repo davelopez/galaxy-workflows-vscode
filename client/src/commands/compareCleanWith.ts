@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { commands, Uri } from "vscode";
 import { CommonLanguageClient } from "vscode-languageclient";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
@@ -21,7 +21,7 @@ export class CompareCleanWithWorkflowsCommand extends CustomCommand {
     super(client);
   }
 
-  async execute(args: any[]): Promise<void> {
+  async execute(args: unknown[]): Promise<void> {
     const leftComparable = this.comparableWorkflowProvider.getSelectedForCompare();
     const rightComparable = ComparableWorkflow.buildFromArgs(args);
 
@@ -31,7 +31,7 @@ export class CompareCleanWithWorkflowsCommand extends CustomCommand {
     commands.executeCommand("vscode.diff", leftUri, rightUri);
   }
 
-  private buildCleanWorkflowUri(comparableWorkflow: ComparableWorkflow) {
+  private buildCleanWorkflowUri(comparableWorkflow: ComparableWorkflow): Uri {
     const uri = comparableWorkflow.ref
       ? addRefToUri(comparableWorkflow.uri, comparableWorkflow.ref)
       : comparableWorkflow.uri;

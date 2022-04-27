@@ -20,7 +20,7 @@ export class WorkflowDocuments {
     return Array.from(this._documentsCache.values());
   }
 
-  public addOrReplaceWorkflowDocument(document: WorkflowDocument) {
+  public addOrReplaceWorkflowDocument(document: WorkflowDocument): void {
     if (WorkflowDocuments.schemesToSkip.includes(document.uri.scheme)) {
       return;
     }
@@ -29,13 +29,13 @@ export class WorkflowDocuments {
     // console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
-  public removeWorkflowDocument(documentUri: string) {
+  public removeWorkflowDocument(documentUri: string): void {
     this._documentsCache.delete(documentUri);
     // console.debug("Un-registering: ", documentUri);
     // console.debug("workflow files registered: ", this._documentsCache.size);
   }
 
-  public dispose() {
+  public dispose(): void {
     this._documentsCache.clear();
     //console.debug("workflow document cache cleared");
   }

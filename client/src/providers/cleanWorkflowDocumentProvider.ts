@@ -17,7 +17,7 @@ export function toCleanWorkflowUri(uri: Uri): Uri {
  * This will provide a document with the `clean contents` of the original workflow document.
  */
 export class CleanWorkflowDocumentProvider implements TextDocumentContentProvider {
-  public static register(context: ExtensionContext, cleanWorkflowProvider: CleanWorkflowProvider) {
+  public static register(context: ExtensionContext, cleanWorkflowProvider: CleanWorkflowProvider): void {
     const provider = new CleanWorkflowDocumentProvider(cleanWorkflowProvider);
     context.subscriptions.push(
       workspace.registerTextDocumentContentProvider(Constants.CLEAN_WORKFLOW_DOCUMENT_SCHEME, provider)
