@@ -135,6 +135,7 @@
     "format": "prettier --write .",
     "clean": "rimraf client/dist && rimraf server/dist",
     "compile": "npm run clean && webpack --config ./client/webpack.config.js && webpack --config ./server/webpack.config.js",
+    "vscode:prepublish": "npm run compile",
     "watch": "concurrently --kill-others \"npm run watch-server\" \"npm run watch-client\"",
     "watch-server": "cd server && npm run watch",
     "watch-client": "cd client && npm run watch",
