@@ -1,6 +1,6 @@
 {
   "id": "https://galaxyproject.org/schemas/workflow/native",
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "a_galaxy_workflow": {
@@ -178,24 +178,38 @@
         "position": {
           "$ref": "#/definitions/position"
         },
-        "tool_id": {
-          "$ref": "#/definitions/optionalString"
-        },
-        "tool_state": {
-          "type": "string"
-        },
-        "tool_version": {
-          "$ref": "#/definitions/optionalString"
-        },
         "type": {
-          "type": "string"
+          "type": "string",
+          "enum": ["tool", "subworkflow", "parameter_input", "data_input", "data_collection_input"]
         },
         "uuid": {
-          "type": "string"
+          "type": "string",
+          "markdownDescription": "UUID associated with the workflow step.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         },
         "workflow_outputs": {
           "$ref": "#/definitions/workflowOutputs"
         }
+      },
+      "if": {
+        "properties": { "type": { "const": "tool" } }
+      },
+      "then": {
+        "properties": {
+          "tool_id": {
+            "$ref": "#/definitions/optionalString"
+          },
+          "tool_state": {
+            "type": "string"
+          },
+          "tool_version": {
+            "$ref": "#/definitions/optionalString"
+          }
+        },
+        "required": ["tool_id", "tool_version", "tool_state"]
+      },
+      "else": {
+        "properties": {}
       },
       "required": [
         "annotation",
@@ -205,7 +219,6 @@
         "name",
         "outputs",
         "position",
-        "tool_id",
         "type",
         "uuid",
         "workflow_outputs"
