@@ -47,10 +47,12 @@
     },
     "format-version": {
       "type": "string",
-      "pattern": "^[0-9.]*$"
+      "markdownDescription": "Always 0.1 for JSON-formatted workflows.",
+      "enum": ["0.1"]
     },
     "release": {
       "type": "string",
+      "markdownDescription": "Release attribute. This is used only by the IWC, not Galaxy itself.",
       "pattern": "^[0-9.]*$"
     },
     "tags": {
@@ -58,6 +60,7 @@
     },
     "uuid": {
       "type": "string",
+      "markdownDescription": "UUID associated with the workflow.",
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },
     "steps": {
@@ -66,7 +69,7 @@
     "version": {
       "type": "integer",
       "minimum": 0,
-      "title": "Workflow name",
+      "title": "Workflow version",
       "markdownDescription": "Workflow version bumped by Galaxy when changes are made in the editor.",
       "default": 0
     }
