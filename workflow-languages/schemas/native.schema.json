@@ -73,17 +73,7 @@
       "default": 0
     }
   },
-  "required": [
-    "a_galaxy_workflow",
-    "annotation",
-    "creator",
-    "format-version",
-    "license",
-    "name",
-    "steps",
-    "tags",
-    "uuid"
-  ],
+  "required": ["a_galaxy_workflow", "format-version", "name", "steps"],
   "definitions": {
     "creator": {
       "type": "array",
@@ -99,13 +89,66 @@
         "class": {
           "type": "string",
           "default": "Person",
-          "enum": ["Person"]
-        },
-        "identifier": {
-          "type": "string"
+          "enum": ["Person", "Organization"]
         },
         "name": {
           "type": "string"
+        },
+        "alternateName": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string",
+          "description": "URL to an image"
+        },
+        "address": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "telephone": {
+          "type": "string"
+        },
+        "faxNumber": {
+          "type": "string"
+        }
+      },
+      "if": {
+        "properties": { "class": { "const": "Person" } }
+      },
+      "then": {
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "markdownDescription": "A unique identifier of the creator, e.g. their **ORCID**"
+          },
+          "givenName": {
+            "type": "string"
+          },
+          "familyName": {
+            "type": "string"
+          },
+          "honorificPrefix": {
+            "type": "string"
+          },
+          "honorificSuffix": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": "string"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "identifier": {
+            "type": "string",
+            "description": "A unique identifier of the creating organization"
+          }
         }
       },
       "required": ["class", "identifier", "name"]
@@ -120,6 +163,7 @@
     },
     "steps": {
       "type": "object",
+      "minProperties": 1,
       "additionalProperties": false,
       "patternProperties": {
         "^[0-9]*$": {
