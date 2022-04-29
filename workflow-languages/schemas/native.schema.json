@@ -11,28 +11,54 @@
       "enum": ["true"]
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "title": "Workflow name",
+      "markdownDescription": "Name for the workflow",
+      "default": "Galaxy workflow"
     },
     "annotation": {
-      "type": "string"
+      "type": "string",
+      "title": "Workflow annotation",
+      "markdownDescription": "Annotation for the workflow",
+      "default": "A workflow for doing some cool stuff!"
     },
     "creator": {
       "$ref": "#/definitions/creator"
     },
     "license": {
-      "type": "string"
+      "type": "string",
+      "title": "License",
+      "markdownDescription": "License for workflow redistribution",
+      "enum": [
+        "Apache-2.0",
+        "Artistic-2.0",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "CC-BY-4.0",
+        "CC-BY-SA-4.0",
+        "CC0-1.0",
+        "EPL-2.0",
+        "AGPL-3.0-or-later",
+        "GPL-3.0-or-later",
+        "MIT",
+        "MPL-2.0",
+        "PDDL-1.0",
+      ]
     },
     "format-version": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-9.]*$"
     },
     "release": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-9.]*$"
     },
     "tags": {
       "$ref": "#/definitions/tags"
     },
     "uuid": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },
     "steps": {
       "$ref": "#/definitions/steps"
