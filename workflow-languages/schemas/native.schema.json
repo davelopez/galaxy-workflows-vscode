@@ -206,28 +206,10 @@
     "position": {
       "type": "object",
       "properties": {
-        "bottom": {
-          "type": "number"
-        },
-        "height": {
-          "type": "number"
-        },
         "left": {
           "type": "number"
         },
-        "right": {
-          "type": "number"
-        },
         "top": {
-          "type": "number"
-        },
-        "width": {
-          "type": "integer"
-        },
-        "x": {
-          "type": "number"
-        },
-        "y": {
           "type": "number"
         }
       }
