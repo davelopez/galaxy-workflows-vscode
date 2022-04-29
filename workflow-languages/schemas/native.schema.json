@@ -13,14 +13,12 @@
     "name": {
       "type": "string",
       "title": "Workflow name",
-      "markdownDescription": "Name for the workflow",
-      "default": "Galaxy workflow"
+      "markdownDescription": "Name for the workflow"
     },
     "annotation": {
       "type": "string",
       "title": "Workflow annotation",
-      "markdownDescription": "Annotation for the workflow",
-      "default": "A workflow for doing some cool stuff!"
+      "markdownDescription": "Annotation for the workflow"
     },
     "creator": {
       "$ref": "#/definitions/creator"
@@ -48,6 +46,7 @@
     "format-version": {
       "type": "string",
       "markdownDescription": "Always 0.1 for JSON-formatted workflows.",
+      "default": "0.1",
       "enum": ["0.1"]
     },
     "release": {
