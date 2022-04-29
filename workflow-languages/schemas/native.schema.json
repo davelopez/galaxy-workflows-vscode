@@ -42,7 +42,7 @@
         "GPL-3.0-or-later",
         "MIT",
         "MPL-2.0",
-        "PDDL-1.0",
+        "PDDL-1.0"
       ]
     },
     "format-version": {
@@ -62,6 +62,13 @@
     },
     "steps": {
       "$ref": "#/definitions/steps"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Workflow name",
+      "markdownDescription": "Name for the workflow",
+      "default": "Galaxy workflow"
     }
   },
   "required": [
