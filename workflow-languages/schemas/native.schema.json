@@ -67,8 +67,8 @@
       "type": "integer",
       "minimum": 0,
       "title": "Workflow name",
-      "markdownDescription": "Name for the workflow",
-      "default": "Galaxy workflow"
+      "markdownDescription": "Workflow version bumped by Galaxy when changes are made in the editor.",
+      "default": 0
     }
   },
   "required": [
