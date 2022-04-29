@@ -1,6 +1,6 @@
 {
   "id": "https://galaxyproject.org/schemas/workflow/native",
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "a_galaxy_workflow": {
@@ -11,31 +11,66 @@
       "enum": ["true"]
     },
     "name": {
-      "type": "string"
+      "type": "string",
+      "title": "Workflow name",
+      "markdownDescription": "Name for the workflow"
     },
     "annotation": {
-      "type": "string"
+      "type": "string",
+      "title": "Workflow annotation",
+      "markdownDescription": "Annotation for the workflow"
     },
     "creator": {
       "$ref": "#/definitions/creator"
     },
     "license": {
-      "type": "string"
+      "type": "string",
+      "title": "License",
+      "markdownDescription": "License for workflow redistribution",
+      "enum": [
+        "Apache-2.0",
+        "Artistic-2.0",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "CC-BY-4.0",
+        "CC-BY-SA-4.0",
+        "CC0-1.0",
+        "EPL-2.0",
+        "AGPL-3.0-or-later",
+        "GPL-3.0-or-later",
+        "MIT",
+        "MPL-2.0",
+        "PDDL-1.0"
+      ]
     },
     "format-version": {
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Always 0.1 for JSON-formatted workflows.",
+      "default": "0.1",
+      "enum": ["0.1"]
     },
     "release": {
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "Release attribute. This is used only by the IWC, not Galaxy itself.",
+      "pattern": "^[0-9.]*$"
     },
     "tags": {
       "$ref": "#/definitions/tags"
     },
     "uuid": {
-      "type": "string"
+      "type": "string",
+      "markdownDescription": "UUID associated with the workflow.",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     },
     "steps": {
       "$ref": "#/definitions/steps"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 0,
+      "title": "Workflow version",
+      "markdownDescription": "Workflow version bumped by Galaxy when changes are made in the editor.",
+      "default": 0
     }
   },
   "required": [
@@ -45,7 +80,6 @@
     "format-version",
     "license",
     "name",
-    "release",
     "steps",
     "tags",
     "uuid"
@@ -142,23 +176,48 @@
         "position": {
           "$ref": "#/definitions/position"
         },
-        "tool_id": {
-          "$ref": "#/definitions/optionalString"
-        },
-        "tool_state": {
-          "type": "string"
-        },
-        "tool_version": {
-          "$ref": "#/definitions/optionalString"
-        },
         "type": {
-          "type": "string"
+          "type": "string",
+          "enum": ["tool", "subworkflow", "parameter_input", "data_input", "data_collection_input"]
         },
         "uuid": {
-          "type": "string"
+          "type": "string",
+          "markdownDescription": "UUID associated with the workflow step.",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         },
         "workflow_outputs": {
           "$ref": "#/definitions/workflowOutputs"
+        }
+      },
+      "if": {
+        "properties": { "type": { "const": "tool" } }
+      },
+      "then": {
+        "properties": {
+          "tool_id": {
+            "$ref": "#/definitions/optionalString"
+          },
+          "tool_state": {
+            "type": "string"
+          },
+          "tool_version": {
+            "$ref": "#/definitions/optionalString"
+          }
+        },
+        "required": ["tool_id", "tool_version", "tool_state"]
+      },
+      "else": {
+        "if": {
+          "properties": { "type": { "const": "subworkflow" } }
+        },
+        "then": {
+          "properties": {
+            "subworkflow": {
+              "type": "object",
+              "$ref": "#"
+            }
+          },
+          "required": ["subworkflow"]
         }
       },
       "required": [
@@ -168,8 +227,6 @@
         "inputs",
         "name",
         "outputs",
-        "position",
-        "tool_id",
         "type",
         "uuid",
         "workflow_outputs"
@@ -206,31 +263,14 @@
     "position": {
       "type": "object",
       "properties": {
-        "bottom": {
-          "type": "number"
-        },
-        "height": {
-          "type": "number"
-        },
         "left": {
-          "type": "number"
-        },
-        "right": {
           "type": "number"
         },
         "top": {
           "type": "number"
-        },
-        "width": {
-          "type": "integer"
-        },
-        "x": {
-          "type": "number"
-        },
-        "y": {
-          "type": "number"
         }
-      }
+      },
+      "required": ["left", "top"]
     },
     "optionalString": {
       "type": ["string", "null"]
