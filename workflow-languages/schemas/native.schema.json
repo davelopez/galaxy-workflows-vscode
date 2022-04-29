@@ -227,7 +227,6 @@
         "inputs",
         "name",
         "outputs",
-        "position",
         "type",
         "uuid",
         "workflow_outputs"
@@ -270,7 +269,8 @@
         "top": {
           "type": "number"
         }
-      }
+      },
+      "required": ["left", "top"]
     },
     "optionalString": {
       "type": ["string", "null"]
