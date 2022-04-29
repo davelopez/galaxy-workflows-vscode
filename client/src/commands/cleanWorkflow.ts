@@ -10,7 +10,7 @@ export class CleanWorkflowCommand extends CustomCommand {
   public static id = getCommandFullIdentifier("cleanWorkflow");
   readonly identifier: string = CleanWorkflowCommand.id;
 
-  async execute(args: any[]): Promise<void> {
+  async execute(): Promise<void> {
     if (!window.activeTextEditor) {
       return;
     }

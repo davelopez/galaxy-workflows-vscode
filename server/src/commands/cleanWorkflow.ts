@@ -119,7 +119,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     return changes;
   }
 
-  private createTempWorkflowDocumentWithContents(contents: string) {
+  private createTempWorkflowDocumentWithContents(contents: string): TextDocument {
     return TextDocument.create("temp://temp-workflow", "galaxyworkflow", 0, contents);
   }
 
@@ -144,7 +144,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     const toVisit: { node: ASTNode }[] = [{ node: root }];
     let nextToVisit = 0;
 
-    const collectNonEssentialProperties = (node: ASTNode) => {
+    const collectNonEssentialProperties = (node: ASTNode): void => {
       if (node.type === "array") {
         node.items.forEach((node) => {
           if (node) {
@@ -192,7 +192,7 @@ export class CleanWorkflowCommand extends CustomCommand {
    * @param node The syntax node
    * @returns The `start` and `end` offsets for the given syntax node
    */
-  private getFullNodeRangeOffsets(documentText: string, node: ASTNode) {
+  private getFullNodeRangeOffsets(documentText: string, node: ASTNode): { start: number; end: number } {
     let startPos = node.offset;
     let endPos = node.offset + node.length;
     startPos = documentText.lastIndexOf("\n", startPos);

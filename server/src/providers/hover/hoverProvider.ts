@@ -38,7 +38,7 @@ export class HoverProvider extends Provider {
     return hover;
   }
 
-  private setHoverContentSections(hover: Hover, contentSections: string[]) {
+  private setHoverContentSections(hover: Hover, contentSections: string[]): void {
     const markdownContent: MarkupContent = {
       kind: MarkupKind.Markdown,
       value: contentSections.join("\n\n---\n\n"),

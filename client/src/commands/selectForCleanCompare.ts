@@ -11,7 +11,7 @@ export class SelectForCleanCompareCommand extends CustomCommand implements Compa
 
   private static _selectedForCompare: ComparableWorkflow | undefined;
 
-  public async execute(args: any[]): Promise<void> {
+  public async execute(args: unknown[]): Promise<void> {
     SelectForCleanCompareCommand._selectedForCompare = ComparableWorkflow.buildFromArgs(args);
     await commands.executeCommand(
       "setContext",

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { RequestType } from "vscode-languageclient";
 
 // TODO: Move the contents of this file to a shared lib https://github.com/Microsoft/vscode/issues/15829

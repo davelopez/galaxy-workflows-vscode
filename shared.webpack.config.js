@@ -21,6 +21,9 @@ module.exports = function withDefaults(/**@type WebpackConfig*/ extConfig) {
     resolve: {
       mainFields: ["module", "main"],
       extensions: [".ts", ".js"], // support ts-files and js-files
+      fallback: {
+        path: require.resolve("path-browserify"),
+      },
     },
     module: {
       rules: [

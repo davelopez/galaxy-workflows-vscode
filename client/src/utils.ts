@@ -12,7 +12,7 @@ export function isVirtualWorkspace(): boolean {
  * Determines the correct document URI scheme depending on the current type of workspace.
  * @returns Current workspace scheme
  */
-export function getWorkspaceScheme() {
+export function getWorkspaceScheme(): "file" | "vscode-vfs" {
   return isVirtualWorkspace() ? "vscode-vfs" : "file";
 }
 
@@ -37,7 +37,7 @@ export function addRefToUri(uri: Uri, ref: string): Uri {
 }
 
 /** Just for debugging */
-export function debugPrintCommandArgs(command: string, args: any[], outputChannel: OutputChannel) {
+export function debugPrintCommandArgs(command: string, args: unknown[], outputChannel: OutputChannel): void {
   outputChannel.appendLine(`Command ${command} args:`);
   for (let index = 0; index < args.length; index++) {
     const element = args[index];

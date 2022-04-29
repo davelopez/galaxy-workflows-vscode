@@ -1,26 +1,30 @@
 {
-    "name": "galaxy-workflow-language-server-native",
-    "description": "Implementation of a language server for (native format) Galaxy Workflows.",
-    "version": "0.1.0",
-    "author": {
-        "name": "galaxyproject",
-        "url": "https://galaxyproject.org/"
-    },
-    "license": "MIT",
-    "engines": {
-        "node": "*"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/davelopez/galaxy-workflows-vscode"
-    },
-    "dependencies": {
-        "jsonc-parser": "^3.0.0",
-        "vscode-languageserver": "^7.0.0",
-        "vscode-languageserver-textdocument": "^1.0.4",
-        "vscode-languageserver-types": "^3.16.0",
-        "vscode-json-languageservice": "^4.2.0",
-        "vscode-uri": "^3.0.3"
-    },
-    "scripts": {}
+  "name": "galaxy-workflow-language-server-native",
+  "description": "Implementation of a language server for (native format) Galaxy Workflows.",
+  "version": "0.1.0",
+  "author": {
+    "name": "galaxyproject",
+    "url": "https://galaxyproject.org/"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davelopez/galaxy-workflows-vscode"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.0.0",
+    "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-textdocument": "^1.0.4",
+    "vscode-languageserver-types": "^3.16.0",
+    "vscode-json-languageservice": "^4.2.1",
+    "vscode-uri": "^3.0.3"
+  },
+  "scripts": {
+    "webpack": "webpack",
+    "watch": "webpack --watch --progress",
+    "test-unit": "jest"
+  }
 }

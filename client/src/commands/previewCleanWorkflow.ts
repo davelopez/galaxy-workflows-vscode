@@ -9,7 +9,7 @@ export class PreviewCleanWorkflowCommand extends CustomCommand {
   public static id = getCommandFullIdentifier("previewCleanWorkflow");
   readonly identifier: string = PreviewCleanWorkflowCommand.id;
 
-  async execute(args: any[]): Promise<void> {
+  async execute(): Promise<void> {
     if (!window.activeTextEditor) {
       return;
     }

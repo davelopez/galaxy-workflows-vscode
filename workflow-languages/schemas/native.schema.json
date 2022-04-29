@@ -1,253 +1,239 @@
 {
-    "id": "https://galaxyproject.org/schemas/workflow/native",
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "object",
-    "properties": {
-        "a_galaxy_workflow": {
-            "type": "string",
-            "title": "Galaxy Workflow indicator",
-            "markdownDescription": "Indicates that this JSON document is a **Galaxy Workflow**",
-            "default": "true",
-            "enum": [
-                "true"
-            ]
+  "id": "https://galaxyproject.org/schemas/workflow/native",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "a_galaxy_workflow": {
+      "type": "string",
+      "title": "Galaxy Workflow indicator",
+      "markdownDescription": "Indicates that this JSON document is a **Galaxy Workflow**",
+      "default": "true",
+      "enum": ["true"]
+    },
+    "name": {
+      "type": "string"
+    },
+    "annotation": {
+      "type": "string"
+    },
+    "creator": {
+      "$ref": "#/definitions/creator"
+    },
+    "license": {
+      "type": "string"
+    },
+    "format-version": {
+      "type": "string"
+    },
+    "release": {
+      "type": "string"
+    },
+    "tags": {
+      "$ref": "#/definitions/tags"
+    },
+    "uuid": {
+      "type": "string"
+    },
+    "steps": {
+      "$ref": "#/definitions/steps"
+    }
+  },
+  "required": [
+    "a_galaxy_workflow",
+    "annotation",
+    "creator",
+    "format-version",
+    "license",
+    "name",
+    "release",
+    "steps",
+    "tags",
+    "uuid"
+  ],
+  "definitions": {
+    "creator": {
+      "type": "array",
+      "items": [
+        {
+          "$ref": "#/definitions/contributor"
+        }
+      ]
+    },
+    "contributor": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "type": "string",
+          "default": "Person",
+          "enum": ["Person"]
+        },
+        "identifier": {
+          "type": "string"
         },
         "name": {
-            "type": "string"
-        },
-        "annotation": {
-            "type": "string"
-        },
-        "creator": {
-            "$ref": "#/definitions/creator"
-        },
-        "license": {
-            "type": "string"
-        },
-        "format-version": {
-            "type": "string"
-        },
-        "release": {
-            "type": "string"
-        },
-        "tags": {
-            "$ref": "#/definitions/tags"
-        },
-        "uuid": {
-            "type": "string"
-        },
-        "steps": {
-            "$ref": "#/definitions/steps"
+          "type": "string"
         }
+      },
+      "required": ["class", "identifier", "name"]
     },
-    "required": [
-        "a_galaxy_workflow",
-        "annotation",
-        "creator",
-        "format-version",
-        "license",
-        "name",
-        "release",
-        "steps",
-        "tags",
-        "uuid"
-    ],
-    "definitions": {
-        "creator": {
-            "type": "array",
-            "items": [
-                {
-                    "$ref": "#/definitions/contributor"
-                }
-            ]
+    "tags": {
+      "type": "array",
+      "items": [
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "steps": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[0-9]*$": {
+          "$ref": "#/definitions/step"
+        }
+      },
+      "defaultSnippets": [
+        {
+          "label": "Workflow Step",
+          "description": "Defines a workflow step with basic properties",
+          "body": {
+            "${1:0}": {
+              "id": "^$1",
+              "name": "$2",
+              "label": "$3",
+              "annotation": "$4",
+              "inputs": [],
+              "outputs": []
+            }
+          }
+        }
+      ]
+    },
+    "step": {
+      "type": "object",
+      "properties": {
+        "annotation": {
+          "type": "string"
         },
-        "contributor": {
-            "type": "object",
-            "properties": {
-                "class": {
-                    "type": "string",
-                    "default": "Person",
-                    "enum": [
-                        "Person"
-                    ]
-                },
-                "identifier": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "class",
-                "identifier",
-                "name"
-            ]
+        "content_id": {
+          "$ref": "#/definitions/optionalString"
         },
-        "tags": {
-            "type": "array",
-            "items": [
-                {
-                    "type": "string"
-                }
-            ]
+        "errors": {
+          "type": "null"
         },
-        "steps": {
-            "type": "object",
-            "additionalProperties": false,
-            "patternProperties": {
-                "^[0-9]*$": {
-                    "$ref": "#/definitions/step"
-                }
-            },
-            "defaultSnippets": [
-                {
-                    "label": "Workflow Step",
-                    "description": "Defines a workflow step with basic properties",
-                    "body": {
-                        "${1:0}": {
-                            "id": "^$1",
-                            "name": "$2",
-                            "label": "$3",
-                            "annotation": "$4",
-                            "inputs": [],
-                            "outputs": []
-                        }
-                    }
-                }
-            ]
+        "id": {
+          "type": "integer"
         },
-        "step": {
-            "type": "object",
-            "properties": {
-                "annotation": {
-                    "type": "string"
-                },
-                "content_id": {
-                    "$ref": "#/definitions/optionalString"
-                },
-                "errors": {
-                    "type": "null"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "input_connections": {
-                    "type": "object"
-                },
-                "inputs": {
-                    "$ref": "#/definitions/inputs"
-                },
-                "outputs": {
-                    "$ref": "#/definitions/outputs"
-                },
-                "label": {
-                    "$ref": "#/definitions/optionalString"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "position": {
-                    "$ref": "#/definitions/position"
-                },
-                "tool_id": {
-                    "$ref": "#/definitions/optionalString"
-                },
-                "tool_state": {
-                    "type": "string"
-                },
-                "tool_version": {
-                    "$ref": "#/definitions/optionalString"
-                },
-                "type": {
-                    "type": "string"
-                },
-                "uuid": {
-                    "type": "string"
-                },
-                "workflow_outputs": {
-                    "$ref": "#/definitions/workflowOutputs"
-                }
-            },
-            "required": [
-                "annotation",
-                "id",
-                "input_connections",
-                "inputs",
-                "name",
-                "outputs",
-                "position",
-                "tool_id",
-                "type",
-                "uuid",
-                "workflow_outputs"
-            ]
+        "input_connections": {
+          "type": "object"
         },
         "inputs": {
-            "type": "array",
-            "items": [
-                {
-                    "$ref": "#/definitions/input"
-                }
-            ]
-        },
-        "input": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "description",
-                "name"
-            ]
+          "$ref": "#/definitions/inputs"
         },
         "outputs": {
-            "type": "array",
-            "items": {}
+          "$ref": "#/definitions/outputs"
         },
-        "workflowOutputs": {
-            "type": "array",
-            "items": {}
+        "label": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "name": {
+          "type": "string"
         },
         "position": {
-            "type": "object",
-            "properties": {
-                "bottom": {
-                    "type": "number"
-                },
-                "height": {
-                    "type": "number"
-                },
-                "left": {
-                    "type": "number"
-                },
-                "right": {
-                    "type": "number"
-                },
-                "top": {
-                    "type": "number"
-                },
-                "width": {
-                    "type": "integer"
-                },
-                "x": {
-                    "type": "number"
-                },
-                "y": {
-                    "type": "number"
-                }
-            }
+          "$ref": "#/definitions/position"
         },
-        "optionalString": {
-            "type": [
-                "string",
-                "null"
-            ]
+        "tool_id": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "tool_state": {
+          "type": "string"
+        },
+        "tool_version": {
+          "$ref": "#/definitions/optionalString"
+        },
+        "type": {
+          "type": "string"
+        },
+        "uuid": {
+          "type": "string"
+        },
+        "workflow_outputs": {
+          "$ref": "#/definitions/workflowOutputs"
         }
+      },
+      "required": [
+        "annotation",
+        "id",
+        "input_connections",
+        "inputs",
+        "name",
+        "outputs",
+        "position",
+        "tool_id",
+        "type",
+        "uuid",
+        "workflow_outputs"
+      ]
+    },
+    "inputs": {
+      "type": "array",
+      "items": [
+        {
+          "$ref": "#/definitions/input"
+        }
+      ]
+    },
+    "input": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["description", "name"]
+    },
+    "outputs": {
+      "type": "array",
+      "items": {}
+    },
+    "workflowOutputs": {
+      "type": "array",
+      "items": {}
+    },
+    "position": {
+      "type": "object",
+      "properties": {
+        "bottom": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "left": {
+          "type": "number"
+        },
+        "right": {
+          "type": "number"
+        },
+        "top": {
+          "type": "number"
+        },
+        "width": {
+          "type": "integer"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "optionalString": {
+      "type": ["string", "null"]
     }
+  }
 }

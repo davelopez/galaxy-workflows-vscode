@@ -12,7 +12,7 @@ import { WorkflowDocuments } from "./models/workflowDocuments";
 import { SymbolsProvider } from "./providers/symbolsProvider";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
-import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
+// import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { CompletionProvider } from "./providers/completionProvider";
 
 export class GalaxyWorkflowLanguageServer {
@@ -57,7 +57,7 @@ export class GalaxyWorkflowLanguageServer {
     };
   }
 
-  private registerProviders() {
+  private registerProviders(): void {
     FormattingProvider.register(this);
     HoverProvider.register(this, [
       // new DebugHoverContentContributor(), //TODO remove this contributor before release
@@ -66,11 +66,11 @@ export class GalaxyWorkflowLanguageServer {
     CompletionProvider.register(this);
   }
 
-  private registerCommands() {
+  private registerCommands(): void {
     CleanWorkflowCommand.register(this);
   }
 
-  private trackDocumentChanges(connection: Connection) {
+  private trackDocumentChanges(connection: Connection): void {
     this.documents.listen(connection);
     this.documents.onDidChangeContent((event) => this.onDidChangeContent(event.document));
     this.documents.onDidClose((event) => this.onDidClose(event.document));
@@ -79,22 +79,22 @@ export class GalaxyWorkflowLanguageServer {
   /**
    * An event that fires when a workflow document has been opened or the content changes.
    */
-  private onDidChangeContent(textDocument: TextDocument) {
+  private onDidChangeContent(textDocument: TextDocument): void {
     const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
     this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
     this.validate(workflowDocument);
   }
 
-  private onDidClose(textDocument: TextDocument) {
+  private onDidClose(textDocument: TextDocument): void {
     this.workflowDocuments.removeWorkflowDocument(textDocument.uri);
     this.clearValidation(textDocument);
   }
 
-  private cleanup() {
+  private cleanup(): void {
     this.workflowDocuments.dispose();
   }
 
-  private validate(workflowDocument: WorkflowDocument) {
+  private validate(workflowDocument: WorkflowDocument): void {
     if (WorkflowDocuments.schemesToSkip.includes(workflowDocument.uri.scheme)) {
       return;
     }
@@ -103,7 +103,7 @@ export class GalaxyWorkflowLanguageServer {
     });
   }
 
-  private clearValidation(textDocument: TextDocument) {
+  private clearValidation(textDocument: TextDocument): void {
     this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [] });
   }
 }
