@@ -208,7 +208,18 @@
         "required": ["tool_id", "tool_version", "tool_state"]
       },
       "else": {
-        "properties": {}
+        "if": {
+          "properties": { "type": { "const": "subworkflow" } }
+        },
+        "then": {
+          "properties": {
+            "subworkflow": {
+              "type": "object",
+              "$ref": "#"
+            }
+          },
+          "required": ["subworkflow"]
+        }
       },
       "required": [
         "annotation",
