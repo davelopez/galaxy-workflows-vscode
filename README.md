@@ -85,7 +85,7 @@ Sometimes you want to compare different revisions of the same workflow and see w
 
 ## Changelog
 
-See the [full changelog here](docs/CHANGELOG.md).
+See the [full changelog here](CHANGELOG.md#change-log).
 
 ## Contributing
 
