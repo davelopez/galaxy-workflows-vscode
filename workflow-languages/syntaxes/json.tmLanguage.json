@@ -2,11 +2,12 @@
   "information_for_contributors": [
     "This file has been converted from https://github.com/microsoft/vscode-JSON.tmLanguage/blob/master/JSON.tmLanguage",
     "If you want to provide a fix or improvement, please create a pull request against the original repository.",
-    "Once accepted there, we are happy to receive an update request."
+    "Once accepted there, we are happy to receive an update request.",
+    "This file also includes customizations for the Native Galaxy Workflow format"
   ],
   "version": "https://github.com/microsoft/vscode-JSON.tmLanguage/commit/9bd83f1c252b375e957203f21793316203f61f70",
-  "name": "JSON (Javascript Next)",
-  "scopeName": "source.json",
+  "name": "JSON (Native Galaxy Workflow)",
+  "scopeName": "source.ga",
   "patterns": [
     {
       "include": "#value"

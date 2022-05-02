@@ -38,7 +38,7 @@
     "grammars": [
       {
         "language": "galaxyworkflow",
-        "scopeName": "source.json",
+        "scopeName": "source.ga",
         "path": "./workflow-languages/syntaxes/json.tmLanguage.json"
       }
     ],
