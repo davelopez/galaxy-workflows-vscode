@@ -7,23 +7,49 @@ VSCode extension to assist in editing [Galaxy Workflow](https://galaxyproject.or
 
 The extension can be installed either locally, or in a web context, like [github.dev](https://github.dev) or [vscode.dev](https://vscode.dev). The aim is to support the maximum number of features in both modes but the web mode may have some limitations.
 
-Although the initial version of the extension is focused on supporting the current **Galaxy Workflow _native_** format (documents with **.ga** extension), the idea is to include support for the next format called **Format 2** (also known as [gxformat2](https://github.com/galaxyproject/gxformat2)) in the near future.
+The extension aims to focus on assist in editing [**Format 2** Galaxy Workflow](https://github.com/galaxyproject/gxformat2) files. However, the support is **currently under development**. The initial version of the extension will work with _legacy_ **Galaxy Workflow _native_** format (documents with **.ga** extension) as an experiment for legacy workflow maintainers.
+
+> ⚠️ Please note the _Native_ Galaxy Workflow format (.ga) is considered internal and _legacy_. The support provided here is temporal and experimental. Please consider waiting for the `Format 2` support before using this extension.
+
+## Changelog
+
+See the [full changelog here](CHANGELOG.md#change-log).
+
+## Contributing
+
+✨ Contributors are welcome! ✨
+
+Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) 😉
 
 ## Features
 
 The following table shows all the implemented features and the current support for each workflow format.
 
-| Feature                                                    | Native Workflows (.ga) | Format 2 Workflows (gxformat2) |
-| ---------------------------------------------------------- | :--------------------: | :----------------------------: |
-| [Validation](#workflow-validation)                         |           ✔️           |               ❌               |
-| [Documentation on Hover](#documentation-on-hover)          |           ✔️           |               ❌               |
-| [IntelliSense](#intellisense)                              |           ✔️           |               ❌               |
-| [Formatting](#formatting)                                  |           ✔️           |               ❌               |
-| [Custom Outline](#custom-outline)                          |           ✔️           |               ❌               |
-| [Workflow Cleanup Command](#workflow-cleanup-command)      |           ✔️           |               ❌               |
-| [Simplified Workflow Diffs](#simplified-workflow-diffs) \* |           ✔️           |               ❌               |
+| Feature                                                 | Native Workflows (.ga) | Format 2 Workflows (gxformat2) |
+| ------------------------------------------------------- | :--------------------: | :----------------------------: |
+| [Validation](#workflow-validation)                      |           ✔️           |               🔜               |
+| [Documentation on Hover](#documentation-on-hover)       |           ✔️           |               🔜               |
+| [IntelliSense](#intellisense)                           |           ✔️           |               🔜               |
+| [Formatting](#formatting)                               |           ✔️           |               🔜               |
+| [Custom Outline](#custom-outline)                       |           ✔️           |               🔜               |
+| [Workflow Cleanup Command](#workflow-cleanup-command)   |           ✔️           |               ❔               |
+| [Simplified Workflow Diffs](#simplified-workflow-diffs) |           🔶           |               ❔               |
 
-(\*) This feature is not supported in _Web_ mode or _Virtual File Systems_.
+<details>
+<summary>Legend</summary>
+<p>
+✔️ Feature supported in latest version.
+
+🔜 Feature not yet available but planned for future release.
+
+❔ This feature may not apply to this format or not planned yet.
+
+🔶 This feature is only supported in local repositories or file systems. Not supported in _Web_ mode or _Virtual File Systems_.
+
+❌ This feature is not supported for this format.
+
+</p>
+</details>
 
 ### Workflow Validation
 
@@ -82,13 +108,3 @@ Sometimes you want to compare different revisions of the same workflow and see w
 ![Simplified Workflow Diffs Demo](images/clean-diff-native.gif)
 
 [Back to Features ⬆️](#features)
-
-## Changelog
-
-See the [full changelog here](docs/CHANGELOG.md).
-
-## Contributing
-
-✨ Contributors are welcome! ✨
-
-Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) 😉

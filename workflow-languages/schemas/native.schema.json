@@ -1,5 +1,6 @@
 {
-  "id": "https://galaxyproject.org/schemas/workflow/native",
+  "$comment": "Please DO NOT use this schema as reference. It is unofficial and meant for internal use only.",
+  "id": "https://github.com/davelopez/galaxy-workflows-vscode/workflow-languages/schemas/native",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
