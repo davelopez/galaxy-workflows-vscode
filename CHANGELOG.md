@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.1.0] - 2022-05-04
 
 ### Added
 
+- Basic syntax highlighting and language configuration for `gxformat2` workflows in YAML.
+- Basic schema for native workflows (.ga).
 - Support schema-based code completion (IntelliSense) for native workflows (.ga).
 - Support schema-based documentation on hover for native workflows (.ga).
 - Basic JSON schema-based validation for native workflows (.ga).
