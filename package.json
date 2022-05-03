@@ -20,6 +20,7 @@
   "main": "./client/dist/extension",
   "browser": "./client/dist/web/extension",
   "activationEvents": [
+    "onLanguage:gxformat2",
     "onLanguage:galaxyworkflow"
   ],
   "contributes": {
@@ -33,6 +34,18 @@
           ".ga"
         ],
         "configuration": "./workflow-languages/configurations/json.language-configuration.json"
+      },
+      {
+        "id": "gxformat2",
+        "aliases": [
+          "Galaxy Workflow"
+        ],
+        "extensions": [
+          ".yml",
+          ".gxwf.yml"
+        ],
+        "firstLine": "^class: GalaxyWorkflow",
+        "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
       }
     ],
     "grammars": [
@@ -40,6 +53,11 @@
         "language": "galaxyworkflow",
         "scopeName": "source.ga",
         "path": "./workflow-languages/syntaxes/json.tmLanguage.json"
+      },
+      {
+        "language": "gxformat2",
+        "scopeName": "source.gxformat2",
+        "path": "./workflow-languages/syntaxes/yml.tmLanguage.json"
       }
     ],
     "commands": [
