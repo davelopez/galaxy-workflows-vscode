@@ -136,7 +136,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     workflowDocument: WorkflowDocument,
     cleanablePropertyNames: Set<string>
   ): PropertyASTNode[] {
-    const root = workflowDocument.jsonDocument.root;
+    const root = workflowDocument.rootNode;
     if (!root) {
       return [];
     }

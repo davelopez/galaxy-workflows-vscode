@@ -32,7 +32,7 @@ export class SymbolsProvider extends Provider {
   }
 
   private getSymbols(workflowDocument: WorkflowDocument): DocumentSymbol[] {
-    const root = workflowDocument.jsonDocument.root;
+    const root = workflowDocument.rootNode;
     if (!root) {
       return [];
     }
