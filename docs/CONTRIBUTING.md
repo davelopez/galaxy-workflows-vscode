@@ -64,9 +64,9 @@ If you have installed the recommended extensions in [extensions.json](../.vscode
 
 ### Launch/Debug the extension locally
 
-Run the `Launch Extension` configuration from the `Run and Debug` action bar (or press F5).
+Run the `Debug Extension + Server` configuration from the `Run and Debug` action bar (or press F5).
 
-If you want to debug the _Workflow Language Server_, select and run the `Attach to Server` configuration when the extension is already running.
+This will launch the extension in a new VSCode instance and also attach the debugger to the _Workflow Language Server_ so you can add breakpoints and debug both `client` and `server` projects.
 
 ### Test the extension on [vscode.dev](https://vscode.dev/)
 

@@ -34,9 +34,9 @@
       }
     },
     {
+      "name": "Attach to Server",
       "type": "node",
       "request": "attach",
-      "name": "Attach to Server",
       "port": 6009,
       "restart": true,
       "sourceMapPathOverrides": {
@@ -70,6 +70,18 @@
         "type": "npm",
         "script": "test-compile"
       }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Extension + Server",
+      "configurations": ["Launch Extension", "Attach to Server"],
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 1
+      },
+      "stopAll": true
     }
   ]
 }
