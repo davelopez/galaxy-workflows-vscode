@@ -26,6 +26,13 @@ export abstract class WorkflowDocument {
 
   public abstract getDocumentRange(): Range;
 
+  public abstract getNodeFromPath(path: string): ASTNode | null;
+
+  /** Returns a small Range at the beginning of the document */
+  public getDefaultRange(): Range {
+    return Range.create(this.textDocument.positionAt(0), this.textDocument.positionAt(1));
+  }
+
   public getNodeRange(node: ASTNode): Range {
     return Range.create(
       this.textDocument.positionAt(node.offset),
