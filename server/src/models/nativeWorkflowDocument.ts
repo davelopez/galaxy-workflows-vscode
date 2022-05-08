@@ -1,5 +1,5 @@
 import { JSONDocument } from "vscode-json-languageservice";
-import { getNodeFromPath } from "../jsonUtils";
+import { getPropertyNodeFromPath } from "../jsonUtils";
 import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "../languageTypes";
 
 /**
@@ -70,6 +70,6 @@ export class NativeWorkflowDocument extends WorkflowDocument {
   public override getNodeFromPath(path: string): ASTNode | null {
     const root = this._jsonDocument.root;
     if (!root) return null;
-    return getNodeFromPath(root, path);
+    return getPropertyNodeFromPath(root, path);
   }
 }

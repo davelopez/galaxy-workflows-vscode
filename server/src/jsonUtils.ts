@@ -7,7 +7,7 @@ export function getPathSegments(path: string): string[] | null {
   return segments;
 }
 
-export function getNodeFromPath(root: ASTNode, path: string): ASTNode | null {
+export function getPropertyNodeFromPath(root: ASTNode, path: string): ASTNode | null {
   let segments = getPathSegments(path);
   if (!segments) return null;
   if (segments.length === 1 && !segments[0]) return null;
