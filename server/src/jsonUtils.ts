@@ -15,12 +15,23 @@ export function getPropertyNodeFromPath(root: ASTNode, path: string): ASTNode | 
   while (segments.length) {
     const segment = segments[0];
     segments = segments?.slice(1);
+    const isLast = !segments.length;
     if (currentNode.type == "object") {
       const property = currentNode.properties.find((p) => p.keyNode.value == segment);
-      if (property && !segments.length) return property;
+      if (property && isLast) return property;
       if (!property?.valueNode) return null;
       if (property.valueNode.type == "object") {
         currentNode = property.valueNode;
+      } else if (property.valueNode.type == "array") {
+        currentNode = property.valueNode;
+      } else {
+        return null;
+      }
+    } else if (currentNode.type == "array") {
+      const index = Number(segment);
+      const itemAtIndex = currentNode.items.at(index);
+      if (itemAtIndex) {
+        currentNode = itemAtIndex;
       } else {
         return null;
       }
