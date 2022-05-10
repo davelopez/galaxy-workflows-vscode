@@ -20,16 +20,18 @@ import {
   CompletionList,
 } from "./languageTypes";
 import NativeWorkflowSchema from "../../workflow-languages/schemas/native.schema.json";
+import { NativeWorkflowDocument } from "./models/nativeWorkflowDocument";
 
 /**
  * A wrapper around the JSON Language Service to support language features
  * for native Galaxy workflow files AKA '.ga' workflows.
  */
-export class NativeWorkflowLanguageService implements WorkflowLanguageService {
+export class NativeWorkflowLanguageService extends WorkflowLanguageService {
   private _jsonLanguageService: LanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
   constructor() {
+    super();
     const params: LanguageServiceParams = {};
     const settings = this.getLanguageSettings();
     this._jsonLanguageService = getLanguageService(params);
@@ -40,41 +42,47 @@ export class NativeWorkflowLanguageService implements WorkflowLanguageService {
     return NativeWorkflowSchema;
   }
 
-  public parseWorkflowDocument(document: TextDocument): WorkflowDocument {
+  public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
     const jsonDocument = this._jsonLanguageService.parseJSONDocument(document);
-    return new WorkflowDocument(document, jsonDocument);
+    return new NativeWorkflowDocument(document, jsonDocument);
   }
 
-  public format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[] {
+  public override format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[] {
     return this._jsonLanguageService.format(document, range, options);
   }
 
-  public async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
-    const schemaValidationResults = await this._jsonLanguageService.doValidation(
-      workflowDocument.textDocument,
-      workflowDocument.jsonDocument,
-      this._documentSettings,
-      this.schema
-    );
-    return schemaValidationResults;
-  }
-
-  public async doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
+  public override async doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
+    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
     const hover = await this._jsonLanguageService.doHover(
-      workflowDocument.textDocument,
+      nativeWorkflowDocument.textDocument,
       position,
-      workflowDocument.jsonDocument
+      nativeWorkflowDocument.jsonDocument
     );
     return hover;
   }
 
-  public async doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null> {
+  public override async doComplete(
+    workflowDocument: WorkflowDocument,
+    position: Position
+  ): Promise<CompletionList | null> {
+    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
     const completionResult = await this._jsonLanguageService.doComplete(
-      workflowDocument.textDocument,
+      nativeWorkflowDocument.textDocument,
       position,
-      workflowDocument.jsonDocument
+      nativeWorkflowDocument.jsonDocument
     );
     return completionResult;
+  }
+
+  protected override async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
+    const schemaValidationResults = await this._jsonLanguageService.doValidation(
+      nativeWorkflowDocument.textDocument,
+      nativeWorkflowDocument.jsonDocument,
+      this._documentSettings,
+      this.schema
+    );
+    return schemaValidationResults;
   }
 
   private getLanguageSettings(): LanguageSettings {

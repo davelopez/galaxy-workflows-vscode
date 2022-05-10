@@ -1,19 +1,16 @@
-import { JSONDocument } from "vscode-json-languageservice";
 import { TextDocument, Range, Position, ASTNode } from "../languageTypes";
 import { URI } from "vscode-uri";
 
 /**
  * This class contains information about workflow semantics.
  */
-export class WorkflowDocument {
-  private _textDocument: TextDocument;
-  private _jsonDocument: JSONDocument;
-  private _documentUri: URI;
+export abstract class WorkflowDocument {
+  protected _textDocument: TextDocument;
+  protected _documentUri: URI;
+  public abstract readonly rootNode: ASTNode | undefined;
 
-  //TODO do not pass jsonDocument directly
-  constructor(textDocument: TextDocument, jsonDocument: JSONDocument) {
+  constructor(textDocument: TextDocument) {
     this._textDocument = textDocument;
-    this._jsonDocument = jsonDocument;
     this._documentUri = URI.parse(this._textDocument.uri);
   }
 
@@ -25,13 +22,15 @@ export class WorkflowDocument {
     return this._textDocument;
   }
 
-  public get jsonDocument(): JSONDocument {
-    return this._jsonDocument;
-  }
+  public abstract getNodeAtPosition(position: Position): ASTNode | undefined;
 
-  public getNodeAtPosition(position: Position): ASTNode | undefined {
-    const offset = this.textDocument.offsetAt(position);
-    return this.jsonDocument.getNodeFromOffset(offset);
+  public abstract getDocumentRange(): Range;
+
+  public abstract getNodeFromPath(path: string): ASTNode | null;
+
+  /** Returns a small Range at the beginning of the document */
+  public getDefaultRange(): Range {
+    return Range.create(this.textDocument.positionAt(0), this.textDocument.positionAt(1));
   }
 
   public getNodeRange(node: ASTNode): Range {
@@ -67,7 +66,7 @@ export class WorkflowDocument {
     return parent.children[previousNodeIndex];
   }
 
-  private getDefaultRangeAtPosition(position: Position): Range {
+  protected getDefaultRangeAtPosition(position: Position): Range {
     const offset = this.textDocument.offsetAt(position);
     return Range.create(this.textDocument.positionAt(offset), this.textDocument.positionAt(offset + 1));
   }

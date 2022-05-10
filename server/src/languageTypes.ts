@@ -127,12 +127,38 @@ export interface HoverContentContributor {
   onHoverContent(workflowDocument: WorkflowDocument, position: Position): string;
 }
 
-export interface WorkflowLanguageService {
-  format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
-  parseWorkflowDocument(document: TextDocument): WorkflowDocument;
-  doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
-  doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
-  doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
+/**
+ * Interface for contributing additional diagnostics to the validation process.
+ */
+export interface ValidationContributor {
+  /**
+   * Validates the given workflow document and provides diagnostics.
+   * @param workflowDocument The workflow document
+   */
+  validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+}
+
+export abstract class WorkflowLanguageService {
+  protected _validationContributors: ValidationContributor[] = [];
+  public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
+  public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
+  public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
+  public abstract doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
+
+  protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+
+  public setValidationContributors(contributors: ValidationContributor[]): void {
+    this._validationContributors = contributors;
+  }
+
+  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+    const diagnostics = await this.doValidation(workflowDocument);
+    this._validationContributors.forEach(async (contributor) => {
+      const contributedDiagnostics = await contributor.validate(workflowDocument);
+      diagnostics.push(...contributedDiagnostics);
+    });
+    return diagnostics;
+  }
 }
 
 export abstract class ServerContext {
