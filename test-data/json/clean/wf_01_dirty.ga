@@ -1,0 +1,106 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "This is a cool workflow",
+    "creator": [
+        {
+            "class": "Person",
+            "identifier": "My ID",
+            "name": "Tester"
+        }
+    ],
+    "format-version": "0.1",
+    "license": "MIT",
+    "name": "Cool workflow",
+    "steps": {
+        "0": {
+            "annotation": "Some text",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "Some text",
+                    "name": "The cool input"
+                }
+            ],
+            "label": "The cool input",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "bottom": 610.28125,
+                "height": 61.78125,
+                "left": 824,
+                "right": 1024,
+                "top": 548.5,
+                "width": 200,
+                "x": 824,
+                "y": 548.5
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "f0019f6a-b5ee-476e-8e5f-11cd3bcfaccf",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "2216c468-98e3-42f9-9174-1e4b65f07e8e"
+                }
+            ]
+        },
+        "1": {
+            "annotation": "",
+            "content_id": "wc_gnu",
+            "errors": null,
+            "id": 1,
+            "input_connections": {
+                "input1": {
+                    "id": 0,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool Line/Word/Character count",
+                    "name": "input1"
+                }
+            ],
+            "label": null,
+            "name": "Line/Word/Character count",
+            "outputs": [
+                {
+                    "name": "out_file1",
+                    "type": "tabular"
+                }
+            ],
+            "position": {
+                "bottom": 781.453125,
+                "height": 133.953125,
+                "left": 1146,
+                "right": 1346,
+                "top": 647.5,
+                "width": 200,
+                "x": 1146,
+                "y": 647.5
+            },
+            "post_job_actions": {},
+            "tool_id": "wc_gnu",
+            "tool_state": "{\"include_header\": \"true\", \"input1\": {\"__class__\": \"RuntimeValue\"}, \"options\": [\"lines\", \"words\", \"characters\"], \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "1.0.0",
+            "type": "tool",
+            "uuid": "1ca6f40f-7b65-46ae-a366-9592279a07cc",
+            "workflow_outputs": [
+                {
+                    "label": "Text Count Result",
+                    "output_name": "out_file1",
+                    "uuid": "d9a1c36f-bb05-4dc8-b6d8-10b94ddffb77"
+                }
+            ]
+        }
+    },
+    "tags": [],
+    "uuid": "1bcc69fb-e8ec-49db-bd60-c7ac7fa87838",
+    "version": 2
+}
