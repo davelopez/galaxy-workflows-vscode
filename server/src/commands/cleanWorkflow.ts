@@ -105,7 +105,10 @@ export class CleanWorkflowCommand extends CustomCommand {
       // Remove trailing comma in previous property node
       const isLastNode = workflowDocument.isLastNodeInParent(node);
       if (isLastNode) {
-        const previousNode = workflowDocument.getPreviousSiblingNode(node);
+        let previousNode = workflowDocument.getPreviousSiblingNode(node);
+        while (previousNode && nodesToRemove.includes(previousNode)) {
+          previousNode = workflowDocument.getPreviousSiblingNode(previousNode);
+        }
         if (previousNode) {
           const range = this.getFullNodeRange(workflowDocument.textDocument, previousNode);
           const nodeText = workflowDocument.textDocument.getText(range);
@@ -132,10 +135,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     return result;
   }
 
-  private getNonEssentialNodes(
-    workflowDocument: WorkflowDocument,
-    cleanablePropertyNames: Set<string>
-  ): PropertyASTNode[] {
+  private getNonEssentialNodes(workflowDocument: WorkflowDocument, cleanablePropertyNames: Set<string>): ASTNode[] {
     const root = workflowDocument.rootNode;
     if (!root) {
       return [];
