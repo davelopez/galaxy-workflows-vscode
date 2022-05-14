@@ -1,13 +1,6 @@
 {
     "a_galaxy_workflow": "true",
     "annotation": "This is a cool workflow",
-    "creator": [
-        {
-            "class": "Person",
-            "identifier": "My ID",
-            "name": "Tester"
-        }
-    ],
     "format-version": "0.1",
     "license": "MIT",
     "name": "Cool workflow",

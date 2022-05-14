@@ -2,8 +2,6 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as assert from "assert";
 
-const GALAXY_WORKFLOWS_EXTENSION_ID = "davelopez.galaxy-workflows";
-
 /**
  * Contains the document and its corresponding editor
  */
@@ -13,9 +11,8 @@ export interface DocumentEditor {
 }
 
 export async function activate(): Promise<unknown> {
-  const ext = vscode.extensions.getExtension(GALAXY_WORKFLOWS_EXTENSION_ID);
+  const ext = vscode.extensions.getExtension("davelopez.galaxy-workflows");
   const api = ext.isActive ? ext.exports : await ext.activate();
-  assert.ok(api);
   return api;
 }
 
@@ -32,7 +29,16 @@ export async function openDocumentInEditor(docUri: vscode.Uri): Promise<Document
   }
 }
 
-export async function activateAndOpen(docUri: vscode.Uri): Promise<DocumentEditor> {
+export async function openDocument(docUri: vscode.Uri): Promise<vscode.TextDocument> {
+  try {
+    const document = await vscode.workspace.openTextDocument(docUri);
+    return document;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+export async function activateAndOpenInEditor(docUri: vscode.Uri): Promise<DocumentEditor> {
   await activate();
   const documentEditor = await openDocumentInEditor(docUri);
   await sleep(2000); // Wait for server activation
