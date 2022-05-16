@@ -1,0 +1,71 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "This is a cool workflow",
+    "format-version": "0.1",
+    "license": "MIT",
+    "name": "Cool workflow",
+    "steps": {
+        "0": {
+            "annotation": "Some text",
+            "content_id": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "Some text",
+                    "name": "The cool input"
+                }
+            ],
+            "label": "The cool input",
+            "name": "Input dataset",
+            "outputs": [],
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\"}",
+            "tool_version": null,
+            "type": "data_input",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output"
+                }
+            ]
+        },
+        "1": {
+            "annotation": "",
+            "content_id": "wc_gnu",
+            "id": 1,
+            "input_connections": {
+                "input1": {
+                    "id": 0,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool Line/Word/Character count",
+                    "name": "input1"
+                }
+            ],
+            "label": null,
+            "name": "Line/Word/Character count",
+            "outputs": [
+                {
+                    "name": "out_file1",
+                    "type": "tabular"
+                }
+            ],
+            "post_job_actions": {},
+            "tool_id": "wc_gnu",
+            "tool_state": "{\"include_header\": \"true\", \"input1\": {\"__class__\": \"RuntimeValue\"}, \"options\": [\"lines\", \"words\", \"characters\"], \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "1.0.0",
+            "type": "tool",
+            "workflow_outputs": [
+                {
+                    "label": "Text Count Result",
+                    "output_name": "out_file1"
+                }
+            ]
+        }
+    },
+    "tags": []
+}

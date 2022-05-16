@@ -181,7 +181,7 @@
     "test-unit-client": "cd client && npm run test-unit && cd ..",
     "test-unit-server": "cd server && npm run test-unit && cd ..",
     "test-compile": "tsc --project ./client --outDir client/out",
-    "pretest:e2e": "npm run test-compile",
+    "pretest:e2e": "npm run compile && npm run test-compile",
     "test:e2e": "node ./client/out/e2e/runTests.js"
   },
   "devDependencies": {
