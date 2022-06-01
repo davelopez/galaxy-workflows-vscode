@@ -14,15 +14,18 @@ import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { CompletionProvider } from "./providers/completionProvider";
+import { ConfigService } from "./configService";
 
 export class GalaxyWorkflowLanguageServer {
   public readonly languageService: WorkflowLanguageService;
+  public readonly configService: ConfigService;
   public readonly documents = new TextDocuments(TextDocument);
   public readonly workflowDocuments = new WorkflowDocuments();
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
 
   constructor(public readonly connection: Connection, languageService: WorkflowLanguageService) {
     this.languageService = languageService;
+    this.configService = new ConfigService(connection);
     // Track open, change and close text document events
     this.trackDocumentChanges(connection);
 
@@ -40,6 +43,7 @@ export class GalaxyWorkflowLanguageServer {
   }
 
   private async initialize(params: InitializeParams): Promise<InitializeResult> {
+    this.configService.initialize(params.capabilities);
     this.workspaceFolders = params.workspaceFolders;
 
     const capabilities: ServerCapabilities = {
@@ -87,6 +91,7 @@ export class GalaxyWorkflowLanguageServer {
 
   private onDidClose(textDocument: TextDocument): void {
     this.workflowDocuments.removeWorkflowDocument(textDocument.uri);
+    this.configService.onDocumentClose(textDocument.uri);
     this.clearValidation(textDocument);
   }
 
