@@ -13,12 +13,6 @@ import {
 } from "./requestsDefinitions";
 
 /**
- * A set of property names that are unrelated to the workflow logic.
- * Usually used by other tools like the workflow editor.
- */
-const CLEANABLE_PROPERTY_NAMES = new Set(["position", "uuid", "errors", "version"]);
-
-/**
  * Command for handling workflow `cleaning` requests.
  * Supports both, direct contents (raw document text), and document uri requests
  * for cleaning.
@@ -72,7 +66,8 @@ export class CleanWorkflowCommand extends CustomCommand {
     try {
       const workflowDocument = this.workflowDocuments.get(params.uri);
       if (workflowDocument) {
-        const edits = this.getTextEditsToCleanWorkflow(workflowDocument);
+        const settings = await this.server.configService.getDocumentSettings(workflowDocument.textDocument.uri);
+        const edits = this.getTextEditsToCleanWorkflow(workflowDocument, settings.cleaning.cleanableProperties);
         const editParams: ApplyWorkspaceEditParams = {
           label: "Clean workflow",
           edit: {
@@ -95,8 +90,11 @@ export class CleanWorkflowCommand extends CustomCommand {
     }
   }
 
-  private getTextEditsToCleanWorkflow(workflowDocument: WorkflowDocument): TextEdit[] {
-    const nodesToRemove = this.getNonEssentialNodes(workflowDocument, CLEANABLE_PROPERTY_NAMES);
+  private getTextEditsToCleanWorkflow(
+    workflowDocument: WorkflowDocument,
+    cleanablePropertyNames: string[]
+  ): TextEdit[] {
+    const nodesToRemove = this.getNonEssentialNodes(workflowDocument, cleanablePropertyNames);
     const changes: TextEdit[] = [];
     nodesToRemove.forEach((node) => {
       const range = this.getFullNodeRange(workflowDocument.textDocument, node);
@@ -127,7 +125,8 @@ export class CleanWorkflowCommand extends CustomCommand {
   }
 
   private async cleanWorkflowContentsResult(workflowDocument: WorkflowDocument): Promise<CleanWorkflowContentsResult> {
-    const nodesToRemove = this.getNonEssentialNodes(workflowDocument, CLEANABLE_PROPERTY_NAMES);
+    const settings = await this.server.configService.getDocumentSettings(workflowDocument.textDocument.uri);
+    const nodesToRemove = this.getNonEssentialNodes(workflowDocument, settings.cleaning.cleanableProperties);
     const contents = this.getCleanContents(workflowDocument.textDocument.getText(), nodesToRemove.reverse());
     const result: CleanWorkflowContentsResult = {
       contents: contents,
@@ -135,7 +134,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     return result;
   }
 
-  private getNonEssentialNodes(workflowDocument: WorkflowDocument, cleanablePropertyNames: Set<string>): ASTNode[] {
+  private getNonEssentialNodes(workflowDocument: WorkflowDocument, cleanablePropertyNames: string[]): ASTNode[] {
     const root = workflowDocument.rootNode;
     if (!root) {
       return [];
@@ -144,6 +143,7 @@ export class CleanWorkflowCommand extends CustomCommand {
     const toVisit: { node: ASTNode }[] = [{ node: root }];
     let nextToVisit = 0;
 
+    const cleanablePropertyNamesSet = new Set(cleanablePropertyNames);
     const collectNonEssentialProperties = (node: ASTNode): void => {
       if (node.type === "array") {
         node.items.forEach((node) => {
@@ -154,7 +154,7 @@ export class CleanWorkflowCommand extends CustomCommand {
       } else if (node.type === "object") {
         node.properties.forEach((property: PropertyASTNode) => {
           const key = property.keyNode.value;
-          if (cleanablePropertyNames.has(key)) {
+          if (cleanablePropertyNamesSet.has(key)) {
             result.push(property);
           }
           if (property.valueNode) {
