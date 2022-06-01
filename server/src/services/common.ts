@@ -1,7 +1,7 @@
 import { ServerContext } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 
-export abstract class CustomCommand extends ServerContext {
+export abstract class ServiceBase extends ServerContext {
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
     this.listenToRequests();
@@ -9,7 +9,7 @@ export abstract class CustomCommand extends ServerContext {
 
   /**
    * This method should call `this.connection.onRequest` to register
-   * the proper callback for this command request.
+   * the proper callback for this service request.
    */
   protected abstract listenToRequests(): void;
 }

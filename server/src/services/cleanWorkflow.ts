@@ -2,7 +2,7 @@ import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vsc
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ASTNode, PropertyASTNode, WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
-import { CustomCommand } from "./common";
+import { ServiceBase } from "./common";
 import {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsRequest,
@@ -13,15 +13,15 @@ import {
 } from "./requestsDefinitions";
 
 /**
- * Command for handling workflow `cleaning` requests.
+ * Service for handling workflow `cleaning` requests.
  * Supports both, direct contents (raw document text), and document uri requests
  * for cleaning.
  * When requesting with a document uri, the workflow document must be already registered in the server
  * as a workflow document.
  */
-export class CleanWorkflowCommand extends CustomCommand {
-  public static register(server: GalaxyWorkflowLanguageServer): CleanWorkflowCommand {
-    return new CleanWorkflowCommand(server);
+export class CleanWorkflowService extends ServiceBase {
+  public static register(server: GalaxyWorkflowLanguageServer): CleanWorkflowService {
+    return new CleanWorkflowService(server);
   }
 
   constructor(server: GalaxyWorkflowLanguageServer) {
