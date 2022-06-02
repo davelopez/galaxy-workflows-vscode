@@ -1,7 +1,7 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
-import { ValidationContributor, WorkflowDocument } from "../../languageTypes";
+import { ValidationRule, WorkflowDocument } from "../../languageTypes";
 
-export class MissingPropertyValidationRule implements ValidationContributor {
+export class MissingPropertyValidationRule implements ValidationRule {
   constructor(readonly nodePath: string, readonly severity?: DiagnosticSeverity | undefined) {}
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
