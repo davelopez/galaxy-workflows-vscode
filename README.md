@@ -12,6 +12,26 @@ The extension aims to focus on assist in editing [**Format 2** Galaxy Workflow](
 
 > ⚠️ Please note the _Native_ Galaxy Workflow format (.ga) is considered internal and _legacy_. The support provided here is temporal and experimental. Please consider waiting for the `Format 2` support before using this extension.
 
+## Quick Start
+
+### Option 1: Install extension locally
+
+1. Open VSCode
+2. Install the extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-workflows).
+3. Open any Galaxy Workflow document (.ga or .gxwf.yml) and the extension will activate.
+
+### Option 2: Use it directly in `vscode.dev` or `github.dev`
+
+1. For example, open the IWC (_Intergalactic Workflow Commission_) repository on GitHub
+
+   [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20IWC%20repository%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/galaxyproject/iwc)
+
+2. Install the extension if you haven't already:
+
+   - Go to the extensions panel (`Ctrl+Shift+x`) and search for `davelopez.galaxy-workflows` then click `Install`
+
+3. Enjoy the workflow editing features directly on your browser ✨
+
 ## Changelog
 
 See the [full changelog here](CHANGELOG.md#change-log).
