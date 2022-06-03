@@ -9,7 +9,7 @@ export class MissingPropertyValidationRule implements ValidationRule {
     const targetNode = workflowDocument.getNodeFromPath(this.nodePath);
     if (!targetNode) {
       result.push({
-        message: `Property '${this.nodePath}' is missing`,
+        message: `Missing property "${this.nodePath}".`,
         range: workflowDocument.getDefaultRange(),
         severity: this.severity,
       });
