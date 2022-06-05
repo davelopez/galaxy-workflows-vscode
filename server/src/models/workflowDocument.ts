@@ -1,4 +1,4 @@
-import { TextDocument, Range, Position, ASTNode } from "../languageTypes";
+import { TextDocument, Range, Position, ASTNode, ObjectASTNode } from "../languageTypes";
 import { URI } from "vscode-uri";
 
 /**
@@ -27,6 +27,8 @@ export abstract class WorkflowDocument {
   public abstract getDocumentRange(): Range;
 
   public abstract getNodeFromPath(path: string): ASTNode | null;
+
+  public abstract getStepNodes(): ObjectASTNode[];
 
   /** Returns a small Range at the beginning of the document */
   public getDefaultRange(): Range {

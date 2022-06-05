@@ -1,4 +1,4 @@
-import { JSONDocument } from "vscode-json-languageservice";
+import { JSONDocument, ObjectASTNode } from "vscode-json-languageservice";
 import { getPropertyNodeFromPath } from "../jsonUtils";
 import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "../languageTypes";
 
@@ -71,5 +71,23 @@ export class NativeWorkflowDocument extends WorkflowDocument {
     const root = this._jsonDocument.root;
     if (!root) return null;
     return getPropertyNodeFromPath(root, path);
+  }
+
+  public override getStepNodes(): ObjectASTNode[] {
+    const root = this._jsonDocument.root;
+    if (!root) {
+      return [];
+    }
+    const result: ObjectASTNode[] = [];
+    const stepsNode = this.getNodeFromPath("steps");
+    if (stepsNode && stepsNode.type === "property" && stepsNode.valueNode && stepsNode.valueNode.type === "object") {
+      stepsNode.valueNode.properties.forEach((stepProperty) => {
+        const stepNode = stepProperty.valueNode;
+        if (stepNode && stepNode.type === "object") {
+          result.push(stepNode);
+        }
+      });
+    }
+    return result;
   }
 }
