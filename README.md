@@ -1,7 +1,8 @@
 # Galaxy Workflows VSCode Extension
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
-![GitHub release (latest SemVer)](https://img.shields.io/badge/release-unreleased-orange)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davelopez/galaxy-workflows-vscode)
+[![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/davelopez/galaxy-workflows-vscode)
 
 VSCode extension to assist in editing [Galaxy Workflow](https://galaxyproject.org/) files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html) for maintaining them.
 
@@ -10,6 +11,26 @@ The extension can be installed either locally, or in a web context, like [github
 The extension aims to focus on assist in editing [**Format 2** Galaxy Workflow](https://github.com/galaxyproject/gxformat2) files. However, the support is **currently under development**. The initial version of the extension will work with _legacy_ **Galaxy Workflow _native_** format (documents with **.ga** extension) as an experiment for legacy workflow maintainers.
 
 > ⚠️ Please note the _Native_ Galaxy Workflow format (.ga) is considered internal and _legacy_. The support provided here is temporal and experimental. Please consider waiting for the `Format 2` support before using this extension.
+
+## Quick Start
+
+### Option 1: Install extension locally
+
+1. Open VSCode
+2. Install the extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-workflows).
+3. Open any Galaxy Workflow document (.ga or .gxwf.yml) and the extension will activate.
+
+### Option 2: Use it directly in `vscode.dev` or `github.dev`
+
+1. For example, open the IWC (_Intergalactic Workflow Commission_) repository on GitHub
+
+   [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20IWC%20repository%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/galaxyproject/iwc)
+
+2. Install the extension if you haven't already:
+
+   - Go to the extensions panel (`Ctrl+Shift+x`) and search for `davelopez.galaxy-workflows` then click `Install`
+
+3. Enjoy the workflow editing features directly on your browser ✨
 
 ## Changelog
 
