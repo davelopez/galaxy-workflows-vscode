@@ -1,8 +1,8 @@
 {
     "a_galaxy_workflow": "true",
-    "annotation": "simple workflow",
+    "annotation": "The steps are missing UUIDs and workflow_outputs",
     "format-version": "0.1",
-    "name": "TestWorkflow1",
+    "name": "Test Workflow with 3 steps",
     "steps": {
         "0": {
             "annotation": "input1 description",
