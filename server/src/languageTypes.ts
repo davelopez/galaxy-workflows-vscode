@@ -157,16 +157,17 @@ export abstract class WorkflowLanguageService {
 
   protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 
-  public setValidationRules(validationRules: ValidationRule[]): void {
-    this._customValidationRules = validationRules;
-  }
-
-  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  public async validate(
+    workflowDocument: WorkflowDocument,
+    useProfile: ValidationProfile | null = null
+  ): Promise<Diagnostic[]> {
     const diagnostics = await this.doValidation(workflowDocument);
-    this._customValidationRules.forEach(async (validationRule) => {
-      const contributedDiagnostics = await validationRule.validate(workflowDocument);
-      diagnostics.push(...contributedDiagnostics);
-    });
+    if (useProfile) {
+      useProfile.rules.forEach(async (validationRule) => {
+        const contributedDiagnostics = await validationRule.validate(workflowDocument);
+        diagnostics.push(...contributedDiagnostics);
+      });
+    }
     return diagnostics;
   }
 }
