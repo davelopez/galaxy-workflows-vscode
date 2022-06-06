@@ -59,6 +59,7 @@ export const getDocUri = (filePath: string): vscode.Uri => {
 
 export async function assertDiagnostics(docUri: vscode.Uri, expectedDiagnostics: vscode.Diagnostic[]): Promise<void> {
   const actualDiagnostics = vscode.languages.getDiagnostics(docUri);
+  // console.log("DEBUG DIAGNOSTICS", JSON.stringify(actualDiagnostics, undefined, 2));
 
   assert.equal(actualDiagnostics.length, expectedDiagnostics.length);
 
@@ -81,4 +82,15 @@ export async function assertValid(docUri: vscode.Uri): Promise<void> {
 
 export function closeAllEditors(): Thenable<unknown> {
   return vscode.commands.executeCommand("workbench.action.closeAllEditors");
+}
+
+export async function updateSettings(setting: string, value: unknown): Promise<void> {
+  const configuration = vscode.workspace.getConfiguration("galaxyWorkflows", null);
+  return configuration.update(setting, value, true);
+}
+
+export async function resetSettings(): Promise<void> {
+  const configuration = vscode.workspace.getConfiguration("galaxyWorkflows");
+  await configuration.update("cleaning.cleanableProperties", undefined, true);
+  return configuration.update("validation.profile", undefined, true);
 }
