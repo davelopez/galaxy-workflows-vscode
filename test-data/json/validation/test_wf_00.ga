@@ -1,0 +1,6 @@
+{
+    "a_galaxy_workflow": "true",
+    "format-version": "0.1",
+    "name": "Test Workflow Without Steps",
+    "steps": {}
+}

@@ -130,7 +130,7 @@ export interface HoverContentContributor {
 /**
  * Interface for contributing additional diagnostics to the validation process.
  */
-export interface ValidationContributor {
+export interface ValidationRule {
   /**
    * Validates the given workflow document and provides diagnostics.
    * @param workflowDocument The workflow document
@@ -139,7 +139,7 @@ export interface ValidationContributor {
 }
 
 export abstract class WorkflowLanguageService {
-  protected _validationContributors: ValidationContributor[] = [];
+  protected _customValidationRules: ValidationRule[] = [];
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
   public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
@@ -147,14 +147,14 @@ export abstract class WorkflowLanguageService {
 
   protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 
-  public setValidationContributors(contributors: ValidationContributor[]): void {
-    this._validationContributors = contributors;
+  public setValidationRules(validationRules: ValidationRule[]): void {
+    this._customValidationRules = validationRules;
   }
 
   public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const diagnostics = await this.doValidation(workflowDocument);
-    this._validationContributors.forEach(async (contributor) => {
-      const contributedDiagnostics = await contributor.validate(workflowDocument);
+    this._customValidationRules.forEach(async (validationRule) => {
+      const contributedDiagnostics = await validationRule.validate(workflowDocument);
       diagnostics.push(...contributedDiagnostics);
     });
     return diagnostics;

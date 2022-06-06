@@ -1,6 +1,7 @@
 import { ASTNode, getLanguageService, JSONDocument, JSONPath } from "vscode-json-languageservice";
 import { TextDocument } from "../src/languageTypes";
 import * as Json from "jsonc-parser";
+import { NativeWorkflowDocument } from "../src/models/nativeWorkflowDocument";
 
 export function toJsonDocument(contents: string): { textDoc: TextDocument; jsonDoc: JSONDocument } {
   const textDoc = TextDocument.create("foo://bar/file.json", "json", 0, contents);
@@ -22,4 +23,9 @@ export function getNodeValue(node: ASTNode): unknown {
 
 export function getNodePath(node: ASTNode): JSONPath {
   return Json.getNodePath(node);
+}
+
+export function createNativeWorkflowDocument(contents: string): NativeWorkflowDocument {
+  const { textDoc, jsonDoc } = toJsonDocument(contents);
+  return new NativeWorkflowDocument(textDoc, jsonDoc);
 }

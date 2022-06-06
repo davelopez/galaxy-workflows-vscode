@@ -1,0 +1,30 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "Valid workflow with labels in the workflow_outputs",
+    "format-version": "0.1",
+    "name": "Test Workflow",
+    "steps": {
+        "0": {
+            "id": 0,
+            "name": "Test Step",
+            "type": "data_input",
+            "annotation": "Step description",
+            "uuid": "692d2674-5e70-4e01-ad12-4ce5572c39e5",
+            "input_connections": {},
+            "inputs": [],
+            "outputs": [],
+            "workflow_outputs": [
+                {
+                    "label": "The first output",
+                    "output_name": "output1",
+                    "uuid": "7f08baab-5426-427e-9640-85815d809261"
+                },
+                {
+                    "label": "The second output",
+                    "output_name": "output2",
+                    "uuid": "b58fce9c-e507-4714-abfc-739607e02eed"
+                }
+            ]
+        }
+    }
+}

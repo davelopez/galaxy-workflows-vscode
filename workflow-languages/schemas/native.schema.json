@@ -59,9 +59,8 @@
       "$ref": "#/definitions/tags"
     },
     "uuid": {
-      "type": "string",
-      "markdownDescription": "UUID associated with the workflow.",
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      "$ref": "#/definitions/uuid",
+      "markdownDescription": "UUID associated with the workflow."
     },
     "steps": {
       "$ref": "#/definitions/steps"
@@ -226,9 +225,8 @@
           "enum": ["tool", "subworkflow", "parameter_input", "data_input", "data_collection_input"]
         },
         "uuid": {
-          "type": "string",
-          "markdownDescription": "UUID associated with the workflow step.",
-          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          "$ref": "#/definitions/uuid",
+          "markdownDescription": "UUID associated with the workflow step."
         },
         "workflow_outputs": {
           "$ref": "#/definitions/workflowOutputs"
@@ -303,7 +301,24 @@
     },
     "workflowOutputs": {
       "type": "array",
-      "items": {}
+      "items": {
+        "$ref": "#/definitions/workflowOutput"
+      }
+    },
+    "workflowOutput": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "output_name": {
+          "type": "string"
+        },
+        "uuid": {
+          "$ref": "#/definitions/uuid",
+          "markdownDescription": "UUID associated with the workflow output."
+        }
+      }
     },
     "position": {
       "type": "object",
@@ -319,6 +334,10 @@
     },
     "optionalString": {
       "type": ["string", "null"]
+    },
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     }
   }
 }
