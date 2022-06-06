@@ -138,8 +138,18 @@ export interface ValidationRule {
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 }
 
+/**
+ *  Interface representing a validation profile which contains a set of custom rules.
+ */
+export interface ValidationProfile {
+  /** The unique identifier of this validation profile. */
+  get id(): string;
+
+  /** The set of rules defining this validation profile. */
+  get rules(): Set<ValidationRule>;
+}
+
 export abstract class WorkflowLanguageService {
-  protected _customValidationRules: ValidationRule[] = [];
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
   public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
