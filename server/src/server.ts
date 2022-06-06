@@ -25,7 +25,7 @@ export class GalaxyWorkflowLanguageServer {
 
   constructor(public readonly connection: Connection, languageService: WorkflowLanguageService) {
     this.languageService = languageService;
-    this.configService = new ConfigService(connection);
+    this.configService = new ConfigService(connection, () => this.onConfigurationChanged());
     // Track open, change and close text document events
     this.trackDocumentChanges(connection);
 
@@ -93,6 +93,12 @@ export class GalaxyWorkflowLanguageServer {
     this.workflowDocuments.removeWorkflowDocument(textDocument.uri);
     this.configService.onDocumentClose(textDocument.uri);
     this.clearValidation(textDocument);
+  }
+
+  private onConfigurationChanged(): void {
+    this.workflowDocuments.all().forEach((workflowDocument) => {
+      this.validate(workflowDocument);
+    });
   }
 
   private cleanup(): void {

@@ -44,7 +44,12 @@ const documentSettingsCache: Map<string, ExtensionSettings> = new Map();
 export class ConfigService {
   protected hasConfigurationCapability = false;
 
-  constructor(public readonly connection: Connection) {
+  constructor(
+    public readonly connection: Connection,
+    private readonly onConfigurationChanged: () => void = () => {
+      return;
+    }
+  ) {
     this.connection.onInitialized(() => this.onInitialized());
     this.connection.onDidChangeConfiguration((params) => this.onDidChangeConfiguration(params));
   }
@@ -86,6 +91,7 @@ export class ConfigService {
     } else {
       globalSettings = <ExtensionSettings>(params.settings.galaxyWorkflows || defaultSettings);
     }
+    this.onConfigurationChanged();
   }
 
   private addToDocumentConfigCache(uri: string, settings: ExtensionSettings): void {
