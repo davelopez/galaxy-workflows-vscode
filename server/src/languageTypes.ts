@@ -132,7 +132,8 @@ export interface HoverContentContributor {
  */
 export interface ValidationRule {
   /**
-   * Validates the given workflow document and provides diagnostics.
+   * Validates the given workflow document and provides diagnostics according
+   * to this rule.
    * @param workflowDocument The workflow document
    */
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
@@ -149,14 +150,23 @@ export interface ValidationProfile {
   get rules(): Set<ValidationRule>;
 }
 
+/**
+ * Abstract service defining the base functionality that a workflow language must
+ * implement to provide assistance for workflow documents editing.
+ */
 export abstract class WorkflowLanguageService {
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
   public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
   public abstract doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
 
+  /** Performs basic syntax and semantic validation based on the workflow schema. */
   protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 
+  /**
+   * Validates the document and reports all the diagnostics found.
+   * An optional validation profile can be used to provide additional custom diagnostics.
+   */
   public async validate(
     workflowDocument: WorkflowDocument,
     useProfile: ValidationProfile | null = null
