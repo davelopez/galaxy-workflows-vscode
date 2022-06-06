@@ -97,6 +97,20 @@
               "errors",
               "version"
             ]
+          },
+          "galaxyWorkflows.validation.profile": {
+            "markdownDescription": "The set of rules that will be used to validate workflow documents.",
+            "scope": "resource",
+            "type": "string",
+            "enum": [
+              "basic",
+              "iwc"
+            ],
+            "markdownEnumDescriptions": [
+              "Basic validation based on the Galaxy workflow schema.",
+              "Stricter validation to comply with the `Intergalactic Workflow Commission` best practices."
+            ],
+            "default": "basic"
           }
         }
       }

@@ -8,6 +8,7 @@ import {
 /** Represents all the available settings of the extension. */
 interface ExtensionSettings {
   cleaning: CleaningSettings;
+  validation: ValidationSettings;
 }
 
 /** Contains settings for workflow cleaning. */
@@ -16,9 +17,22 @@ interface CleaningSettings {
   cleanableProperties: string[];
 }
 
+/** Contains settings for validating workflows. */
+interface ValidationSettings {
+  /**
+   * The name of the profile containing the set of custom rules to validate.
+   * - `basic`: Basic validation based on the Galaxy workflow schema.
+   * - `iwc`: Stricter validation to comply with the `Intergalactic Workflow Commission` best practices.
+   */
+  profile: "basic" | "iwc";
+}
+
 const defaultSettings: ExtensionSettings = {
   cleaning: {
     cleanableProperties: ["position", "uuid", "errors", "version"],
+  },
+  validation: {
+    profile: "basic",
   },
 };
 
