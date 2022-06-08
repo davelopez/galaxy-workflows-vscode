@@ -34,11 +34,19 @@
       }
     },
     {
-      "name": "Attach to Server",
+      "name": "Attach to Native Server",
       "type": "node",
       "request": "attach",
       "port": 6009,
-      "restart": true,
+      "sourceMapPathOverrides": {
+        "webpack://?:*/*": "${workspaceFolder}/server/*"
+      }
+    },
+    {
+      "name": "Attach to gxformat2 Server",
+      "type": "node",
+      "request": "attach",
+      "port": 6010,
       "sourceMapPathOverrides": {
         "webpack://?:*/*": "${workspaceFolder}/server/*"
       }
@@ -74,8 +82,8 @@
   ],
   "compounds": [
     {
-      "name": "Debug Extension + Server",
-      "configurations": ["Launch Extension", "Attach to Server"],
+      "name": "Debug Extension + Servers",
+      "configurations": ["Launch Extension", "Attach to Native Server", "Attach to gxformat2 Server"],
       "presentation": {
         "hidden": false,
         "group": "",
