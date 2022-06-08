@@ -48,7 +48,7 @@
       {
         "id": "galaxyworkflow",
         "aliases": [
-          "Galaxy Workflow"
+          "Galaxy Workflow (JSON)"
         ],
         "extensions": [
           ".ga"
@@ -58,7 +58,7 @@
       {
         "id": "gxformat2",
         "aliases": [
-          "Galaxy Workflow"
+          "Galaxy Workflow (YAML)"
         ],
         "extensions": [
           ".yml",
