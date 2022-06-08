@@ -1,5 +1,5 @@
 import { commands } from "vscode";
-import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from "./common";
+import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from ".";
 
 /**
  * Command to select a workflow for comparison with another. This workflow will

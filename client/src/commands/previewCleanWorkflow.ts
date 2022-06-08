@@ -1,6 +1,6 @@
 import { window, workspace } from "vscode";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
-import { CustomCommand, getCommandFullIdentifier } from "./common";
+import { CustomCommand, getCommandFullIdentifier } from ".";
 
 /**
  * Command to display a 'clean' version of the selected workflow document.

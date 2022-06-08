@@ -2,8 +2,8 @@ import { commands, Uri } from "vscode";
 import { CommonLanguageClient } from "vscode-languageclient";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
-import { addRefToUri } from "../utils";
-import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from "./common";
+import { addRefToUri } from "../common/utils";
+import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from ".";
 
 /**
  * Compares (diff) a previously selected workflow document revision with

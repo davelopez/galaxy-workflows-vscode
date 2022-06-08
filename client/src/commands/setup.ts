@@ -4,7 +4,7 @@ import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
-import { GitProvider } from "../providers/git/common";
+import { GitProvider } from "../providers/git";
 import { CleanWorkflowCommand } from "./cleanWorkflow";
 
 /**

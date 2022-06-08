@@ -1,11 +1,11 @@
 import { commands, ExtensionContext } from "vscode";
 import { CommonLanguageClient, LanguageClientOptions } from "vscode-languageclient";
-import { setupCommands } from "./commands/setup";
+import { setupCommands } from "../commands/setup";
 import { Constants } from "./constants";
-import { CleanWorkflowDocumentProvider } from "./providers/cleanWorkflowDocumentProvider";
-import { CleanWorkflowProvider } from "./providers/cleanWorkflowProvider";
-import { GitProvider } from "./providers/git/common";
-import { BuiltinGitProvider } from "./providers/git/gitProvider";
+import { CleanWorkflowDocumentProvider } from "../providers/cleanWorkflowDocumentProvider";
+import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
+import { GitProvider } from "../providers/git";
+import { BuiltinGitProvider } from "../providers/git/gitProvider";
 
 export function buildLanguageClientOptions(): LanguageClientOptions {
   const documentSelector = [{ language: Constants.NATIVE_WORKFLOW_LANGUAGE_ID }];

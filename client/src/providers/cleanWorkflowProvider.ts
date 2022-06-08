@@ -1,8 +1,8 @@
 import { Uri, window, workspace } from "vscode";
 import { CommonLanguageClient } from "vscode-languageclient";
-import { CleanWorkflowContentsParams, CleanWorkflowContentsRequest } from "../requestsDefinitions";
-import { getWorkspaceScheme, replaceUriScheme } from "../utils";
-import { GitProvider } from "./git/common";
+import { CleanWorkflowContentsParams, CleanWorkflowContentsRequest } from "../common/requestsDefinitions";
+import { getWorkspaceScheme, replaceUriScheme } from "../common/utils";
+import { GitProvider } from "./git";
 
 /**
  * Provides utilities to clean (remove non-workflow logic related parts)

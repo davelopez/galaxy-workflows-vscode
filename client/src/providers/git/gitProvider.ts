@@ -1,6 +1,6 @@
 import { Extension, extensions, Uri } from "vscode";
 import { GitExtension, API as GitAPI } from "../../@types/git";
-import { GitProvider } from "./common";
+import { GitProvider } from ".";
 
 /**
  * Implementation of a GitProvider using the `vscode.git` extension.
