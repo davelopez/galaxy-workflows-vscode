@@ -3,7 +3,17 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as assert from "assert";
-import { activateAndOpenInEditor, getDocUri, closeAllEditors, openDocument, sleep } from "./helpers";
+import { beforeEach } from "mocha";
+import {
+  activateAndOpenInEditor,
+  getDocUri,
+  closeAllEditors,
+  openDocument,
+  sleep,
+  assertDiagnostics,
+  updateSettings,
+  resetSettings,
+} from "./helpers";
 
 suite("Extension Test Suite", () => {
   teardown(closeAllEditors);
@@ -21,6 +31,43 @@ suite("Extension Test Suite", () => {
         const expectedCleanDocument = await openDocument(cleanDocUri);
         const expectedCleanJson = expectedCleanDocument.getText();
         assert.strictEqual(actualCleanJson, expectedCleanJson);
+      });
+    });
+
+    suite("Validation Tests", () => {
+      beforeEach(async () => {
+        await resetSettings();
+      });
+      test("Changing validation profile shows custom diagnostics", async () => {
+        const docUri = getDocUri(path.join("json", "validation", "test_wf_03.ga"));
+        await activateAndOpenInEditor(docUri);
+        await sleep(1000); // Wait for diagnostics
+        await assertDiagnostics(docUri, []); // Expect no issues
+
+        // Change to stricter validation profile
+        await updateSettings("validation.profile", "iwc");
+        await sleep(2000); // Wait for diagnostics
+        await assertDiagnostics(docUri, [
+          {
+            message: 'Missing property "release".',
+            range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1)),
+            severity: 0,
+          },
+          {
+            message: "Missing label in workflow output.",
+            range: new vscode.Range(new vscode.Position(16, 16), new vscode.Position(19, 17)),
+            severity: 0,
+          },
+          {
+            message: "Missing label in workflow output.",
+            range: new vscode.Range(new vscode.Position(20, 16), new vscode.Position(23, 17)),
+            severity: 0,
+          },
+        ]);
+
+        await resetSettings();
+        await sleep(2000); // Wait for diagnostics
+        await assertDiagnostics(docUri, []); // Expect no issues
       });
     });
   });

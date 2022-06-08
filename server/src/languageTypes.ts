@@ -132,31 +132,52 @@ export interface HoverContentContributor {
  */
 export interface ValidationRule {
   /**
-   * Validates the given workflow document and provides diagnostics.
+   * Validates the given workflow document and provides diagnostics according
+   * to this rule.
    * @param workflowDocument The workflow document
    */
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 }
 
+/**
+ *  Interface representing a validation profile which contains a set of custom rules.
+ */
+export interface ValidationProfile {
+  /** The unique identifier of this validation profile. */
+  get id(): string;
+
+  /** The set of rules defining this validation profile. */
+  get rules(): Set<ValidationRule>;
+}
+
+/**
+ * Abstract service defining the base functionality that a workflow language must
+ * implement to provide assistance for workflow documents editing.
+ */
 export abstract class WorkflowLanguageService {
-  protected _customValidationRules: ValidationRule[] = [];
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
   public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
   public abstract doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
 
+  /** Performs basic syntax and semantic validation based on the workflow schema. */
   protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
 
-  public setValidationRules(validationRules: ValidationRule[]): void {
-    this._customValidationRules = validationRules;
-  }
-
-  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  /**
+   * Validates the document and reports all the diagnostics found.
+   * An optional validation profile can be used to provide additional custom diagnostics.
+   */
+  public async validate(
+    workflowDocument: WorkflowDocument,
+    useProfile: ValidationProfile | null = null
+  ): Promise<Diagnostic[]> {
     const diagnostics = await this.doValidation(workflowDocument);
-    this._customValidationRules.forEach(async (validationRule) => {
-      const contributedDiagnostics = await validationRule.validate(workflowDocument);
-      diagnostics.push(...contributedDiagnostics);
-    });
+    if (useProfile) {
+      useProfile.rules.forEach(async (validationRule) => {
+        const contributedDiagnostics = await validationRule.validate(workflowDocument);
+        diagnostics.push(...contributedDiagnostics);
+      });
+    }
     return diagnostics;
   }
 }

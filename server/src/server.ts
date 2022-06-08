@@ -15,6 +15,7 @@ import { HoverProvider } from "./providers/hover/hoverProvider";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { CompletionProvider } from "./providers/completionProvider";
 import { ConfigService } from "./configService";
+import { ValidationProfiles } from "./providers/validation/profiles";
 
 export class GalaxyWorkflowLanguageServer {
   public readonly languageService: WorkflowLanguageService;
@@ -25,7 +26,7 @@ export class GalaxyWorkflowLanguageServer {
 
   constructor(public readonly connection: Connection, languageService: WorkflowLanguageService) {
     this.languageService = languageService;
-    this.configService = new ConfigService(connection);
+    this.configService = new ConfigService(connection, () => this.onConfigurationChanged());
     // Track open, change and close text document events
     this.trackDocumentChanges(connection);
 
@@ -95,15 +96,23 @@ export class GalaxyWorkflowLanguageServer {
     this.clearValidation(textDocument);
   }
 
+  private onConfigurationChanged(): void {
+    this.workflowDocuments.all().forEach((workflowDocument) => {
+      this.validate(workflowDocument);
+    });
+  }
+
   private cleanup(): void {
     this.workflowDocuments.dispose();
   }
 
-  private validate(workflowDocument: WorkflowDocument): void {
+  private async validate(workflowDocument: WorkflowDocument): Promise<void> {
     if (WorkflowDocuments.schemesToSkip.includes(workflowDocument.uri.scheme)) {
       return;
     }
-    this.languageService.validate(workflowDocument).then((diagnostics) => {
+    const settings = await this.configService.getDocumentSettings(workflowDocument.textDocument.uri);
+    const validationProfile = ValidationProfiles.get(settings.validation.profile);
+    this.languageService.validate(workflowDocument, validationProfile).then((diagnostics) => {
       this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
     });
   }
