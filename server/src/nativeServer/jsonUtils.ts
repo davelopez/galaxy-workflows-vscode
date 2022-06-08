@@ -1,4 +1,4 @@
-import { ASTNode } from "./languageTypes";
+import { ASTNode } from "../common/languageTypes";
 
 export function getPathSegments(path: string): string[] | null {
   const segments = path.split(/[/.]/);

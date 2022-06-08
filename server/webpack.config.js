@@ -16,7 +16,7 @@ const nodeServerConfig = withDefaults({
   context: path.join(__dirname),
   target: "node", // regular extensions run in node context
   entry: {
-    nativeServer: "./src/node/nativeServer.ts",
+    nativeServer: "./src/nativeServer/node/server.ts",
   },
   output: {
     filename: "[name].js",
@@ -32,7 +32,7 @@ const browserServerConfig = withDefaults({
   context: path.join(__dirname),
   target: "webworker", // web extensions run in a webworker context
   entry: {
-    nativeServer: "./src/browser/nativeServer.ts",
+    nativeServer: "./src/nativeServer/browser/server.ts",
   },
   output: {
     filename: "[name].js",

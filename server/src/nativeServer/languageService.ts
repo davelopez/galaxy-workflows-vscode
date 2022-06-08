@@ -18,8 +18,8 @@ import {
   Position,
   Hover,
   CompletionList,
-} from "./languageTypes";
-import NativeWorkflowSchema from "../../workflow-languages/schemas/native.schema.json";
+} from "../common/languageTypes";
+import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./models/nativeWorkflowDocument";
 
 /**

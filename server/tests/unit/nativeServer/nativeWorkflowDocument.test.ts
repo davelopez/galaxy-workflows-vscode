@@ -1,5 +1,5 @@
 import { createNativeWorkflowDocument } from "../testHelpers";
-import { TestWorkflowProvider } from "../testWorkflowProvider";
+import { TestWorkflowProvider } from "../../testWorkflowProvider";
 
 describe("NativeWorkflowDocument", () => {
   describe("getStepNodes", () => {

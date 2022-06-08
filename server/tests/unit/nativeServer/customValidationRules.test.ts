@@ -1,6 +1,6 @@
 import { createNativeWorkflowDocument } from "../testHelpers";
-import { WorkflowOutputLabelValidation } from "../../src/providers/validation/WorkflowOutputLabelValidation";
-import { TestWorkflowProvider } from "../testWorkflowProvider";
+import { WorkflowOutputLabelValidation } from "../../../src/common/providers/validation/WorkflowOutputLabelValidation";
+import { TestWorkflowProvider } from "../../testWorkflowProvider";
 
 describe("Custom Validation Rules", () => {
   describe("WorkflowOutputLabelValidation Rule", () => {

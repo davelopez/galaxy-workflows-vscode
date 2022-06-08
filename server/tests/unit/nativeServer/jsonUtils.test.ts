@@ -1,5 +1,5 @@
 import { ASTNode, PropertyASTNode } from "vscode-json-languageservice";
-import { getPathSegments, getPropertyNodeFromPath } from "../../src/jsonUtils";
+import { getPathSegments, getPropertyNodeFromPath } from "../../../src/nativeServer/jsonUtils";
 import { getJsonDocumentRoot } from "../testHelpers";
 
 describe("JSON Utility Functions", () => {

@@ -2,7 +2,7 @@ import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vsc
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ASTNode, PropertyASTNode, WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
-import { ServiceBase } from "./common";
+import { ServiceBase } from ".";
 import {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsRequest,

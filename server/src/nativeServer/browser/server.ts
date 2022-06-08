@@ -1,5 +1,5 @@
 import { createConnection, BrowserMessageReader, BrowserMessageWriter } from "vscode-languageserver/browser";
-import { GalaxyWorkflowLanguageServer } from "../server";
+import { GalaxyWorkflowLanguageServer } from "../../common/server";
 import { NativeWorkflowLanguageService } from "../languageService";
 
 const messageReader = new BrowserMessageReader(self);
