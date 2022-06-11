@@ -1,4 +1,4 @@
-import { ASTNode } from "../common/languageTypes";
+import { ASTNode } from "@gxwf/server-common/src/languageTypes";
 
 export function getPathSegments(path: string): string[] | null {
   const segments = path.split(/[/.]/);

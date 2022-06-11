@@ -39,7 +39,7 @@
       "request": "attach",
       "port": 6009,
       "sourceMapPathOverrides": {
-        "webpack://?:*/*": "${workspaceFolder}/server/*"
+        "webpack://?:*/*": "${workspaceFolder}/server/gx-workflow-ls-native/*"
       }
     },
     {
@@ -48,7 +48,7 @@
       "request": "attach",
       "port": 6010,
       "sourceMapPathOverrides": {
-        "webpack://?:*/*": "${workspaceFolder}/server/*"
+        "webpack://?:*/*": "${workspaceFolder}/server/gx-workflow-ls-format2/*"
       }
     },
     {

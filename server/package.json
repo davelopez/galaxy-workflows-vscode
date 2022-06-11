@@ -1,19 +1,10 @@
 {
-  "name": "galaxy-workflow-language-server-native",
-  "description": "Implementation of a language server for (native format) Galaxy Workflows.",
+  "name": "gxwf",
+  "private": "true",
+  "description": "Monorepo containing all Galaxy workflows language servers and dependencies.",
   "version": "0.1.0",
-  "author": {
-    "name": "galaxyproject",
-    "url": "https://galaxyproject.org/"
-  },
+  "author": "davelopez",
   "license": "MIT",
-  "engines": {
-    "node": "*"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/davelopez/galaxy-workflows-vscode"
-  },
   "dependencies": {
     "jsonc-parser": "^3.0.0",
     "vscode-languageserver": "^7.0.0",
@@ -23,8 +14,16 @@
     "vscode-uri": "^3.0.3"
   },
   "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack --watch --progress",
-    "test-unit": "jest"
-  }
+    "compile-native-server": "webpack --config ./gx-workflow-ls-native/webpack.config.js",
+    "compile-format2-server": "webpack --config ./gx-workflow-ls-format2/webpack.config.js",
+    "compile": "npm run compile-native-server && npm run compile-format2-server",
+    "watch-native-server": "webpack --watch --progress --config ./gx-workflow-ls-native/webpack.config.js",
+    "watch-format2-server": "webpack --watch --progress --config ./gx-workflow-ls-format2/webpack.config.js",
+    "watch": "concurrently --kill-others \"npm run watch-format2-server\" \"npm run watch-native-server\""
+  },
+  "workspaces": [
+    "gx-workflow-ls-format2",
+    "gx-workflow-ls-native",
+    "packages/*"
+  ]
 }

@@ -1,6 +1,6 @@
 import { JSONDocument, ObjectASTNode } from "vscode-json-languageservice";
 import { getPropertyNodeFromPath } from "./jsonUtils";
-import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "../common/languageTypes";
+import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
 
 /**
  * This class provides information about a Native workflow document structure.

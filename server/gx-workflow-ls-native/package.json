@@ -1,0 +1,15 @@
+{
+  "name": "gx-workflow-ls-native",
+  "version": "0.1.0",
+  "description": "Language server implementation for Galaxy native (JSON) workflows.",
+  "author": "davelopez",
+  "license": "MIT",
+  "dependencies": {
+    "@gxwf/server-common": "*"
+  },
+  "scripts": {
+    "webpack": "webpack",
+    "watch": "webpack --watch --progress",
+    "test-unit": "jest"
+  }
+}

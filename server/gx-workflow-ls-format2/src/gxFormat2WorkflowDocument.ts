@@ -1,5 +1,5 @@
 import { ObjectASTNode } from "vscode-json-languageservice";
-import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "../common/languageTypes";
+import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
 
 /**
  * This class provides information about a gxformat2 workflow document structure.

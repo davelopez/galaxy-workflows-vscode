@@ -18,7 +18,7 @@ import {
   TextEdit,
   WorkflowDocument,
   WorkflowLanguageService,
-} from "../common/languageTypes";
+} from "@gxwf/server-common/src/languageTypes";
 import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 

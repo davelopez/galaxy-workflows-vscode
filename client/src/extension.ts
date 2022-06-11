@@ -35,14 +35,16 @@ function buildNodeLanguageClient(languageId: string, serverOptions: ServerOption
 
 function buildNativeServerOptions(context: ExtensionContext): ServerOptions {
   // The server is implemented in node
-  const serverModule = context.asAbsolutePath(path.join("server", "dist", "nativeServer.js"));
+  const serverModule = context.asAbsolutePath(path.join("server", "gx-workflow-ls-native", "dist", "nativeServer.js"));
   const debugPort = 6009;
   return buildBasicNodeServerOptions(serverModule, debugPort);
 }
 
 function buildGxFormat2ServerOptions(context: ExtensionContext): ServerOptions {
   // The server is implemented in node
-  const serverModule = context.asAbsolutePath(path.join("server", "dist", "gxFormat2Server.js"));
+  const serverModule = context.asAbsolutePath(
+    path.join("server", "gx-workflow-ls-format2", "dist", "gxFormat2Server.js")
+  );
   const debugPort = 6010;
   return buildBasicNodeServerOptions(serverModule, debugPort);
 }

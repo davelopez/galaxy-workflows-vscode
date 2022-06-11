@@ -9,7 +9,8 @@ import {
   Hover,
   CompletionList,
   Diagnostic,
-} from "../common/languageTypes";
+} from "@gxwf/server-common/src/languageTypes";
+import { LanguageService, getLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 
 /**
@@ -17,8 +18,10 @@ import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
  * for gxformat2 Galaxy workflow files.
  */
 export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
+  private _yamlLanguageService: LanguageService;
   constructor() {
     super();
+    this._yamlLanguageService = getLanguageService();
   }
 
   public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {

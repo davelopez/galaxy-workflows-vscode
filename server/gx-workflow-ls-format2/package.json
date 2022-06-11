@@ -1,0 +1,13 @@
+{
+  "name": "gx-workflow-ls-format2",
+  "version": "0.1.0",
+  "description": "Language server implementation for Galaxy gxformat2 (YAML) workflows.",
+  "author": "davelopez",
+  "license": "MIT",
+  "dependencies": {
+    "@gxwf/server-common": "*",
+    "@gxwf/yaml-language-service": "*"
+  },
+  "devDependencies": {},
+  "scripts": {}
+}

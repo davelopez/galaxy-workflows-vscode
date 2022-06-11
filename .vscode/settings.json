@@ -11,5 +11,6 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "gitlens.advanced.blame.customArguments": ["--ignore-revs-file", ".git-blame-ignore-revs"]
+  "gitlens.advanced.blame.customArguments": ["--ignore-revs-file", ".git-blame-ignore-revs"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

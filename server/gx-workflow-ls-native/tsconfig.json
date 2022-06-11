@@ -8,14 +8,6 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "composite": true
-  },
-  "files": [],
-  "include": [],
-  "exclude": [],
-  "references": [
-    {
-      "path": "packages/server-common"
-    }
-  ]
+    "rootDirs": ["src"]
+  }
 }

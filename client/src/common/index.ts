@@ -46,9 +46,7 @@ function startLanguageClient(context: ExtensionContext, languageClient: CommonLa
   context.subscriptions.push(disposable);
 
   languageClient.onReady().then(() => {
-    console.log(
-      `${context.extension.id} ${languageClient.clientOptions.documentSelector[0].toString()} server is ready.`
-    );
+    console.log(`${context.extension.id} ${languageClient.outputChannel.name} server is ready.`);
   });
 }
 

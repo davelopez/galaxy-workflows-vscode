@@ -1,5 +1,5 @@
 import { createConnection } from "vscode-languageserver/node";
-import { GalaxyWorkflowLanguageServer } from "../../common/server";
+import { GalaxyWorkflowLanguageServer } from "@gxwf/server-common/src/server";
 import { GxFormat2WorkflowLanguageService } from "../languageService";
 
 const connection = createConnection();

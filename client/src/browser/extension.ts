@@ -7,11 +7,11 @@ import { Constants } from "../common/constants";
 export function activate(context: ExtensionContext): void {
   const nativeLanguageClient = createWebWorkerLanguageClient(
     Constants.NATIVE_WORKFLOW_LANGUAGE_ID,
-    Uri.joinPath(context.extensionUri, "server/dist/web/nativeServer.js")
+    Uri.joinPath(context.extensionUri, "server/gx-workflow-ls-native/dist/web/nativeServer.js")
   );
   const gxFormat2LanguageClient = createWebWorkerLanguageClient(
     Constants.GXFORMAT2_WORKFLOW_LANGUAGE_ID,
-    Uri.joinPath(context.extensionUri, "server/dist/web/gxFormat2Server.js")
+    Uri.joinPath(context.extensionUri, "server/gx-workflow-ls-format2/dist/web/gxFormat2Server.js")
   );
 
   initExtension(context, nativeLanguageClient, gxFormat2LanguageClient);
