@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "rootDirs": ["src"]
-  }
+    "rootDirs": ["src", "tests"]
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }

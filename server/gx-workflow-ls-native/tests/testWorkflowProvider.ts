@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const TEST_DATA_PATH = path.join(__dirname, "..", "..", "test-data");
+const TEST_DATA_PATH = path.join(__dirname, "..", "..", "..", "test-data");
 
 interface TestJsonWorkflows {
   /** Workflows for testing validation issues. */
@@ -37,7 +37,7 @@ export class TestWorkflowProvider {
   };
 
   /** Workflows in native JSON format. */
-  public static get nativeJson(): TestJsonWorkflows {
+  public static get workflows(): TestJsonWorkflows {
     return this._jsonWorkflows;
   }
 }

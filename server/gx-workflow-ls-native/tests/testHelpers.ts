@@ -1,6 +1,6 @@
 import { ASTNode, getLanguageService, JSONDocument } from "vscode-json-languageservice";
-import { TextDocument } from "../../src/common/languageTypes";
-import { NativeWorkflowDocument } from "../../src/nativeServer/nativeWorkflowDocument";
+import { TextDocument } from "@gxwf/server-common/src/languageTypes";
+import { NativeWorkflowDocument } from "../src/nativeWorkflowDocument";
 
 export function toJsonDocument(contents: string): { textDoc: TextDocument; jsonDoc: JSONDocument } {
   const textDoc = TextDocument.create("foo://bar/file.json", "json", 0, contents);
