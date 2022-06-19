@@ -8,5 +8,5 @@
     "skipLibCheck": true
   },
   "include": ["tests"],
-  "exclude": ["node_modules", ".vscode-test-web"]
+  "exclude": ["node_modules"]
 }

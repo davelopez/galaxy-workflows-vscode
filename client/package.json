@@ -21,6 +21,6 @@
   "scripts": {
     "webpack": "webpack",
     "watch": "webpack --watch --progress",
-    "test-unit": "jest"
+    "test": "jest"
   }
 }

@@ -12,8 +12,7 @@
     "watch-native-server": "webpack --watch --progress --config ./gx-workflow-ls-native/webpack.config.js",
     "watch-format2-server": "webpack --watch --progress --config ./gx-workflow-ls-format2/webpack.config.js",
     "watch": "concurrently --kill-others \"npm run watch-format2-server\" \"npm run watch-native-server\"",
-    "test-unit-native": "cd gx-workflow-ls-native && npm run test-unit && cd ..",
-    "test-unit": "npm run test-unit-native"
+    "test": "jest"
   },
   "workspaces": [
     "gx-workflow-ls-format2",

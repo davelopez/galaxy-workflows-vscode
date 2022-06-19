@@ -213,9 +213,9 @@
     "watch": "concurrently --kill-others \"npm run watch-server\" \"npm run watch-client\"",
     "watch-server": "cd server && npm run watch",
     "watch-client": "cd client && npm run watch",
-    "test": "npm run test-unit-client && npm run test-unit-server",
-    "test-unit-client": "cd client && npm run test-unit && cd ..",
-    "test-unit-server": "cd server && npm run test-unit && cd ..",
+    "test": "jest",
+    "test-client": "cd client && npm test",
+    "test-server": "cd server && npm test",
     "test-compile": "tsc --project ./client --outDir client/out",
     "pretest:e2e": "npm run compile && npm run test-compile",
     "test:e2e": "node ./client/out/e2e/runTests.js"

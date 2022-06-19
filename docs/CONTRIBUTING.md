@@ -80,7 +80,7 @@ You can run all the unit tests with:
 npm test
 ```
 
-Alternatively, you can choose to run only the [server](../server/tests/unit/) or the [client](../client/tests/unit/) tests using `npm run test-unit-server` or `npm run test-unit-client` respectively.
+Alternatively, you can choose to run only the [server](../server/) or the [client](../client/tests/unit/) tests using `npm run test-server` or `npm run test-client` respectively.
 
 The [integration or end to end (e2e) tests](../client/tests/e2e/suite/) will download (the first time) and launch a testing version of VSCode and then run the tests on it. You can run these tests with:
 

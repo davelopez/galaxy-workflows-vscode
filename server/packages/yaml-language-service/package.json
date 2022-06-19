@@ -11,5 +11,7 @@
     "vscode-uri": "^3.0.3",
     "yaml": "^2.1.1"
   },
-  "scripts": {}
+  "scripts": {
+    "test": "jest"
+  }
 }
