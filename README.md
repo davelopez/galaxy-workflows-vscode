@@ -52,7 +52,7 @@ The following table shows all the implemented features and the current support f
 | [Validation](#workflow-validation)                      |           ✔️           |               🔜               |
 | [Documentation on Hover](#documentation-on-hover)       |           ✔️           |               🔜               |
 | [IntelliSense](#intellisense)                           |           ✔️           |               🔜               |
-| [Formatting](#formatting)                               |           ✔️           |               🔜               |
+| [Formatting](#formatting)                               |           ✔️           |               ✔️               |
 | [Custom Outline](#custom-outline)                       |           ✔️           |               🔜               |
 | [Workflow Cleanup Command](#workflow-cleanup-command)   |           ✔️           |               ❔               |
 | [Simplified Workflow Diffs](#simplified-workflow-diffs) |           🔶           |               ❔               |

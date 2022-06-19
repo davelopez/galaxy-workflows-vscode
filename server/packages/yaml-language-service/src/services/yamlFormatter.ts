@@ -1,15 +1,14 @@
-"use strict";
-
 import { Range, Position, TextEdit, FormattingOptions } from "vscode-languageserver-types";
 import { CustomFormatterOptions, LanguageSettings } from "../yamlLanguageService";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { parse, stringify, ToStringOptions } from "yaml";
 
 export class YAMLFormatter {
-  private formatterEnabled = true;
+  private formatterEnabled? = true;
 
-  public configure(shouldFormat: LanguageSettings): void {
-    if (shouldFormat) {
-      this.formatterEnabled = shouldFormat.format || false;
+  public configure(settings: LanguageSettings): void {
+    if (settings) {
+      this.formatterEnabled = settings.format;
     }
   }
 
@@ -20,8 +19,13 @@ export class YAMLFormatter {
 
     try {
       const text = document.getText();
-      // TODO implement formatter
-      const formatted = text;
+      const ymlDoc = parse(text);
+      const yamlFormatOptions: ToStringOptions = {
+        singleQuote: options.singleQuote,
+        lineWidth: options.lineWidth,
+        indent: options.tabSize,
+      };
+      const formatted = stringify(ymlDoc, yamlFormatOptions);
 
       return [TextEdit.replace(Range.create(Position.create(0, 0), document.positionAt(text.length)), formatted)];
     } catch (error) {

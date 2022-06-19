@@ -29,8 +29,8 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
     return new GxFormat2WorkflowDocument(document, yamlDocument);
   }
 
-  public override format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[] {
-    return [];
+  public override format(document: TextDocument, _: Range, options: FormattingOptions): TextEdit[] {
+    return this._yamlLanguageService.doFormat(document, options);
   }
 
   public override async doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
