@@ -1,16 +1,23 @@
 import { ObjectASTNode } from "vscode-json-languageservice";
 import { TextDocument, Range, Position, ASTNode, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
+import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 
 /**
  * This class provides information about a gxformat2 workflow document structure.
  */
 export class GxFormat2WorkflowDocument extends WorkflowDocument {
-  constructor(textDocument: TextDocument) {
+  private _yamlDocument: YAMLDocument;
+  constructor(textDocument: TextDocument, yamlDocument: YAMLDocument) {
     super(textDocument);
+    this._yamlDocument = yamlDocument;
   }
 
   public get rootNode(): ASTNode | undefined {
-    return;
+    return this._yamlDocument.mainDocument?.root;
+  }
+
+  public get yamlDocument(): YAMLDocument {
+    return this._yamlDocument;
   }
 
   public override getNodeAtPosition(position: Position): ASTNode | undefined {
