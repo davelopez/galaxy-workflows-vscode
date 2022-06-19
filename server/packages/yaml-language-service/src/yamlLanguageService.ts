@@ -1,15 +1,13 @@
-import { ASTNode } from "vscode-json-languageservice";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { FormattingOptions, Hover, Position, TextEdit } from "vscode-languageserver-types";
+import { Diagnostic, FormattingOptions, Hover, Position, TextEdit } from "vscode-languageserver-types";
 import { YAMLFormatter } from "./services/yamlFormatter";
-
-export declare type YAMLDocument = {
-  root: ASTNode | undefined;
-  getNodeFromOffset(offset: number, includeRightBound?: boolean): ASTNode | undefined;
-};
+import { parse as parseYAML, YAMLDocument } from "./parser";
+import { YAMLValidation } from "./services/yamlValidation";
 
 export interface LanguageSettings {
-  format?: boolean; //Setting for whether we want to have the formatter or not
+  validate?: boolean;
+  format?: boolean;
+  indentation?: string;
 }
 
 export interface CustomFormatterOptions {
@@ -21,13 +19,18 @@ export interface CustomFormatterOptions {
 }
 
 export interface LanguageService {
+  parseYAMLDocument(document: TextDocument): YAMLDocument;
+  doValidation(yamlDocument: YAMLDocument): Promise<Diagnostic[]>;
   doFormat(document: TextDocument, options: FormattingOptions & CustomFormatterOptions): TextEdit[];
   doHover(document: TextDocument, position: Position): Hover | null;
 }
 
 export function getLanguageService(): LanguageService {
   const formatter = new YAMLFormatter();
+  const validator = new YAMLValidation();
   return {
+    parseYAMLDocument: (document: TextDocument) => parseYAML(document),
+    doValidation: (yamlDocument: YAMLDocument) => validator.doValidation(yamlDocument),
     doFormat: formatter.format.bind(formatter),
     doHover: (doc, pos) => {
       return null;

@@ -5,9 +5,11 @@
   "author": "davelopez",
   "license": "MIT",
   "dependencies": {
+    "@gxwf/server-common": "*",
     "vscode-languageserver-textdocument": "^1.0.4",
     "vscode-languageserver-types": "^3.16.0",
-    "vscode-uri": "^3.0.3"
+    "vscode-uri": "^3.0.3",
+    "yaml": "^2.1.1"
   },
   "scripts": {}
 }
