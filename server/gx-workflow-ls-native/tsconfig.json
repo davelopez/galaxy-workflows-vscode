@@ -8,14 +8,7 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "composite": true
+    "rootDirs": ["src", "tests"]
   },
-  "files": [],
-  "include": [],
-  "exclude": [],
-  "references": [
-    {
-      "path": "packages/server-common"
-    }
-  ]
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }

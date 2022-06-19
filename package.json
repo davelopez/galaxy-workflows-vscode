@@ -48,7 +48,7 @@
       {
         "id": "galaxyworkflow",
         "aliases": [
-          "Galaxy Workflow"
+          "Galaxy Workflow (JSON)"
         ],
         "extensions": [
           ".ga"
@@ -58,7 +58,7 @@
       {
         "id": "gxformat2",
         "aliases": [
-          "Galaxy Workflow"
+          "Galaxy Workflow (YAML)"
         ],
         "extensions": [
           ".yml",
@@ -204,15 +204,16 @@
   },
   "scripts": {
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
-    "lint": "eslint ./client/src ./server/src --ext .ts,.tsx",
+    "lint": "eslint ./client/src ./server --ext .ts,.tsx",
     "format": "prettier --write .",
     "clean": "rimraf client/dist && rimraf server/dist",
-    "compile": "npm run clean && webpack --config ./client/webpack.config.js && webpack --config ./server/webpack.config.js",
+    "compile-servers": "cd server && npm run compile",
+    "compile": "npm run clean && webpack --config ./client/webpack.config.js && npm run compile-servers",
     "vscode:prepublish": "npm run compile",
     "watch": "concurrently --kill-others \"npm run watch-server\" \"npm run watch-client\"",
     "watch-server": "cd server && npm run watch",
     "watch-client": "cd client && npm run watch",
-    "test": "jest",
+    "test": "npm run test-unit-client && npm run test-unit-server",
     "test-unit-client": "cd client && npm run test-unit && cd ..",
     "test-unit-server": "cd server && npm run test-unit && cd ..",
     "test-compile": "tsc --project ./client --outDir client/out",
@@ -244,5 +245,11 @@
     "typescript": "^4.6.3",
     "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2"
+  },
+  "__metadata": {
+    "id": "2306ad21-fa2c-46f9-bba8-a22e32c7cb9a",
+    "publisherDisplayName": "davelopez",
+    "publisherId": "b10132ef-3f96-4db4-acb0-d6a0ca1848c7",
+    "isPreReleaseVersion": false
   }
 }

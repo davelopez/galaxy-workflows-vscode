@@ -1,6 +1,6 @@
 import { window } from "vscode";
-import { CleanWorkflowDocumentParams, CleanWorkflowDocumentRequest } from "../requestsDefinitions";
-import { CustomCommand, getCommandFullIdentifier } from "./common";
+import { CleanWorkflowDocumentParams, CleanWorkflowDocumentRequest } from "../common/requestsDefinitions";
+import { CustomCommand, getCommandFullIdentifier } from ".";
 
 /**
  * Command to 'clean' the selected workflow document.

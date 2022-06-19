@@ -1,5 +1,5 @@
 import { EventEmitter, ExtensionContext, TextDocumentContentProvider, Uri, workspace } from "vscode";
-import { Constants } from "../constants";
+import { Constants } from "../common/constants";
 import { CleanWorkflowProvider } from "./cleanWorkflowProvider";
 
 /**

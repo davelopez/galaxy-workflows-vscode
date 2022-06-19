@@ -1,26 +1,26 @@
 import {
+  DocumentLanguageSettings,
   getLanguageService,
+  JSONSchema,
   LanguageService,
   LanguageServiceParams,
-  DocumentLanguageSettings,
-  Diagnostic,
-  JSONSchema,
   LanguageSettings,
   SchemaConfiguration,
 } from "vscode-json-languageservice";
 import {
-  TextDocument,
-  Range,
+  CompletionList,
+  Diagnostic,
   FormattingOptions,
+  Hover,
+  Position,
+  Range,
+  TextDocument,
   TextEdit,
   WorkflowDocument,
   WorkflowLanguageService,
-  Position,
-  Hover,
-  CompletionList,
-} from "./languageTypes";
-import NativeWorkflowSchema from "../../workflow-languages/schemas/native.schema.json";
-import { NativeWorkflowDocument } from "./models/nativeWorkflowDocument";
+} from "@gxwf/server-common/src/languageTypes";
+import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
+import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 
 /**
  * A wrapper around the JSON Language Service to support language features

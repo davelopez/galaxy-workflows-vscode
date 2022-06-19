@@ -1,0 +1,13 @@
+{
+  "name": "@gxwf/yaml-language-service",
+  "version": "0.1.0",
+  "description": "YAML language service that provides smarts for YAML files editing. Based on the Red Hat yamlLanguageService implementation included in yaml-language-server but tailored for Galaxy Workflows.",
+  "author": "davelopez",
+  "license": "MIT",
+  "dependencies": {
+    "vscode-languageserver-textdocument": "^1.0.4",
+    "vscode-languageserver-types": "^3.16.0",
+    "vscode-uri": "^3.0.3"
+  },
+  "scripts": {}
+}

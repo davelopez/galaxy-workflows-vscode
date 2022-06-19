@@ -1,36 +1,58 @@
 import * as path from "path";
 import { ExtensionContext } from "vscode";
-import { LanguageClientOptions } from "vscode-languageclient";
+import { integer, LanguageClientOptions } from "vscode-languageclient";
 import { LanguageClient, ServerOptions, TransportKind } from "vscode-languageclient/node";
-import { buildLanguageClientOptions, initExtension } from "./common";
+import { buildBasicLanguageClientOptions, initExtension } from "./common";
+import { Constants } from "./common/constants";
 
 export function activate(context: ExtensionContext): void {
-  const client = buildLanguageClient(context);
+  const nativeLanguageClient = buildNodeLanguageClient(
+    Constants.NATIVE_WORKFLOW_LANGUAGE_ID,
+    buildNativeServerOptions(context)
+  );
+  const gxFormat2LanguageClient = buildNodeLanguageClient(
+    Constants.GXFORMAT2_WORKFLOW_LANGUAGE_ID,
+    buildGxFormat2ServerOptions(context)
+  );
 
-  initExtension(context, client);
+  initExtension(context, nativeLanguageClient, gxFormat2LanguageClient);
 }
 
 export function deactivate(): void {
   // Nothing to do yet
 }
 
-function buildLanguageClient(context: ExtensionContext): LanguageClient {
-  const clientOptions: LanguageClientOptions = buildLanguageClientOptions();
-  const serverOptions: ServerOptions = buildServerOptions(context);
+function buildNodeLanguageClient(languageId: string, serverOptions: ServerOptions): LanguageClient {
+  const documentSelector = [{ language: languageId }];
+  const clientOptions: LanguageClientOptions = buildBasicLanguageClientOptions(documentSelector);
   return new LanguageClient(
-    "galaxy-workflow-language-client-native",
-    "Galaxy Workflows LS",
+    `${languageId}-language-client`,
+    `Galaxy Workflows (${languageId})`,
     serverOptions,
     clientOptions
   );
 }
 
-function buildServerOptions(context: ExtensionContext): ServerOptions {
+function buildNativeServerOptions(context: ExtensionContext): ServerOptions {
   // The server is implemented in node
-  const serverModule = context.asAbsolutePath(path.join("server", "dist", "nativeServer.js"));
+  const serverModule = context.asAbsolutePath(path.join("server", "gx-workflow-ls-native", "dist", "nativeServer.js"));
+  const debugPort = 6009;
+  return buildBasicNodeServerOptions(serverModule, debugPort);
+}
+
+function buildGxFormat2ServerOptions(context: ExtensionContext): ServerOptions {
+  // The server is implemented in node
+  const serverModule = context.asAbsolutePath(
+    path.join("server", "gx-workflow-ls-format2", "dist", "gxFormat2Server.js")
+  );
+  const debugPort = 6010;
+  return buildBasicNodeServerOptions(serverModule, debugPort);
+}
+
+function buildBasicNodeServerOptions(serverModule: string, debugPort: integer): ServerOptions {
   // The debug options for the server
-  // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
-  const debugOptions = { execArgv: ["--nolazy", "--inspect=6009"] };
+  // --inspect=<port>: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging
+  const debugOptions = { execArgv: ["--nolazy", `--inspect=${debugPort}`] };
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used

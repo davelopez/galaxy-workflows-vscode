@@ -7,16 +7,18 @@
 //@ts-check
 "use strict";
 
-const withDefaults = require("../shared.webpack.config");
+const withDefaults = require("../../shared.webpack.config");
 const path = require("path");
 
+/** Native (JSON) Server */
+
 /** @type WebpackConfig */
-const nodeServerConfig = withDefaults({
+const nodeNativeServerConfig = withDefaults({
   mode: "none",
   context: path.join(__dirname),
   target: "node", // regular extensions run in node context
   entry: {
-    nativeServer: "./src/node/nativeServer.ts",
+    nativeServer: "./src/node/server.ts",
   },
   output: {
     filename: "[name].js",
@@ -27,12 +29,12 @@ const nodeServerConfig = withDefaults({
 });
 
 /** @type WebpackConfig */
-const browserServerConfig = withDefaults({
+const browserNativeServerConfig = withDefaults({
   mode: "none",
   context: path.join(__dirname),
   target: "webworker", // web extensions run in a webworker context
   entry: {
-    nativeServer: "./src/browser/nativeServer.ts",
+    nativeServer: "./src/browser/server.ts",
   },
   output: {
     filename: "[name].js",
@@ -42,4 +44,4 @@ const browserServerConfig = withDefaults({
   },
 });
 
-module.exports = [nodeServerConfig, browserServerConfig];
+module.exports = [nodeNativeServerConfig, browserNativeServerConfig];
