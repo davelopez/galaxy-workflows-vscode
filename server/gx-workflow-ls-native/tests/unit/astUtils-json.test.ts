@@ -1,28 +1,8 @@
-import { ASTNode, PropertyASTNode } from "vscode-json-languageservice";
-import { getPathSegments, getPropertyNodeFromPath } from "../../src/jsonUtils";
+import { getPropertyNodeFromPath } from "@gxwf/server-common/src/ast/utils";
 import { getJsonDocumentRoot } from "../testHelpers";
+import { expectPropertyNodeToHaveKey } from "@gxwf/server-common/tests/testHelpers";
 
-describe("JSON Utility Functions", () => {
-  describe("getPathSegments", () => {
-    it.each([
-      ["", []],
-      ["/", [""]],
-      ["a", ["a"]],
-      ["/a", ["a"]],
-      ["a/b", ["a", "b"]],
-      ["a/", ["a", ""]],
-      [".", [""]],
-      [".a", ["a"]],
-      ["a.b", ["a", "b"]],
-      ["a.", ["a", ""]],
-    ])("returns the expected segments", (path: string, expected: string[]) => {
-      const segments = getPathSegments(path);
-
-      expect(segments).toHaveLength(expected.length);
-      expect(segments).toEqual(expected);
-    });
-  });
-
+describe("AST Utility Functions with JSON", () => {
   describe("getPropertyNodeFromPath", () => {
     describe("with valid path", () => {
       it.each([
@@ -59,8 +39,3 @@ describe("JSON Utility Functions", () => {
     });
   });
 });
-
-function expectPropertyNodeToHaveKey(propertyNode: ASTNode | null, expectedPropertyKey: string): void {
-  expect(propertyNode?.type).toBe("property");
-  expect((propertyNode as PropertyASTNode).keyNode.value).toBe(expectedPropertyKey);
-}

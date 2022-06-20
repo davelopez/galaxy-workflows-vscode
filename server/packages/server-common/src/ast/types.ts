@@ -21,3 +21,7 @@ export {
   PropertyASTNode,
   StringASTNode,
 };
+
+export interface ParsedDocument {
+  root?: ASTNode;
+}

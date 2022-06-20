@@ -8,7 +8,7 @@ import {
   ObjectASTNode,
   PropertyASTNode,
   StringASTNode,
-} from "@gxwf/server-common/src/astTypes";
+} from "@gxwf/server-common/src/ast/types";
 import { Node, Pair } from "yaml";
 
 export {

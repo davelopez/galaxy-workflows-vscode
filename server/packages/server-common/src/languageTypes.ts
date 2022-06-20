@@ -48,28 +48,10 @@ import {
   DocumentSymbolParams,
 } from "vscode-languageserver/browser";
 import { WorkflowDocument } from "./models/workflowDocument";
-import {
-  ASTNode,
-  ArrayASTNode,
-  ObjectASTNode,
-  PropertyASTNode,
-  StringASTNode,
-  BooleanASTNode,
-  NumberASTNode,
-  NullASTNode,
-} from "vscode-json-languageservice";
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { GalaxyWorkflowLanguageServer } from "./server";
 
 export {
-  ASTNode,
-  ArrayASTNode,
-  ObjectASTNode,
-  PropertyASTNode,
-  StringASTNode,
-  BooleanASTNode,
-  NumberASTNode,
-  NullASTNode,
   TextDocument,
   Range,
   Position,

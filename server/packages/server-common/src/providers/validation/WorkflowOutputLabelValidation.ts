@@ -9,7 +9,7 @@ export class WorkflowOutputLabelValidation implements ValidationRule {
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
-    const stepNodes = workflowDocument.getStepNodes();
+    const stepNodes = workflowDocument.nodeManager.getStepNodes();
     stepNodes.forEach((step) => {
       const workflowOutputs = step.properties.find((property) => property.keyNode.value === "workflow_outputs");
       if (workflowOutputs && workflowOutputs.valueNode && workflowOutputs.valueNode.type === "array") {
@@ -19,7 +19,7 @@ export class WorkflowOutputLabelValidation implements ValidationRule {
             if (!labelNode?.valueNode?.value) {
               result.push({
                 message: `Missing label in workflow output.`,
-                range: workflowDocument.getNodeRange(outputNode),
+                range: workflowDocument.nodeManager.getNodeRange(outputNode),
                 severity: this.severity,
               });
             }

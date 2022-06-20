@@ -10,7 +10,7 @@
     "strict": true,
     "composite": true,
     "declaration": true,
-    "rootDir": "./src",
+    "rootDirs": ["src", "tests"],
     "baseUrl": "."
   },
   "include": ["src/**/*"]

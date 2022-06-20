@@ -11,11 +11,11 @@ export class MissingPropertyValidationRule implements ValidationRule {
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
-    const targetNode = workflowDocument.getNodeFromPath(this.nodePath);
+    const targetNode = workflowDocument.nodeManager.getNodeFromPath(this.nodePath);
     if (!targetNode) {
       result.push({
         message: `Missing property "${this.nodePath}".`,
-        range: workflowDocument.getDefaultRange(),
+        range: workflowDocument.nodeManager.getDefaultRange(),
         severity: this.severity,
       });
     }

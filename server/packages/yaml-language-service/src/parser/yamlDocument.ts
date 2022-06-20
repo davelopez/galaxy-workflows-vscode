@@ -1,3 +1,4 @@
+import { ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
 import { Document, Node, visit, YAMLError, YAMLWarning } from "yaml";
@@ -60,13 +61,17 @@ export class YAMLSubDocument {
  * Represents a YAML document.
  * YAML documents can contain multiple sub-documents separated by "---".
  */
-export class YAMLDocument {
+export class YAMLDocument implements ParsedDocument {
   private readonly _textBuffer: TextBuffer;
   private _diagnostics: Diagnostic[] | undefined;
 
   constructor(public readonly subDocuments: YAMLSubDocument[], public readonly textDocument: TextDocument) {
     this._textBuffer = new TextBuffer(textDocument);
     this._diagnostics = undefined;
+  }
+
+  public get root(): ASTNode | undefined {
+    return this.mainDocument?.root;
   }
 
   /** The first or single sub-document parsed. */
