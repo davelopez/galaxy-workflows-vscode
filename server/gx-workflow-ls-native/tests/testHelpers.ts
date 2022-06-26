@@ -1,4 +1,5 @@
-import { ASTNode, getLanguageService, JSONDocument } from "vscode-json-languageservice";
+import { ASTNode } from "@gxwf/server-common/src/ast/types";
+import { getLanguageService, JSONDocument } from "vscode-json-languageservice";
 import { TextDocument } from "@gxwf/server-common/src/languageTypes";
 import { NativeWorkflowDocument } from "../src/nativeWorkflowDocument";
 
