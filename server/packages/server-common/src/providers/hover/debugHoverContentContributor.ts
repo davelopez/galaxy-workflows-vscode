@@ -1,4 +1,5 @@
-import { ASTNode, PropertyASTNode, WorkflowDocument, Position, HoverContentContributor } from "../../languageTypes";
+import { WorkflowDocument, Position, HoverContentContributor } from "../../languageTypes";
+import { ASTNode, PropertyASTNode } from "../../ast/types";
 import { ArrayASTNode, BooleanASTNode, NullASTNode, NumberASTNode, StringASTNode } from "vscode-json-languageservice";
 
 /**
@@ -6,7 +7,7 @@ import { ArrayASTNode, BooleanASTNode, NullASTNode, NumberASTNode, StringASTNode
  */
 export class DebugHoverContentContributor implements HoverContentContributor {
   public onHoverContent(workflowDocument: WorkflowDocument, position: Position): string {
-    const node = workflowDocument.getNodeAtPosition(position);
+    const node = workflowDocument.nodeManager.getNodeAtPosition(position);
     return node ? this.printNode(node) : "";
   }
 
