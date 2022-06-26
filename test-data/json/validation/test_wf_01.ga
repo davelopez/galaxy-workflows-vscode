@@ -5,6 +5,7 @@
     "steps": {
         "0": {
             "id": 0,
+            "label": "Test Step",
             "name": "Test Step",
             "type": "data_input",
             "annotation": "Step description",
