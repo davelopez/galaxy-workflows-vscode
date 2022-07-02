@@ -1,6 +1,6 @@
 import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { ASTNode, PropertyASTNode, WorkflowDocument } from "../languageTypes";
+import { WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 import { ServiceBase } from ".";
 import {
@@ -11,6 +11,7 @@ import {
   CleanWorkflowDocumentRequest,
   CleanWorkflowDocumentResult,
 } from "./requestsDefinitions";
+import { ASTNode, PropertyASTNode } from "../ast/types";
 
 /**
  * Service for handling workflow `cleaning` requests.
@@ -101,11 +102,11 @@ export class CleanWorkflowService extends ServiceBase {
       changes.push(TextEdit.replace(range, ""));
 
       // Remove trailing comma in previous property node
-      const isLastNode = workflowDocument.isLastNodeInParent(node);
+      const isLastNode = workflowDocument.nodeManager.isLastNodeInParent(node);
       if (isLastNode) {
-        let previousNode = workflowDocument.getPreviousSiblingNode(node);
+        let previousNode = workflowDocument.nodeManager.getPreviousSiblingNode(node);
         while (previousNode && nodesToRemove.includes(previousNode)) {
-          previousNode = workflowDocument.getPreviousSiblingNode(previousNode);
+          previousNode = workflowDocument.nodeManager.getPreviousSiblingNode(previousNode);
         }
         if (previousNode) {
           const range = this.getFullNodeRange(workflowDocument.textDocument, previousNode);
@@ -135,7 +136,7 @@ export class CleanWorkflowService extends ServiceBase {
   }
 
   private getNonEssentialNodes(workflowDocument: WorkflowDocument, cleanablePropertyNames: string[]): ASTNode[] {
-    const root = workflowDocument.rootNode;
+    const root = workflowDocument.nodeManager.root;
     if (!root) {
       return [];
     }

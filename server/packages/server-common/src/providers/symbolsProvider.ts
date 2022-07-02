@@ -1,12 +1,5 @@
-import {
-  DocumentSymbolParams,
-  DocumentSymbol,
-  SymbolKind,
-  ASTNode,
-  PropertyASTNode,
-  ObjectASTNode,
-  WorkflowDocument,
-} from "../languageTypes";
+import { ASTNode, ObjectASTNode, PropertyASTNode } from "../ast/types";
+import { DocumentSymbolParams, DocumentSymbol, SymbolKind, WorkflowDocument } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
 
@@ -32,7 +25,7 @@ export class SymbolsProvider extends Provider {
   }
 
   private getSymbols(workflowDocument: WorkflowDocument): DocumentSymbol[] {
-    const root = workflowDocument.rootNode;
+    const root = workflowDocument.nodeManager.root;
     if (!root) {
       return [];
     }
@@ -48,7 +41,7 @@ export class SymbolsProvider extends Provider {
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
-            const range = workflowDocument.getNodeRange(node);
+            const range = workflowDocument.nodeManager.getNodeRange(node);
             const selectionRange = range;
             const symbol = { name, kind: this.getSymbolKind(node.type), range, selectionRange, children: [] };
             result.push(symbol);
@@ -70,8 +63,8 @@ export class SymbolsProvider extends Provider {
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
-            const range = workflowDocument.getNodeRange(property);
-            const selectionRange = workflowDocument.getNodeRange(property.keyNode);
+            const range = workflowDocument.nodeManager.getNodeRange(property);
+            const selectionRange = workflowDocument.nodeManager.getNodeRange(property.keyNode);
             const children: DocumentSymbol[] = [];
             const symbol: DocumentSymbol = {
               name: name,

@@ -8,10 +8,9 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "composite": true,
-    "declaration": true,
-    "rootDirs": ["src", "tests"],
-    "baseUrl": "."
+    "composite": true
   },
-  "include": ["src/**/*"]
+  "files": [],
+  "include": [],
+  "exclude": []
 }

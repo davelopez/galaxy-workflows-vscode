@@ -10,7 +10,7 @@ describe("NativeWorkflowDocument", () => {
       [TestWorkflowProvider.workflows.validation.withThreeSteps, 3],
     ])("returns the expected number of steps", (wf_content: string, expectedNumSteps: number) => {
       const wfDocument = createNativeWorkflowDocument(wf_content);
-      const stepNodes = wfDocument.getStepNodes();
+      const stepNodes = wfDocument.nodeManager.getStepNodes();
       expect(stepNodes).toHaveLength(expectedNumSteps);
     });
   });

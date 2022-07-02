@@ -1,0 +1,5 @@
+class: GalaxyWorkflow
+label: Test Workflow Without Steps
+inputs: {}
+outputs: {}
+steps: {}

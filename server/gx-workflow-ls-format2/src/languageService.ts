@@ -25,11 +25,12 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
   }
 
   public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
-    return new GxFormat2WorkflowDocument(document);
+    const yamlDocument = this._yamlLanguageService.parseYAMLDocument(document);
+    return new GxFormat2WorkflowDocument(document, yamlDocument);
   }
 
-  public override format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[] {
-    return [];
+  public override format(document: TextDocument, _: Range, options: FormattingOptions): TextEdit[] {
+    return this._yamlLanguageService.doFormat(document, options);
   }
 
   public override async doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
@@ -44,6 +45,7 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
   }
 
   protected override async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
-    return [];
+    const format2WorkflowDocument = workflowDocument as GxFormat2WorkflowDocument;
+    return this._yamlLanguageService.doValidation(format2WorkflowDocument.yamlDocument);
   }
 }

@@ -25,9 +25,9 @@ jobs:
       - name: Lint Code
         run: npm run lint
       - name: Run server unit tests
-        run: npm run test-unit-server
+        run: npm run test-server
       - name: Run client unit tests
-        run: npm run test-unit-client
+        run: npm run test-client
       - name: Run integration tests
         run: xvfb-run -a npm run test:e2e
         if: runner.os == 'Linux'
