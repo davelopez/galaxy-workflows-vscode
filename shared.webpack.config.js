@@ -41,6 +41,10 @@ module.exports = function withDefaults(/**@type WebpackConfig*/ extConfig) {
             },
           ],
         },
+        {
+          test: /\.ya?ml$/,
+          use: "yaml-loader",
+        },
       ],
     },
     externals: {
