@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ParsedDocument, ASTNode, ObjectASTNode } from "./types";
+import { ParsedDocument, ASTNode, ObjectASTNode, NodePath } from "./types";
 import { findNodeAtOffset, getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
@@ -73,6 +73,23 @@ export class ASTNodeManager {
     const root = this.root;
     if (!root) return null;
     return getPropertyNodeFromPath(root, path);
+  }
+
+  public getPathFromNode(node: ASTNode): NodePath {
+    if (!node.parent || !node.parent.children) {
+      return [];
+    }
+    const path = this.getPathFromNode(node.parent);
+    if (node.parent.type === "property") {
+      const key = node.parent.children[0].value as string;
+      path.push(key);
+    } else if (node.parent.type === "array") {
+      const index = node.parent.children.indexOf(node);
+      if (index !== -1) {
+        path.push(index);
+      }
+    }
+    return path;
   }
 
   public getStepNodes(): ObjectASTNode[] {
