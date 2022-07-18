@@ -3,7 +3,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
 import { Document, Node, visit, YAMLError, YAMLWarning } from "yaml";
 import { TextBuffer } from "../utils/textBuffer";
-import { ASTNode } from "./astTypes";
+import { ASTNode, ObjectASTNodeImpl } from "./astTypes";
 
 const FULL_LINE_ERROR = true;
 const YAML_SOURCE = "YAML";
@@ -90,6 +90,16 @@ export class YAMLDocument implements ParsedDocument {
   /** List of comments in this document. */
   public get lineComments(): LineComment[] {
     return this.collectLineComments();
+  }
+
+  /**
+   * Gets the syntax node at this document offset.
+   * @param offset The offset in the text document
+   * @returns The syntax node that lies at the given offset
+   */
+  public getNodeFromOffset(offset: number): ASTNode | null {
+    const rootNode = this.root as ObjectASTNodeImpl;
+    return rootNode?.getNodeFromOffsetEndInclusive(offset);
   }
 
   /** Collects all syntax errors and warnings found on this document. */
