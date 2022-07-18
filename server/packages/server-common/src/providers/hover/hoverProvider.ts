@@ -28,7 +28,11 @@ export class HoverProvider extends Provider {
       return null;
     }
     const contentSections: string[] = [
-      this.hoverHasEmptyContent(hover) ? `No documentation available` : `${hover.contents}`,
+      this.hoverHasEmptyContent(hover)
+        ? `No documentation available`
+        : MarkupContent.is(hover.contents)
+        ? hover.contents.value
+        : `${hover.contents}`,
     ];
     this.contributors.forEach((contentContributor) => {
       const contributedContent = contentContributor.onHoverContent(workflowDocument, params.position);
