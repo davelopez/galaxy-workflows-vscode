@@ -7,7 +7,7 @@ import {
   SchemaField,
   isSchemaEntryBase,
   isSchemaRecord,
-  Field,
+  FieldSchemaNode,
   ResolvedSchema,
 } from "./definitions";
 import { SCHEMA_DOCS_v19_09_MAP } from "./versions";
@@ -15,6 +15,7 @@ import { SCHEMA_DOCS_v19_09_MAP } from "./versions";
 export class GalaxyWorkflowFormat2SchemaLoader {
   private _root?: SchemaRecord;
   private _typeMap = new Map<string, SchemaEntry>();
+  private _fieldsMap = new Map<string, SchemaField>();
   private _documentTypeMap = new Map<string, Map<string, SchemaEntry>>();
   private _namespaces = new Map<string, string>();
   public readonly resolvedSchema: ResolvedSchema;
@@ -25,21 +26,21 @@ export class GalaxyWorkflowFormat2SchemaLoader {
     this.loadSchema_v19_09();
     this.resolvedSchema = this.resolveSchema();
 
-    if (this._unknownTypes) {
-      console.debug(`UNKNOWN Types: ${this._unknownTypes.length}`);
-      this._unknownTypes.forEach((t) => {
-        console.debug(`  ${t}`);
-      });
-    }
+    // if (this._unknownTypes) {
+    //   console.debug(`UNKNOWN Types: ${this._unknownTypes.length}`);
+    //   this._unknownTypes.forEach((t) => {
+    //     console.debug(`  ${t}`);
+    //   });
+    // }
 
-    if (this._extendedTypes) {
-      console.debug(`EXTENDED Types (Unresolved): ${this._extendedTypes.size}`);
-      this._extendedTypes.forEach((type) => {
-        if (!this._typeMap.has(type)) {
-          console.debug(`  ${type} ${this._typeMap.has(type) ? "[found]" : ""}`);
-        }
-      });
-    }
+    // if (this._extendedTypes) {
+    //   console.debug(`EXTENDED Types (Unresolved): ${this._extendedTypes.size}`);
+    //   this._extendedTypes.forEach((type) => {
+    //     if (!this._typeMap.has(type)) {
+    //       console.debug(`  ${type} ${this._typeMap.has(type) ? "[found]" : ""}`);
+    //     }
+    //   });
+    // }
   }
 
   private loadSchema_v19_09(): void {
@@ -47,6 +48,14 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       const types = this.loadSchemaDocument(schemaDoc);
       types.forEach((v, k) => {
         this._typeMap.set(k, v);
+        if (isSchemaRecord(v)) {
+          v.fields.forEach((field) => {
+            if (this._fieldsMap.has(field.name)) {
+              console.debug("****** DUPLICATED FIELD", field.name);
+            }
+            this._fieldsMap.set(field.name, field);
+          });
+        }
       });
     });
   }
@@ -85,7 +94,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
   }
 
   private loadEnum(entry: SchemaEnum): SchemaEnum {
-    console.debug(`Enum: ${entry.name} ${"abstract" in entry ? "[abstract]" : ""}`);
+    // console.debug(`Enum: ${entry.name} ${"abstract" in entry ? "[abstract]" : ""}`);
     const enumEntry: SchemaEnum = {
       name: entry.name,
       type: entry.type,
@@ -97,9 +106,9 @@ export class GalaxyWorkflowFormat2SchemaLoader {
   }
 
   private loadRecord(entry: SchemaRecord): SchemaRecord {
-    console.debug(
-      `Record: ${entry.name} ${"abstract" in entry ? "[abstract]" : ""} ${"extends" in entry ? "[extends]" : ""}`
-    );
+    // console.debug(
+    //   `Record: ${entry.name} ${"abstract" in entry ? "[abstract]" : ""} ${"extends" in entry ? "[extends]" : ""}`
+    // );
     const fields = this.readEntryFields(entry);
 
     const recordEntry: SchemaRecord = {
@@ -133,7 +142,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       // Is an Object
       if (entry.fields) {
         Object.entries(entry.fields).forEach(([key, value]) => {
-          console.debug(`Object Field: ${key} ${value}`);
+          // console.debug(`Object Field: ${key} ${value}`);
           if (isSchemaEntryBase(value)) {
             fields.push({ name: key, type: value.type });
           }
@@ -142,24 +151,21 @@ export class GalaxyWorkflowFormat2SchemaLoader {
         console.debug("------- NO FIELDS");
       }
     }
-    if (fields) {
-      fields.forEach((field) => {
-        console.debug(`  ${field.name}: ${field.type}`);
-      });
-    }
+    // if (fields) {
+    //   fields.forEach((field) => {
+    //     console.debug(`  ${field.name}: ${field.type}`);
+    //   });
+    // }
     return fields;
   }
 
   private loadField(field: SchemaField): SchemaField {
     let fieldType = field.type;
 
-    if (fieldType instanceof String) {
+    if (typeof fieldType === "string") {
       fieldType = this.resolveTypeName(fieldType as string);
-    } else if (fieldType instanceof Array) {
-      //TODO Fix
-      fieldType = fieldType.at(0) ?? "";
     } else {
-      console.debug(`  --Field type NOT string: ${fieldType} -> ${typeof fieldType}`);
+      console.debug(`  --Field type NOT string: ${JSON.stringify(fieldType)} -> ${typeof fieldType}`);
     }
     return { name: field.name, type: fieldType, default: field.default, doc: field.doc };
   }
@@ -197,14 +203,14 @@ export class GalaxyWorkflowFormat2SchemaLoader {
   private resolveSchema(): ResolvedSchema {
     this.expandRecords();
     this.resolveFields();
-    return new ResolvedSchema(this._typeMap, this._root);
+    return new ResolvedSchema(this._typeMap, this._fieldsMap, this._root);
   }
 
   private resolveFields(): void {
     this._typeMap.forEach((value: SchemaEntry) => {
       if (isSchemaRecord(value)) {
         value.fields.forEach((field) => {
-          new Field(field);
+          new FieldSchemaNode(field);
         });
       }
     });
@@ -231,7 +237,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
 
   private collectExtensionFields(record: SchemaRecord, extensionFields: SchemaField[]): SchemaField[] {
     record.extends?.forEach((typeToExtend) => {
-      console.debug(`RESOLVE ${typeToExtend}`);
+      // console.debug(`RESOLVE ${typeToExtend}`);
       const resolved = this.resolveTypeToSchemaEntry(typeToExtend);
       if (isSchemaRecord(resolved)) {
         extensionFields.push(...resolved.fields);

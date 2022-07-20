@@ -58,10 +58,14 @@ export function isSchemaArrayType(object: unknown): object is SchemaArrayType {
 }
 
 export function isArrayFieldType(object: unknown): object is ArrayFieldType {
-  return object instanceof Object && "itemTypeName" in object;
+  return object instanceof Object && "itemType" in object;
 }
 
-export type SchemaEntry = SchemaEnum | SchemaRecord;
+export function isBasicFieldType(object: unknown): object is BasicFieldType {
+  return object instanceof Object && "typeName" in object;
+}
+
+export type SchemaEntry = SchemaEnum | SchemaRecord | SchemaField;
 
 interface FieldType {
   isOptional: boolean;
@@ -72,7 +76,7 @@ interface BasicFieldType extends FieldType {
 }
 
 interface ArrayFieldType extends FieldType {
-  itemTypeName: string;
+  itemType: FieldType;
 }
 
 interface EnumFieldType extends FieldType {
@@ -91,24 +95,21 @@ function fieldTypeFactory(typeEntry: unknown): FieldType | undefined {
       baseType = baseType.slice(0, baseType.length - 2);
       const arrayType: ArrayFieldType = {
         isOptional,
-        itemTypeName: baseType,
+        itemType: buildBasicFieldType(isOptional, baseType),
       };
       return arrayType;
     }
-    const basicType: BasicFieldType = {
-      isOptional,
-      typeName: baseType,
-    };
-    return basicType;
-  }
-
-  if (typeof typeEntry === "object") {
+    return buildBasicFieldType(isOptional, baseType);
+  } else if (typeof typeEntry === "object") {
     if (isSchemaArrayType(typeEntry)) {
-      const arrayType: ArrayFieldType = {
-        isOptional: false,
-        itemTypeName: (typeEntry as SchemaArrayType).items,
-      };
-      return arrayType;
+      const itemType = fieldTypeFactory((typeEntry as SchemaArrayType).items);
+      if (itemType) {
+        const arrayType: ArrayFieldType = {
+          isOptional: false,
+          itemType: itemType,
+        };
+        return arrayType;
+      }
     }
     if (isSchemaEnumType(typeEntry)) {
       const enumType: EnumFieldType = {
@@ -117,8 +118,17 @@ function fieldTypeFactory(typeEntry: unknown): FieldType | undefined {
       };
       return enumType;
     }
-    console.debug(`Field type unknown: ${JSON.stringify(typeEntry)}`);
+    console.debug(`Object Field type UNKNOWN: ${JSON.stringify(typeEntry)}`);
     return undefined;
+  } else {
+    console.debug(`Field type NOT PROCESSED: ${JSON.stringify(typeEntry)}`);
+  }
+
+  function buildBasicFieldType(isOptional: boolean, baseType: string): BasicFieldType {
+    return {
+      isOptional,
+      typeName: baseType.replace("#", ""),
+    };
   }
 }
 
@@ -129,7 +139,7 @@ interface SchemaNode {
   supportsArray: boolean;
 }
 
-export class Field implements SchemaNode {
+export class FieldSchemaNode implements SchemaNode {
   private _allowedTypes: FieldType[] = [];
   private readonly _schemaField: SchemaField;
   constructor(schemaField: SchemaField) {
@@ -171,21 +181,25 @@ export class Field implements SchemaNode {
 
   public getArrayItemTypeName(): string | undefined {
     const arrayType = this._allowedTypes.find((t) => isArrayFieldType(t)) as ArrayFieldType;
-    return arrayType?.itemTypeName;
+    if (isBasicFieldType(arrayType?.itemType)) {
+      return arrayType?.itemType.typeName;
+    }
+    console.debug("getArrayItemTypeName -> Type name not found");
+    return undefined;
   }
 }
 
-class SchemaRecordNode implements SchemaNode {
+class RecordSchemaNode implements SchemaNode {
   public static readonly ROOT_NAME: string = "_root_";
 
   private readonly _schemaRecord: SchemaRecord;
-  private readonly _fields: Map<string, Field>;
+  private readonly _fields: Map<string, FieldSchemaNode>;
 
   constructor(schemaRecord: SchemaRecord) {
     this._schemaRecord = schemaRecord;
-    this._fields = new Map<string, Field>();
+    this._fields = new Map<string, FieldSchemaNode>();
     schemaRecord.fields.forEach((field) => {
-      this._fields.set(field.name, new Field(field));
+      this._fields.set(field.name, new FieldSchemaNode(field));
     });
   }
 
@@ -193,7 +207,7 @@ class SchemaRecordNode implements SchemaNode {
     return this._schemaRecord.name;
   }
 
-  public get fields(): Field[] {
+  public get fields(): FieldSchemaNode[] {
     return Array.from(this._fields.values());
   }
 
@@ -212,42 +226,55 @@ class SchemaRecordNode implements SchemaNode {
 
 export class ResolvedSchema {
   public readonly root?: SchemaNode;
-  constructor(public readonly typeMap: Map<string, SchemaEntry>, rootRecord?: SchemaRecord) {
-    this.root = rootRecord ? new SchemaRecordNode(rootRecord) : undefined;
+  constructor(
+    public readonly typeMap: Map<string, SchemaEntry>,
+    public readonly fieldMap: Map<string, SchemaField>,
+    rootRecord?: SchemaRecord
+  ) {
+    this.root = rootRecord ? new RecordSchemaNode(rootRecord) : undefined;
   }
 
   public resolveSchemaContext(path: NodePath): SchemaNode | undefined {
-    let currentSchemaNode = this.root;
-    const toWalk = path.slice().reverse();
+    const currentSchemaNode = this.root;
+    const toWalk = path.slice(); //.reverse();
     let next = toWalk.pop();
     while (next) {
-      console.debug(`EXPLORING: ${next}`);
       if (typeof next === "string") {
-        const child = currentSchemaNode?.children.find((c) => c.name === next);
-        if (child) {
-          console.debug(`  FIELD FOUND: ${child.name}`);
-          currentSchemaNode = child;
-        } else {
-          console.debug(`  FIELD NOT FOUND: ${next}`);
-          if (currentSchemaNode?.supportsArray) {
-            const fieldSchemaNode = currentSchemaNode as Field;
-            let arrayItemTypeName = fieldSchemaNode.getArrayItemTypeName();
-            if (arrayItemTypeName) {
-              // For some reason types may start with #
-              if (arrayItemTypeName.startsWith("#")) {
-                arrayItemTypeName = arrayItemTypeName.slice(1);
-              }
-              const arrayType = this.typeMap.get(arrayItemTypeName);
-              if (isSchemaRecord(arrayType)) {
-                currentSchemaNode = new SchemaRecordNode(arrayType as SchemaRecord);
-              } else {
-                console.debug(`TYPE NOT PROCESSED: ${JSON.stringify(arrayType)}`);
-              }
-            }
+        if (this.typeMap.has(next)) {
+          const record = this.typeMap.get(next);
+          if (isSchemaRecord(record)) {
+            return new RecordSchemaNode(record);
           }
         }
+        if (this.fieldMap.has(next)) {
+          const field = this.fieldMap.get(next);
+          if (field) {
+            return new FieldSchemaNode(field);
+          }
+        }
+        console.debug(`TYPE NOT FOUND, processing parent of... ${JSON.stringify(next)}`);
+
+        // const child = currentSchemaNode?.children.find((c) => c.name === next);
+        // if (child) {
+        //   // console.debug(`  FIELD FOUND: ${child.name}`);
+        //   currentSchemaNode = child;
+        // } else {
+        //   // console.debug(`  FIELD NOT FOUND: ${next}`);
+        //   if (currentSchemaNode?.supportsArray) {
+        //     const fieldSchemaNode = currentSchemaNode as Field;
+        //     let arrayItemTypeName = fieldSchemaNode.getArrayItemTypeName();
+        //     if (arrayItemTypeName) {
+        //       const arrayType = this.typeMap.get(arrayItemTypeName);
+        //       if (isSchemaRecord(arrayType)) {
+        //         currentSchemaNode = new SchemaRecordNode(arrayType as SchemaRecord);
+        //       } else {
+        //         console.debug(`TYPE NOT PROCESSED: ${JSON.stringify(arrayType)}`);
+        //       }
+        //     }
+        //   }
+        // }
       } else {
-        console.debug("NOT A STRING");
+        console.debug("NOT A STRING (SKIPPING)", next);
       }
 
       next = toWalk.pop();
