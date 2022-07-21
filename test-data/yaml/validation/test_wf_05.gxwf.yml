@@ -1,0 +1,25 @@
+class: GalaxyWorkflow
+steps:
+    - type: input
+      label: input1
+    - tool_id: cat1
+      label: first_cat
+      state:
+          input1:
+              $link: 0
+    - label: embed1
+      run:
+          class: GalaxyTool
+          command: echo 'hello world 2' > $output1
+          outputs:
+              output1:
+                  format: txt
+    - tool_id: cat1
+      state:
+          input1:
+              $link: first_cat/out_file1
+          queries:
+              - input2:
+                    $link: embed1/output1
+test_data:
+    input1: hello world
