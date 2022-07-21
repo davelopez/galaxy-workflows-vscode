@@ -24,6 +24,9 @@ module.exports = function withDefaults(/**@type WebpackConfig*/ extConfig) {
       fallback: {
         path: require.resolve("path-browserify"),
       },
+      alias: {
+        "@schemas": path.resolve(__dirname, "./workflow-languages/schemas/"),
+      },
     },
     module: {
       rules: [
@@ -36,6 +39,9 @@ module.exports = function withDefaults(/**@type WebpackConfig*/ extConfig) {
               options: {
                 compilerOptions: {
                   sourceMap: true,
+                  paths: {
+                    "@schemas": [path.resolve(__dirname, "./workflow-languages/schemas/")],
+                  },
                 },
               },
             },
