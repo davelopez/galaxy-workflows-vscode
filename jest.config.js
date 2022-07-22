@@ -3,13 +3,13 @@
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { pathsToModuleNameMapper } = require("ts-jest");
-const { compilerOptions } = require("./tsconfig");
+const { compilerOptions } = require("./tsconfig.json");
 
 module.exports = {
   preset: "ts-jest",
   globals: {
     "ts-jest": {
-      tsconfig: "tsconfig.json",
+      tsconfig: compilerOptions,
     },
   },
   // The glob patterns Jest uses to detect test files
