@@ -1,5 +1,3 @@
-import { NodePath } from "@gxwf/server-common/src/ast/types";
-
 export interface SchemaDocument {
   $base: string;
   $namespaces?: object;
@@ -132,11 +130,12 @@ function fieldTypeFactory(typeEntry: unknown): FieldType | undefined {
   }
 }
 
-interface SchemaNode {
+export interface SchemaNode {
   name: string;
   children: SchemaNode[];
   documentation: string | undefined;
   supportsArray: boolean;
+  typeRef: string;
 }
 
 export class FieldSchemaNode implements SchemaNode {
@@ -179,6 +178,14 @@ export class FieldSchemaNode implements SchemaNode {
     return this._allowedTypes.some((t) => isArrayFieldType(t));
   }
 
+  public get typeRef(): string {
+    if (this.supportsArray) {
+      return this.getArrayItemTypeName() || "undefined";
+    }
+    const mainType = this.typesAllowed.at(0);
+    return isBasicFieldType(mainType) ? mainType.typeName : "not basic or undef";
+  }
+
   public getArrayItemTypeName(): string | undefined {
     const arrayType = this._allowedTypes.find((t) => isArrayFieldType(t)) as ArrayFieldType;
     if (isBasicFieldType(arrayType?.itemType)) {
@@ -189,7 +196,7 @@ export class FieldSchemaNode implements SchemaNode {
   }
 }
 
-class RecordSchemaNode implements SchemaNode {
+export class RecordSchemaNode implements SchemaNode {
   public static readonly ROOT_NAME: string = "_root_";
 
   private readonly _schemaRecord: SchemaRecord;
@@ -222,63 +229,14 @@ class RecordSchemaNode implements SchemaNode {
   public get supportsArray(): boolean {
     return false;
   }
+
+  public get typeRef(): string {
+    return this._schemaRecord.name;
+  }
 }
 
-export class ResolvedSchema {
-  public readonly root?: SchemaNode;
-  constructor(
-    public readonly typeMap: Map<string, SchemaEntry>,
-    public readonly fieldMap: Map<string, SchemaField>,
-    rootRecord?: SchemaRecord
-  ) {
-    this.root = rootRecord ? new RecordSchemaNode(rootRecord) : undefined;
-  }
-
-  public resolveSchemaContext(path: NodePath): SchemaNode | undefined {
-    const currentSchemaNode = this.root;
-    const toWalk = path.slice(); //.reverse();
-    let next = toWalk.pop();
-    while (next) {
-      if (typeof next === "string") {
-        if (this.typeMap.has(next)) {
-          const record = this.typeMap.get(next);
-          if (isSchemaRecord(record)) {
-            return new RecordSchemaNode(record);
-          }
-        }
-        if (this.fieldMap.has(next)) {
-          const field = this.fieldMap.get(next);
-          if (field) {
-            return new FieldSchemaNode(field);
-          }
-        }
-        console.debug(`TYPE NOT FOUND, processing parent of... ${JSON.stringify(next)}`);
-
-        // const child = currentSchemaNode?.children.find((c) => c.name === next);
-        // if (child) {
-        //   // console.debug(`  FIELD FOUND: ${child.name}`);
-        //   currentSchemaNode = child;
-        // } else {
-        //   // console.debug(`  FIELD NOT FOUND: ${next}`);
-        //   if (currentSchemaNode?.supportsArray) {
-        //     const fieldSchemaNode = currentSchemaNode as Field;
-        //     let arrayItemTypeName = fieldSchemaNode.getArrayItemTypeName();
-        //     if (arrayItemTypeName) {
-        //       const arrayType = this.typeMap.get(arrayItemTypeName);
-        //       if (isSchemaRecord(arrayType)) {
-        //         currentSchemaNode = new SchemaRecordNode(arrayType as SchemaRecord);
-        //       } else {
-        //         console.debug(`TYPE NOT PROCESSED: ${JSON.stringify(arrayType)}`);
-        //       }
-        //     }
-        //   }
-        // }
-      } else {
-        console.debug("NOT A STRING (SKIPPING)", next);
-      }
-
-      next = toWalk.pop();
-    }
-    return currentSchemaNode;
-  }
+export interface SchemaDefinitions {
+  types: Map<string, SchemaEntry>;
+  records: Map<string, SchemaRecord>;
+  fields: Map<string, SchemaField>;
 }

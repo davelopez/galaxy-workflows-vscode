@@ -27,7 +27,7 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
     super();
     this._schemaLoader = new GalaxyWorkflowFormat2SchemaLoader();
     this._yamlLanguageService = getLanguageService();
-    this._hoverService = new GxFormat2HoverService(this._schemaLoader.resolvedSchema);
+    this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
   }
 
   public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
