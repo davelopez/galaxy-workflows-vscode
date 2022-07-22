@@ -12,7 +12,7 @@ import {
 } from "@gxwf/server-common/src/languageTypes";
 import { LanguageService, getLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
-import { GalaxyWorkflowFormat2SchemaLoader } from "./schema/schemaLoader";
+import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2HoverService } from "./services/hoverService";
 
 /**

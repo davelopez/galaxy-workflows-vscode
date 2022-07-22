@@ -1,6 +1,5 @@
 import { NodePath } from "@gxwf/server-common/src/ast/types";
-import { SchemaNodeResolver } from "../../src/schema/schemaNodeResolver";
-import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema/schemaLoader";
+import { GalaxyWorkflowFormat2SchemaLoader, SchemaNodeResolver } from "../../src/schema";
 
 describe("Gxformat2 Schema Handling", () => {
   describe("Schema Version 19_09", () => {
