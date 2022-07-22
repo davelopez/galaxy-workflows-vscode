@@ -1,10 +1,10 @@
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { NodePath } from "@gxwf/server-common/src/ast/types";
 import { Hover, MarkupContent, MarkupKind, Position, Range, TextDocument } from "@gxwf/server-common/src/languageTypes";
-import { ResolvedSchema } from "../schema/definitions";
+import { SchemaNode, SchemaNodeResolver } from "../schema";
 
 export class GxFormat2HoverService {
-  constructor(protected readonly resolvedSchema: ResolvedSchema) {}
+  constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
 
   //Based on https://github.com/microsoft/vscode-json-languageservice/blob/12275e448a91973777c94a2e5d92c961f281231a/src/services/jsonHover.ts#L23
   public async doHover(
@@ -41,16 +41,23 @@ export class GxFormat2HoverService {
     );
 
     const location = nodeManager.getPathFromNode(hoverRangeNode);
-    const nodeDoc = this.getDocFromNodePath(location);
-    const contents = "**Debug Test**\n\n" + nodeDoc;
+    const schemaNode = this.schemaNodeResolver.resolveSchemaContext(location);
+    const contents = this.getHoverMarkdownContentsForNode(schemaNode);
     const hover = this.createHover(contents, hoverRange);
     return Promise.resolve(hover);
   }
 
-  private getDocFromNodePath(path: NodePath): string {
-    const schemaNode = this.resolvedSchema.resolveSchemaContext(path);
-    if (!schemaNode) return "Node not found";
-    return schemaNode.documentation || "Doc not found";
+  private getHoverMarkdownContentsForNode(schemaNode?: SchemaNode): string {
+    const contents = [];
+    if (schemaNode) {
+      contents.push(`**${schemaNode?.name}**`);
+      contents.push(schemaNode?.documentation || "Doc not found");
+    } else {
+      contents.push("Schema node not found");
+    }
+    // DEBUG
+    // contents.push(...this.debugInfo(location, schemaNode));
+    return contents.join("\n\n");
   }
 
   private createHover(contents: string, hoverRange: Range): Hover {
@@ -63,5 +70,13 @@ export class GxFormat2HoverService {
       range: hoverRange,
     };
     return result;
+  }
+
+  private debugInfo(location: NodePath, schemaNode?: SchemaNode): string[] {
+    return ["---", `## ${location}`, "---", `${this.toMarkdownFencedCodeBlock(schemaNode)}`];
+  }
+
+  private toMarkdownFencedCodeBlock(object: unknown): string {
+    return "```json\n" + `${JSON.stringify(object, null, 2)}` + "\n```";
   }
 }
