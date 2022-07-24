@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ParsedDocument, ASTNode, ObjectASTNode, NodePath } from "./types";
+import { ParsedDocument, ASTNode, ObjectASTNode, NodePath, Segment } from "./types";
 import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
@@ -89,20 +89,29 @@ export class ASTNodeManager {
   }
 
   public getPathFromNode(node: ASTNode): NodePath {
-    if (!node.parent || !node.parent.children) {
-      return [];
+    const path: NodePath = [];
+    let current: ASTNode | undefined = node;
+    while (current) {
+      const segment = this.getNodeSegment(current);
+      if (segment) {
+        path.push(segment);
+      }
+      current = current.parent;
     }
-    const path = this.getPathFromNode(node.parent);
-    if (node.parent.type === "property") {
-      const key = node.parent.children[0].value as string;
-      path.push(key);
-    } else if (node.parent.type === "array") {
+    return path.reverse();
+  }
+
+  private getNodeSegment(node: ASTNode): Segment | undefined {
+    if (node.type === "property") {
+      const name = node.keyNode.value as string;
+      return name;
+    }
+    if (node.parent?.type === "array") {
       const index = node.parent.children.indexOf(node);
       if (index !== -1) {
-        path.push(index);
+        return index;
       }
     }
-    return path;
   }
 
   public getStepNodes(): ObjectASTNode[] {
