@@ -211,7 +211,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
 
   private createNodeResolver(): SchemaNodeResolver {
     this.expandRecords();
-    return new SchemaNodeResolver(this.definitions);
+    return new SchemaNodeResolver(this.definitions, this._root);
   }
 
   /** Expands all records with the fields defined in the extended types.*/

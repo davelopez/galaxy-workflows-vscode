@@ -1,8 +1,11 @@
 import { NodePath, Segment } from "@gxwf/server-common/src/ast/types";
-import { SchemaDefinitions, SchemaNode, RecordSchemaNode, FieldSchemaNode } from "./definitions";
+import { SchemaDefinitions, SchemaNode, RecordSchemaNode, FieldSchemaNode, SchemaRecord } from "./definitions";
 
 export class SchemaNodeResolver {
-  constructor(public readonly definitions: SchemaDefinitions) {}
+  public readonly rootNode: SchemaNode;
+  constructor(public readonly definitions: SchemaDefinitions, root?: SchemaRecord) {
+    this.rootNode = root ? new RecordSchemaNode(root) : RecordSchemaNode.NULL;
+  }
 
   public resolveSchemaContext(path: NodePath): SchemaNode | undefined {
     const toWalk = path.slice();

@@ -136,6 +136,7 @@ export interface SchemaNode {
   documentation: string | undefined;
   supportsArray: boolean;
   typeRef: string;
+  isRoot: boolean;
 }
 
 export class FieldSchemaNode implements SchemaNode {
@@ -174,6 +175,10 @@ export class FieldSchemaNode implements SchemaNode {
     return [];
   }
 
+  public get isRoot(): boolean {
+    return false;
+  }
+
   public get supportsArray(): boolean {
     return this._allowedTypes.some((t) => isArrayFieldType(t));
   }
@@ -197,7 +202,12 @@ export class FieldSchemaNode implements SchemaNode {
 }
 
 export class RecordSchemaNode implements SchemaNode {
-  public static readonly ROOT_NAME: string = "_root_";
+  public static readonly NULL: SchemaNode = new RecordSchemaNode({
+    name: "null",
+    type: "null",
+    fields: [],
+    documentRoot: true,
+  });
 
   private readonly _schemaRecord: SchemaRecord;
   private readonly _fields: Map<string, FieldSchemaNode>;
@@ -224,6 +234,10 @@ export class RecordSchemaNode implements SchemaNode {
 
   public get children(): SchemaNode[] {
     return this.fields;
+  }
+
+  public get isRoot(): boolean {
+    return !!this._schemaRecord.documentRoot;
   }
 
   public get supportsArray(): boolean {
