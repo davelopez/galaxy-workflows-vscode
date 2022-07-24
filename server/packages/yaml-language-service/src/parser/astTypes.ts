@@ -39,9 +39,9 @@ export abstract class ASTNodeImpl {
     this.internalNode = internalNode;
   }
 
-  public getNodeFromOffsetEndInclusive(offset: number): ASTNode | null {
+  public getNodeFromOffsetEndInclusive(offset: number): ASTNode | undefined {
     const collector: BaseASTNode[] = [];
-    const findNode = (node: BaseASTNode): BaseASTNode | null => {
+    const findNode = (node: BaseASTNode): BaseASTNode | undefined => {
       if (offset >= node.offset && offset <= node.offset + node.length) {
         const children = node.children;
         if (children && children.length) {
@@ -54,7 +54,7 @@ export abstract class ASTNodeImpl {
           return node;
         }
       }
-      return null;
+      return undefined;
     };
     const foundNode = findNode(this);
     let currMinDist = Number.MAX_VALUE;
@@ -66,7 +66,7 @@ export abstract class ASTNodeImpl {
         currMinDist = minDist;
       }
     }
-    return (currMinNode || foundNode) as ASTNode | null;
+    return (currMinNode || foundNode) as ASTNode | undefined;
   }
 
   public get children(): ASTNode[] {

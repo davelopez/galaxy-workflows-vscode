@@ -97,7 +97,7 @@ export class YAMLDocument implements ParsedDocument {
    * @param offset The offset in the text document
    * @returns The syntax node that lies at the given offset
    */
-  public getNodeFromOffset(offset: number): ASTNode | null {
+  public getNodeFromOffset(offset: number): ASTNode | undefined {
     const rootNode = this.root as ObjectASTNodeImpl;
     return rootNode?.getNodeFromOffsetEndInclusive(offset);
   }

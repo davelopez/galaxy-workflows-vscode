@@ -1,6 +1,6 @@
 import { Position, Range, TextDocument } from "../languageTypes";
 import { ParsedDocument, ASTNode, ObjectASTNode, NodePath } from "./types";
-import { findNodeAtOffset, getPropertyNodeFromPath } from "./utils";
+import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
   constructor(private readonly textDocument: TextDocument, private readonly parsedDocument: ParsedDocument) {}
@@ -9,11 +9,8 @@ export class ASTNodeManager {
     return this.parsedDocument.root;
   }
 
-  public getNodeFromOffset(offset: number, includeRightBound = false): ASTNode | undefined {
-    if (this.root) {
-      return findNodeAtOffset(this.root, offset, includeRightBound);
-    }
-    return undefined;
+  public getNodeFromOffset(offset: number): ASTNode | undefined {
+    return this.parsedDocument.getNodeFromOffset(offset);
   }
 
   public getNodeAtPosition(position: Position): ASTNode | undefined {
@@ -67,6 +64,22 @@ export class ASTNodeManager {
       return null;
     }
     return parent.children[previousNodeIndex];
+  }
+
+  public getChildren(node: ASTNode): ASTNode[] {
+    return node.children ?? [];
+  }
+
+  public getDeclaredPropertyNames(node: ASTNode): Set<string> {
+    const declaredNodes = this.getChildren(node);
+    const result = new Set<string>();
+    declaredNodes.forEach((node) => {
+      if (node.type === "property") {
+        const key = node.keyNode.value;
+        result.add(key);
+      }
+    });
+    return result;
   }
 
   public getNodeFromPath(path: string): ASTNode | null {
