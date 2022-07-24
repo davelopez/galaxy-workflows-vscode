@@ -39,29 +39,3 @@ export function getPropertyNodeFromPath(root: ASTNode, path: string): ASTNode | 
   }
   return currentNode;
 }
-
-export function contains(node: ASTNode, offset: number, includeRightBound = false): boolean {
-  return (
-    (offset >= node.offset && offset <= node.offset + node.length) ||
-    (includeRightBound && offset === node.offset + node.length)
-  );
-}
-
-export function findNodeAtOffset(node: ASTNode, offset: number, includeRightBound: boolean): ASTNode | undefined {
-  if (includeRightBound === void 0) {
-    includeRightBound = false;
-  }
-  if (contains(node, offset, includeRightBound)) {
-    const children = node.children;
-    if (Array.isArray(children)) {
-      for (let i = 0; i < children.length && children[i].offset <= offset; i++) {
-        const item = findNodeAtOffset(children[i], offset, includeRightBound);
-        if (item) {
-          return item;
-        }
-      }
-    }
-    return node;
-  }
-  return undefined;
-}

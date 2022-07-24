@@ -8,7 +8,10 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "composite": true
+    "composite": true,
+    "paths": {
+      "@schemas/*": ["../workflow-languages/schemas/*"]
+    }
   },
   "files": [],
   "include": [],
