@@ -43,11 +43,13 @@ export class GxFormat2HoverService {
     const location = nodeManager.getPathFromNode(hoverRangeNode);
     const schemaNode = this.schemaNodeResolver.resolveSchemaContext(location);
     const contents = this.getHoverMarkdownContentsForNode(schemaNode);
-    const hover = this.createHover(contents, hoverRange);
+    // DEBUG
+    //contents.push(...this.debugInfo(location, schemaNode));
+    const hover = this.createHover(contents.join("\n\n"), hoverRange);
     return Promise.resolve(hover);
   }
 
-  private getHoverMarkdownContentsForNode(schemaNode?: SchemaNode): string {
+  private getHoverMarkdownContentsForNode(schemaNode?: SchemaNode): string[] {
     const contents = [];
     if (schemaNode) {
       contents.push(`**${schemaNode?.name}**`);
@@ -55,9 +57,7 @@ export class GxFormat2HoverService {
     } else {
       contents.push("Schema node not found");
     }
-    // DEBUG
-    // contents.push(...this.debugInfo(location, schemaNode));
-    return contents.join("\n\n");
+    return contents;
   }
 
   private createHover(contents: string, hoverRange: Range): Hover {
