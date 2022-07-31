@@ -158,3 +158,55 @@ namespace: defaul`;
     ).toBeDefined();
   });
 });
+
+describe("YamlDocument", () => {
+  it("should identify comments", () => {
+    const parsedDocument = parse("# a comment\ntest: test\n# a second comment");
+    let isComment = parsedDocument.isComment(11);
+    expect(isComment).toBe(true);
+    isComment = parsedDocument.isComment(12);
+    expect(isComment).toBe(false);
+    isComment = parsedDocument.isComment(22);
+    expect(isComment).toBe(false);
+    isComment = parsedDocument.isComment(23);
+    expect(isComment).toBe(true);
+  });
+  describe("getNodeFromOffset", () => {
+    const SAMPLE_DOC = `
+test: value
+test02:
+  prop03:
+    test04: val
+      
+`;
+    it.each([
+      // [0, "_root_"], // _root_ is not a property, is an object
+      [1, "test"],
+      [12, "test"],
+      [13, "test02"],
+      [20, "test02"],
+      [22, "test02"],
+      [23, "prop03"],
+      [30, "prop03"],
+      [31, "_root_"],
+      [35, "test04"],
+      [46, "test04"],
+      [47, "_root_"],
+      [49, "test02"],
+      [51, "prop03"],
+      [53, "test04"],
+    ])("should return for offset %p the expected node name %p", (offset: number, expectedNodeName: string) => {
+      const parsedDocument = parse(SAMPLE_DOC);
+      const node = parsedDocument.getNodeFromOffset(offset);
+      expect(node).toBeDefined();
+      if (expectedNodeName === "_root_") {
+        expect(node?.parent).toBeUndefined();
+      } else {
+        expect(node?.parent).toBeDefined();
+      }
+      if (node?.type === "property") {
+        expect(node.keyNode.value).toBe(expectedNodeName);
+      }
+    });
+  });
+});

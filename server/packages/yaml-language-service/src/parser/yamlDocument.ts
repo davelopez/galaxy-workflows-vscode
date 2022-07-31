@@ -2,12 +2,14 @@ import { ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
 import { Document, Node, visit, YAMLError, YAMLWarning } from "yaml";
+import { guessIndentation } from "../utils/indentationGuesser";
 import { TextBuffer } from "../utils/textBuffer";
 import { ASTNode, ObjectASTNodeImpl } from "./astTypes";
 
 const FULL_LINE_ERROR = true;
 const YAML_SOURCE = "YAML";
 const YAML_COMMENT_SYMBOL = "#";
+const DEFAULT_INDENTATION = 2;
 
 export class LineComment {
   constructor(public readonly text: string) {}
@@ -20,11 +22,12 @@ export class LineComment {
 export class YAMLDocument implements ParsedDocument {
   private readonly _textBuffer: TextBuffer;
   private _diagnostics: Diagnostic[] | undefined;
-  private _configuredIndentation = 2; // TODO read this value from config
+  private _indentation: number;
 
   constructor(public readonly subDocuments: YAMLSubDocument[], public readonly textDocument: TextDocument) {
     this._textBuffer = new TextBuffer(textDocument);
     this._diagnostics = undefined;
+    this._indentation = guessIndentation(this._textBuffer, DEFAULT_INDENTATION, true).tabSize;
   }
 
   public get root(): ASTNode | undefined {
@@ -64,20 +67,21 @@ export class YAMLDocument implements ParsedDocument {
     const rootNode = this.root as ObjectASTNodeImpl;
     if (!rootNode) return undefined;
     if (this.isComment(offset)) return undefined;
+    const position = this._textBuffer.getPosition(offset);
+    if (position.character === 0 && !this._textBuffer.hasTextAfterPosition(position)) return rootNode;
     const indentation = this._textBuffer.getLineIndentationAtOffset(offset);
     let result = rootNode.getNodeFromOffsetEndInclusive(offset);
-    if (!result || (result === rootNode && indentation != 0)) {
-      result = this.findParentNodeByIndentation(offset, indentation);
+    const parent = this.findParentNodeByIndentation(offset, indentation);
+    if (!result || (parent && result.offset < parent.offset && result.length > parent.length)) {
+      result = parent;
     }
     return result;
   }
 
   private findParentNodeByIndentation(offset: number, indentation: number): ASTNode | undefined {
-    if (indentation == 0) {
-      return this.root;
-    }
-    const parentIndentation = indentation - this._configuredIndentation;
-    const parentLine = this._textBuffer.getPreviousLineNumberWithIndentation(offset, parentIndentation);
+    if (indentation === 0) return this.root;
+    const parentIndentation = Math.max(0, indentation - this._indentation);
+    const parentLine = this._textBuffer.findPreviousLineWithSameIndentation(offset, parentIndentation);
     const parentOffset = this._textBuffer.getOffsetAt(Position.create(parentLine, parentIndentation));
 
     const rootNode = this.root as ObjectASTNodeImpl;

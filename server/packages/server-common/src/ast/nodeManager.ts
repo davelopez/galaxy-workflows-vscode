@@ -54,6 +54,10 @@ export class ASTNodeManager {
     return node === lastNode;
   }
 
+  public isRoot(node: ASTNode): boolean {
+    return node.parent === undefined;
+  }
+
   public getPreviousSiblingNode(node: ASTNode): ASTNode | null {
     const parent = node.parent;
     if (!parent || !parent.children) {

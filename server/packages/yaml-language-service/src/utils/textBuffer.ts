@@ -11,6 +11,13 @@ interface FullTextDocument {
   getLineOffsets(): number[];
 }
 
+export interface ITextBuffer {
+  getLineCount(): number;
+  getLineLength(lineNumber: number): number;
+  getLineCharCode(lineNumber: number, index: number): number;
+  getLineContent(lineNumber: number): string;
+}
+
 export class TextBuffer {
   constructor(private doc: TextDocument) {}
 
@@ -68,6 +75,11 @@ export class TextBuffer {
     return text.substring(i + 1, offset);
   }
 
+  public hasTextAfterPosition(position: Position): boolean {
+    const lineContent = this.getLineContent(position.line);
+    return lineContent.charAt(position.character + 1).trim() !== "";
+  }
+
   public getLineIndentationAtOffset(offset: number): number {
     const position = this.getPosition(offset);
     const lineContent = this.getLineContent(position.line);
@@ -75,15 +87,15 @@ export class TextBuffer {
     return indentation;
   }
 
-  public getPreviousLineNumberWithIndentation(offset: number, parentIndentation: number): number {
+  public findPreviousLineWithSameIndentation(offset: number, indentation: number): number {
     const position = this.getPosition(offset);
-    const indentationSpaces = " ".repeat(parentIndentation);
+    const indentationSpaces = " ".repeat(indentation);
     let currentLine = position.line - 1;
     let found = false;
 
     while (currentLine > 0 && !found) {
       const lineContent = this.getLineContent(currentLine);
-      if (lineContent.startsWith(indentationSpaces)) {
+      if (lineContent.startsWith(indentationSpaces) && lineContent.charCodeAt(indentation + 1) !== CharCode.Space) {
         found = true;
       } else {
         currentLine--;
