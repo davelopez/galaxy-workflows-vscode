@@ -18,7 +18,6 @@ export class SchemaNodeResolver {
         return this.getSchemaNodeForSegment(parentNode.typeRef);
       }
     }
-
     return schemaNodeFound;
   }
 

@@ -13,6 +13,7 @@ import {
 import { LanguageService, getLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
+import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
 
 /**
@@ -23,11 +24,13 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
   private _yamlLanguageService: LanguageService;
   private _schemaLoader: GalaxyWorkflowFormat2SchemaLoader;
   private _hoverService: GxFormat2HoverService;
+  private _completionService: GxFormat2CompletionService;
   constructor() {
     super();
     this._schemaLoader = new GalaxyWorkflowFormat2SchemaLoader();
     this._yamlLanguageService = getLanguageService();
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
+    this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver);
   }
 
   public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
@@ -47,7 +50,7 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
     workflowDocument: WorkflowDocument,
     position: Position
   ): Promise<CompletionList | null> {
-    return null;
+    return this._completionService.doComplete(workflowDocument.textDocument, position, workflowDocument.nodeManager);
   }
 
   protected override async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {

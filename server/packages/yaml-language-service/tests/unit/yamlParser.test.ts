@@ -180,7 +180,7 @@ test02:
       
 `;
     it.each([
-      // [0, "_root_"], // _root_ is not a property, is an object
+      [0, "_root_"], // _root_ is not a property, is an object
       [1, "test"],
       [12, "test"],
       [13, "test02"],

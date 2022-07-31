@@ -16,7 +16,7 @@ describe("Gxformat2 Schema Handling", () => {
     describe("SchemaNodeResolver", () => {
       let nodeResolver: SchemaNodeResolver;
       beforeAll(() => {
-        nodeResolver = new SchemaNodeResolver(schemaLoader.definitions);
+        nodeResolver = schemaLoader.nodeResolver;
       });
       describe("resolveSchemaContext", () => {
         it.each([
