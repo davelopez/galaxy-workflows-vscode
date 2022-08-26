@@ -65,35 +65,37 @@ export function isBasicFieldType(object: unknown): object is BasicFieldType {
 
 export type SchemaEntry = SchemaEnum | SchemaRecord | SchemaField;
 
-interface FieldType {
+interface FieldTypeBase {
   isOptional: boolean;
 }
 
-interface BasicFieldType extends FieldType {
+interface BasicFieldType extends FieldTypeBase {
   typeName: string;
 }
 
-interface ArrayFieldType extends FieldType {
-  itemType: FieldType;
+interface ArrayFieldType extends BasicFieldType {
+  itemType: FieldTypeBase;
 }
 
-interface EnumFieldType extends FieldType {
+interface EnumFieldType extends BasicFieldType {
   symbols: string[];
 }
 
-function fieldTypeFactory(typeEntry: unknown): FieldType | undefined {
+function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
   if (typeof typeEntry === "string") {
     let baseType: string = typeEntry;
-    const isOptional = baseType.endsWith("?");
+    let isOptional = baseType.endsWith("?");
     if (isOptional) {
       baseType = baseType.slice(0, baseType.length - 1);
     }
+    isOptional = isOptional || baseType === "null";
     const isArray = baseType.endsWith("[]");
     if (isArray) {
       baseType = baseType.slice(0, baseType.length - 2);
       const arrayType: ArrayFieldType = {
         isOptional,
         itemType: buildBasicFieldType(isOptional, baseType),
+        typeName: "array",
       };
       return arrayType;
     }
@@ -105,6 +107,7 @@ function fieldTypeFactory(typeEntry: unknown): FieldType | undefined {
         const arrayType: ArrayFieldType = {
           isOptional: false,
           itemType: itemType,
+          typeName: "array",
         };
         return arrayType;
       }
@@ -113,6 +116,7 @@ function fieldTypeFactory(typeEntry: unknown): FieldType | undefined {
       const enumType: EnumFieldType = {
         isOptional: false,
         symbols: (typeEntry as SchemaEnumType).symbols,
+        typeName: "enum",
       };
       return enumType;
     }
@@ -140,8 +144,9 @@ export interface SchemaNode {
 }
 
 export class FieldSchemaNode implements SchemaNode {
-  private _allowedTypes: FieldType[] = [];
+  private _allowedTypes: BasicFieldType[] = [];
   private readonly _schemaField: SchemaField;
+
   constructor(schemaField: SchemaField) {
     this._schemaField = schemaField;
     if (schemaField.type instanceof Array) {
@@ -167,7 +172,7 @@ export class FieldSchemaNode implements SchemaNode {
     return this._schemaField.doc;
   }
 
-  public get typesAllowed(): FieldType[] {
+  public get typesAllowed(): BasicFieldType[] {
     return this._allowedTypes;
   }
 
@@ -179,6 +184,14 @@ export class FieldSchemaNode implements SchemaNode {
     return false;
   }
 
+  public get isRequired(): boolean {
+    return !this.isOptional;
+  }
+
+  public get isOptional(): boolean {
+    return this._allowedTypes.some((ft) => ft.isOptional);
+  }
+
   public get supportsArray(): boolean {
     return this._allowedTypes.some((t) => isArrayFieldType(t));
   }
@@ -187,8 +200,8 @@ export class FieldSchemaNode implements SchemaNode {
     if (this.supportsArray) {
       return this.getArrayItemTypeName() || "undefined";
     }
-    const mainType = this.typesAllowed.at(0);
-    return isBasicFieldType(mainType) ? mainType.typeName : "not basic or undef";
+    const mainType = this.typesAllowed.find((t) => t.typeName !== "null");
+    return isBasicFieldType(mainType) ? mainType.typeName : "unknown";
   }
 
   public getArrayItemTypeName(): string | undefined {
