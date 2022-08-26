@@ -15,6 +15,7 @@ import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
+import { GxFormat2SchemaValidationService } from "./services/schemaValidationService";
 
 /**
  * A wrapper around the YAML Language Service to support language features
@@ -25,12 +26,14 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
   private _schemaLoader: GalaxyWorkflowFormat2SchemaLoader;
   private _hoverService: GxFormat2HoverService;
   private _completionService: GxFormat2CompletionService;
+  private _validationService: GxFormat2SchemaValidationService;
   constructor() {
     super();
     this._schemaLoader = new GalaxyWorkflowFormat2SchemaLoader();
     this._yamlLanguageService = getLanguageService();
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
     this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver);
+    this._validationService = new GxFormat2SchemaValidationService(this._schemaLoader.nodeResolver);
   }
 
   public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
@@ -55,6 +58,8 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
 
   protected override async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const format2WorkflowDocument = workflowDocument as GxFormat2WorkflowDocument;
-    return this._yamlLanguageService.doValidation(format2WorkflowDocument.yamlDocument);
+    const yamlDiagnostics = await this._yamlLanguageService.doValidation(format2WorkflowDocument.yamlDocument);
+    const schemaDiagnostics = await this._validationService.doValidation(workflowDocument);
+    return [...yamlDiagnostics, ...schemaDiagnostics];
   }
 }
