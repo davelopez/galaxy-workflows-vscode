@@ -21,6 +21,10 @@ export class SchemaNodeResolver {
     return schemaNodeFound;
   }
 
+  public getSchemaNodeByTypeRef(typeRef: string): SchemaNode | undefined {
+    return this.getSchemaNodeForSegment(typeRef);
+  }
+
   private getSchemaNodeForSegment(pathSegment?: Segment): SchemaNode | undefined {
     if (typeof pathSegment === "string") {
       if (this.definitions.records.has(pathSegment)) {
