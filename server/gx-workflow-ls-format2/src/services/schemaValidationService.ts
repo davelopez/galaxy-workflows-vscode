@@ -29,6 +29,9 @@ export class GxFormat2SchemaValidationService {
     const range = this.getRange(nodeManager, node);
     if (schemaNode instanceof RecordSchemaNode) {
       if (node.type !== "object") {
+        if (schemaNode.matchesTypeField(node.type)) {
+          return;
+        }
         diagnostics.push(Diagnostic.create(range, `${schemaNode.name} definition expected`, DiagnosticSeverity.Error));
       } else {
         schemaNode.fields.forEach((schemaFieldNode) => {

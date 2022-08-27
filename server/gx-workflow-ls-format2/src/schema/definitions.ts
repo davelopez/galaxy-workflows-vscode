@@ -265,6 +265,14 @@ export class RecordSchemaNode implements SchemaNode {
   public get typeRef(): string {
     return this._schemaRecord.name;
   }
+
+  public get typeField(): FieldSchemaNode | undefined {
+    return this.fields.find((t) => t.name === "type");
+  }
+
+  public matchesTypeField(typeName: string): boolean {
+    return this.typeField?.typesAllowed.find((t) => t.typeName === typeName) !== undefined;
+  }
 }
 
 export interface SchemaDefinitions {
