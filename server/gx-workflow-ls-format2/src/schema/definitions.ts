@@ -17,10 +17,15 @@ export interface DocumentedSchemaEntry extends SchemaEntryBase {
 export interface SchemaField extends DocumentedSchemaEntry {
   default?: unknown;
 }
+export interface Specialization {
+  specializeFrom: string;
+  specializeTo: string;
+}
 
 export interface SchemaRecord extends DocumentedSchemaEntry {
   fields: SchemaField[];
   extends?: string[];
+  specialize?: Specialization[];
 }
 
 export interface SchemaEnum extends DocumentedSchemaEntry {
@@ -266,4 +271,5 @@ export interface SchemaDefinitions {
   types: Map<string, SchemaEntry>;
   records: Map<string, SchemaRecord>;
   fields: Map<string, SchemaField>;
+  specializations: Map<string, string>;
 }

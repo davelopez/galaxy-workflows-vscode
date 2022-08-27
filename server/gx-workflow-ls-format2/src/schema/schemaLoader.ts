@@ -49,6 +49,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       types: new Map<string, SchemaEntry>(),
       records: new Map<string, SchemaRecord>(),
       fields: new Map<string, SchemaField>(),
+      specializations: new Map<string, string>(),
     };
     SCHEMA_DOCS_v19_09_MAP.forEach((schemaDoc) => {
       const types = this.loadSchemaDocument(schemaDoc);
@@ -56,6 +57,11 @@ export class GalaxyWorkflowFormat2SchemaLoader {
         definitions.types.set(k, v);
         if (isSchemaRecord(v)) {
           definitions.records.set(k, v);
+          if (v.specialize) {
+            v.specialize.forEach((sp) => {
+              definitions.specializations.set(sp.specializeFrom, sp.specializeTo);
+            });
+          }
           v.fields.forEach((field) => {
             if (definitions.fields.has(field.name)) {
               if (this.enableDebugTrace) console.debug("****** DUPLICATED FIELD", field.name);
@@ -126,6 +132,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       doc: entry.doc,
       fields: fields,
       extends: entry.extends ? (entry.extends instanceof Array ? [...entry.extends] : [entry.extends]) : [],
+      specialize: entry.specialize,
     };
 
     if (recordEntry.extends) {
@@ -136,6 +143,13 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       } else {
         this._extendedTypes.add(recordEntry.extends);
       }
+    }
+
+    if (recordEntry.specialize) {
+      recordEntry.specialize.forEach((sp) => {
+        sp.specializeFrom = this.resolveTypeName(sp.specializeFrom);
+        sp.specializeTo = this.resolveTypeName(sp.specializeTo);
+      });
     }
 
     return recordEntry;

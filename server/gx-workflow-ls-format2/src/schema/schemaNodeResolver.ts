@@ -27,6 +27,7 @@ export class SchemaNodeResolver {
 
   private getSchemaNodeForSegment(pathSegment?: Segment): SchemaNode | undefined {
     if (typeof pathSegment === "string") {
+      pathSegment = this.definitions.specializations.get(pathSegment) || pathSegment;
       if (this.definitions.records.has(pathSegment)) {
         const record = this.definitions.records.get(pathSegment);
         if (record) return new RecordSchemaNode(record);
