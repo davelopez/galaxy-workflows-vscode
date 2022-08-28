@@ -14,8 +14,14 @@ export interface DocumentedSchemaEntry extends SchemaEntryBase {
   doc?: string;
 }
 
+export interface IdMapper {
+  mapSubject?: string;
+  mapPredicate?: string;
+}
+
 export interface SchemaField extends DocumentedSchemaEntry {
   default?: unknown;
+  jsonldPredicate?: IdMapper;
 }
 export interface Specialization {
   specializeFrom: string;
@@ -148,7 +154,7 @@ export interface SchemaNode {
   isRoot: boolean;
 }
 
-export class FieldSchemaNode implements SchemaNode {
+export class FieldSchemaNode implements SchemaNode, IdMapper {
   private _allowedTypes: BasicFieldType[] = [];
   private readonly _schemaField: SchemaField;
 
@@ -207,6 +213,14 @@ export class FieldSchemaNode implements SchemaNode {
     }
     const mainType = this.typesAllowed.find((t) => t.typeName !== "null");
     return isBasicFieldType(mainType) ? mainType.typeName : "unknown";
+  }
+
+  public get mapSubject(): string | undefined {
+    return this._schemaField.jsonldPredicate?.mapSubject;
+  }
+
+  public get mapPredicate(): string | undefined {
+    return this._schemaField.jsonldPredicate?.mapPredicate;
   }
 
   public getArrayItemTypeName(): string | undefined {
@@ -272,6 +286,12 @@ export class RecordSchemaNode implements SchemaNode {
 
   public matchesTypeField(typeName: string): boolean {
     return this.typeField?.typesAllowed.find((t) => t.typeName === typeName) !== undefined;
+  }
+
+  public matchesMapping(typeName: string, idMapper?: IdMapper): boolean {
+    if (!idMapper || !idMapper.mapSubject) return false;
+    const mappedField = this.fields.find((f) => f.name === idMapper.mapSubject);
+    return mappedField?.typesAllowed.find((t) => t.typeName === typeName) !== undefined;
   }
 }
 

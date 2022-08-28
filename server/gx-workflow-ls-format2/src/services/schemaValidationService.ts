@@ -2,7 +2,7 @@ import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { ASTNode } from "@gxwf/server-common/src/ast/types";
 import { Diagnostic, DiagnosticSeverity, Range, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
-import { RecordSchemaNode, FieldSchemaNode } from "../schema/definitions";
+import { RecordSchemaNode, FieldSchemaNode, IdMapper } from "../schema/definitions";
 
 export class GxFormat2SchemaValidationService {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
@@ -14,6 +14,7 @@ export class GxFormat2SchemaValidationService {
         workflowDocument.nodeManager,
         workflowDocument.nodeManager.root,
         this.schemaNodeResolver.rootNode,
+        null,
         diagnostics
       );
     }
@@ -24,12 +25,16 @@ export class GxFormat2SchemaValidationService {
     nodeManager: ASTNodeManager,
     node: ASTNode,
     schemaNode: SchemaNode,
+    parenSchemaNode: SchemaNode | null,
     diagnostics: Diagnostic[]
   ): void {
     const range = this.getRange(nodeManager, node);
     if (schemaNode instanceof RecordSchemaNode) {
       if (node.type !== "object") {
         if (schemaNode.matchesTypeField(node.type)) {
+          return;
+        }
+        if (schemaNode.matchesMapping(node.type, parenSchemaNode as IdMapper)) {
           return;
         }
         diagnostics.push(Diagnostic.create(range, `${schemaNode.name} definition expected`, DiagnosticSeverity.Error));
@@ -46,11 +51,17 @@ export class GxFormat2SchemaValidationService {
               if (schemaFieldNode.supportsArray) {
                 propertyNode.valueNode.children?.forEach((item) => {
                   if (item.type === "property" && item.valueNode) {
-                    this.collectDiagnostics(nodeManager, item.valueNode, childSchemaNode, diagnostics);
+                    this.collectDiagnostics(nodeManager, item.valueNode, childSchemaNode, schemaFieldNode, diagnostics);
                   }
                 });
               } else {
-                this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics);
+                this.collectDiagnostics(
+                  nodeManager,
+                  propertyNode.valueNode,
+                  childSchemaNode,
+                  schemaFieldNode,
+                  diagnostics
+                );
               }
             }
           }

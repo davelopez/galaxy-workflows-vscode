@@ -190,7 +190,14 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       if (this.enableDebugTrace)
         console.debug(`  --Field type NOT string: ${JSON.stringify(fieldType)} -> ${typeof fieldType}`);
     }
-    return { name: field.name, type: fieldType, default: field.default, doc: field.doc };
+    return {
+      name: field.name,
+      type: fieldType,
+      default: field.default,
+      doc: field.doc,
+      jsonldPredicate: field.jsonldPredicate,
+      documentRoot: field.documentRoot,
+    };
   }
 
   private resolveTypeName(rawTypeName: string): string {
