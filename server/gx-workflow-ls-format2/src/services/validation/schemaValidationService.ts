@@ -1,15 +1,21 @@
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { ASTNode, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
 import { Diagnostic, DiagnosticSeverity, Range, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
-import { SchemaNode, SchemaNodeResolver } from "../schema";
-import { RecordSchemaNode, IdMapper } from "../schema/definitions";
+import { SchemaNode, SchemaNodeResolver } from "../../schema";
+import { RecordSchemaNode, IdMapper } from "../../schema/definitions";
+import { WorkflowValidationService } from "./workflowValidationService";
 
 export class GxFormat2SchemaValidationService {
-  constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
+  private workflowValidator: WorkflowValidationService;
+  constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {
+    this.workflowValidator = new WorkflowValidationService();
+  }
 
-  public doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  public async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [];
     this.collectSchemaDiagnostics(workflowDocument, diagnostics);
+    const additionalDiagnostics = await this.workflowValidator.doValidation(workflowDocument);
+    diagnostics.push(...additionalDiagnostics);
     return Promise.resolve(diagnostics);
   }
 

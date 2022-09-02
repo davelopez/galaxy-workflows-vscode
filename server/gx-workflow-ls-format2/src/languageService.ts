@@ -15,7 +15,7 @@ import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
-import { GxFormat2SchemaValidationService } from "./services/schemaValidationService";
+import { GxFormat2SchemaValidationService } from "./services/validation/schemaValidationService";
 
 /**
  * A wrapper around the YAML Language Service to support language features
