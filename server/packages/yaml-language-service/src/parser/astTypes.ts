@@ -74,16 +74,7 @@ export abstract class ASTNodeImpl {
   }
 
   public toString(): string {
-    return (
-      "type: " +
-      this.type +
-      " (" +
-      this.offset +
-      "/" +
-      this.length +
-      ")" +
-      (this.parent ? " parent: {" + this.parent.toString() + "}" : "")
-    );
+    return this.internalNode.toString();
   }
 }
 
