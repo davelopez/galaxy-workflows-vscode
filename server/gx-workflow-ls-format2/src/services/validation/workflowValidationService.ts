@@ -1,6 +1,11 @@
-import { Diagnostic, DiagnosticSeverity, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
+import {
+  Diagnostic,
+  DiagnosticSeverity,
+  WorkflowDocument,
+  WorkflowValidator,
+} from "@gxwf/server-common/src/languageTypes";
 
-export class WorkflowValidationService {
+export class WorkflowValidationService implements WorkflowValidator {
   public doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [
       ...collectStepErrorDiagnostics(workflowDocument),
