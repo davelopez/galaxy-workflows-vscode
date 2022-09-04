@@ -1,6 +1,8 @@
 import {
+  FieldSchemaNode,
   isSchemaEntryBase,
   isSchemaRecord,
+  RecordSchemaNode,
   SchemaDefinitions,
   SchemaDocument,
   SchemaEntry,
@@ -13,16 +15,18 @@ import { SchemaNodeResolver } from "./schemaNodeResolver";
 import { SCHEMA_DOCS_v19_09_MAP } from "./versions";
 
 export class GalaxyWorkflowFormat2SchemaLoader {
-  public readonly definitions: SchemaDefinitions;
-  private _documentTypeMap = new Map<string, Map<string, SchemaEntry>>();
+  private _documentEntryMap = new Map<string, Map<string, SchemaEntry>>();
+  private _rawSchemaEntries = new Map<string, SchemaEntry>();
   private _namespaces = new Map<string, string>();
-  public readonly nodeResolver: SchemaNodeResolver;
-
   private _unknownTypes: string[] = [];
   private _extendedTypes: Set<string> = new Set();
   private _root?: SchemaRecord;
+  public readonly definitions: SchemaDefinitions;
+  public readonly nodeResolver: SchemaNodeResolver;
+
   constructor(private readonly enableDebugTrace: boolean = false) {
-    this.definitions = this.loadSchemaDefinitions_v19_09();
+    this._rawSchemaEntries = this.loadSchemaEntriesMap_v19_09();
+    this.definitions = this.loadSchemaDefinitions(this._rawSchemaEntries);
     this.nodeResolver = this.createNodeResolver();
 
     if (this.enableDebugTrace) {
@@ -36,40 +40,48 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       if (this._extendedTypes) {
         console.debug(`EXTENDED Types (Unresolved): ${this._extendedTypes.size}`);
         this._extendedTypes.forEach((type) => {
-          if (!this.definitions.types.has(type)) {
-            console.debug(`  ${type} ${this.definitions.types.has(type) ? "[found]" : ""}`);
+          if (!this._rawSchemaEntries.has(type)) {
+            console.debug(`  ${type} ${this._rawSchemaEntries.has(type) ? "[found]" : ""}`);
           }
         });
       }
     }
   }
 
-  private loadSchemaDefinitions_v19_09(): SchemaDefinitions {
-    const definitions: SchemaDefinitions = {
-      types: new Map<string, SchemaEntry>(),
-      records: new Map<string, SchemaRecord>(),
-      fields: new Map<string, SchemaField>(),
-      specializations: new Map<string, string>(),
-    };
-    SCHEMA_DOCS_v19_09_MAP.forEach((schemaDoc) => {
+  private loadSchemaEntriesMap_v19_09(): Map<string, SchemaEntry> {
+    const entries = new Map<string, SchemaEntry>();
+    for (const schemaDoc of SCHEMA_DOCS_v19_09_MAP.values()) {
       const types = this.loadSchemaDocument(schemaDoc);
       types.forEach((v, k) => {
-        definitions.types.set(k, v);
-        if (isSchemaRecord(v)) {
-          definitions.records.set(k, v);
-          if (v.specialize) {
-            v.specialize.forEach((sp) => {
-              definitions.specializations.set(sp.specializeFrom, sp.specializeTo);
-            });
-          }
-          v.fields.forEach((field) => {
-            if (definitions.fields.has(field.name)) {
-              if (this.enableDebugTrace) console.debug("****** DUPLICATED FIELD", field.name);
-            }
-            definitions.fields.set(field.name, field);
+        entries.set(k, v);
+      });
+    }
+    return entries;
+  }
+
+  private loadSchemaDefinitions(schemaEntries: Map<string, SchemaEntry>): SchemaDefinitions {
+    const definitions: SchemaDefinitions = {
+      records: new Map<string, RecordSchemaNode>(),
+      fields: new Map<string, FieldSchemaNode>(),
+      specializations: new Map<string, string>(),
+    };
+
+    this.expandRecords(schemaEntries.values());
+    schemaEntries.forEach((v, k) => {
+      if (isSchemaRecord(v)) {
+        definitions.records.set(k, new RecordSchemaNode(v));
+        if (v.specialize) {
+          v.specialize.forEach((sp) => {
+            definitions.specializations.set(sp.specializeFrom, sp.specializeTo);
           });
         }
-      });
+        v.fields.forEach((field) => {
+          if (definitions.fields.has(field.name)) {
+            if (this.enableDebugTrace) console.debug("****** DUPLICATED FIELD", field.name);
+          }
+          definitions.fields.set(field.name, new FieldSchemaNode(field));
+        });
+      }
     });
     return definitions;
   }
@@ -95,7 +107,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
         documentEntries.set(entry.name, loadedEntry);
       }
     });
-    this._documentTypeMap.set(schemaDoc.$base, documentEntries);
+    this._documentEntryMap.set(schemaDoc.$base, documentEntries);
     return documentEntries;
   }
 
@@ -208,7 +220,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       if (namespace && type) {
         const docBase = this._namespaces.get(namespace);
         if (docBase) {
-          const schemaTypes = this._documentTypeMap.get(docBase);
+          const schemaTypes = this._documentEntryMap.get(docBase);
           if (schemaTypes?.has(type)) {
             rawTypeName = type;
           } else {
@@ -224,24 +236,23 @@ export class GalaxyWorkflowFormat2SchemaLoader {
 
   private resolveTypeToSchemaEntry(rawTypeName: string): SchemaEntry {
     const typeName = this.resolveTypeName(rawTypeName);
-    if (this.definitions.types.has(typeName)) {
-      return this.definitions.types.get(typeName) as SchemaEntry;
+    if (this._rawSchemaEntries.has(typeName)) {
+      return this._rawSchemaEntries.get(typeName) as SchemaEntry;
     }
     throw new Error(`Unresolvable type ${rawTypeName}`);
   }
 
   private createNodeResolver(): SchemaNodeResolver {
-    this.expandRecords();
     return new SchemaNodeResolver(this.definitions, this._root);
   }
 
   /** Expands all records with the fields defined in the extended types.*/
-  private expandRecords(): void {
-    this.definitions.types.forEach((value: SchemaEntry) => {
-      if (isSchemaRecord(value)) {
-        this.expandRecord(value);
+  private expandRecords(schemaEntries: IterableIterator<SchemaEntry>): void {
+    for (const entry of schemaEntries) {
+      if (isSchemaRecord(entry)) {
+        this.expandRecord(entry);
       }
-    });
+    }
   }
 
   private expandRecord(record: SchemaRecord): SchemaRecord {

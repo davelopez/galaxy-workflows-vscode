@@ -296,8 +296,7 @@ export class RecordSchemaNode implements SchemaNode {
 }
 
 export interface SchemaDefinitions {
-  types: Map<string, SchemaEntry>;
-  records: Map<string, SchemaRecord>;
-  fields: Map<string, SchemaField>;
+  records: Map<string, RecordSchemaNode>;
+  fields: Map<string, FieldSchemaNode>;
   specializations: Map<string, string>;
 }

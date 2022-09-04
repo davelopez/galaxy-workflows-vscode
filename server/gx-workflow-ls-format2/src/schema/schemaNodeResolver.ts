@@ -1,5 +1,5 @@
 import { NodePath, Segment } from "@gxwf/server-common/src/ast/types";
-import { SchemaDefinitions, SchemaNode, RecordSchemaNode, FieldSchemaNode, SchemaRecord } from "./definitions";
+import { SchemaDefinitions, SchemaNode, RecordSchemaNode, SchemaRecord } from "./definitions";
 
 export class SchemaNodeResolver {
   public readonly rootNode: SchemaNode;
@@ -29,13 +29,9 @@ export class SchemaNodeResolver {
     if (typeof pathSegment === "string") {
       pathSegment = this.definitions.specializations.get(pathSegment) || pathSegment;
       if (this.definitions.records.has(pathSegment)) {
-        const record = this.definitions.records.get(pathSegment);
-        if (record) return new RecordSchemaNode(record);
+        return this.definitions.records.get(pathSegment);
       }
-      if (this.definitions.fields.has(pathSegment)) {
-        const field = this.definitions.fields.get(pathSegment);
-        if (field) return new FieldSchemaNode(field);
-      }
+      return this.definitions.fields.get(pathSegment);
     }
     return undefined;
   }
