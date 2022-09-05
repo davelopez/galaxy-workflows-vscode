@@ -8,7 +8,7 @@ import {
   TextDocument,
 } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
-import { SchemaNode, SchemaNodeResolver } from "../schema";
+import { RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
 
 export class GxFormat2CompletionService {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
@@ -51,17 +51,19 @@ export class GxFormat2CompletionService {
 
   private getProposedItems(schemaNode: SchemaNode, exclude: Set<string>): CompletionItem[] {
     const result: CompletionItem[] = [];
-    schemaNode.children.forEach((child) => {
-      if (exclude.has(child.name)) return;
-      const item: CompletionItem = {
-        label: child.name,
-        documentation: child.documentation,
-        sortText: `_${child.name}`,
-        kind: CompletionItemKind.Field,
-        insertText: `${child.name}: `,
-      };
-      result.push(item);
-    });
+    if (schemaNode instanceof RecordSchemaNode) {
+      schemaNode.fields.forEach((field) => {
+        if (exclude.has(field.name)) return;
+        const item: CompletionItem = {
+          label: field.name,
+          documentation: field.documentation,
+          sortText: `_${field.name}`,
+          kind: CompletionItemKind.Field,
+          insertText: `${field.name}: `,
+        };
+        result.push(item);
+      });
+    }
     return result;
   }
 }

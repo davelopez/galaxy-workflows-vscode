@@ -147,7 +147,6 @@ function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
 
 export interface SchemaNode {
   name: string;
-  children: SchemaNode[];
   documentation: string | undefined;
   supportsArray: boolean;
   typeRef: string;
@@ -185,10 +184,6 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
 
   public get typesAllowed(): BasicFieldType[] {
     return this._allowedTypes;
-  }
-
-  public get children(): SchemaNode[] {
-    return [];
   }
 
   public get isRoot(): boolean {
@@ -263,11 +258,6 @@ export class RecordSchemaNode implements SchemaNode {
   public get documentation(): string | undefined {
     return this._schemaRecord.doc;
   }
-
-  public get children(): SchemaNode[] {
-    return this.fields;
-  }
-
   public get isRoot(): boolean {
     return !!this._schemaRecord.documentRoot;
   }
