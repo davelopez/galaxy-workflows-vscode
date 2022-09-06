@@ -67,7 +67,7 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
       if (nodeFound) {
         const childSchemaNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaFieldNode.typeRef);
         if (childSchemaNode && propertyNode.valueNode) {
-          if (schemaFieldNode.supportsArray) {
+          if (schemaFieldNode.canBeArray) {
             propertyNode.valueNode.children?.forEach((item) => {
               if (item.type === "property" && item.valueNode) {
                 this.collectDiagnostics(nodeManager, item.valueNode, childSchemaNode, diagnostics, schemaFieldNode);

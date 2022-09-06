@@ -85,14 +85,14 @@ interface BasicFieldType extends FieldTypeBase {
 }
 
 interface ArrayFieldType extends BasicFieldType {
-  itemType: FieldTypeBase;
+  itemType: BasicFieldType | BasicFieldType[];
 }
 
 interface EnumFieldType extends BasicFieldType {
   symbols: string[];
 }
 
-function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
+function fieldTypeFactory(typeEntry: unknown): BasicFieldType[] | undefined {
   if (typeof typeEntry === "string") {
     let baseType: string = typeEntry;
     let isOptional = baseType.endsWith("?");
@@ -108,9 +108,9 @@ function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
         itemType: buildBasicFieldType(isOptional, baseType),
         typeName: "array",
       };
-      return arrayType;
+      return [arrayType];
     }
-    return buildBasicFieldType(isOptional, baseType);
+    return [buildBasicFieldType(isOptional, baseType)];
   } else if (typeof typeEntry === "object") {
     if (isSchemaArrayType(typeEntry)) {
       const itemType = fieldTypeFactory((typeEntry as SchemaArrayType).items);
@@ -120,7 +120,7 @@ function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
           itemType: itemType,
           typeName: "array",
         };
-        return arrayType;
+        return [arrayType];
       }
     }
     if (isSchemaEnumType(typeEntry)) {
@@ -129,9 +129,19 @@ function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
         symbols: (typeEntry as SchemaEnumType).symbols,
         typeName: "enum",
       };
-      return enumType;
+      return [enumType];
     }
-    console.debug(`Object Field type UNKNOWN: ${JSON.stringify(typeEntry)}`);
+    if (typeEntry instanceof Array) {
+      const types: BasicFieldType[] = [];
+      typeEntry.forEach((e) => {
+        const res = fieldTypeFactory(e);
+        if (res) {
+          types.push(...res);
+        }
+      });
+      return types;
+    }
+    console.debug(`Object Field type UNKNOWN: ${JSON.stringify(typeEntry)} - ${typeof typeEntry}`);
     return undefined;
   } else {
     console.debug(`Field type NOT PROCESSED: ${JSON.stringify(typeEntry)}`);
@@ -148,7 +158,7 @@ function fieldTypeFactory(typeEntry: unknown): BasicFieldType | undefined {
 export interface SchemaNode {
   name: string;
   documentation: string | undefined;
-  supportsArray: boolean;
+  canBeArray: boolean;
   typeRef: string;
   isRoot: boolean;
 }
@@ -163,13 +173,13 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
       schemaField.type.forEach((typeEntry) => {
         const fieldType = fieldTypeFactory(typeEntry);
         if (fieldType) {
-          this._allowedTypes.push(fieldType);
+          fieldType.forEach((t) => this._allowedTypes.push(t));
         }
       });
     } else {
       const fieldType = fieldTypeFactory(schemaField.type);
       if (fieldType) {
-        this._allowedTypes.push(fieldType);
+        fieldType.forEach((t) => this._allowedTypes.push(t));
       }
     }
   }
@@ -182,10 +192,6 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     return this._schemaField.doc;
   }
 
-  public get typesAllowed(): BasicFieldType[] {
-    return this._allowedTypes;
-  }
-
   public get isRoot(): boolean {
     return false;
   }
@@ -195,18 +201,40 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
   }
 
   public get isOptional(): boolean {
-    return this._allowedTypes.some((ft) => ft.isOptional);
+    return this._allowedTypes.some((t) => t.isOptional);
   }
 
-  public get supportsArray(): boolean {
-    return this._allowedTypes.some((t) => isArrayFieldType(t));
+  public get canBeAny(): boolean {
+    return this._allowedTypes.some((t) => t.typeName === "Any");
+  }
+
+  public get canBeArray(): boolean {
+    return this.canBeAny || this._allowedTypes.some((t) => isArrayFieldType(t));
+  }
+
+  //TODO: add canBeObject = non-basic type
+
+  public matchesType(typeName: string): boolean {
+    if (this.canBeAny) return true;
+    for (const allowedType of this._allowedTypes) {
+      if (allowedType.typeName === typeName) {
+        return true;
+      }
+      if (isArrayFieldType(allowedType) && allowedType.itemType instanceof Array) {
+        const result = allowedType.itemType.find((t) => t.typeName === typeName);
+        if (result) return true;
+      }
+    }
+    return false;
   }
 
   public get typeRef(): string {
-    if (this.supportsArray) {
+    if (this.canBeAny) return "Any";
+    if (this.canBeArray) {
       return this.getArrayItemTypeName() || "undefined";
     }
-    const mainType = this.typesAllowed.find((t) => t.typeName !== "null");
+    const mainType = this._allowedTypes.find((t) => t.typeName !== "null");
+    //TODO: this requires more logic... we cannot assume the first non-null type to be the main
     return isBasicFieldType(mainType) ? mainType.typeName : "unknown";
   }
 
@@ -222,6 +250,9 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     const arrayType = this._allowedTypes.find((t) => isArrayFieldType(t)) as ArrayFieldType;
     if (isBasicFieldType(arrayType?.itemType)) {
       return arrayType?.itemType.typeName;
+    }
+    if (arrayType?.itemType instanceof Array) {
+      return arrayType.itemType.map((i) => i.typeName).at(0); // TODO REMOVE AT
     }
     console.debug("getArrayItemTypeName -> Type name not found");
     return undefined;
@@ -262,7 +293,7 @@ export class RecordSchemaNode implements SchemaNode {
     return !!this._schemaRecord.documentRoot;
   }
 
-  public get supportsArray(): boolean {
+  public get canBeArray(): boolean {
     return false;
   }
 
@@ -271,17 +302,21 @@ export class RecordSchemaNode implements SchemaNode {
   }
 
   public get typeField(): FieldSchemaNode | undefined {
-    return this.fields.find((t) => t.name === "type");
+    return this.getFieldByName("type");
   }
 
   public matchesTypeField(typeName: string): boolean {
-    return this.typeField?.typesAllowed.find((t) => t.typeName === typeName) !== undefined;
+    return this.typeField?.matchesType(typeName) || false;
   }
 
   public matchesMapping(typeName: string, idMapper?: IdMapper): boolean {
     if (!idMapper || !idMapper.mapSubject) return false;
-    const mappedField = this.fields.find((f) => f.name === idMapper.mapSubject);
-    return mappedField?.typesAllowed.find((t) => t.typeName === typeName) !== undefined;
+    const mappedField = this.getFieldByName(idMapper.mapSubject);
+    return mappedField?.matchesType(typeName) || false;
+  }
+
+  public getFieldByName(name: string): FieldSchemaNode | undefined {
+    return this.fields.find((t) => t.name === name);
   }
 }
 
