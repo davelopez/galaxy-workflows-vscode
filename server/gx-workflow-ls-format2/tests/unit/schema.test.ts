@@ -39,5 +39,42 @@ describe("Gxformat2 Schema Handling", () => {
         });
       });
     });
+
+    describe("Definitions", () => {
+      it("should define GalaxyWorkflow record as expected", () => {
+        const record = schemaLoader.definitions.records.get("GalaxyWorkflow");
+        expect(record).toBeDefined();
+        expect(record?.name).toBe("GalaxyWorkflow");
+        expect(record?.documentation).toBeDefined();
+        expect(record?.fields.length).toBe(13);
+        const field = record?.getFieldByName("class");
+        expect(field).toBeDefined();
+        expect(field?.typeRef).toBe("string");
+      });
+
+      it("should define WorkflowStep record as expected", () => {
+        const record = schemaLoader.definitions.records.get("WorkflowStep");
+        expect(record).toBeDefined();
+        expect(record?.name).toBe("WorkflowStep");
+        expect(record?.documentation).toBeDefined();
+        expect(record?.fields.length).toBe(16);
+        let field = record?.getFieldByName("out");
+        expect(field).toBeDefined();
+        expect(field?.isOptional).toBe(true);
+        expect(field?.canBeArray).toBe(true);
+        expect(field?.matchesType("null")).toBe(true);
+        expect(field?.matchesType("string")).toBe(true);
+        expect(field?.matchesType("WorkflowStepOutput")).toBe(true);
+        expect(field?.matchesType("Any")).toBe(false);
+        field = record?.getFieldByName("state");
+        expect(field).toBeDefined();
+        expect(field?.isOptional).toBe(true);
+        expect(field?.typeRef).toBe("Any");
+        expect(field?.canBeArray).toBe(true);
+        expect(field?.matchesType("null")).toBe(true);
+        expect(field?.matchesType("string")).toBe(true);
+        expect(field?.matchesType("anything...")).toBe(true);
+      });
+    });
   });
 });
