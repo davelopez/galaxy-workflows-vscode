@@ -58,7 +58,13 @@ describe("Gxformat2 Schema Handling", () => {
         expect(record?.name).toBe("WorkflowStep");
         expect(record?.documentation).toBeDefined();
         expect(record?.fields.length).toBe(16);
-        let field = record?.getFieldByName("out");
+        let field = record?.getFieldByName("in");
+        expect(field).toBeDefined();
+        expect(field?.isOptional).toBe(true);
+        expect(field?.canBeArray).toBe(true);
+        expect(field?.matchesType("null")).toBe(true);
+        expect(field?.matchesType("WorkflowStepInput")).toBe(true);
+        field = record?.getFieldByName("out");
         expect(field).toBeDefined();
         expect(field?.isOptional).toBe(true);
         expect(field?.canBeArray).toBe(true);

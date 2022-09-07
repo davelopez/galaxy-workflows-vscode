@@ -216,13 +216,20 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
 
   public matchesType(typeName: string): boolean {
     if (this.canBeAny) return true;
+    if (typeName === "null" && this.isOptional) return true;
     for (const allowedType of this._allowedTypes) {
       if (allowedType.typeName === typeName) {
         return true;
       }
-      if (isArrayFieldType(allowedType) && allowedType.itemType instanceof Array) {
-        const result = allowedType.itemType.find((t) => t.typeName === typeName);
-        if (result) return true;
+      if (isArrayFieldType(allowedType)) {
+        if (allowedType.itemType instanceof Array) {
+          const result = allowedType.itemType.find((t) => t.typeName === typeName);
+          if (result) return true;
+        } else {
+          if (allowedType.itemType.typeName === typeName) {
+            return true;
+          }
+        }
       }
     }
     return false;
