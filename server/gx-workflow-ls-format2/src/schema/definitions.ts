@@ -36,6 +36,7 @@ export interface SchemaRecord extends DocumentedSchemaEntry {
 
 export interface SchemaEnum extends DocumentedSchemaEntry {
   symbols: string[];
+  extends?: string;
 }
 
 interface SchemaType {

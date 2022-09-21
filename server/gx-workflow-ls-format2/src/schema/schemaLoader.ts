@@ -1,6 +1,7 @@
 import {
   FieldSchemaNode,
   isSchemaEntryBase,
+  isSchemaEnumType,
   isSchemaRecord,
   RecordSchemaNode,
   SchemaDefinitions,
@@ -66,7 +67,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       specializations: new Map<string, string>(),
     };
 
-    this.expandRecords(schemaEntries.values());
+    this.expandEntries(schemaEntries.values());
     schemaEntries.forEach((v, k) => {
       if (isSchemaRecord(v)) {
         definitions.records.set(k, new RecordSchemaNode(v));
@@ -126,6 +127,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       type: entry.type,
       doc: entry.doc,
       symbols: entry.symbols,
+      extends: entry.extends,
     };
 
     return enumEntry;
@@ -246,11 +248,13 @@ export class GalaxyWorkflowFormat2SchemaLoader {
     return new SchemaNodeResolver(this.definitions, this._root);
   }
 
-  /** Expands all records with the fields defined in the extended types.*/
-  private expandRecords(schemaEntries: IterableIterator<SchemaEntry>): void {
+  /** Expands all entries with the types defined in the extended types.*/
+  private expandEntries(schemaEntries: IterableIterator<SchemaEntry>): void {
     for (const entry of schemaEntries) {
       if (isSchemaRecord(entry)) {
         this.expandRecord(entry);
+      } else if (isSchemaEnumType(entry)) {
+        this.expandEnum(entry);
       }
     }
   }
@@ -263,6 +267,21 @@ export class GalaxyWorkflowFormat2SchemaLoader {
     record.fields.push(...extensionFields);
     record.extends = [];
     return record;
+  }
+
+  private expandEnum(entry: SchemaEnum): SchemaEnum {
+    if (!entry.extends) {
+      return entry;
+    }
+    const resolved = this.resolveTypeToSchemaEntry(entry.extends);
+    if (isSchemaEnumType(resolved)) {
+      resolved.symbols.forEach((s) => {
+        const symbol = s.indexOf(":") > 0 ? (s.split(":").at(1) as string) : s;
+        entry.symbols.push(symbol);
+      });
+    }
+    entry.extends = undefined;
+    return entry;
   }
 
   private collectExtensionFields(record: SchemaRecord, extensionFields: SchemaField[]): SchemaField[] {
