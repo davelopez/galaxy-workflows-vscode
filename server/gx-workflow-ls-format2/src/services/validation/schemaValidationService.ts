@@ -62,7 +62,9 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
       const propertyNode = node.properties.find((prop) => prop.keyNode.value === schemaFieldNode.name);
       const nodeFound = propertyNode !== undefined;
       if (schemaFieldNode.isRequired && !nodeFound) {
-        diagnostics.push(Diagnostic.create(range, `${schemaFieldNode.name} is required`, DiagnosticSeverity.Error));
+        diagnostics.push(
+          Diagnostic.create(range, `The '${schemaFieldNode.name}' field is required.`, DiagnosticSeverity.Error)
+        );
       }
       if (nodeFound) {
         const childSchemaNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaFieldNode.typeRef);

@@ -49,6 +49,10 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export async function waitForDiagnostics(ms = 1000): Promise<void> {
+  return sleep(ms);
+}
+
 export const getDocPath = (filePath: string): string => {
   return path.resolve(__dirname, path.join("..", "..", "..", "..", "test-data", filePath));
 };
