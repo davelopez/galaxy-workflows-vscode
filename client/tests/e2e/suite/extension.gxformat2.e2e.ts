@@ -22,7 +22,7 @@ suite("Format2 (YAML) Workflows", () => {
     test("Missing required fields return diagnostics", async () => {
       const docUri = getDocUri(path.join("yaml", "validation", "test_wf_00.gxwf.yml"));
       await activateAndOpenInEditor(docUri);
-      await waitForDiagnostics();
+      await waitForDiagnostics(docUri);
       await assertDiagnostics(docUri, [
         {
           message: "The 'steps' field is required.",

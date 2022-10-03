@@ -25,7 +25,7 @@ suite("Native (JSON) Workflows", () => {
       const { document } = await activateAndOpenInEditor(dirtyDocUri);
       const dirtyDoc = document.getText();
       await vscode.commands.executeCommand("galaxy-workflows.cleanWorkflow");
-      await sleep(1000); // Wait for command to apply changes
+      await sleep(500); // Wait for command to apply changes
       const actualCleanJson = document.getText();
       assert.notEqual(dirtyDoc, actualCleanJson);
       const expectedCleanDocument = await openDocument(cleanDocUri);
@@ -41,12 +41,11 @@ suite("Native (JSON) Workflows", () => {
     test("Changing validation profile shows custom diagnostics", async () => {
       const docUri = getDocUri(path.join("json", "validation", "test_wf_03.ga"));
       await activateAndOpenInEditor(docUri);
-      await waitForDiagnostics();
       await assertDiagnostics(docUri, []); // Expect no issues
 
       // Change to stricter validation profile
       await updateSettings("validation.profile", "iwc");
-      await waitForDiagnostics();
+      await waitForDiagnostics(docUri);
       await assertDiagnostics(docUri, [
         {
           message: 'Missing property "release".',
@@ -66,7 +65,7 @@ suite("Native (JSON) Workflows", () => {
       ]);
 
       await resetSettings();
-      await waitForDiagnostics();
+      await waitForDiagnostics(docUri);
       await assertDiagnostics(docUri, []); // Expect no issues
     });
   });
