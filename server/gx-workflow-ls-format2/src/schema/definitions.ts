@@ -165,6 +165,8 @@ export interface SchemaNode {
 }
 
 export class FieldSchemaNode implements SchemaNode, IdMapper {
+  public static definitions: SchemaDefinitions;
+
   private _allowedTypes: BasicFieldType[] = [];
   private readonly _schemaField: SchemaField;
 
@@ -205,6 +207,10 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     return this._allowedTypes.some((t) => t.isOptional);
   }
 
+  public get default(): unknown {
+    return this._schemaField.default;
+  }
+
   public get canBeAny(): boolean {
     return this._allowedTypes.some((t) => t.typeName === "Any");
   }
@@ -213,7 +219,9 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     return this.canBeAny || this._allowedTypes.some((t) => isArrayFieldType(t));
   }
 
-  //TODO: add canBeObject = non-basic type
+  public get canBeObject(): boolean {
+    return this.canBeAny || this._allowedTypes.some((t) => this.isObjectType(t.typeName));
+  }
 
   public matchesType(typeName: string): boolean {
     if (this.canBeAny) return true;
@@ -265,9 +273,18 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     console.debug("getArrayItemTypeName -> Type name not found");
     return undefined;
   }
+
+  private isPrimitiveType(typeName: string): boolean {
+    return FieldSchemaNode.definitions.primitiveTypes.has(typeName);
+  }
+
+  private isObjectType(typeName: string): boolean {
+    return FieldSchemaNode.definitions.records.has(typeName);
+  }
 }
 
 export class RecordSchemaNode implements SchemaNode {
+  public static definitions: SchemaDefinitions;
   public static readonly NULL: SchemaNode = new RecordSchemaNode({
     name: "null",
     type: "null",
@@ -332,4 +349,5 @@ export interface SchemaDefinitions {
   records: Map<string, RecordSchemaNode>;
   fields: Map<string, FieldSchemaNode>;
   specializations: Map<string, string>;
+  primitiveTypes: Set<string>;
 }

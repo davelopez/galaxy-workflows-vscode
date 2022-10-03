@@ -29,6 +29,8 @@ export class GalaxyWorkflowFormat2SchemaLoader {
     this._rawSchemaEntries = this.loadSchemaEntriesMap_v19_09();
     this.definitions = this.loadSchemaDefinitions(this._rawSchemaEntries);
     this.nodeResolver = this.createNodeResolver();
+    RecordSchemaNode.definitions = this.definitions;
+    FieldSchemaNode.definitions = this.definitions;
 
     if (this.enableDebugTrace) {
       if (this._unknownTypes) {
@@ -65,6 +67,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
       records: new Map<string, RecordSchemaNode>(),
       fields: new Map<string, FieldSchemaNode>(),
       specializations: new Map<string, string>(),
+      primitiveTypes: new Set<string>(),
     };
 
     this.expandEntries(schemaEntries.values());
@@ -82,6 +85,8 @@ export class GalaxyWorkflowFormat2SchemaLoader {
           }
           definitions.fields.set(field.name, new FieldSchemaNode(field));
         });
+      } else if (isSchemaEnumType(v) && v.name === "GalaxyType") {
+        definitions.primitiveTypes = new Set(v.symbols);
       }
     });
     return definitions;
