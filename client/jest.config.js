@@ -12,7 +12,7 @@ module.exports = {
     },
   },
   // The glob patterns Jest uses to detect test files
-  testMatch: ["**/__tests__/*.+(ts|tsx|js)", "**/unit/*.test.ts"],
+  testMatch: ["**/__tests__/*.+(ts|tsx|js)", "**/*.test.ts"],
 
   // An array of file extensions your modules use
   moduleFileExtensions: ["ts", "tsx", "js"],
