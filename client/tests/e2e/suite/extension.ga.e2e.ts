@@ -23,6 +23,7 @@ suite("Native (JSON) Workflows", () => {
       const dirtyDocUri = getDocUri(path.join("json", "clean", "wf_01_dirty.ga"));
       const cleanDocUri = getDocUri(path.join("json", "clean", "wf_01_clean.ga"));
       const { document } = await activateAndOpenInEditor(dirtyDocUri);
+      await sleep(500); // Wait for extension to fully activate... yes Windows CI I'm looking at you...
       const dirtyDoc = document.getText();
       await vscode.commands.executeCommand("galaxy-workflows.cleanWorkflow");
       await sleep(500); // Wait for command to apply changes
