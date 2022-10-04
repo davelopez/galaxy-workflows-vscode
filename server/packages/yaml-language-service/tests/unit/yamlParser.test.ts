@@ -182,9 +182,9 @@ test02:
     it.each([
       [0, "_root_"], // _root_ is not a property, is an object
       [1, "test"],
-      [12, "test"],
+      [12, "_root_"],
       [13, "test02"],
-      [20, "test02"],
+      [20, "_root_"],
       [22, "test02"],
       [23, "prop03"],
       [30, "prop03"],
