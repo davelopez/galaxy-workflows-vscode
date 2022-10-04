@@ -22,7 +22,7 @@ export class GxFormat2CompletionService {
       items: [],
       isIncomplete: false,
     };
-
+    // TODO: Refactor most of this to an Context class with all the information around the cursor
     const textBuffer = new TextBuffer(textDocument);
     const text = textBuffer.getText();
     const offset = textBuffer.getOffsetAt(position);
@@ -34,35 +34,39 @@ export class GxFormat2CompletionService {
       return Promise.resolve(result);
     }
 
+    const currentWord = textBuffer.getCurrentWord(offset);
+
     DEBUG_printNodeName(node);
 
     const existing = nodeManager.getDeclaredPropertyNames(node);
     if (nodeManager.isRoot(node)) {
-      result.items = this.getProposedItems(this.schemaNodeResolver.rootNode, existing);
+      result.items = this.getProposedItems(this.schemaNodeResolver.rootNode, currentWord, existing);
       return Promise.resolve(result);
     }
     const nodePath = nodeManager.getPathFromNode(node);
     const schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
     if (schemaNode) {
-      result.items = this.getProposedItems(schemaNode, existing);
+      result.items = this.getProposedItems(schemaNode, currentWord, existing);
     }
     return Promise.resolve(result);
   }
 
-  private getProposedItems(schemaNode: SchemaNode, exclude: Set<string>): CompletionItem[] {
+  private getProposedItems(schemaNode: SchemaNode, currentWord: string, exclude: Set<string>): CompletionItem[] {
     const result: CompletionItem[] = [];
     if (schemaNode instanceof RecordSchemaNode) {
-      schemaNode.fields.forEach((field) => {
-        if (exclude.has(field.name)) return;
-        const item: CompletionItem = {
-          label: field.name,
-          documentation: field.documentation,
-          sortText: `_${field.name}`,
-          kind: CompletionItemKind.Field,
-          insertText: `${field.name}: `,
-        };
-        result.push(item);
-      });
+      schemaNode.fields
+        .filter((f) => f.name.startsWith(currentWord))
+        .forEach((field) => {
+          if (exclude.has(field.name)) return;
+          const item: CompletionItem = {
+            label: field.name,
+            documentation: field.documentation,
+            sortText: `_${field.name}`,
+            kind: CompletionItemKind.Field,
+            insertText: `${field.name}: `,
+          };
+          result.push(item);
+        });
     }
     return result;
   }
