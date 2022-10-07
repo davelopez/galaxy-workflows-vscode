@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ParsedDocument, ASTNode, ObjectASTNode, NodePath, Segment } from "./types";
+import { ParsedDocument, ASTNode, ObjectASTNode, NodePath, Segment, PropertyASTNode } from "./types";
 import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
@@ -92,6 +92,20 @@ export class ASTNodeManager {
     return getPropertyNodeFromPath(root, path);
   }
 
+  public getAllPropertyNodesByName(name: string): PropertyASTNode[] {
+    const result: PropertyASTNode[] = [];
+    const root = this.root;
+    if (!root) return result;
+
+    this.visit((node) => {
+      if (node.type === "property" && node.keyNode.value === name && node.valueNode?.type === "object") {
+        result.push(node);
+      }
+      return true;
+    });
+    return result;
+  }
+
   public getPathFromNode(node: ASTNode): NodePath {
     const path: NodePath = [];
     let current: ASTNode | undefined = node;
@@ -118,26 +132,51 @@ export class ASTNodeManager {
     }
   }
 
-  public getStepNodes(): ObjectASTNode[] {
+  public getStepNodes(includeSubworkflows = false): ObjectASTNode[] {
     const root = this.root;
     if (!root) {
       return [];
     }
     const result: ObjectASTNode[] = [];
-    const stepsNode = this.getNodeFromPath("steps");
-    if (stepsNode && stepsNode.type === "property" && stepsNode.valueNode && stepsNode.valueNode.type === "object") {
-      stepsNode.valueNode.properties.forEach((stepProperty) => {
-        const stepNode = stepProperty.valueNode;
-        if (stepNode && stepNode.type === "object") {
-          result.push(stepNode);
-        }
-      });
+    let stepsPropertyNodes: PropertyASTNode[] = [];
+    if (includeSubworkflows) {
+      stepsPropertyNodes = this.getAllPropertyNodesByName("steps");
+    } else {
+      const mainStepsProperty = this.getNodeFromPath("steps") as PropertyASTNode;
+      stepsPropertyNodes = mainStepsProperty ? [mainStepsProperty] : [];
     }
+    for (const stepsNode of stepsPropertyNodes) {
+      if (stepsNode && stepsNode.valueNode && stepsNode.valueNode.type === "object") {
+        stepsNode.valueNode.properties.forEach((stepProperty) => {
+          const stepNode = stepProperty.valueNode;
+          if (stepNode && stepNode.type === "object") {
+            result.push(stepNode);
+          }
+        });
+      }
+    }
+
     return result;
   }
 
   protected getDefaultRangeAtPosition(position: Position): Range {
     const offset = this.textDocument.offsetAt(position);
     return Range.create(this.textDocument.positionAt(offset), this.textDocument.positionAt(offset + 1));
+  }
+
+  public visit(visitor: (node: ASTNode) => boolean): void {
+    if (this.root) {
+      const doVisit = (node: ASTNode): boolean => {
+        let ctn = visitor(node);
+        const children = node.children;
+        if (Array.isArray(children)) {
+          for (let i = 0; i < children.length && ctn; i++) {
+            ctn = doVisit(children[i]);
+          }
+        }
+        return ctn;
+      };
+      doVisit(this.root);
+    }
   }
 }
