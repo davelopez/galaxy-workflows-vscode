@@ -17,7 +17,7 @@ export class WorkflowValidationService implements WorkflowValidator {
 
 export function collectStepErrorDiagnostics(workflowDocument: WorkflowDocument): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
-  const steps = workflowDocument.nodeManager.getStepNodes();
+  const steps = workflowDocument.nodeManager.getStepNodes(true);
   steps.forEach((step) => {
     const errors = step.properties.find((p) => p.keyNode.value === "errors");
     if (errors) {
@@ -36,7 +36,7 @@ export function collectStepErrorDiagnostics(workflowDocument: WorkflowDocument):
 
 export function collectToolDiagnostics(workflowDocument: WorkflowDocument): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
-  const steps = workflowDocument.nodeManager.getStepNodes();
+  const steps = workflowDocument.nodeManager.getStepNodes(true);
   steps.forEach((step) => {
     const tool_id = step.properties.find((p) => p.keyNode.value === "tool_id");
     if (tool_id) {
