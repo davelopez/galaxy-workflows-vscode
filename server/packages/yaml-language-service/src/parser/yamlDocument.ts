@@ -2,59 +2,17 @@ import { ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
 import { Document, Node, visit, YAMLError, YAMLWarning } from "yaml";
+import { guessIndentation } from "../utils/indentationGuesser";
 import { TextBuffer } from "../utils/textBuffer";
-import { ASTNode } from "./astTypes";
+import { ASTNode, ObjectASTNodeImpl } from "./astTypes";
 
 const FULL_LINE_ERROR = true;
 const YAML_SOURCE = "YAML";
+const YAML_COMMENT_SYMBOL = "#";
+const DEFAULT_INDENTATION = 2;
 
 export class LineComment {
   constructor(public readonly text: string) {}
-}
-
-export class YAMLSubDocument {
-  private _lineComments: LineComment[] | undefined;
-
-  constructor(public readonly root: ASTNode | undefined, private readonly parsedDocument: Document) {}
-
-  get errors(): YAMLError[] {
-    return this.parsedDocument.errors;
-  }
-
-  get warnings(): YAMLWarning[] {
-    return this.parsedDocument.warnings;
-  }
-
-  get lineComments(): LineComment[] {
-    if (!this._lineComments) {
-      this._lineComments = this.collectLineComments();
-    }
-    return this._lineComments;
-  }
-
-  private collectLineComments(): LineComment[] {
-    const lineComments = [];
-    if (this.parsedDocument.commentBefore) {
-      const comments = this.parsedDocument.commentBefore.split("\n");
-      comments.forEach((comment) => lineComments.push(new LineComment(`#${comment}`)));
-    }
-    visit(this.parsedDocument, (_key, docNode) => {
-      const node = docNode as Node;
-      if (node?.commentBefore) {
-        const comments = node?.commentBefore.split("\n");
-        comments.forEach((comment) => lineComments.push(new LineComment(`#${comment}`)));
-      }
-
-      if (node?.comment) {
-        lineComments.push(new LineComment(`#${node.comment}`));
-      }
-    });
-
-    if (this.parsedDocument.comment) {
-      lineComments.push(new LineComment(`#${this.parsedDocument.comment}`));
-    }
-    return lineComments;
-  }
 }
 
 /**
@@ -64,10 +22,12 @@ export class YAMLSubDocument {
 export class YAMLDocument implements ParsedDocument {
   private readonly _textBuffer: TextBuffer;
   private _diagnostics: Diagnostic[] | undefined;
+  private _indentation: number;
 
   constructor(public readonly subDocuments: YAMLSubDocument[], public readonly textDocument: TextDocument) {
     this._textBuffer = new TextBuffer(textDocument);
     this._diagnostics = undefined;
+    this._indentation = guessIndentation(this._textBuffer, DEFAULT_INDENTATION, true).tabSize;
   }
 
   public get root(): ASTNode | undefined {
@@ -90,6 +50,47 @@ export class YAMLDocument implements ParsedDocument {
   /** List of comments in this document. */
   public get lineComments(): LineComment[] {
     return this.collectLineComments();
+  }
+
+  public isComment(offset: number): boolean {
+    const position = this._textBuffer.getPosition(offset);
+    const lineContent = this._textBuffer.getLineContent(position.line).trimStart();
+    return lineContent.startsWith(YAML_COMMENT_SYMBOL);
+  }
+
+  /**
+   * Gets the syntax node at this document offset.
+   * @param offset The offset in the text document
+   * @returns The syntax node that lies at the given offset
+   */
+  public getNodeFromOffset(offset: number): ASTNode | undefined {
+    const rootNode = this.root as ObjectASTNodeImpl;
+    if (!rootNode) return undefined;
+    if (this.isComment(offset)) return undefined;
+    const position = this._textBuffer.getPosition(offset);
+    if (position.character === 0 && !this._textBuffer.hasTextAfterPosition(position)) return rootNode;
+    const indentation = this._textBuffer.getLineIndentationAtOffset(offset);
+    const lineContent = this._textBuffer.getLineContent(position.line);
+    const contentAfterCursor = lineContent.slice(position.character).replace(/\s/g, "");
+    if (indentation === 0 && contentAfterCursor.length === 0) return rootNode;
+    let result = rootNode.getNodeFromOffsetEndInclusive(offset);
+    const parent = this.findParentNodeByIndentation(offset, indentation);
+    if (!result || (parent && result.offset < parent.offset && result.length > parent.length)) {
+      result = parent;
+    }
+    return result;
+  }
+
+  private findParentNodeByIndentation(offset: number, indentation: number): ASTNode | undefined {
+    if (indentation === 0) return this.root;
+    const parentIndentation = Math.max(0, indentation - this._indentation);
+    const parentLine = this._textBuffer.findPreviousLineWithSameIndentation(offset, parentIndentation);
+    const parentOffset = this._textBuffer.getOffsetAt(Position.create(parentLine, parentIndentation));
+
+    const rootNode = this.root as ObjectASTNodeImpl;
+    if (!rootNode) return undefined;
+    const parentNode = rootNode.getNodeFromOffsetEndInclusive(parentOffset);
+    return parentNode;
   }
 
   /** Collects all syntax errors and warnings found on this document. */
@@ -125,6 +126,51 @@ export class YAMLDocument implements ParsedDocument {
     this.subDocuments.forEach((subDocument) => {
       lineComments.push(...subDocument.lineComments);
     });
+    return lineComments;
+  }
+}
+
+export class YAMLSubDocument {
+  private _lineComments: LineComment[] | undefined;
+
+  constructor(public readonly root: ASTNode | undefined, private readonly parsedDocument: Document) {}
+
+  get errors(): YAMLError[] {
+    return this.parsedDocument.errors;
+  }
+
+  get warnings(): YAMLWarning[] {
+    return this.parsedDocument.warnings;
+  }
+
+  get lineComments(): LineComment[] {
+    if (!this._lineComments) {
+      this._lineComments = this.collectLineComments();
+    }
+    return this._lineComments;
+  }
+
+  private collectLineComments(): LineComment[] {
+    const lineComments = [];
+    if (this.parsedDocument.commentBefore) {
+      const comments = this.parsedDocument.commentBefore.split("\n");
+      comments.forEach((comment) => lineComments.push(new LineComment(`${YAML_COMMENT_SYMBOL}${comment}`)));
+    }
+    visit(this.parsedDocument, (_key, docNode) => {
+      const node = docNode as Node;
+      if (node?.commentBefore) {
+        const comments = node?.commentBefore.split("\n");
+        comments.forEach((comment) => lineComments.push(new LineComment(`${YAML_COMMENT_SYMBOL}${comment}`)));
+      }
+
+      if (node?.comment) {
+        lineComments.push(new LineComment(`${YAML_COMMENT_SYMBOL}${node.comment}`));
+      }
+    });
+
+    if (this.parsedDocument.comment) {
+      lineComments.push(new LineComment(`${YAML_COMMENT_SYMBOL}${this.parsedDocument.comment}`));
+    }
     return lineComments;
   }
 }

@@ -41,12 +41,22 @@ export async function openDocument(docUri: vscode.Uri): Promise<vscode.TextDocum
 export async function activateAndOpenInEditor(docUri: vscode.Uri): Promise<DocumentEditor> {
   await activate();
   const documentEditor = await openDocumentInEditor(docUri);
-  await sleep(2000); // Wait for server activation
   return documentEditor;
 }
 
 export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function waitForDiagnostics(docUri: vscode.Uri, timeoutInMilliseconds = 2000): Promise<void> {
+  const waitMilliseconds = 100;
+  let waitTimeout = timeoutInMilliseconds;
+  let diagnostics = vscode.languages.getDiagnostics(docUri);
+  while (waitTimeout > 0 && !diagnostics.length) {
+    await sleep(waitMilliseconds);
+    waitTimeout -= waitMilliseconds;
+    diagnostics = vscode.languages.getDiagnostics(docUri);
+  }
 }
 
 export const getDocPath = (filePath: string): string => {
@@ -92,5 +102,6 @@ export async function updateSettings(setting: string, value: unknown): Promise<v
 export async function resetSettings(): Promise<void> {
   const configuration = vscode.workspace.getConfiguration("galaxyWorkflows");
   await configuration.update("cleaning.cleanableProperties", undefined, true);
-  return configuration.update("validation.profile", undefined, true);
+  await configuration.update("validation.profile", undefined, true);
+  return sleep(500); // Wait for settings to be applied
 }

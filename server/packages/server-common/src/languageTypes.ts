@@ -133,6 +133,14 @@ export interface ValidationProfile {
 }
 
 /**
+ * Interface for validating workflows and collecting diagnostics.
+ */
+export interface WorkflowValidator {
+  /** Collects diagnostics for the given workflow document. */
+  doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+}
+
+/**
  * Abstract service defining the base functionality that a workflow language must
  * implement to provide assistance for workflow documents editing.
  */
