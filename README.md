@@ -5,13 +5,15 @@
 [![CI](https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml/badge.svg)](https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml)
 [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/davelopez/galaxy-workflows-vscode)
 
-VSCode extension to assist in editing [Galaxy Workflow](https://galaxyproject.org/) files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html) for maintaining them.
+VSCode extension to assist in editing [Galaxy Workflow](https://galaxyproject.org/) files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html). Use it in combination with [Planemo](https://github.com/galaxyproject/planemo) for the best experience developing and maintaining your Galaxy workflows.
 
 The extension can be installed either locally, or in a web context, like [github.dev](https://github.dev) or [vscode.dev](https://vscode.dev). The aim is to support the maximum number of features in both modes but the web mode may have some limitations.
 
-The extension aims to focus on assist in editing [**Format 2** Galaxy Workflow](https://github.com/galaxyproject/gxformat2) files. However, the support is **currently under development**. The initial version of the extension will work with _legacy_ **Galaxy Workflow _native_** format (documents with **.ga** extension) as an experiment for legacy workflow maintainers.
+The extension aims to focus on assist in editing [**Format 2** Galaxy Workflow](https://github.com/galaxyproject/gxformat2) (.gxwf.yml) files. However, it will work with _legacy_ or _native_ **Galaxy Workflow** format (documents with **.ga** extension) as an experiment for legacy workflow maintainers.
 
-> ⚠️ Please note the _Native_ Galaxy Workflow format (.ga) is considered internal and _legacy_. The support provided here is temporal and experimental. Please consider waiting for the `Format 2` support before using this extension.
+> ⚠️ Please note the _Native_ Galaxy Workflow format (.ga) is considered internal and _legacy_. The support provided here is temporal and experimental. If you are developing workflows manually use the new [**Format 2** Galaxy Workflow](https://github.com/galaxyproject/gxformat2) (.gxwf.yml).
+
+If you find a bug or have an idea or suggestion that can improve your experience please create a [new issue here](https://github.com/davelopez/galaxy-workflows-vscode/issues) or comment in any of the existing ones.
 
 ## Quick Start
 
@@ -19,7 +21,7 @@ The extension aims to focus on assist in editing [**Format 2** Galaxy Workflow](
 
 1. Open VSCode
 2. Install the extension from the [marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-workflows).
-3. Open any Galaxy Workflow document (.ga or .gxwf.yml) and the extension will activate.
+3. Open any Galaxy Workflow document (.gxwf.yml or .ga) and the extension will activate.
 
 ### Option 2: Use it directly in `vscode.dev` or `github.dev`
 
@@ -47,11 +49,11 @@ Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) 😉
 
 The following table shows all the implemented features and the current support for each workflow format.
 
-| Feature                                                 | Native Workflows (.ga) | Format 2 Workflows (gxformat2) |
+| Feature                                                 | Legacy Workflows (.ga) | Format 2 Workflows (.gxwf.yml) |
 | ------------------------------------------------------- | :--------------------: | :----------------------------: |
-| [Validation](#workflow-validation)                      |           ✔️           |               🔜               |
-| [Documentation on Hover](#documentation-on-hover)       |           ✔️           |               🔜               |
-| [IntelliSense](#intellisense)                           |           ✔️           |               🔜               |
+| [Validation](#workflow-validation)                      |           ✔️           |               ✔️               |
+| [Documentation on Hover](#documentation-on-hover)       |           ✔️           |               ✔️               |
+| [IntelliSense](#intellisense)                           |           ✔️           |               ✔️               |
 | [Formatting](#formatting)                               |           ✔️           |               ✔️               |
 | [Custom Outline](#custom-outline)                       |           ✔️           |               ✔️               |
 | [Workflow Cleanup Command](#workflow-cleanup-command)   |           ✔️           |               ❔               |
@@ -77,13 +79,25 @@ The following table shows all the implemented features and the current support f
 
 You will get diagnostics for every syntax error or incorrect property value as you type so you can fix them right away.
 
+#### Gxformat2 (yaml)
+
+![Workflow Validation Demo](images/validation-gxformat2.gif)
+
+#### Legacy (ga)
+
 ![Workflow Validation Demo](images/validation-native.gif)
 
 [Back to Features ⬆️](#features)
 
 ### Documentation on Hover
 
-Hover over properties to get a description of what they are and how can you use them. The documentation displayed is based on the Workflow schema annotations, if you think you need more details or something is off, please help us improve the schema [here](https://github.com/davelopez/galaxy-workflows-vscode/tree/main/workflow-languages/schemas)!
+Hover over properties to get a description of what they are and how can you use them. The documentation displayed is based on the Workflow schema annotations, if you think you need more details or something is off, please help us improve the schema [here](https://github.com/galaxyproject/gxformat2)!
+
+#### Gxformat2 (yaml)
+
+![Documentation on Hover Demo](images/doc-hover-gxformat2.gif)
+
+#### Legacy (ga)
 
 ![Documentation on Hover Demo](images/doc-hover-native.gif)
 
@@ -93,6 +107,12 @@ Hover over properties to get a description of what they are and how can you use 
 
 Get [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense#:~:text=IntelliSense%20is%20a%20general%20term,%2C%20and%20%22code%20hinting.%22) suggestions depending on your cursor context. Remember that you can manually trigger the suggestions at your current cursor position using `Ctrl+Space`.
 
+#### Gxformat2 (yaml)
+
+![IntelliSense Demo](images/intellisense-gxformat2.gif)
+
+#### Legacy (ga)
+
 ![IntelliSense Demo](images/intellisense-native.gif)
 
 [Back to Features ⬆️](#features)
@@ -100,6 +120,12 @@ Get [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense#:~:tex
 ### Formatting
 
 Keep your workflow document consistently formatted. We recommend enabling your VSCode setting to `Format on Save` so you don't have to manually format after the changes.
+
+#### Gxformat2 (yaml)
+
+![Auto Formatting Demo](images/format-document-gxformat2.gif)
+
+#### Legacy (ga)
 
 ![Auto Formatting Demo](images/format-document-native.gif)
 
@@ -109,13 +135,21 @@ Keep your workflow document consistently formatted. We recommend enabling your V
 
 The `Custom Outline` allows you to navigate and find different parts of the Workflow faster using the Outline panel or the [Breadcrumbs](https://code.visualstudio.com/docs/editor/editingevolved#_breadcrumbs). The Outline representation has been enhanced, in comparison to the standard JSON Outline, by displaying relevant information more prominently (like using the workflow step name instead of the index on step nodes) or hiding non-essential nodes.
 
+#### Gxformat2 (yaml)
+
+![Custom Outline Demo](images/custom-outline-gxformat2.gif)
+
+#### Legacy (ga)
+
 ![Custom Outline Demo](images/custom-outline-native.gif)
 
 [Back to Features ⬆️](#features)
 
 ### Workflow Cleanup Command
 
-You can clean up the non-essential properties of a workflow with this command. These properties are usually related to the display of the workflow in the editor and are not part of the workflow semantics. This command will remove those properties from the document, but you can also use the `Preview clean workflow` command, which will show you a preview of the clean workflow instead of making the changes to the original.
+You can clean up the non-essential properties of a (legacy .ga) workflow with this command. These properties are usually related to the display of the workflow in the editor and are not part of the workflow semantics. This command will remove those properties from the document, but you can also use the `Preview clean workflow` command, which will show you a preview of the clean workflow instead of making the changes to the original.
+
+#### Legacy (ga)
 
 ![Cleanup Command Demo](images/clean-up-command-native.gif)
 
@@ -125,7 +159,9 @@ You can clean up the non-essential properties of a workflow with this command. T
 
 > ⚠️ This feature is experimental and is only available using a local git repository.
 
-Sometimes you want to compare different revisions of the same workflow and see what has changed between them. If the workflow has been through the Galaxy editor or some of the nodes have been moved around, there can be many changes that are just cosmetical and not part of the workflow logic. In those cases, you may want to get a 'simplified' diff so you can focus on the 'real' changes. You can do so in the `Timeline` or the `File Explorer` by using `Select workflow for (clean) compare` in one revision and then `Compare with this workflow (clean)` on the other revision, this will compare both revisions using the 'clean' version of the workflow (see the clean workflow command), meaning the non-essential parts are removed from them before the comparison.
+Sometimes you want to compare different revisions of the same (legacy .ga) workflow and see what has changed between them. If the workflow has been through the Galaxy editor or some of the nodes have been moved around, there can be many changes that are just cosmetical and not part of the workflow logic. In those cases, you may want to get a 'simplified' diff so you can focus on the 'real' changes. You can do so in the `Timeline` or the `File Explorer` by using `Select workflow for (clean) compare` in one revision and then `Compare with this workflow (clean)` on the other revision, this will compare both revisions using the 'clean' version of the workflow (see the [Workflow Cleanup Command](#workflow-cleanup-command)), meaning the non-essential parts are removed from both documents before the comparison.
+
+#### Legacy (ga)
 
 ![Simplified Workflow Diffs Demo](images/clean-diff-native.gif)
 
