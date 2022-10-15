@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.0] - 2022-10-15
+
+### Added
+
+- Multi-language server support [#48](https://github.com/davelopez/galaxy-workflows-vscode/pull/48)
+- Basic YAML language service implementation [#50](https://github.com/davelopez/galaxy-workflows-vscode/pull/50)
+- Basic gxformat2 schema support for validation, documentation on hover and intellisense [#52](https://github.com/davelopez/galaxy-workflows-vscode/pull/52)
+
 ## [0.2.0] - 2022-06-10
 
 ### Added
