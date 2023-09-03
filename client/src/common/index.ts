@@ -1,5 +1,5 @@
 import { commands, ExtensionContext } from "vscode";
-import { CommonLanguageClient, DocumentSelector, LanguageClientOptions } from "vscode-languageclient";
+import { BaseLanguageClient, DocumentSelector, LanguageClientOptions } from "vscode-languageclient";
 import { setupCommands } from "../commands/setup";
 import { CleanWorkflowDocumentProvider } from "../providers/cleanWorkflowDocumentProvider";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
@@ -18,8 +18,8 @@ export function buildBasicLanguageClientOptions(documentSelector: DocumentSelect
 
 export function initExtension(
   context: ExtensionContext,
-  nativeClient: CommonLanguageClient,
-  gxFormat2Client: CommonLanguageClient
+  nativeClient: BaseLanguageClient,
+  gxFormat2Client: BaseLanguageClient
 ): void {
   const gitProvider = initGitProvider(context);
 
@@ -41,16 +41,12 @@ function initGitProvider(context: ExtensionContext): BuiltinGitProvider {
   return gitProvider;
 }
 
-function startLanguageClient(context: ExtensionContext, languageClient: CommonLanguageClient): void {
-  const disposable = languageClient.start();
-  context.subscriptions.push(disposable);
-
-  languageClient.onReady().then(() => {
-    console.log(`${context.extension.id} ${languageClient.outputChannel.name} server is ready.`);
-  });
+async function startLanguageClient(context: ExtensionContext, languageClient: BaseLanguageClient): Promise<void> {
+  await languageClient.start();
+  console.log(`${context.extension.id} ${languageClient.outputChannel.name} server is ready.`);
 }
 
-function setupProviders(context: ExtensionContext, client: CommonLanguageClient, gitProvider: GitProvider): void {
+function setupProviders(context: ExtensionContext, client: BaseLanguageClient, gitProvider: GitProvider): void {
   const cleanWorkflowProvider = new CleanWorkflowProvider(client, gitProvider);
   CleanWorkflowDocumentProvider.register(context, cleanWorkflowProvider);
 }

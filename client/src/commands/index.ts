@@ -1,5 +1,5 @@
 import { commands, Disposable, Uri } from "vscode";
-import { CommonLanguageClient } from "vscode-languageclient";
+import { BaseLanguageClient } from "vscode-languageclient";
 
 /**
  * Gets the fully-qualified identifier of the command by prefixing
@@ -17,9 +17,9 @@ export function getCommandFullIdentifier(command: string): string {
  */
 export abstract class CommandContext {
   /** Allows to access language features. */
-  protected client: CommonLanguageClient;
+  protected client: BaseLanguageClient;
 
-  constructor(client: CommonLanguageClient) {
+  constructor(client: BaseLanguageClient) {
     this.client = client;
   }
 }
@@ -30,7 +30,7 @@ export abstract class CommandContext {
  */
 export abstract class CustomCommand extends CommandContext {
   abstract readonly identifier: string;
-  constructor(client: CommonLanguageClient) {
+  constructor(client: BaseLanguageClient) {
     super(client);
   }
 

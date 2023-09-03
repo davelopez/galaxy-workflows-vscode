@@ -5,12 +5,15 @@ import { LanguageClient, ServerOptions, TransportKind } from "vscode-languagecli
 import { buildBasicLanguageClientOptions, initExtension } from "./common";
 import { Constants } from "./common/constants";
 
+let nativeLanguageClient: LanguageClient;
+let gxFormat2LanguageClient: LanguageClient;
+
 export function activate(context: ExtensionContext): void {
-  const nativeLanguageClient = buildNodeLanguageClient(
+  nativeLanguageClient = buildNodeLanguageClient(
     Constants.NATIVE_WORKFLOW_LANGUAGE_ID,
     buildNativeServerOptions(context)
   );
-  const gxFormat2LanguageClient = buildNodeLanguageClient(
+  gxFormat2LanguageClient = buildNodeLanguageClient(
     Constants.GXFORMAT2_WORKFLOW_LANGUAGE_ID,
     buildGxFormat2ServerOptions(context)
   );
@@ -18,8 +21,9 @@ export function activate(context: ExtensionContext): void {
   initExtension(context, nativeLanguageClient, gxFormat2LanguageClient);
 }
 
-export function deactivate(): void {
-  // Nothing to do yet
+export async function deactivate(): Promise<void> {
+  await nativeLanguageClient?.stop();
+  await gxFormat2LanguageClient?.stop();
 }
 
 function buildNodeLanguageClient(languageId: string, serverOptions: ServerOptions): LanguageClient {
