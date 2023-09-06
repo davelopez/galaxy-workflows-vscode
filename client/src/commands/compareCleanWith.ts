@@ -1,9 +1,9 @@
 import { commands, Uri } from "vscode";
-import { CommonLanguageClient } from "vscode-languageclient";
+import { BaseLanguageClient } from "vscode-languageclient";
+import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from ".";
+import { addRefToUri } from "../common/utils";
 import { toCleanWorkflowUri } from "../providers/cleanWorkflowDocumentProvider";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
-import { addRefToUri } from "../common/utils";
-import { ComparableWorkflow, ComparableWorkflowProvider, CustomCommand, getCommandFullIdentifier } from ".";
 
 /**
  * Compares (diff) a previously selected workflow document revision with
@@ -14,7 +14,7 @@ export class CompareCleanWithWorkflowsCommand extends CustomCommand {
   readonly identifier: string = CompareCleanWithWorkflowsCommand.id;
 
   constructor(
-    client: CommonLanguageClient,
+    client: BaseLanguageClient,
     readonly comparableWorkflowProvider: ComparableWorkflowProvider,
     readonly cleanWorkflowProvider: CleanWorkflowProvider
   ) {
@@ -24,6 +24,10 @@ export class CompareCleanWithWorkflowsCommand extends CustomCommand {
   async execute(args: unknown[]): Promise<void> {
     const leftComparable = this.comparableWorkflowProvider.getSelectedForCompare();
     const rightComparable = ComparableWorkflow.buildFromArgs(args);
+
+    if (!leftComparable || !rightComparable) {
+      throw new Error("You need to two workflows selected for comparison");
+    }
 
     const leftUri = this.buildCleanWorkflowUri(leftComparable);
     const rightUri = this.buildCleanWorkflowUri(rightComparable);

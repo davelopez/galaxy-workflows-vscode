@@ -6,15 +6,15 @@ import {
   TextDocuments,
   WorkspaceFolder,
 } from "vscode-languageserver";
-import { CleanWorkflowService } from "./services/cleanWorkflow";
-import { WorkflowLanguageService, TextDocument, WorkflowDocument } from "./languageTypes";
+import { TextDocument, WorkflowDocument, WorkflowLanguageService } from "./languageTypes";
 import { WorkflowDocuments } from "./models/workflowDocuments";
-import { SymbolsProvider } from "./providers/symbolsProvider";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
+import { SymbolsProvider } from "./providers/symbolsProvider";
+import { CleanWorkflowService } from "./services/cleanWorkflow";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
-import { CompletionProvider } from "./providers/completionProvider";
 import { ConfigService } from "./configService";
+import { CompletionProvider } from "./providers/completionProvider";
 import { ValidationProfiles } from "./providers/validation/profiles";
 
 export class GalaxyWorkflowLanguageServer {
@@ -24,7 +24,10 @@ export class GalaxyWorkflowLanguageServer {
   public readonly workflowDocuments = new WorkflowDocuments();
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
 
-  constructor(public readonly connection: Connection, languageService: WorkflowLanguageService) {
+  constructor(
+    public readonly connection: Connection,
+    languageService: WorkflowLanguageService
+  ) {
     this.languageService = languageService;
     this.configService = new ConfigService(connection, () => this.onConfigurationChanged());
     // Track open, change and close text document events

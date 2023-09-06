@@ -1,5 +1,5 @@
 import { Uri, window, workspace } from "vscode";
-import { CommonLanguageClient } from "vscode-languageclient";
+import { BaseLanguageClient } from "vscode-languageclient";
 import { CleanWorkflowContentsParams, CleanWorkflowContentsRequest } from "../common/requestsDefinitions";
 import { getWorkspaceScheme, replaceUriScheme } from "../common/utils";
 import { GitProvider } from "./git";
@@ -9,7 +9,10 @@ import { GitProvider } from "./git";
  * workflow documents.
  */
 export class CleanWorkflowProvider {
-  constructor(private readonly languageClient: CommonLanguageClient, private readonly gitProvider: GitProvider) {}
+  constructor(
+    private readonly languageClient: BaseLanguageClient,
+    private readonly gitProvider: GitProvider
+  ) {}
 
   /**
    * Retrieves the clean contents of a given workflow document.
@@ -39,6 +42,7 @@ export class CleanWorkflowProvider {
       return this.requestCleanContents(contents);
     } else {
       window.showErrorMessage("This operation requires GIT to be active.");
+      throw new Error("getCleanWorkflowFromGitRef operation requires GIT to be active.");
     }
   }
 
@@ -81,7 +85,7 @@ export class CleanWorkflowProvider {
   }
 
   private uriHasGitRef(uri: Uri): boolean {
-    return uri.query && uri.query.startsWith("ref=");
+    return !!uri.query && uri.query.startsWith("ref=");
   }
 
   private getRefFromUri(uri: Uri): string {

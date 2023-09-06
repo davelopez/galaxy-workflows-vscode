@@ -1,9 +1,12 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ParsedDocument, ASTNode, ObjectASTNode, NodePath, Segment, PropertyASTNode } from "./types";
+import { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment } from "./types";
 import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
-  constructor(private readonly textDocument: TextDocument, private readonly parsedDocument: ParsedDocument) {}
+  constructor(
+    private readonly textDocument: TextDocument,
+    private readonly parsedDocument: ParsedDocument
+  ) {}
 
   public get root(): ASTNode | undefined {
     return this.parsedDocument.root;

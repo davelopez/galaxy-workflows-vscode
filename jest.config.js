@@ -7,11 +7,6 @@ const { compilerOptions } = require("./tsconfig.json");
 
 module.exports = {
   preset: "ts-jest",
-  globals: {
-    "ts-jest": {
-      tsconfig: compilerOptions,
-    },
-  },
   // The glob patterns Jest uses to detect test files
   testMatch: ["**/__tests__/*.+(ts|tsx|js)", "**/*.test.ts"],
 
@@ -20,6 +15,12 @@ module.exports = {
   transform: {
     // ... other transforms ...
     "\\.yaml$": "jest-transform-yaml",
+    "^.+.tsx?$": [
+      "ts-jest",
+      {
+        tsconfig: compilerOptions,
+      },
+    ],
   },
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>/" }),
 };

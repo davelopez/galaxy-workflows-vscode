@@ -7,7 +7,10 @@ import { ValidationRule, WorkflowDocument } from "../../languageTypes";
  * that 'prop1' contains a 'prop2' property defined.
  */
 export class MissingPropertyValidationRule implements ValidationRule {
-  constructor(readonly nodePath: string, readonly severity?: DiagnosticSeverity | undefined) {}
+  constructor(
+    readonly nodePath: string,
+    readonly severity?: DiagnosticSeverity | undefined
+  ) {}
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
