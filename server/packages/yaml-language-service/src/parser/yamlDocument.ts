@@ -1,7 +1,7 @@
 import { ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
-import { Document, Node, visit, YAMLError, YAMLWarning } from "yaml";
+import { Document, Node, YAMLError, YAMLWarning, visit } from "yaml";
 import { guessIndentation } from "../utils/indentationGuesser";
 import { TextBuffer } from "../utils/textBuffer";
 import { ASTNode, ObjectASTNodeImpl } from "./astTypes";
@@ -24,7 +24,10 @@ export class YAMLDocument implements ParsedDocument {
   private _diagnostics: Diagnostic[] | undefined;
   private _indentation: number;
 
-  constructor(public readonly subDocuments: YAMLSubDocument[], public readonly textDocument: TextDocument) {
+  constructor(
+    public readonly subDocuments: YAMLSubDocument[],
+    public readonly textDocument: TextDocument
+  ) {
     this._textBuffer = new TextBuffer(textDocument);
     this._diagnostics = undefined;
     this._indentation = guessIndentation(this._textBuffer, DEFAULT_INDENTATION, true).tabSize;
@@ -133,7 +136,10 @@ export class YAMLDocument implements ParsedDocument {
 export class YAMLSubDocument {
   private _lineComments: LineComment[] | undefined;
 
-  constructor(public readonly root: ASTNode | undefined, private readonly parsedDocument: Document) {}
+  constructor(
+    public readonly root: ASTNode | undefined,
+    private readonly parsedDocument: Document
+  ) {}
 
   get errors(): YAMLError[] {
     return this.parsedDocument.errors;

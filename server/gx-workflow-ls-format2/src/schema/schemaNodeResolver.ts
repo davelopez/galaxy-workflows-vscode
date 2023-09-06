@@ -1,9 +1,12 @@
 import { NodePath, Segment } from "@gxwf/server-common/src/ast/types";
-import { SchemaDefinitions, SchemaNode, RecordSchemaNode, SchemaRecord } from "./definitions";
+import { RecordSchemaNode, SchemaDefinitions, SchemaNode, SchemaRecord } from "./definitions";
 
 export class SchemaNodeResolver {
   public readonly rootNode: SchemaNode;
-  constructor(public readonly definitions: SchemaDefinitions, root?: SchemaRecord) {
+  constructor(
+    public readonly definitions: SchemaDefinitions,
+    root?: SchemaRecord
+  ) {
     this.rootNode = root ? new RecordSchemaNode(root) : RecordSchemaNode.NULL;
   }
 
