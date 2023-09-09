@@ -16,13 +16,14 @@
         "type": "npm",
         "script": "watch"
       },
+      "resolveSourceMapLocations": ["${workspaceFolder}/client/dist/**/*.js"],
       "sourceMapPathOverrides": {
         "webpack://?:*/*": "${workspaceFolder}/client/*"
       }
     },
     {
       "name": "Launch Extension in Webworker",
-      "type": "pwa-extensionHost",
+      "type": "extensionHost",
       "debugWebWorkerHost": true,
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionDevelopmentKind=web"],
@@ -38,6 +39,9 @@
       "type": "node",
       "request": "attach",
       "port": 6009,
+      "sourceMaps": true,
+      "smartStep": true,
+      "resolveSourceMapLocations": ["${workspaceFolder}/server/gx-workflow-ls-native/dist/**/*.js"],
       "sourceMapPathOverrides": {
         "webpack://?:*/*": "${workspaceFolder}/server/gx-workflow-ls-native/*"
       }
@@ -47,6 +51,9 @@
       "type": "node",
       "request": "attach",
       "port": 6010,
+      "sourceMaps": true,
+      "smartStep": true,
+      "resolveSourceMapLocations": ["${workspaceFolder}/server/gx-workflow-ls-format2/dist/**/*.js"],
       "sourceMapPathOverrides": {
         "webpack://?:*/*": "${workspaceFolder}/server/gx-workflow-ls-format2/*"
       }
