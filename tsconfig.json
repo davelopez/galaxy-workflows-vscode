@@ -13,7 +13,5 @@
       "@schemas/*": ["./workflow-languages/schemas/*"]
     }
   },
-  "files": [],
-  "include": [],
   "exclude": []
 }
