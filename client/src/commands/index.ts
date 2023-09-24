@@ -55,16 +55,21 @@ export abstract class CustomCommand extends CommandContext {
  */
 export class ComparableWorkflow {
   uri: Uri;
-  ref: string;
+  ref?: string;
 
+  // TODO: This is no longer working until a new API is available
+  // ref: https://github.com/microsoft/vscode/issues/177319
+  // ref: https://github.com/microsoft/vscode/issues/84297
   public static buildFromArgs(args: unknown[]): ComparableWorkflow | undefined {
     if (args.length >= 2) {
-      if (Object.prototype.hasOwnProperty.call(args[0], "ref")) {
+      const source = args[2] as string;
+      if (source === "git-history") {
         // Comes from source control timeline
-        return { uri: args[1] as Uri, ref: args[0]["ref"] };
-      } else if (Object.prototype.hasOwnProperty.call(args[0], "scheme")) {
-        // Comes from file explorer
-        return { uri: args[0] as Uri, ref: undefined };
+        return { uri: args[1] as Uri, ref: args[0] as string };
+      }
+      if (source === "timeline.localHistory") {
+        // Comes from local history
+        return { uri: args[1] as Uri };
       }
     }
     return undefined;
