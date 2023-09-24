@@ -159,7 +159,10 @@ You can clean up the non-essential properties of a (legacy .ga) workflow with th
 
 > ⚠️ This feature is experimental and is only available using a local git repository.
 
-Sometimes you want to compare different revisions of the same (legacy .ga) workflow and see what has changed between them. If the workflow has been through the Galaxy editor or some of the nodes have been moved around, there can be many changes that are just cosmetical and not part of the workflow logic. In those cases, you may want to get a 'simplified' diff so you can focus on the 'real' changes. You can do so in the `Timeline` or the `File Explorer` by using `Select workflow for (clean) compare` in one revision and then `Compare with this workflow (clean)` on the other revision, this will compare both revisions using the 'clean' version of the workflow (see the [Workflow Cleanup Command](#workflow-cleanup-command)), meaning the non-essential parts are removed from both documents before the comparison.
+Sometimes you want to compare different revisions of the same (legacy .ga) workflow and see what has changed between them. If the workflow has been through the Galaxy editor or some of the nodes have been moved around, there can be many changes that are just cosmetical and not part of the workflow logic. In those cases, you may want to get a 'simplified' diff so you can focus on the 'real' changes. You can do so in <del>the `Timeline` or</del> the `File Explorer` by using `Select workflow for (clean) compare` in one revision and then `Compare with this workflow (clean)` on the other revision, this will compare both revisions using the 'clean' version of the workflow (see the [Workflow Cleanup Command](#workflow-cleanup-command)), meaning the non-essential parts are removed from both documents before the comparison.
+
+> ⚠️ **NOTE**:
+> This feature is no longer supported in the `Timeline` until a new version of the VSCode Timeline API is finalized and published. See [this PR](https://github.com/davelopez/galaxy-workflows-vscode/pull/59) for more details.
 
 #### Legacy (ga)
 
