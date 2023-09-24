@@ -26,7 +26,7 @@ export class CompareCleanWithWorkflowsCommand extends CustomCommand {
     const rightComparable = ComparableWorkflow.buildFromArgs(args);
 
     if (!leftComparable || !rightComparable) {
-      throw new Error("You need to two workflows selected for comparison");
+      throw new Error("You need to have two workflows selected for comparison");
     }
 
     const leftUri = this.buildCleanWorkflowUri(leftComparable);
