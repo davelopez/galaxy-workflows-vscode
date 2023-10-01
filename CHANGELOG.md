@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.1] - 2023-10-01
+
+### Changed
+
+- Only workflow files with the extension `.gxwf.yml` will be considered Galaxy Workflows in VSCode [#61](https://github.com/davelopez/galaxy-workflows-vscode/pull/61)
+
+### Removed
+
+- Temporarily disable clean diff comparisons in Timeline [#59](https://github.com/davelopez/galaxy-workflows-vscode/pull/59)
+
 ## [0.3.0] - 2022-10-15
 
 ### Added
