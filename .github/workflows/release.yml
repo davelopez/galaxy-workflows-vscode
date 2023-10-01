@@ -1,0 +1,89 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  prepare_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get version from tag
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            The Galaxy Workflows Extension is available at:
+            - [Open VSX Registry](https://open-vsx.org/extension/davelopez/galaxy-workflows)
+            - [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=davelopez.galaxy-workflows)
+
+            You can also manually install the extension by downloading the VSIX package included in this release and then running:
+            ```
+            code --install-extension galaxy-workflows-${{ steps.get_version.outputs.version-without-v }}.vsix
+            ```
+          draft: false
+          prerelease: false
+    outputs:
+      release_version: ${{ steps.get_version.outputs.version-without-v }}
+      release_upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+  publish_release:
+    name: Publish extension to Open-VSX and VSCode Marketplace
+    needs: prepare_release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Clean install dependencies
+        run: |
+          npm ci
+
+      - name: Publish to Open VSX Registry
+        uses: HaaLeo/publish-vscode-extension@v1
+        id: publishToOpenVSX
+        with:
+          pat: ${{ secrets.OPEN_VSX_TOKEN }}
+          packagePath: "./"
+
+      - name: Publish to Visual Studio Marketplace
+        uses: HaaLeo/publish-vscode-extension@v1
+        with:
+          pat: ${{ secrets.VS_MARKETPLACE_TOKEN }}
+          registryUrl: https://marketplace.visualstudio.com
+          extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+
+      - name: Upload vsix as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: galaxy-workflows-${{needs.prepare_release.outputs.release_version}}.vsix
+          path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release.outputs.release_upload_url }}
+          asset_path: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+          asset_name: galaxy-workflows-${{needs.prepare_release.outputs.release_version}}.vsix
+          asset_content_type: application/vsix
