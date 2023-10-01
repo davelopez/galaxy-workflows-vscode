@@ -2,7 +2,7 @@
   "name": "galaxy-workflows",
   "displayName": "Galaxy Workflows",
   "description": "Utilities to assist in the edition of Galaxy (https://galaxyproject.org/) Workflow files.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "preview": true,
   "license": "MIT",
   "publisher": "davelopez",
@@ -29,7 +29,7 @@
   },
   "icon": "assets/galaxy-logo-icon.png",
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.81.0"
   },
   "categories": [
     "Linters",
@@ -39,10 +39,6 @@
   ],
   "main": "./client/dist/extension",
   "browser": "./client/dist/web/extension",
-  "activationEvents": [
-    "onLanguage:gxformat2",
-    "onLanguage:galaxyworkflow"
-  ],
   "contributes": {
     "languages": [
       {
