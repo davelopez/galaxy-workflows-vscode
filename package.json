@@ -29,7 +29,7 @@
   },
   "icon": "assets/galaxy-logo-icon.png",
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.81.0"
   },
   "categories": [
     "Linters",
