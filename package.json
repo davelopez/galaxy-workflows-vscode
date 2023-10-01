@@ -39,10 +39,6 @@
   ],
   "main": "./client/dist/extension",
   "browser": "./client/dist/web/extension",
-  "activationEvents": [
-    "onLanguage:gxformat2",
-    "onLanguage:galaxyworkflow"
-  ],
   "contributes": {
     "languages": [
       {
