@@ -61,10 +61,8 @@
           "Galaxy Workflow (YAML)"
         ],
         "extensions": [
-          ".yml",
           ".gxwf.yml"
         ],
-        "firstLine": "^class: GalaxyWorkflow",
         "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
       }
     ],
