@@ -6,7 +6,7 @@ import {
   TextDocuments,
   WorkspaceFolder,
 } from "vscode-languageserver";
-import { TextDocument, WorkflowDocument, WorkflowLanguageService } from "./languageTypes";
+import { TextDocument, WorkflowDocument, LanguageServiceBase } from "./languageTypes";
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
@@ -18,7 +18,7 @@ import { CompletionProvider } from "./providers/completionProvider";
 import { ValidationProfiles } from "./providers/validation/profiles";
 
 export class GalaxyWorkflowLanguageServer {
-  public readonly languageService: WorkflowLanguageService;
+  public readonly workflowLanguageService: LanguageServiceBase<WorkflowDocument>;
   public readonly configService: ConfigService;
   public readonly documents = new TextDocuments(TextDocument);
   public readonly workflowDocuments = new WorkflowDocuments();
@@ -26,9 +26,9 @@ export class GalaxyWorkflowLanguageServer {
 
   constructor(
     public readonly connection: Connection,
-    languageService: WorkflowLanguageService
+    workflowLanguageService: LanguageServiceBase<WorkflowDocument>
   ) {
-    this.languageService = languageService;
+    this.workflowLanguageService = workflowLanguageService;
     this.configService = new ConfigService(connection, () => this.onConfigurationChanged());
     // Track open, change and close text document events
     this.trackDocumentChanges(connection);
@@ -88,9 +88,9 @@ export class GalaxyWorkflowLanguageServer {
    * An event that fires when a workflow document has been opened or the content changes.
    */
   private onDidChangeContent(textDocument: TextDocument): void {
-    const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
+    const workflowDocument = this.workflowLanguageService.parseDocument(textDocument);
     this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
-    this.validate(workflowDocument);
+    this.validateWorkflow(workflowDocument);
   }
 
   private onDidClose(textDocument: TextDocument): void {
@@ -101,7 +101,7 @@ export class GalaxyWorkflowLanguageServer {
 
   private onConfigurationChanged(): void {
     this.workflowDocuments.all().forEach((workflowDocument) => {
-      this.validate(workflowDocument);
+      this.validateWorkflow(workflowDocument);
     });
   }
 
@@ -109,13 +109,13 @@ export class GalaxyWorkflowLanguageServer {
     this.workflowDocuments.dispose();
   }
 
-  private async validate(workflowDocument: WorkflowDocument): Promise<void> {
+  private async validateWorkflow(workflowDocument: WorkflowDocument): Promise<void> {
     if (WorkflowDocuments.schemesToSkip.includes(workflowDocument.uri.scheme)) {
       return;
     }
     const settings = await this.configService.getDocumentSettings(workflowDocument.textDocument.uri);
     const validationProfile = ValidationProfiles.get(settings.validation.profile);
-    this.languageService.validate(workflowDocument, validationProfile).then((diagnostics) => {
+    this.workflowLanguageService.validate(workflowDocument, validationProfile).then((diagnostics) => {
       this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
     });
   }

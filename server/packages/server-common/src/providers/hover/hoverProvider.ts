@@ -23,7 +23,7 @@ export class HoverProvider extends Provider {
     if (!workflowDocument) {
       return null;
     }
-    const hover = await this.languageService.doHover(workflowDocument, params.position);
+    const hover = await this.workflowLanguageService.doHover(workflowDocument, params.position);
     if (!hover) {
       return null;
     }

@@ -17,7 +17,7 @@ import {
   TextDocument,
   TextEdit,
   WorkflowDocument,
-  WorkflowLanguageService,
+  LanguageServiceBase,
 } from "@gxwf/server-common/src/languageTypes";
 import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
@@ -26,7 +26,7 @@ import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
  * A wrapper around the JSON Language Service to support language features
  * for native Galaxy workflow files AKA '.ga' workflows.
  */
-export class NativeWorkflowLanguageService extends WorkflowLanguageService {
+export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowDocument> {
   private _jsonLanguageService: LanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
@@ -42,7 +42,7 @@ export class NativeWorkflowLanguageService extends WorkflowLanguageService {
     return NativeWorkflowSchema;
   }
 
-  public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
+  public override parseDocument(document: TextDocument): WorkflowDocument {
     const jsonDocument = this._jsonLanguageService.parseJSONDocument(document);
     return new NativeWorkflowDocument(document, jsonDocument);
   }

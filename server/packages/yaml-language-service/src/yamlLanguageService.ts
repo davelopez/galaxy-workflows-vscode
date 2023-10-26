@@ -15,14 +15,14 @@ export interface CustomFormatterOptions {
   lineWidth?: number;
 }
 
-export interface LanguageService {
+export interface YAMLLanguageService {
   configure(settings: LanguageSettings): void;
   parseYAMLDocument(document: TextDocument): YAMLDocument;
   doValidation(yamlDocument: YAMLDocument): Promise<Diagnostic[]>;
   doFormat(document: TextDocument, options: FormattingOptions & CustomFormatterOptions): TextEdit[];
 }
 
-export function getLanguageService(): LanguageService {
+export function getLanguageService(): YAMLLanguageService {
   const formatter = new YAMLFormatter();
   const validator = new YAMLValidation();
   return {

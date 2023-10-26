@@ -4,14 +4,14 @@ import {
   FormattingOptions,
   TextEdit,
   WorkflowDocument,
-  WorkflowLanguageService,
+  LanguageServiceBase,
   Position,
   Hover,
   CompletionList,
   Diagnostic,
   WorkflowValidator,
 } from "@gxwf/server-common/src/languageTypes";
-import { LanguageService, getLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
+import { YAMLLanguageService, getLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2CompletionService } from "./services/completionService";
@@ -22,8 +22,8 @@ import { GxFormat2SchemaValidationService, WorkflowValidationService } from "./s
  * A wrapper around the YAML Language Service to support language features
  * for gxformat2 Galaxy workflow files.
  */
-export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
-  private _yamlLanguageService: LanguageService;
+export class GxFormat2WorkflowLanguageService extends LanguageServiceBase<WorkflowDocument> {
+  private _yamlLanguageService: YAMLLanguageService;
   private _schemaLoader: GalaxyWorkflowFormat2SchemaLoader;
   private _hoverService: GxFormat2HoverService;
   private _completionService: GxFormat2CompletionService;
@@ -40,7 +40,7 @@ export class GxFormat2WorkflowLanguageService extends WorkflowLanguageService {
     ];
   }
 
-  public override parseWorkflowDocument(document: TextDocument): WorkflowDocument {
+  public override parseDocument(document: TextDocument): WorkflowDocument {
     const yamlDocument = this._yamlLanguageService.parseYAMLDocument(document);
     return new GxFormat2WorkflowDocument(document, yamlDocument);
   }
