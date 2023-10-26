@@ -16,7 +16,7 @@ export class SymbolsProvider extends Provider {
   }
 
   public onDocumentSymbol(params: DocumentSymbolParams): DocumentSymbol[] {
-    const workflowDocument = this.workflowDocuments.get(params.textDocument.uri);
+    const workflowDocument = this.documentsCache.get(params.textDocument.uri);
     if (workflowDocument) {
       const symbols = this.getSymbols(workflowDocument);
       return symbols;

@@ -19,7 +19,7 @@ export class HoverProvider extends Provider {
   }
 
   private async onHover(params: HoverParams): Promise<Hover | null> {
-    const workflowDocument = this.workflowDocuments.get(params.textDocument.uri);
+    const workflowDocument = this.documentsCache.get(params.textDocument.uri);
     if (!workflowDocument) {
       return null;
     }

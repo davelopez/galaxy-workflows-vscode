@@ -65,7 +65,7 @@ export class CleanWorkflowService extends ServiceBase {
     params: CleanWorkflowDocumentParams
   ): Promise<CleanWorkflowDocumentResult> {
     try {
-      const workflowDocument = this.workflowDocuments.get(params.uri);
+      const workflowDocument = this.documentsCache.get(params.uri);
       if (workflowDocument) {
         const settings = await this.server.configService.getDocumentSettings(workflowDocument.textDocument.uri);
         const edits = this.getTextEditsToCleanWorkflow(workflowDocument, settings.cleaning.cleanableProperties);

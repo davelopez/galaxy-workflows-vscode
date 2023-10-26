@@ -12,7 +12,7 @@ export class CompletionProvider extends Provider {
     this.connection.onCompletion(async (params) => this.onCompletion(params));
   }
   private async onCompletion(params: CompletionParams): Promise<CompletionList | null> {
-    const workflowDocument = this.workflowDocuments.get(params.textDocument.uri);
+    const workflowDocument = this.documentsCache.get(params.textDocument.uri);
     if (workflowDocument) {
       const result = await this.workflowLanguageService.doComplete(workflowDocument, params.position);
       return result;

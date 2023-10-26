@@ -48,7 +48,7 @@ import {
   DocumentSymbolParams,
 } from "vscode-languageserver/browser";
 import { WorkflowDocument } from "./models/workflowDocument";
-import { WorkflowDocuments } from "./models/workflowDocuments";
+import { DocumentsCache } from "./models/documentsCache";
 import { GalaxyWorkflowLanguageServer } from "./server";
 import { ASTNodeManager } from "./ast/nodeManager";
 import { URI } from "vscode-uri";
@@ -182,13 +182,13 @@ export abstract class LanguageServiceBase<T extends DocumentContext> {
 
 export abstract class ServerContext {
   protected connection: Connection;
-  protected workflowDocuments: WorkflowDocuments;
+  protected documentsCache: DocumentsCache;
   protected workflowLanguageService: LanguageServiceBase<WorkflowDocument>;
   protected server: GalaxyWorkflowLanguageServer;
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     this.server = server;
-    this.workflowDocuments = server.workflowDocuments;
+    this.documentsCache = server.documentsCache;
     this.workflowLanguageService = server.workflowLanguageService;
     this.connection = server.connection;
   }

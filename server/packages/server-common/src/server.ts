@@ -7,7 +7,7 @@ import {
   WorkspaceFolder,
 } from "vscode-languageserver";
 import { TextDocument, WorkflowDocument, LanguageServiceBase } from "./languageTypes";
-import { WorkflowDocuments } from "./models/workflowDocuments";
+import { DocumentsCache } from "./models/documentsCache";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
 import { SymbolsProvider } from "./providers/symbolsProvider";
@@ -21,7 +21,7 @@ export class GalaxyWorkflowLanguageServer {
   public readonly workflowLanguageService: LanguageServiceBase<WorkflowDocument>;
   public readonly configService: ConfigService;
   public readonly documents = new TextDocuments(TextDocument);
-  public readonly workflowDocuments = new WorkflowDocuments();
+  public readonly documentsCache = new DocumentsCache();
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
 
   constructor(
@@ -89,28 +89,28 @@ export class GalaxyWorkflowLanguageServer {
    */
   private onDidChangeContent(textDocument: TextDocument): void {
     const workflowDocument = this.workflowLanguageService.parseDocument(textDocument);
-    this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
+    this.documentsCache.addOrReplaceDocument(workflowDocument);
     this.validateWorkflow(workflowDocument);
   }
 
   private onDidClose(textDocument: TextDocument): void {
-    this.workflowDocuments.removeWorkflowDocument(textDocument.uri);
+    this.documentsCache.removeDocument(textDocument.uri);
     this.configService.onDocumentClose(textDocument.uri);
     this.clearValidation(textDocument);
   }
 
   private onConfigurationChanged(): void {
-    this.workflowDocuments.all().forEach((workflowDocument) => {
+    this.documentsCache.all().forEach((workflowDocument) => {
       this.validateWorkflow(workflowDocument);
     });
   }
 
   private cleanup(): void {
-    this.workflowDocuments.dispose();
+    this.documentsCache.dispose();
   }
 
   private async validateWorkflow(workflowDocument: WorkflowDocument): Promise<void> {
-    if (WorkflowDocuments.schemesToSkip.includes(workflowDocument.uri.scheme)) {
+    if (DocumentsCache.schemesToSkip.includes(workflowDocument.uri.scheme)) {
       return;
     }
     const settings = await this.configService.getDocumentSettings(workflowDocument.textDocument.uri);
