@@ -48,7 +48,7 @@ export class CleanWorkflowService extends ServiceBase {
     params: CleanWorkflowContentsParams
   ): Promise<CleanWorkflowContentsResult | undefined> {
     const tempDocument = this.createTempWorkflowDocumentWithContents(params.contents);
-    const workflowDocument = this.languageService.parseWorkflowDocument(tempDocument);
+    const workflowDocument = this.workflowLanguageService.parseDocument(tempDocument);
     if (workflowDocument) {
       return await this.cleanWorkflowContentsResult(workflowDocument);
     }

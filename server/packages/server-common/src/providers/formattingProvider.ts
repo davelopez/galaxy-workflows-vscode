@@ -32,7 +32,7 @@ export class FormattingProvider extends Provider {
   private onFormat(documentUri: string, range: Range | undefined, options: FormattingOptions): TextEdit[] {
     const workflowDocument = this.workflowDocuments.get(documentUri);
     if (workflowDocument) {
-      const edits = this.languageService.format(
+      const edits = this.workflowLanguageService.format(
         workflowDocument.textDocument,
         range ?? this.getFullRange(workflowDocument.textDocument),
         options

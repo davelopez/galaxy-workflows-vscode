@@ -1,4 +1,4 @@
-import { TextDocument } from "../languageTypes";
+import { DocumentContext, TextDocument } from "../languageTypes";
 import { URI } from "vscode-uri";
 import { ParsedDocument } from "../ast/types";
 import { ASTNodeManager } from "../ast/nodeManager";
@@ -6,7 +6,7 @@ import { ASTNodeManager } from "../ast/nodeManager";
 /**
  * This class contains information about workflow semantics.
  */
-export abstract class WorkflowDocument {
+export abstract class WorkflowDocument implements DocumentContext {
   protected _textDocument: TextDocument;
   protected _documentUri: URI;
   protected _parsedDocument: ParsedDocument;

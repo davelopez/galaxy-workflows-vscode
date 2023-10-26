@@ -50,6 +50,8 @@ import {
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowDocuments } from "./models/workflowDocuments";
 import { GalaxyWorkflowLanguageServer } from "./server";
+import { ASTNodeManager } from "./ast/nodeManager";
+import { URI } from "vscode-uri";
 
 export {
   TextDocument,
@@ -116,9 +118,9 @@ export interface ValidationRule {
   /**
    * Validates the given workflow document and provides diagnostics according
    * to this rule.
-   * @param workflowDocument The workflow document
+   * @param documentContext The workflow document
    */
-  validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+  validate(documentContext: DocumentContext): Promise<Diagnostic[]>;
 }
 
 /**
@@ -141,30 +143,36 @@ export interface WorkflowValidator {
 }
 
 /**
+ * Provides information about a processed text document.
+ */
+export interface DocumentContext {
+  uri: URI;
+  textDocument: TextDocument;
+  nodeManager: ASTNodeManager;
+}
+
+/**
  * Abstract service defining the base functionality that a workflow language must
  * implement to provide assistance for workflow documents editing.
  */
-export abstract class WorkflowLanguageService {
+export abstract class LanguageServiceBase<T extends DocumentContext> {
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
-  public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
-  public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
-  public abstract doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
+  public abstract parseDocument(document: TextDocument): T;
+  public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;
+  public abstract doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
 
-  /** Performs basic syntax and semantic validation based on the workflow schema. */
-  protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+  /** Performs basic syntax and semantic validation based on the document schema. */
+  protected abstract doValidation(documentContext: T): Promise<Diagnostic[]>;
 
   /**
    * Validates the document and reports all the diagnostics found.
    * An optional validation profile can be used to provide additional custom diagnostics.
    */
-  public async validate(
-    workflowDocument: WorkflowDocument,
-    useProfile: ValidationProfile | null = null
-  ): Promise<Diagnostic[]> {
-    const diagnostics = await this.doValidation(workflowDocument);
+  public async validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]> {
+    const diagnostics = await this.doValidation(documentContext);
     if (useProfile) {
       useProfile.rules.forEach(async (validationRule) => {
-        const contributedDiagnostics = await validationRule.validate(workflowDocument);
+        const contributedDiagnostics = await validationRule.validate(documentContext);
         diagnostics.push(...contributedDiagnostics);
       });
     }
@@ -175,13 +183,13 @@ export abstract class WorkflowLanguageService {
 export abstract class ServerContext {
   protected connection: Connection;
   protected workflowDocuments: WorkflowDocuments;
-  protected languageService: WorkflowLanguageService;
+  protected workflowLanguageService: LanguageServiceBase<WorkflowDocument>;
   protected server: GalaxyWorkflowLanguageServer;
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     this.server = server;
     this.workflowDocuments = server.workflowDocuments;
-    this.languageService = server.languageService;
+    this.workflowLanguageService = server.workflowLanguageService;
     this.connection = server.connection;
   }
 }
