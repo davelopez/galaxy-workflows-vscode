@@ -19,11 +19,12 @@ export class HoverProvider extends Provider {
   }
 
   private async onHover(params: HoverParams): Promise<Hover | null> {
-    const workflowDocument = this.documentsCache.get(params.textDocument.uri);
-    if (!workflowDocument) {
+    const documentContext = this.documentsCache.get(params.textDocument.uri);
+    if (!documentContext) {
       return null;
     }
-    const hover = await this.workflowLanguageService.doHover(workflowDocument, params.position);
+    const languageService = this.getLanguageServiceById(documentContext.languageId);
+    const hover = await languageService.doHover(documentContext, params.position);
     if (!hover) {
       return null;
     }
@@ -35,7 +36,7 @@ export class HoverProvider extends Provider {
         : `${hover.contents}`,
     ];
     this.contributors.forEach((contentContributor) => {
-      const contributedContent = contentContributor.onHoverContent(workflowDocument, params.position);
+      const contributedContent = contentContributor.onHoverContent(documentContext, params.position);
       contentSections.push(contributedContent);
     });
     this.setHoverContentSections(hover, contentSections);
