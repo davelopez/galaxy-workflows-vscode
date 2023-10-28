@@ -146,6 +146,7 @@ export interface WorkflowValidator {
  * Provides information about a processed text document.
  */
 export interface DocumentContext {
+  languageId: string;
   uri: URI;
   textDocument: TextDocument;
   nodeManager: ASTNodeManager;
@@ -156,6 +157,8 @@ export interface DocumentContext {
  * implement to provide assistance for workflow documents editing.
  */
 export abstract class LanguageServiceBase<T extends DocumentContext> {
+  constructor(public readonly languageId: string) {}
+
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract parseDocument(document: TextDocument): T;
   public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;

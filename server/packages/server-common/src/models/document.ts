@@ -19,6 +19,10 @@ export abstract class DocumentBase implements DocumentContext {
     this._documentUri = URI.parse(this._textDocument.uri);
   }
 
+  public get languageId(): string {
+    return this._textDocument.languageId;
+  }
+
   public get uri(): URI {
     return this._documentUri;
   }
