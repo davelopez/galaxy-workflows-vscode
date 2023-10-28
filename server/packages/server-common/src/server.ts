@@ -113,8 +113,8 @@ export class GalaxyWorkflowLanguageServer {
   }
 
   private onConfigurationChanged(): void {
-    this.documentsCache.all().forEach((workflowDocument) => {
-      this.validateDocument(workflowDocument);
+    this.documentsCache.all().forEach((documentContext) => {
+      this.validateDocument(documentContext);
     });
   }
 
@@ -122,15 +122,15 @@ export class GalaxyWorkflowLanguageServer {
     this.documentsCache.dispose();
   }
 
-  private async validateDocument(workflowDocument: DocumentContext): Promise<void> {
-    if (DocumentsCache.schemesToSkip.includes(workflowDocument.uri.scheme)) {
+  private async validateDocument(documentContext: DocumentContext): Promise<void> {
+    if (DocumentsCache.schemesToSkip.includes(documentContext.uri.scheme)) {
       return;
     }
-    const settings = await this.configService.getDocumentSettings(workflowDocument.textDocument.uri);
+    const settings = await this.configService.getDocumentSettings(documentContext.textDocument.uri);
     const validationProfile = ValidationProfiles.get(settings.validation.profile);
-    const languageService = this.getLanguageServiceById(workflowDocument.languageId);
-    languageService.validate(workflowDocument, validationProfile).then((diagnostics) => {
-      this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
+    const languageService = this.getLanguageServiceById(documentContext.languageId);
+    languageService.validate(documentContext, validationProfile).then((diagnostics) => {
+      this.connection.sendDiagnostics({ uri: documentContext.textDocument.uri, diagnostics });
     });
   }
 

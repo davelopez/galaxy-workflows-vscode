@@ -11,6 +11,7 @@ export class CompletionProvider extends Provider {
     super(server);
     this.connection.onCompletion(async (params) => this.onCompletion(params));
   }
+
   private async onCompletion(params: CompletionParams): Promise<CompletionList | null> {
     const documentContext = this.documentsCache.get(params.textDocument.uri);
     if (documentContext) {

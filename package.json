@@ -60,6 +60,16 @@
           ".gxwf.yml"
         ],
         "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
+      },
+      {
+        "id": "gxwftests",
+        "aliases": [
+          "Galaxy Workflow Tests (YAML)"
+        ],
+        "extensions": [
+          "-tests.yml"
+        ],
+        "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
       }
     ],
     "grammars": [
@@ -70,6 +80,11 @@
       },
       {
         "language": "gxformat2",
+        "scopeName": "source.gxformat2",
+        "path": "./workflow-languages/syntaxes/yml.tmLanguage.json"
+      },
+      {
+        "language": "gxwftests",
         "scopeName": "source.gxformat2",
         "path": "./workflow-languages/syntaxes/yml.tmLanguage.json"
       }
