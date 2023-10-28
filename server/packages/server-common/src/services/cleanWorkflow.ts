@@ -48,7 +48,8 @@ export class CleanWorkflowService extends ServiceBase {
     params: CleanWorkflowContentsParams
   ): Promise<CleanWorkflowContentsResult | undefined> {
     const tempDocument = this.createTempWorkflowDocumentWithContents(params.contents);
-    const workflowDocument = this.workflowLanguageService.parseDocument(tempDocument);
+    const workflowLanguageService = this.getLanguageServiceById(tempDocument.languageId);
+    const workflowDocument = workflowLanguageService.parseDocument(tempDocument) as WorkflowDocument;
     if (workflowDocument) {
       return await this.cleanWorkflowContentsResult(workflowDocument);
     }
@@ -68,7 +69,10 @@ export class CleanWorkflowService extends ServiceBase {
       const workflowDocument = this.documentsCache.get(params.uri);
       if (workflowDocument) {
         const settings = await this.server.configService.getDocumentSettings(workflowDocument.textDocument.uri);
-        const edits = this.getTextEditsToCleanWorkflow(workflowDocument, settings.cleaning.cleanableProperties);
+        const edits = this.getTextEditsToCleanWorkflow(
+          workflowDocument as WorkflowDocument,
+          settings.cleaning.cleanableProperties
+        );
         const editParams: ApplyWorkspaceEditParams = {
           label: "Clean workflow",
           edit: {

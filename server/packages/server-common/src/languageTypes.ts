@@ -52,6 +52,7 @@ import { DocumentsCache } from "./models/documentsCache";
 import { GalaxyWorkflowLanguageServer } from "./server";
 import { ASTNodeManager } from "./ast/nodeManager";
 import { URI } from "vscode-uri";
+import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
 
 export {
   TextDocument,
@@ -96,6 +97,7 @@ export {
   DocumentRangeFormattingParams,
   WorkflowDocument,
   DocumentSymbolParams,
+  WorkflowTestsDocument,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
@@ -105,10 +107,10 @@ export interface FormattingOptions extends LSPFormattingOptions {
 export interface HoverContentContributor {
   /**
    * Gets the contents that will be contributed to a new section of the Hover message
-   * @param workflowDocument The workflow document
+   * @param documentContext The document context
    * @param position The hover position
    */
-  onHoverContent(workflowDocument: WorkflowDocument, position: Position): string;
+  onHoverContent(documentContext: DocumentContext, position: Position): string;
 }
 
 /**
@@ -186,13 +188,15 @@ export abstract class LanguageServiceBase<T extends DocumentContext> {
 export abstract class ServerContext {
   protected connection: Connection;
   protected documentsCache: DocumentsCache;
-  protected workflowLanguageService: LanguageServiceBase<WorkflowDocument>;
   protected server: GalaxyWorkflowLanguageServer;
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     this.server = server;
     this.documentsCache = server.documentsCache;
-    this.workflowLanguageService = server.workflowLanguageService;
     this.connection = server.connection;
+  }
+
+  protected getLanguageServiceById(languageId: string): LanguageServiceBase<DocumentContext> {
+    return this.server.getLanguageServiceById(languageId);
   }
 }

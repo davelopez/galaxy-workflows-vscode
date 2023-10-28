@@ -1,5 +1,5 @@
 import { ASTNode, ObjectASTNode, PropertyASTNode } from "../ast/types";
-import { DocumentSymbolParams, DocumentSymbol, SymbolKind, WorkflowDocument } from "../languageTypes";
+import { DocumentSymbolParams, DocumentSymbol, SymbolKind, DocumentContext } from "../languageTypes";
 import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
 
@@ -16,16 +16,16 @@ export class SymbolsProvider extends Provider {
   }
 
   public onDocumentSymbol(params: DocumentSymbolParams): DocumentSymbol[] {
-    const workflowDocument = this.documentsCache.get(params.textDocument.uri);
-    if (workflowDocument) {
-      const symbols = this.getSymbols(workflowDocument);
+    const documentContext = this.documentsCache.get(params.textDocument.uri);
+    if (documentContext) {
+      const symbols = this.getSymbols(documentContext);
       return symbols;
     }
     return [];
   }
 
-  private getSymbols(workflowDocument: WorkflowDocument): DocumentSymbol[] {
-    const root = workflowDocument.nodeManager.root;
+  private getSymbols(documentContext: DocumentContext): DocumentSymbol[] {
+    const root = documentContext.nodeManager.root;
     if (!root) {
       return [];
     }
@@ -41,7 +41,7 @@ export class SymbolsProvider extends Provider {
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
-            const range = workflowDocument.nodeManager.getNodeRange(node);
+            const range = documentContext.nodeManager.getNodeRange(node);
             const selectionRange = range;
             const symbol = { name, kind: this.getSymbolKind(node.type), range, selectionRange, children: [] };
             result.push(symbol);
@@ -63,8 +63,8 @@ export class SymbolsProvider extends Provider {
             if (IGNORE_SYMBOL_NAMES.has(name)) {
               return;
             }
-            const range = workflowDocument.nodeManager.getNodeRange(property);
-            const selectionRange = workflowDocument.nodeManager.getNodeRange(property.keyNode);
+            const range = documentContext.nodeManager.getNodeRange(property);
+            const selectionRange = documentContext.nodeManager.getNodeRange(property.keyNode);
             const children: DocumentSymbol[] = [];
             const symbol: DocumentSymbol = {
               name: name,

@@ -30,11 +30,12 @@ export class FormattingProvider extends Provider {
   }
 
   private onFormat(documentUri: string, range: Range | undefined, options: FormattingOptions): TextEdit[] {
-    const workflowDocument = this.documentsCache.get(documentUri);
-    if (workflowDocument) {
-      const edits = this.workflowLanguageService.format(
-        workflowDocument.textDocument,
-        range ?? this.getFullRange(workflowDocument.textDocument),
+    const documentContext = this.documentsCache.get(documentUri);
+    if (documentContext) {
+      const languageService = this.getLanguageServiceById(documentContext.languageId);
+      const edits = languageService.format(
+        documentContext.textDocument,
+        range ?? this.getFullRange(documentContext.textDocument),
         options
       );
       return edits;

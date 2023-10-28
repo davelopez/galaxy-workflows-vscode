@@ -31,7 +31,7 @@ export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowD
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
   constructor() {
-    super();
+    super("galaxyworkflow");
     const params: LanguageServiceParams = {};
     const settings = this.getLanguageSettings();
     this._jsonLanguageService = getLanguageService(params);

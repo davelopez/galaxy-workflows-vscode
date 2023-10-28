@@ -28,8 +28,9 @@ export class GxFormat2WorkflowLanguageService extends LanguageServiceBase<Workfl
   private _hoverService: GxFormat2HoverService;
   private _completionService: GxFormat2CompletionService;
   private _validationServices: WorkflowValidator[];
+
   constructor() {
-    super();
+    super("gxformat2");
     this._schemaLoader = new GalaxyWorkflowFormat2SchemaLoader();
     this._yamlLanguageService = getLanguageService();
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
@@ -49,22 +50,22 @@ export class GxFormat2WorkflowLanguageService extends LanguageServiceBase<Workfl
     return this._yamlLanguageService.doFormat(document, options);
   }
 
-  public override doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
-    return this._hoverService.doHover(workflowDocument.textDocument, position, workflowDocument.nodeManager);
+  public override doHover(documentContext: WorkflowDocument, position: Position): Promise<Hover | null> {
+    return this._hoverService.doHover(documentContext.textDocument, position, documentContext.nodeManager);
   }
 
   public override async doComplete(
-    workflowDocument: WorkflowDocument,
+    documentContext: WorkflowDocument,
     position: Position
   ): Promise<CompletionList | null> {
-    return this._completionService.doComplete(workflowDocument.textDocument, position, workflowDocument.nodeManager);
+    return this._completionService.doComplete(documentContext.textDocument, position, documentContext.nodeManager);
   }
 
-  protected override async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
-    const format2WorkflowDocument = workflowDocument as GxFormat2WorkflowDocument;
+  protected override async doValidation(documentContext: WorkflowDocument): Promise<Diagnostic[]> {
+    const format2WorkflowDocument = documentContext as GxFormat2WorkflowDocument;
     const diagnostics = await this._yamlLanguageService.doValidation(format2WorkflowDocument.yamlDocument);
     for (const validator of this._validationServices) {
-      const results = await validator.doValidation(workflowDocument);
+      const results = await validator.doValidation(documentContext);
       diagnostics.push(...results);
     }
     return diagnostics;
