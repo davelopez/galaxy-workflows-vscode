@@ -1,6 +1,11 @@
 import { ASTNode, ObjectASTNode, PropertyASTNode } from "../ast/types";
-import { DocumentSymbolParams, DocumentSymbol, SymbolKind, DocumentContext } from "../languageTypes";
-import { GalaxyWorkflowLanguageServer } from "../server";
+import {
+  DocumentSymbolParams,
+  DocumentSymbol,
+  SymbolKind,
+  DocumentContext,
+  GalaxyWorkflowLanguageServer,
+} from "../languageTypes";
 import { Provider } from "./provider";
 
 const IGNORE_SYMBOL_NAMES = new Set(["a_galaxy_workflow", "position", "uuid", "errors", "format-version", "version"]);
@@ -12,11 +17,11 @@ export class SymbolsProvider extends Provider {
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.connection.onDocumentSymbol((params) => this.onDocumentSymbol(params));
+    this.server.connection.onDocumentSymbol((params) => this.onDocumentSymbol(params));
   }
 
   public onDocumentSymbol(params: DocumentSymbolParams): DocumentSymbol[] {
-    const documentContext = this.documentsCache.get(params.textDocument.uri);
+    const documentContext = this.server.documentsCache.get(params.textDocument.uri);
     if (documentContext) {
       const symbols = this.getSymbols(documentContext);
       return symbols;

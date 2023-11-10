@@ -2,7 +2,7 @@ import {
   DocumentLanguageSettings,
   getLanguageService,
   JSONSchema,
-  LanguageService,
+  LanguageService as JSONLanguageService,
   LanguageServiceParams,
   LanguageSettings,
   SchemaConfiguration,
@@ -16,18 +16,25 @@ import {
   Range,
   TextDocument,
   TextEdit,
-  WorkflowDocument,
   LanguageServiceBase,
+  LanguageService,
 } from "@gxwf/server-common/src/languageTypes";
 import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
+import { injectable } from "inversify";
+
+export interface NativeWorkflowLanguageService extends LanguageService<NativeWorkflowDocument> {}
 
 /**
  * A wrapper around the JSON Language Service to support language features
  * for native Galaxy workflow files AKA '.ga' workflows.
  */
-export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowDocument> {
-  private _jsonLanguageService: LanguageService;
+@injectable()
+export class NativeWorkflowLanguageServiceImpl
+  extends LanguageServiceBase<NativeWorkflowDocument>
+  implements NativeWorkflowLanguageService
+{
+  private _jsonLanguageService: JSONLanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
   constructor() {
@@ -42,7 +49,7 @@ export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowD
     return NativeWorkflowSchema;
   }
 
-  public override parseDocument(document: TextDocument): WorkflowDocument {
+  public override parseDocument(document: TextDocument): NativeWorkflowDocument {
     const jsonDocument = this._jsonLanguageService.parseJSONDocument(document);
     return new NativeWorkflowDocument(document, jsonDocument);
   }
@@ -51,7 +58,7 @@ export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowD
     return this._jsonLanguageService.format(document, range, options);
   }
 
-  public override async doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null> {
+  public override async doHover(workflowDocument: NativeWorkflowDocument, position: Position): Promise<Hover | null> {
     const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
     const hover = await this._jsonLanguageService.doHover(
       nativeWorkflowDocument.textDocument,
@@ -62,7 +69,7 @@ export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowD
   }
 
   public override async doComplete(
-    workflowDocument: WorkflowDocument,
+    workflowDocument: NativeWorkflowDocument,
     position: Position
   ): Promise<CompletionList | null> {
     const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
@@ -74,7 +81,7 @@ export class NativeWorkflowLanguageService extends LanguageServiceBase<WorkflowD
     return completionResult;
   }
 
-  protected override async doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  protected override async doValidation(workflowDocument: NativeWorkflowDocument): Promise<Diagnostic[]> {
     const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
     const schemaValidationResults = await this._jsonLanguageService.doValidation(
       nativeWorkflowDocument.textDocument,

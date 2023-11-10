@@ -1,14 +1,21 @@
-import { createConnection, BrowserMessageReader, BrowserMessageWriter } from "vscode-languageserver/browser";
-import { GalaxyWorkflowLanguageServer } from "@gxwf/server-common/src/server";
-import { GxWorkflowTestsLanguageService } from "@gxwf/workflow-tests-language-service/src/languageService";
-import { GxFormat2WorkflowLanguageService } from "../languageService";
+import {
+  createConnection,
+  BrowserMessageReader,
+  BrowserMessageWriter,
+  Connection,
+} from "vscode-languageserver/browser";
+import { TYPES, container } from "../inversify.config";
+import { GalaxyWorkflowLanguageServer } from "@gxwf/server-common/src/languageTypes";
 
-const messageReader = new BrowserMessageReader(self);
-const messageWriter = new BrowserMessageWriter(self);
+function createBrowserConnection(): Connection {
+  const messageReader = new BrowserMessageReader(self);
+  const messageWriter = new BrowserMessageWriter(self);
 
-const connection = createConnection(messageReader, messageWriter);
+  const connection = createConnection(messageReader, messageWriter);
+  return connection;
+}
 
-const workflowLanguageService = new GxFormat2WorkflowLanguageService();
-const workflowTestsLanguageService = new GxWorkflowTestsLanguageService();
-const server = new GalaxyWorkflowLanguageServer(connection, workflowLanguageService, workflowTestsLanguageService);
+container.bind<Connection>(TYPES.Connection).toConstantValue(createBrowserConnection());
+
+const server = container.get<GalaxyWorkflowLanguageServer>(TYPES.GalaxyWorkflowLanguageServer);
 server.start();

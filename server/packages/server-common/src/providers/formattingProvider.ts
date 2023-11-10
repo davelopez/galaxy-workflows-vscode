@@ -6,8 +6,8 @@ import {
   Range,
   DocumentFormattingParams,
   DocumentRangeFormattingParams,
+  GalaxyWorkflowLanguageServer,
 } from "../languageTypes";
-import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
 
 export class FormattingProvider extends Provider {
@@ -17,8 +17,8 @@ export class FormattingProvider extends Provider {
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.connection.onDocumentFormatting((params) => this.onDocumentFormatting(params));
-    this.connection.onDocumentRangeFormatting((params) => this.onDocumentRangeFormatting(params));
+    this.server.connection.onDocumentFormatting((params) => this.onDocumentFormatting(params));
+    this.server.connection.onDocumentRangeFormatting((params) => this.onDocumentRangeFormatting(params));
   }
 
   public onDocumentFormatting(params: DocumentFormattingParams): TextEdit[] {
@@ -30,9 +30,9 @@ export class FormattingProvider extends Provider {
   }
 
   private onFormat(documentUri: string, range: Range | undefined, options: FormattingOptions): TextEdit[] {
-    const documentContext = this.documentsCache.get(documentUri);
+    const documentContext = this.server.documentsCache.get(documentUri);
     if (documentContext) {
-      const languageService = this.getLanguageServiceById(documentContext.languageId);
+      const languageService = this.server.getLanguageServiceById(documentContext.languageId);
       const edits = languageService.format(
         documentContext.textDocument,
         range ?? this.getFullRange(documentContext.textDocument),

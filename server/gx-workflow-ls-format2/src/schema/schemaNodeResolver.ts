@@ -1,7 +1,14 @@
 import { NodePath, Segment } from "@gxwf/server-common/src/ast/types";
 import { RecordSchemaNode, SchemaDefinitions, SchemaNode, SchemaRecord } from "./definitions";
 
-export class SchemaNodeResolver {
+export interface SchemaNodeResolver {
+  rootNode: SchemaNode;
+  definitions: SchemaDefinitions;
+  resolveSchemaContext(path: NodePath): SchemaNode | undefined;
+  getSchemaNodeByTypeRef(typeRef: string): SchemaNode | undefined;
+}
+
+export class SchemaNodeResolverImpl implements SchemaNodeResolver {
   public readonly rootNode: SchemaNode;
   constructor(
     public readonly definitions: SchemaDefinitions,

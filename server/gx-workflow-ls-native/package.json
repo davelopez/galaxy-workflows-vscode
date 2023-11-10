@@ -7,7 +7,9 @@
   "dependencies": {
     "@gxwf/server-common": "*",
     "@gxwf/workflow-tests-language-service": "*",
+    "inversify": "^6.0.2",
     "jsonc-parser": "^3.2.0",
+    "reflect-metadata": "^0.1.13",
     "vscode-json-languageservice": "^5.3.6",
     "vscode-languageserver": "^8.1.0",
     "vscode-languageserver-textdocument": "^1.0.8",
@@ -18,5 +20,8 @@
     "webpack": "webpack",
     "watch": "webpack --watch --progress",
     "test-unit": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.7"
   }
 }
