@@ -1,9 +1,7 @@
-import { ServerContext } from "../languageTypes";
-import { GalaxyWorkflowLanguageServer } from "../server";
+import { GalaxyWorkflowLanguageServer } from "../languageTypes";
 
-export abstract class ServiceBase extends ServerContext {
-  constructor(server: GalaxyWorkflowLanguageServer) {
-    super(server);
+export abstract class ServiceBase {
+  constructor(public server: GalaxyWorkflowLanguageServer) {
     this.listenToRequests();
   }
 

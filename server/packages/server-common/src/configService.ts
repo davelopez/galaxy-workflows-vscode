@@ -1,9 +1,11 @@
+import { inject, injectable } from "inversify";
 import {
   ClientCapabilities,
   Connection,
   DidChangeConfigurationNotification,
   DidChangeConfigurationParams,
 } from "vscode-languageserver";
+import { TYPES } from "./languageTypes";
 
 /** Represents all the available settings of the extension. */
 interface ExtensionSettings {
@@ -41,20 +43,27 @@ let globalSettings: ExtensionSettings = defaultSettings;
 // Cache the settings of all open documents
 const documentSettingsCache: Map<string, ExtensionSettings> = new Map();
 
-export class ConfigService {
-  protected hasConfigurationCapability = false;
+export interface ConfigService {
+  readonly connection: Connection;
+  initialize(capabilities: ClientCapabilities, onConfigurationChanged: () => void): void;
+  getDocumentSettings(uri: string): Promise<ExtensionSettings>;
+  onDocumentClose(uri: string): void;
+}
 
-  constructor(
-    public readonly connection: Connection,
-    private readonly onConfigurationChanged: () => void = () => {
-      return;
-    }
-  ) {
+@injectable()
+export class ConfigServiceImpl implements ConfigService {
+  protected hasConfigurationCapability = false;
+  private onConfigurationChanged: () => void = () => {
+    return;
+  };
+
+  constructor(@inject(TYPES.Connection) public readonly connection: Connection) {
     this.connection.onInitialized(() => this.onInitialized());
     this.connection.onDidChangeConfiguration((params) => this.onDidChangeConfiguration(params));
   }
 
-  public initialize(capabilities: ClientCapabilities): void {
+  public initialize(capabilities: ClientCapabilities, onConfigurationChanged: () => void): void {
+    this.onConfigurationChanged = onConfigurationChanged;
     this.hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
   }
 

@@ -1,16 +1,22 @@
-import { DocumentContext } from "../languageTypes";
+import { injectable } from "inversify";
+import { DocumentContext, DocumentsCache } from "../languageTypes";
 
-export class DocumentsCache {
+@injectable()
+export class DocumentsCacheImpl implements DocumentsCache {
   private cache: Map<string, DocumentContext>;
 
   /**
    * Document URI schemes that represent temporal or readonly documents
    * that should not be cached.
    */
-  public static schemesToSkip = ["temp", "galaxy-clean-workflow"];
+  private static schemesToSkip = ["temp", "galaxy-clean-workflow"];
 
   constructor() {
     this.cache = new Map<string, DocumentContext>();
+  }
+
+  get schemesToSkip(): string[] {
+    return DocumentsCacheImpl.schemesToSkip;
   }
 
   public get(documentUri: string): DocumentContext | undefined {
@@ -22,7 +28,7 @@ export class DocumentsCache {
   }
 
   public addOrReplaceDocument(documentContext: DocumentContext): void {
-    if (DocumentsCache.schemesToSkip.includes(documentContext.uri.scheme)) {
+    if (this.schemesToSkip.includes(documentContext.uri.scheme)) {
       return;
     }
     this.cache.set(documentContext.uri.toString(), documentContext);

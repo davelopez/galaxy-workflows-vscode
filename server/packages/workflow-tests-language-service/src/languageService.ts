@@ -10,15 +10,18 @@ import {
   Diagnostic,
   WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
-import { YAMLLanguageService, getLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
+import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { GxWorkflowTestsDocument } from "./document";
+import { inject, injectable } from "inversify";
+import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 
-export class GxWorkflowTestsLanguageService extends LanguageServiceBase<WorkflowTestsDocument> {
+@injectable()
+export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<WorkflowTestsDocument> {
   private _yamlLanguageService: YAMLLanguageService;
 
-  constructor() {
+  constructor(@inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService) {
     super("gxwftests");
-    this._yamlLanguageService = getLanguageService();
+    this._yamlLanguageService = yamlLanguageService;
   }
 
   public override parseDocument(document: TextDocument): GxWorkflowTestsDocument {

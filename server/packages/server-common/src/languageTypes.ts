@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {
   Range,
   Position,
@@ -48,11 +49,11 @@ import {
   DocumentSymbolParams,
 } from "vscode-languageserver/browser";
 import { WorkflowDocument } from "./models/workflowDocument";
-import { DocumentsCache } from "./models/documentsCache";
-import { GalaxyWorkflowLanguageServer } from "./server";
 import { ASTNodeManager } from "./ast/nodeManager";
 import { URI } from "vscode-uri";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
+import { injectable, unmanaged } from "inversify";
+import { ConfigService } from "./configService";
 
 export {
   TextDocument,
@@ -154,15 +155,31 @@ export interface DocumentContext {
   nodeManager: ASTNodeManager;
 }
 
+export interface LanguageService<T extends DocumentContext> {
+  readonly languageId: string;
+
+  parseDocument(document: TextDocument): T;
+  format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
+  doHover(documentContext: T, position: Position): Promise<Hover | null>;
+  doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+
+  /**
+   * Validates the document and reports all the diagnostics found.
+   * An optional validation profile can be used to provide additional custom diagnostics.
+   */
+  validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]>;
+}
+
 /**
  * Abstract service defining the base functionality that a workflow language must
  * implement to provide assistance for workflow documents editing.
  */
-export abstract class LanguageServiceBase<T extends DocumentContext> {
-  constructor(public readonly languageId: string) {}
+@injectable()
+export abstract class LanguageServiceBase<T extends DocumentContext> implements LanguageService<T> {
+  constructor(@unmanaged() public readonly languageId: string) {}
 
-  public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract parseDocument(document: TextDocument): T;
+  public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;
   public abstract doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
 
@@ -185,18 +202,34 @@ export abstract class LanguageServiceBase<T extends DocumentContext> {
   }
 }
 
-export abstract class ServerContext {
-  protected connection: Connection;
-  protected documentsCache: DocumentsCache;
-  protected server: GalaxyWorkflowLanguageServer;
+export interface WorkflowLanguageService extends LanguageService<WorkflowDocument> {}
+export interface WorkflowTestsLanguageService extends LanguageService<WorkflowTestsDocument> {}
 
-  constructor(server: GalaxyWorkflowLanguageServer) {
-    this.server = server;
-    this.documentsCache = server.documentsCache;
-    this.connection = server.connection;
-  }
-
-  protected getLanguageServiceById(languageId: string): LanguageServiceBase<DocumentContext> {
-    return this.server.getLanguageServiceById(languageId);
-  }
+export interface GalaxyWorkflowLanguageServer {
+  connection: Connection;
+  documentsCache: DocumentsCache;
+  configService: ConfigService;
+  start(): void;
+  getLanguageServiceById(languageId: string): LanguageService<DocumentContext>;
 }
+
+export interface DocumentsCache {
+  get(documentUri: string): DocumentContext | undefined;
+  all(): DocumentContext[];
+  addOrReplaceDocument(documentContext: DocumentContext): void;
+  removeDocument(documentUri: string): void;
+  dispose(): void;
+
+  get schemesToSkip(): string[];
+}
+
+const TYPES = {
+  DocumentsCache: Symbol.for("DocumentsCache"),
+  ConfigService: Symbol.for("ConfigService"),
+  Connection: Symbol.for("Connection"),
+  WorkflowLanguageService: Symbol.for("WorkflowLanguageService"),
+  WorkflowTestsLanguageService: Symbol.for("WorkflowTestsLanguageService"),
+  GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
+};
+
+export { TYPES };

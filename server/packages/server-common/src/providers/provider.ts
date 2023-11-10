@@ -1,8 +1,5 @@
-import { ServerContext } from "../languageTypes";
-import { GalaxyWorkflowLanguageServer } from "../server";
+import { GalaxyWorkflowLanguageServer } from "../languageTypes";
 
-export abstract class Provider extends ServerContext {
-  constructor(server: GalaxyWorkflowLanguageServer) {
-    super(server);
-  }
+export abstract class Provider {
+  constructor(public server: GalaxyWorkflowLanguageServer) {}
 }

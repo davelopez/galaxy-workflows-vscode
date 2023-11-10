@@ -1,5 +1,11 @@
-import { Hover, HoverParams, MarkupKind, MarkupContent, HoverContentContributor } from "../../languageTypes";
-import { GalaxyWorkflowLanguageServer } from "../../server";
+import {
+  Hover,
+  HoverParams,
+  MarkupKind,
+  MarkupContent,
+  HoverContentContributor,
+  GalaxyWorkflowLanguageServer,
+} from "../../languageTypes";
 import { Provider } from "../provider";
 
 export class HoverProvider extends Provider {
@@ -15,15 +21,15 @@ export class HoverProvider extends Provider {
   constructor(server: GalaxyWorkflowLanguageServer, contributors?: HoverContentContributor[]) {
     super(server);
     this.contributors = contributors ?? [];
-    this.connection.onHover((params) => this.onHover(params));
+    this.server.connection.onHover((params) => this.onHover(params));
   }
 
   private async onHover(params: HoverParams): Promise<Hover | null> {
-    const documentContext = this.documentsCache.get(params.textDocument.uri);
+    const documentContext = this.server.documentsCache.get(params.textDocument.uri);
     if (!documentContext) {
       return null;
     }
-    const languageService = this.getLanguageServiceById(documentContext.languageId);
+    const languageService = this.server.getLanguageServiceById(documentContext.languageId);
     const hover = await languageService.doHover(documentContext, params.position);
     if (!hover) {
       return null;
