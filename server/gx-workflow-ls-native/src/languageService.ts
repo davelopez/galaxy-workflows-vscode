@@ -19,7 +19,7 @@ import {
   LanguageServiceBase,
   LanguageService,
 } from "@gxwf/server-common/src/languageTypes";
-import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
+import NativeWorkflowSchema from "@schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 import { injectable } from "inversify";
 
