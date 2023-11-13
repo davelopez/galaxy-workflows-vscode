@@ -11,7 +11,10 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "rootDirs": ["src", "tests"]
+    "rootDirs": ["src", "tests"],
+    "paths": {
+      "@schemas/*": ["../../workflow-languages/schemas/*"]
+    }
   },
   "include": ["src/**/*.ts", "tests/**/*.ts"]
 }
