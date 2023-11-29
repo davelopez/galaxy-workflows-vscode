@@ -230,7 +230,7 @@
     "test:e2e": "node ./client/out/e2e/runTests.js"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.4",
+    "@types/jest": "^29.5.8",
     "@types/mocha": "^10.0.1",
     "@types/vscode": "^1.81.0",
     "@types/webpack-env": "^1.18.1",

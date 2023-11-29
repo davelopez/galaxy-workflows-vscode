@@ -22,6 +22,6 @@
     "test-unit": "jest"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.7"
+    "@types/jest": "^29.5.8"
   }
 }
