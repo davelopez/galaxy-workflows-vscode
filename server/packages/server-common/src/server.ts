@@ -67,7 +67,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   }
 
   private async initialize(params: InitializeParams): Promise<InitializeResult> {
-    this.configService.initialize(params.capabilities, this.onConfigurationChanged);
+    this.configService.initialize(params.capabilities, () => this.onConfigurationChanged());
     this.workspaceFolders = params.workspaceFolders;
 
     const capabilities: ServerCapabilities = {
