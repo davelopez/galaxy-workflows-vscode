@@ -14,28 +14,30 @@ import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguag
 import { GxWorkflowTestsDocument } from "./document";
 import { inject, injectable } from "inversify";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
+import { WorkflowTestsHoverService } from "./services/hover";
+import { TYPES } from "./types";
 
 @injectable()
 export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<WorkflowTestsDocument> {
-  private _yamlLanguageService: YAMLLanguageService;
-
-  constructor(@inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService) {
+  constructor(
+    @inject(YAML_TYPES.YAMLLanguageService) protected yamlLanguageService: YAMLLanguageService,
+    @inject(TYPES.WorkflowTestsHoverService) protected hoverService: WorkflowTestsHoverService
+  ) {
     super("gxwftests");
-    this._yamlLanguageService = yamlLanguageService;
   }
 
   public override parseDocument(document: TextDocument): GxWorkflowTestsDocument {
-    const yamlDocument = this._yamlLanguageService.parseYAMLDocument(document);
+    const yamlDocument = this.yamlLanguageService.parseYAMLDocument(document);
     return new GxWorkflowTestsDocument(document, yamlDocument);
   }
 
   public override format(document: TextDocument, _: Range, options: FormattingOptions): TextEdit[] {
-    return this._yamlLanguageService.doFormat(document, options);
+    return this.yamlLanguageService.doFormat(document, options);
   }
 
   public override doHover(documentContext: WorkflowTestsDocument, position: Position): Promise<Hover | null> {
-    // TODO: Implement hover
-    return Promise.resolve(null);
+    const hover = this.hoverService.doHover(documentContext.textDocument, position, documentContext.nodeManager);
+    return hover;
   }
 
   public override doComplete(
