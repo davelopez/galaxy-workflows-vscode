@@ -11,8 +11,10 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "composite": true
+    "composite": true,
+    "rootDirs": ["src", "tests"],
+    "rootDir": "../../../"
   },
-  "include": ["src"],
+  "include": ["src/**/*", "../../../workflow-languages/schemas/*.json"],
   "exclude": ["node_modules", ".vscode-test-web"]
 }
