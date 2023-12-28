@@ -20,6 +20,7 @@ import {
 import { Diagnostic, DiagnosticSeverity, DocumentContext, Range } from "@gxwf/server-common/src/languageTypes";
 import { URI } from "vscode-uri";
 import { JSONSchema, JSONSchemaRef } from "./jsonSchema";
+import { injectable } from "inversify";
 
 const YAML_SCHEMA_PREFIX = "yaml-schema: ";
 export const YAML_SOURCE = "YAML";
@@ -153,7 +154,7 @@ export function contains(node: ASTNode, offset: number, includeRightBound = fals
   );
 }
 
-export interface SchemaService {
+export interface JSONSchemaService {
   validate(
     documentContext: DocumentContext,
     schema: JSONSchema | undefined,
@@ -171,11 +172,12 @@ export interface SchemaService {
   ): IApplicableSchema[];
 }
 
-export class SchemaServiceImpl implements SchemaService {
+@injectable()
+export class JSONSchemaServiceImpl implements JSONSchemaService {
   public validate(
     documentContext: DocumentContext,
     schema: JSONSchema | undefined,
-    severity: DiagnosticSeverity = DiagnosticSeverity.Error,
+    severity: DiagnosticSeverity = DiagnosticSeverity.Warning,
     disableAdditionalProperties = false
   ): Diagnostic[] | undefined {
     const root = documentContext.nodeManager.root!;

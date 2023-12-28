@@ -4,10 +4,16 @@ import { TYPES as COMMON_TYPES, WorkflowTestsLanguageService } from "@gxwf/serve
 import { WorkflowTestsHoverService, WorkflowTestsHoverServiceImpl } from "./services/hover";
 import { TYPES } from "./types";
 import { WorkflowTestsSchemaProvider, WorkflowTestsSchemaProviderImpl } from "./schema/provider";
+import { JSONSchemaService, JSONSchemaServiceImpl } from "./schema/adapter";
+import { WorkflowTestsSchemaService, WorkflowTestsSchemaServiceImpl } from "./schema/service";
 
 export const WorkflowTestsLanguageServiceContainerModule = new ContainerModule((bind) => {
   bind<WorkflowTestsSchemaProvider>(TYPES.WorkflowTestsSchemaProvider)
     .to(WorkflowTestsSchemaProviderImpl)
+    .inSingletonScope();
+  bind<JSONSchemaService>(TYPES.JSONSchemaService).to(JSONSchemaServiceImpl).inSingletonScope();
+  bind<WorkflowTestsSchemaService>(TYPES.WorkflowTestsSchemaService)
+    .to(WorkflowTestsSchemaServiceImpl)
     .inSingletonScope();
   bind<WorkflowTestsHoverService>(TYPES.WorkflowTestsHoverService).to(WorkflowTestsHoverServiceImpl).inSingletonScope();
   bind<WorkflowTestsLanguageService>(COMMON_TYPES.WorkflowTestsLanguageService)
