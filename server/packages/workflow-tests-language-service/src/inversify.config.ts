@@ -6,6 +6,7 @@ import { TYPES } from "./types";
 import { WorkflowTestsSchemaProvider, WorkflowTestsSchemaProviderImpl } from "./schema/provider";
 import { JSONSchemaService, JSONSchemaServiceImpl } from "./schema/adapter";
 import { WorkflowTestsSchemaService, WorkflowTestsSchemaServiceImpl } from "./schema/service";
+import { WorkflowTestsValidationService, WorkflowTestsValidationServiceImpl } from "./services/validation";
 
 export const WorkflowTestsLanguageServiceContainerModule = new ContainerModule((bind) => {
   bind<WorkflowTestsSchemaProvider>(TYPES.WorkflowTestsSchemaProvider)
@@ -16,6 +17,9 @@ export const WorkflowTestsLanguageServiceContainerModule = new ContainerModule((
     .to(WorkflowTestsSchemaServiceImpl)
     .inSingletonScope();
   bind<WorkflowTestsHoverService>(TYPES.WorkflowTestsHoverService).to(WorkflowTestsHoverServiceImpl).inSingletonScope();
+  bind<WorkflowTestsValidationService>(TYPES.WorkflowTestsValidationService)
+    .to(WorkflowTestsValidationServiceImpl)
+    .inSingletonScope();
   bind<WorkflowTestsLanguageService>(COMMON_TYPES.WorkflowTestsLanguageService)
     .to(GxWorkflowTestsLanguageServiceImpl)
     .inSingletonScope();

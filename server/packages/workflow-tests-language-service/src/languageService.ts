@@ -16,12 +16,14 @@ import { inject, injectable } from "inversify";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import { WorkflowTestsHoverService } from "./services/hover";
 import { TYPES } from "./types";
+import { WorkflowTestsValidationService } from "./services/validation";
 
 @injectable()
 export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<WorkflowTestsDocument> {
   constructor(
     @inject(YAML_TYPES.YAMLLanguageService) protected yamlLanguageService: YAMLLanguageService,
-    @inject(TYPES.WorkflowTestsHoverService) protected hoverService: WorkflowTestsHoverService
+    @inject(TYPES.WorkflowTestsHoverService) protected hoverService: WorkflowTestsHoverService,
+    @inject(TYPES.WorkflowTestsValidationService) protected validationService: WorkflowTestsValidationService
   ) {
     super("gxwftests");
   }
@@ -48,7 +50,6 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
   }
 
   protected override async doValidation(documentContext: WorkflowTestsDocument): Promise<Diagnostic[]> {
-    // TODO: Implement validation
-    return Promise.resolve([]);
+    return this.validationService.doValidation(documentContext);
   }
 }

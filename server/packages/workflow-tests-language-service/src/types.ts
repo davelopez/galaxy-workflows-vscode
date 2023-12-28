@@ -3,4 +3,5 @@ export const TYPES = {
   WorkflowTestsSchemaProvider: Symbol.for("WorkflowTestsSchemaProvider"),
   WorkflowTestsSchemaService: Symbol.for("WorkflowTestsSchemaService"),
   WorkflowTestsHoverService: Symbol.for("WorkflowTestsHoverService"),
+  WorkflowTestsValidationService: Symbol.for("WorkflowTestsValidationService"),
 };
