@@ -36,8 +36,7 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
   }
 
   public override doHover(documentContext: WorkflowTestsDocument, position: Position): Promise<Hover | null> {
-    const hover = this.hoverService.doHover(documentContext.textDocument, position, documentContext.nodeManager);
-    return hover;
+    return this.hoverService.doHover(documentContext, position);
   }
 
   public override doComplete(
