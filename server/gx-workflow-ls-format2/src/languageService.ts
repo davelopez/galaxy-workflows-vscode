@@ -20,6 +20,8 @@ import { GxFormat2SchemaValidationService, WorkflowValidationService } from "./s
 import { inject, injectable } from "inversify";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 
+const LANGUAGE_ID = "gxformat2";
+
 export interface GxFormat2WorkflowLanguageService extends LanguageService<GxFormat2WorkflowDocument> {}
 
 /**
@@ -38,7 +40,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
   private _validationServices: WorkflowValidator[];
 
   constructor(@inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService) {
-    super("gxformat2");
+    super(LANGUAGE_ID);
     this._schemaLoader = new GalaxyWorkflowFormat2SchemaLoader();
     this._yamlLanguageService = yamlLanguageService;
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);

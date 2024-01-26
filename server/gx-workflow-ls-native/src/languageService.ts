@@ -23,6 +23,8 @@ import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.sch
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 import { injectable } from "inversify";
 
+const LANGUAGE_ID = "galaxyworkflow";
+
 export interface NativeWorkflowLanguageService extends LanguageService<NativeWorkflowDocument> {}
 
 /**
@@ -38,7 +40,7 @@ export class NativeWorkflowLanguageServiceImpl
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
   constructor() {
-    super("galaxyworkflow");
+    super(LANGUAGE_ID);
     const params: LanguageServiceParams = {};
     const settings = this.getLanguageSettings();
     this._jsonLanguageService = getLanguageService(params);

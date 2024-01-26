@@ -18,6 +18,12 @@ import { WorkflowTestsHoverService } from "./services/hover";
 import { TYPES } from "./types";
 import { WorkflowTestsValidationService } from "./services/validation";
 
+const LANGUAGE_ID = "gxwftests";
+
+/**
+ * A custom implementation of the YAML Language Service to support language features
+ * for Galaxy workflow test files.
+ */
 @injectable()
 export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<WorkflowTestsDocument> {
   constructor(
@@ -25,7 +31,7 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
     @inject(TYPES.WorkflowTestsHoverService) protected hoverService: WorkflowTestsHoverService,
     @inject(TYPES.WorkflowTestsValidationService) protected validationService: WorkflowTestsValidationService
   ) {
-    super("gxwftests");
+    super(LANGUAGE_ID);
   }
 
   public override parseDocument(document: TextDocument): GxWorkflowTestsDocument {
