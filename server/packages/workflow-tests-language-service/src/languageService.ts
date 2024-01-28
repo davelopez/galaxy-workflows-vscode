@@ -1,34 +1,37 @@
 import {
-  TextDocument,
-  Range,
-  FormattingOptions,
-  TextEdit,
-  LanguageServiceBase,
-  Position,
-  Hover,
   CompletionList,
   Diagnostic,
+  FormattingOptions,
+  Hover,
+  LanguageServiceBase,
+  Position,
+  Range,
+  TextDocument,
+  TextEdit,
   WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
-import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
-import { GxWorkflowTestsDocument } from "./document";
-import { inject, injectable } from "inversify";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
+import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
+import { inject, injectable } from "inversify";
+import { GxWorkflowTestsDocument } from "./document";
+import { WorkflowTestsCompletionService } from "./services/completion";
 import { WorkflowTestsHoverService } from "./services/hover";
-import { TYPES } from "./types";
 import { WorkflowTestsValidationService } from "./services/validation";
+import { TYPES } from "./types";
 
 const LANGUAGE_ID = "gxwftests";
 
 /**
  * A custom implementation of the YAML Language Service to support language features
  * for Galaxy workflow test files.
+ * It combines specific services to implement the language features.
  */
 @injectable()
 export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<WorkflowTestsDocument> {
   constructor(
     @inject(YAML_TYPES.YAMLLanguageService) protected yamlLanguageService: YAMLLanguageService,
     @inject(TYPES.WorkflowTestsHoverService) protected hoverService: WorkflowTestsHoverService,
+    @inject(TYPES.WorkflowTestsCompletionService) protected completionService: WorkflowTestsCompletionService,
     @inject(TYPES.WorkflowTestsValidationService) protected validationService: WorkflowTestsValidationService
   ) {
     super(LANGUAGE_ID);
@@ -51,8 +54,7 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
     documentContext: WorkflowTestsDocument,
     position: Position
   ): Promise<CompletionList | null> {
-    // TODO: Implement completion
-    return Promise.resolve(null);
+    return this.completionService.doComplete(documentContext, position);
   }
 
   protected override async doValidation(documentContext: WorkflowTestsDocument): Promise<Diagnostic[]> {
