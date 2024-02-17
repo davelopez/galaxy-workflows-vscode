@@ -153,6 +153,7 @@ export interface DocumentContext {
   uri: URI;
   textDocument: TextDocument;
   nodeManager: ASTNodeManager;
+  internalDocument: unknown;
 }
 
 export interface LanguageService<T extends DocumentContext> {

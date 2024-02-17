@@ -25,6 +25,8 @@ export {
 export interface ParsedDocument {
   root?: ASTNode;
   getNodeFromOffset(offset: number): ASTNode | undefined;
+  /** Exposed for compatibility with existing external logic. */
+  internalDocument: unknown;
 }
 
 /**

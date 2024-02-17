@@ -42,6 +42,13 @@ export class YAMLDocument implements ParsedDocument {
     return this.subDocuments.at(0);
   }
 
+  /** Internal parsed document.
+   * Exposed for compatibility with reused code from RedHat's YAML Language Service.
+   */
+  public get internalDocument(): YAMLSubDocument | undefined {
+    return this.mainDocument;
+  }
+
   /** Returns basic YAML syntax errors or warnings. */
   public get syntaxDiagnostics(): Diagnostic[] {
     if (!this._diagnostics) {
@@ -137,9 +144,10 @@ export class YAMLSubDocument {
   private _lineComments: LineComment[] | undefined;
 
   constructor(
-    public readonly root: ASTNode | undefined,
-    private readonly parsedDocument: Document
-  ) {}
+
+  get internalDocument(): Document {
+    return this.parsedDocument;
+  }
 
   get errors(): YAMLError[] {
     return this.parsedDocument.errors;

@@ -1,7 +1,7 @@
-import { DocumentContext, TextDocument } from "../languageTypes";
 import { URI } from "vscode-uri";
-import { ParsedDocument } from "../ast/types";
 import { ASTNodeManager } from "../ast/nodeManager";
+import { ParsedDocument } from "../ast/types";
+import { DocumentContext, TextDocument } from "../languageTypes";
 
 /**
  * This class contains basic common handling logic for any kind of known document.
@@ -20,5 +20,9 @@ export abstract class DocumentBase implements DocumentContext {
 
   public get languageId(): string {
     return this.textDocument.languageId;
+  }
+
+  public get internalDocument(): unknown {
+    return this.parsedDocument.internalDocument;
   }
 }
