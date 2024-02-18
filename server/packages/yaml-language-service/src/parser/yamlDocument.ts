@@ -1,10 +1,17 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Red Hat. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
 import { ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
-import { Document, Node, YAMLError, YAMLWarning, visit } from "yaml";
+import { Document, LineCounter, Node, Pair, YAMLError, YAMLWarning, isNode, isPair, isScalar, visit } from "yaml";
+import { getIndentation, getParent } from "../utils";
 import { guessIndentation } from "../utils/indentationGuesser";
 import { TextBuffer } from "../utils/textBuffer";
-import { ASTNode, ObjectASTNodeImpl } from "./astTypes";
+import { convertAST } from "./astConverter";
+import { ASTNode, ObjectASTNodeImpl, YamlNode } from "./astTypes";
 
 const FULL_LINE_ERROR = true;
 const YAML_SOURCE = "YAML";
@@ -143,7 +150,19 @@ export class YAMLDocument implements ParsedDocument {
 export class YAMLSubDocument {
   private _lineComments: LineComment[] | undefined;
 
+  private _root: ASTNode | undefined;
+
   constructor(
+    private readonly parsedDocument: Document,
+    private readonly _lineCounter: LineCounter
+  ) {}
+
+  get root(): ASTNode | undefined {
+    if (!this._root) {
+      this.updateFromInternalDocument();
+    }
+    return this._root;
+  }
 
   get internalDocument(): Document {
     return this.parsedDocument;
@@ -162,6 +181,10 @@ export class YAMLSubDocument {
       this._lineComments = this.collectLineComments();
     }
     return this._lineComments;
+  }
+
+  public updateFromInternalDocument(): void {
+    this._root = convertAST(undefined, this.parsedDocument.contents as Node, this.parsedDocument, this._lineCounter);
   }
 
   private collectLineComments(): LineComment[] {
@@ -186,5 +209,152 @@ export class YAMLSubDocument {
       lineComments.push(new LineComment(`${YAML_COMMENT_SYMBOL}${this.parsedDocument.comment}`));
     }
     return lineComments;
+  }
+
+  /**
+   * Create a deep copy of this document
+   */
+  clone(): YAMLSubDocument {
+    const parsedDocumentCopy = this.parsedDocument.clone();
+    const lineCounterCopy = new LineCounter();
+    this._lineCounter.lineStarts.forEach((lineStart) => lineCounterCopy.addNewLine(lineStart));
+    const copy = new YAMLSubDocument(parsedDocumentCopy, lineCounterCopy);
+    return copy;
+  }
+
+  getNodeFromPosition(
+    positionOffset: number,
+    textBuffer: TextBuffer,
+    configuredIndentation?: number
+  ): [YamlNode | undefined, boolean] {
+    const position = textBuffer.getPosition(positionOffset);
+    const lineContent = textBuffer.getLineContent(position.line);
+    if (lineContent.trim().length === 0) {
+      return [this.findClosestNode(positionOffset, textBuffer, configuredIndentation), true];
+    }
+
+    const textAfterPosition = lineContent.substring(position.character);
+    const spacesAfterPositionMatch = textAfterPosition.match(/^([ ]+)\n?$/);
+    const areOnlySpacesAfterPosition = !!spacesAfterPositionMatch;
+    const countOfSpacesAfterPosition = spacesAfterPositionMatch?.[1].length ?? 0;
+    let closestNode: Node | undefined = undefined;
+    visit(this.parsedDocument, (_, node) => {
+      if (!node) {
+        return;
+      }
+      const range = (node as Node).range;
+      if (!range) {
+        return;
+      }
+
+      const isNullNodeOnTheLine = (): boolean =>
+        areOnlySpacesAfterPosition &&
+        positionOffset + countOfSpacesAfterPosition === range[2] &&
+        isScalar(node) &&
+        node.value === null;
+
+      if ((range[0] <= positionOffset && range[1] >= positionOffset) || isNullNodeOnTheLine()) {
+        closestNode = node as Node;
+      } else {
+        return visit.SKIP;
+      }
+    });
+
+    return [closestNode, false];
+  }
+
+  findClosestNode(offset: number, textBuffer: TextBuffer, configuredIndentation?: number): YamlNode | undefined {
+    let offsetDiff = this.parsedDocument.range?.[2] ?? 0;
+    let maxOffset = this.parsedDocument.range?.[0] ?? 0;
+    let closestNode: YamlNode | undefined = undefined;
+    visit(this.parsedDocument, (key, node) => {
+      if (!node) {
+        return;
+      }
+      const range = (node as Node).range;
+      if (!range) {
+        return;
+      }
+      const diff = range[1] - offset;
+      if (maxOffset <= range[0] && diff <= 0 && Math.abs(diff) <= offsetDiff) {
+        offsetDiff = Math.abs(diff);
+        maxOffset = range[0];
+        closestNode = node as Node;
+      }
+    });
+
+    const position = textBuffer.getPosition(offset);
+    const lineContent = textBuffer.getLineContent(position.line);
+    const indentation = getIndentation(lineContent, position.character);
+
+    if (isScalar(closestNode) && (closestNode as Pair).value === null) {
+      return closestNode;
+    }
+
+    if (indentation === position.character) {
+      closestNode = this.getProperParentByIndentation(indentation, closestNode, textBuffer, "", configuredIndentation);
+    }
+
+    return closestNode;
+  }
+
+  private getProperParentByIndentation(
+    indentation: number,
+    node: YamlNode | undefined,
+    textBuffer: TextBuffer,
+    currentLine: string,
+    configuredIndentation?: number,
+    rootParent?: YamlNode
+  ): YamlNode {
+    if (!node) {
+      return this.parsedDocument.contents as Node;
+    }
+    configuredIndentation = !configuredIndentation ? 2 : configuredIndentation;
+    if (isNode(node) && node.range) {
+      const position = textBuffer.getPosition(node.range[0]);
+      const lineContent = textBuffer.getLineContent(position.line);
+      currentLine = currentLine === "" ? lineContent.trim() : currentLine;
+      if (currentLine.startsWith("-") && indentation === configuredIndentation && currentLine === lineContent.trim()) {
+        position.character += indentation;
+      }
+      if (position.character > indentation && position.character > 0) {
+        const parent = this.getParent(node);
+        if (parent) {
+          return this.getProperParentByIndentation(
+            indentation,
+            parent,
+            textBuffer,
+            currentLine,
+            configuredIndentation,
+            rootParent
+          );
+        }
+      } else if (position.character < indentation) {
+        const parent = this.getParent(node);
+        if (isPair(parent) && isNode(parent.value)) {
+          return parent.value;
+        } else if (isPair(rootParent) && isNode(rootParent.value)) {
+          return rootParent.value;
+        }
+      } else {
+        return node;
+      }
+    } else if (isPair(node)) {
+      rootParent = node;
+      const parent = this.getParent(node);
+      return this.getProperParentByIndentation(
+        indentation,
+        parent,
+        textBuffer,
+        currentLine,
+        configuredIndentation,
+        rootParent
+      );
+    }
+    return node;
+  }
+
+  getParent(node: YamlNode): YamlNode | undefined {
+    return getParent(this.parsedDocument, node);
   }
 }

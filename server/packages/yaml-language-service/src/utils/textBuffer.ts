@@ -5,6 +5,7 @@
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Position, Range } from "vscode-languageserver-types";
+import { getIndentation } from ".";
 import { CharCode } from "../parser/charCode";
 
 interface FullTextDocument {
@@ -83,7 +84,7 @@ export class TextBuffer {
   public getLineIndentationAtOffset(offset: number): number {
     const position = this.getPosition(offset);
     const lineContent = this.getLineContent(position.line);
-    const indentation = this.getIndentation(lineContent, position.character);
+    const indentation = getIndentation(lineContent, position.character);
     return indentation;
   }
 
@@ -102,21 +103,5 @@ export class TextBuffer {
       }
     }
     return currentLine;
-  }
-
-  private getIndentation(lineContent: string, lineOffset: number): number {
-    if (lineContent.length < lineOffset) {
-      return 0;
-    }
-
-    for (let i = 0; i < lineOffset; i++) {
-      const char = lineContent.charCodeAt(i);
-      if (char !== CharCode.Space && char !== CharCode.Tab) {
-        return i;
-      }
-    }
-
-    // assuming that current position is indentation
-    return lineOffset;
   }
 }
