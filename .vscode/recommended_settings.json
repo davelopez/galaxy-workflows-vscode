@@ -1,4 +1,4 @@
-// Place your settings in this file to overwrite default and user settings.
+// Copy and rename this file to `settings.json` to use the recommended settings or use your own.
 {
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
