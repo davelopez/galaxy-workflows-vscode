@@ -9,7 +9,11 @@ import { WorkflowTestsSchemaProvider } from "./provider";
 export interface WorkflowTestsSchemaService {
   schema: ResolvedSchema;
   validate(documentContext: DocumentContext, severity?: DiagnosticSeverity): Diagnostic[] | undefined;
-  getMatchingSchemas(documentContext: DocumentContext, nodeOffset?: number | undefined): IApplicableSchema[];
+  getMatchingSchemas(
+    documentContext: DocumentContext,
+    nodeOffset?: number | undefined,
+    didCallFromAutoComplete?: boolean
+  ): IApplicableSchema[];
 }
 
 @injectable()
@@ -28,8 +32,18 @@ export class WorkflowTestsSchemaServiceImpl implements WorkflowTestsSchemaServic
     return this.jsonSchemaService.validate(documentContext, resolvedSchema.schema, severity);
   }
 
-  getMatchingSchemas(documentContext: DocumentContext, nodeOffset?: number | undefined): IApplicableSchema[] {
+  getMatchingSchemas(
+    documentContext: DocumentContext,
+    nodeOffset?: number | undefined,
+    didCallFromAutoComplete?: boolean
+  ): IApplicableSchema[] {
     const resolvedSchema = this.schemaProvider.getResolvedSchema();
-    return this.jsonSchemaService.getMatchingSchemas(documentContext, resolvedSchema.schema, nodeOffset);
+    return this.jsonSchemaService.getMatchingSchemas(
+      documentContext,
+      resolvedSchema.schema,
+      nodeOffset,
+      null,
+      didCallFromAutoComplete
+    );
   }
 }
