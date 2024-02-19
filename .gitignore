@@ -4,3 +4,6 @@ node_modules
 .vscode-test/
 .vscode-test-web/
 *.vsix
+
+# Local settings for Visual Studio Code
+.vscode/settings.json
