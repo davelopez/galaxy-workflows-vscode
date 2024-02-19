@@ -1,7 +1,6 @@
 import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { WorkflowDocument } from "../languageTypes";
-import { GalaxyWorkflowLanguageServer } from "../server";
+import { GalaxyWorkflowLanguageServer, WorkflowDocument } from "../languageTypes";
 import { ServiceBase } from ".";
 import {
   CleanWorkflowContentsParams,
@@ -30,10 +29,10 @@ export class CleanWorkflowService extends ServiceBase {
   }
 
   protected listenToRequests(): void {
-    this.connection.onRequest(CleanWorkflowContentsRequest.type, (params) =>
+    this.server.connection.onRequest(CleanWorkflowContentsRequest.type, (params) =>
       this.onCleanWorkflowContentsRequest(params)
     );
-    this.connection.onRequest(CleanWorkflowDocumentRequest.type, (params) =>
+    this.server.connection.onRequest(CleanWorkflowDocumentRequest.type, (params) =>
       this.onCleanWorkflowDocumentRequest(params)
     );
   }
@@ -48,7 +47,8 @@ export class CleanWorkflowService extends ServiceBase {
     params: CleanWorkflowContentsParams
   ): Promise<CleanWorkflowContentsResult | undefined> {
     const tempDocument = this.createTempWorkflowDocumentWithContents(params.contents);
-    const workflowDocument = this.languageService.parseWorkflowDocument(tempDocument);
+    const workflowLanguageService = this.server.getLanguageServiceById(tempDocument.languageId);
+    const workflowDocument = workflowLanguageService.parseDocument(tempDocument) as WorkflowDocument;
     if (workflowDocument) {
       return await this.cleanWorkflowContentsResult(workflowDocument);
     }
@@ -65,10 +65,13 @@ export class CleanWorkflowService extends ServiceBase {
     params: CleanWorkflowDocumentParams
   ): Promise<CleanWorkflowDocumentResult> {
     try {
-      const workflowDocument = this.workflowDocuments.get(params.uri);
+      const workflowDocument = this.server.documentsCache.get(params.uri);
       if (workflowDocument) {
         const settings = await this.server.configService.getDocumentSettings(workflowDocument.textDocument.uri);
-        const edits = this.getTextEditsToCleanWorkflow(workflowDocument, settings.cleaning.cleanableProperties);
+        const edits = this.getTextEditsToCleanWorkflow(
+          workflowDocument as WorkflowDocument,
+          settings.cleaning.cleanableProperties
+        );
         const editParams: ApplyWorkspaceEditParams = {
           label: "Clean workflow",
           edit: {
@@ -83,7 +86,7 @@ export class CleanWorkflowService extends ServiceBase {
             ],
           },
         };
-        this.connection.workspace.applyEdit(editParams);
+        this.server.connection.workspace.applyEdit(editParams);
       }
       return { error: "" };
     } catch (error) {

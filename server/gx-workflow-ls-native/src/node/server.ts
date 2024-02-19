@@ -1,9 +1,8 @@
-import { createConnection } from "vscode-languageserver/node";
-import { GalaxyWorkflowLanguageServer } from "@gxwf/server-common/src/server";
-import { NativeWorkflowLanguageService } from "../languageService";
+import { Connection, createConnection } from "vscode-languageserver/node";
+import { container } from "../inversify.config";
+import { GalaxyWorkflowLanguageServer, TYPES } from "@gxwf/server-common/src/languageTypes";
 
-const connection = createConnection();
+container.bind<Connection>(TYPES.Connection).toConstantValue(createConnection());
 
-const languageService = new NativeWorkflowLanguageService();
-const server = new GalaxyWorkflowLanguageServer(connection, languageService);
+const server = container.get<GalaxyWorkflowLanguageServer>(TYPES.GalaxyWorkflowLanguageServer);
 server.start();

@@ -6,11 +6,17 @@
   "license": "MIT",
   "dependencies": {
     "@gxwf/server-common": "*",
+    "@gxwf/workflow-tests-language-service": "*",
     "@gxwf/yaml-language-service": "*",
+    "inversify": "^6.0.2",
+    "reflect-metadata": "^0.1.13",
     "vscode-languageserver": "^8.1.0",
     "vscode-languageserver-textdocument": "^1.0.8",
     "vscode-languageserver-types": "^3.17.3",
     "vscode-uri": "^3.0.7"
   },
-  "scripts": {}
+  "scripts": {},
+  "devDependencies": {
+    "@types/jest": "^29.5.8"
+  }
 }
