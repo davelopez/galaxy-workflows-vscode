@@ -5,7 +5,7 @@ import { OutputChannel, Uri, workspace } from "vscode";
  * @returns true if the workspace is not mounted on a regular filesystem.
  */
 export function isVirtualWorkspace(): boolean {
-  return workspace.workspaceFolders && workspace.workspaceFolders.every((f) => f.uri.scheme !== "file");
+  return (workspace.workspaceFolders ?? []).every((f) => f.uri.scheme !== "file");
 }
 
 /**
