@@ -2,6 +2,7 @@ import { CompletionList, DocumentContext, Position } from "@gxwf/server-common/s
 import { inject, injectable } from "inversify";
 import { WorkflowTestsSchemaService } from "../../schema/service";
 import { TYPES } from "../../types";
+import { YAMLCompletionHelper } from "./helper";
 
 export interface WorkflowTestsCompletionService {
   doComplete(documentContext: DocumentContext, position: Position): Promise<CompletionList | null>;
@@ -12,11 +13,15 @@ export interface WorkflowTestsCompletionService {
  */
 @injectable()
 export class WorkflowTestsCompletionServiceImpl implements WorkflowTestsCompletionService {
-  constructor(@inject(TYPES.WorkflowTestsSchemaService) protected schemaService: WorkflowTestsSchemaService) {}
+  private yamlCompletionHelper: YAMLCompletionHelper;
+
+  constructor(@inject(TYPES.WorkflowTestsSchemaService) protected schemaService: WorkflowTestsSchemaService) {
+    this.yamlCompletionHelper = new YAMLCompletionHelper(schemaService);
+  }
 
   public async doComplete(documentContext: DocumentContext, position: Position): Promise<CompletionList | null> {
     // TODO: Add custom completion logic specific to workflow test files here
-    const result = null;
+    const result = await this.yamlCompletionHelper.doComplete(documentContext, position);
     return result;
   }
 }
