@@ -7,12 +7,12 @@ import {
   WorkspaceFolder,
 } from "vscode-languageserver";
 import {
-  TextDocument,
-  LanguageService,
   DocumentContext,
   DocumentsCache,
-  TYPES,
   GalaxyWorkflowLanguageServer,
+  LanguageService,
+  TYPES,
+  TextDocument,
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
 } from "./languageTypes";
@@ -21,10 +21,10 @@ import { HoverProvider } from "./providers/hover/hoverProvider";
 import { SymbolsProvider } from "./providers/symbolsProvider";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
+import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
 import { CompletionProvider } from "./providers/completionProvider";
 import { ValidationProfiles } from "./providers/validation/profiles";
-import { injectable, inject } from "inversify";
 
 @injectable()
 export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageServer {
@@ -41,6 +41,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   ) {
     this.languageServiceMapper.set(workflowLanguageService.languageId, workflowLanguageService);
     this.languageServiceMapper.set(workflowTestsLanguageService.languageId, workflowTestsLanguageService);
+    workflowLanguageService.setServer(this);
+    workflowTestsLanguageService.setServer(this);
 
     // Track open, change and close text document events
     this.trackDocumentChanges(connection);

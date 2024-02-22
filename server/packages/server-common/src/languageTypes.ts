@@ -169,6 +169,8 @@ export interface LanguageService<T extends DocumentContext> {
    * An optional validation profile can be used to provide additional custom diagnostics.
    */
   validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]>;
+
+  setServer(server: GalaxyWorkflowLanguageServer): void;
 }
 
 /**
@@ -178,6 +180,8 @@ export interface LanguageService<T extends DocumentContext> {
 @injectable()
 export abstract class LanguageServiceBase<T extends DocumentContext> implements LanguageService<T> {
   constructor(@unmanaged() public readonly languageId: string) {}
+
+  protected server?: GalaxyWorkflowLanguageServer;
 
   public abstract parseDocument(document: TextDocument): T;
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
@@ -200,6 +204,10 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
       });
     }
     return diagnostics;
+  }
+
+  public setServer(server: GalaxyWorkflowLanguageServer): void {
+    this.server = server;
   }
 }
 
