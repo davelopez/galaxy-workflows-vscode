@@ -6,6 +6,7 @@ import { RequestType } from "vscode-languageclient";
 export namespace LSRequestIdentifiers {
   export const CLEAN_WORKFLOW_DOCUMENT = "galaxy-workflows-ls.cleanWorkflowDocument";
   export const CLEAN_WORKFLOW_CONTENTS = "galaxy-workflows-ls.cleanWorkflowContents";
+  export const GET_WORKFLOW_INPUTS = "galaxy-workflows-ls.getWorkflowInputs";
 }
 
 export interface CleanWorkflowDocumentParams {
@@ -34,4 +35,20 @@ export namespace CleanWorkflowContentsRequest {
   export const type = new RequestType<CleanWorkflowContentsParams, CleanWorkflowContentsResult, void>(
     LSRequestIdentifiers.CLEAN_WORKFLOW_CONTENTS
   );
+}
+
+export interface GetWorkflowInputsParams {
+  uri: string;
+}
+
+export type WorkflowInputType = "data_input" | "data_collection_input";
+
+export interface WorkflowInput {
+  name: string;
+  type: WorkflowInputType;
+  description: string;
+}
+
+export interface GetWorkflowInputsResult {
+  inputs: WorkflowInput[];
 }

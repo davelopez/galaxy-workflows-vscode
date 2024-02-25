@@ -13,6 +13,7 @@ import {
   LanguageService,
   TYPES,
   TextDocument,
+  WorkflowDataProvider,
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
 } from "./languageTypes";
@@ -36,6 +37,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     @inject(TYPES.Connection) public readonly connection: Connection,
     @inject(TYPES.DocumentsCache) public readonly documentsCache: DocumentsCache,
     @inject(TYPES.ConfigService) public readonly configService: ConfigService,
+    @inject(TYPES.WorkflowDataProvider) public readonly workflowDataProvider: WorkflowDataProvider,
     @inject(TYPES.WorkflowLanguageService) public readonly workflowLanguageService: WorkflowLanguageService,
     @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService
   ) {

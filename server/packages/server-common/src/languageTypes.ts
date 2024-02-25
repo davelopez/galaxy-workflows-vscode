@@ -54,6 +54,7 @@ import { ASTNodeManager } from "./ast/nodeManager";
 import { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
+import { GetWorkflowInputsResult } from "./services/requestsDefinitions";
 
 export {
   CodeAction,
@@ -218,6 +219,7 @@ export interface GalaxyWorkflowLanguageServer {
   connection: Connection;
   documentsCache: DocumentsCache;
   configService: ConfigService;
+  workflowDataProvider: WorkflowDataProvider;
   start(): void;
   getLanguageServiceById(languageId: string): LanguageService<DocumentContext>;
 }
@@ -232,6 +234,10 @@ export interface DocumentsCache {
   get schemesToSkip(): string[];
 }
 
+export interface WorkflowDataProvider {
+  getWorkflowInputs(workflowDocumentUri: string): Promise<GetWorkflowInputsResult>;
+}
+
 const TYPES = {
   DocumentsCache: Symbol.for("DocumentsCache"),
   ConfigService: Symbol.for("ConfigService"),
@@ -239,6 +245,7 @@ const TYPES = {
   WorkflowLanguageService: Symbol.for("WorkflowLanguageService"),
   WorkflowTestsLanguageService: Symbol.for("WorkflowTestsLanguageService"),
   GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
+  WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
 };
 
 export { TYPES };

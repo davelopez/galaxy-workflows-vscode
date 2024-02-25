@@ -45,3 +45,27 @@ export function debugPrintCommandArgs(command: string, args: unknown[], outputCh
   }
   outputChannel.appendLine(`---\n`);
 }
+
+export function isWorkflowTestsDocument(uri: Uri): boolean {
+  return uri.path.endsWith("-test.yml");
+}
+
+export function isNativeWorkflowDocument(uri: Uri): boolean {
+  return uri.path.endsWith(".ga");
+}
+
+export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: Uri): Promise<Uri | undefined> {
+  const format2WorkflowUri = Uri.parse(workflowTestsDocumentUri.toString().replace("-test.yml", ".yml"));
+  try {
+    await workspace.fs.stat(format2WorkflowUri);
+    return format2WorkflowUri;
+  } catch {
+    const nativeWorkflowUri = Uri.parse(workflowTestsDocumentUri.toString().replace("-test.yml", ".ga"));
+    try {
+      await workspace.fs.stat(nativeWorkflowUri);
+      return nativeWorkflowUri;
+    } catch {
+      return undefined;
+    }
+  }
+}

@@ -39,7 +39,7 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
 
   public override parseDocument(document: TextDocument): GxWorkflowTestsDocument {
     const yamlDocument = this.yamlLanguageService.parseYAMLDocument(document);
-    return new GxWorkflowTestsDocument(document, yamlDocument);
+    return new GxWorkflowTestsDocument(document, yamlDocument, this.server?.workflowDataProvider);
   }
 
   public override format(document: TextDocument, _: Range, options: FormattingOptions): TextEdit[] {
