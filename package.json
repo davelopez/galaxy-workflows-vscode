@@ -222,7 +222,7 @@
     "watch": "concurrently --kill-others \"npm run watch-server\" \"npm run watch-client\"",
     "watch-server": "cd server && npm run watch",
     "watch-client": "cd client && npm run watch",
-    "test": "jest",
+    "test": "npm run test-client && npm run test-server",
     "test-client": "cd client && npm test",
     "test-server": "cd server && npm test",
     "test-compile": "tsc --project ./client --outDir client/out",
