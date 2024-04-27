@@ -22,6 +22,7 @@ import {
   Position,
   Range,
   TextEdit,
+WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
 import { YamlNode } from "@gxwf/yaml-language-service/src/parser/astTypes";
 import { YAMLSubDocument } from "@gxwf/yaml-language-service/src/parser/yamlDocument";
@@ -116,7 +117,7 @@ ${this.indentation}${this.indentation}$0
 
     if (!node) {
       result.items.push(this.newTestSnippetCompletion);
-      return result;
+      return Promise.resolve(result);
     }
 
     const currentWord = textBuffer.getCurrentWord(offset);
@@ -128,7 +129,7 @@ ${this.indentation}${this.indentation}$0
     // we suggest a new test snippet
     if (lineContent.match(/^(\n|-|- {1}|-\n)$/)) {
       result.items.push(this.newTestSnippetCompletion);
-      return result;
+      return Promise.resolve(result);
     }
 
     let overwriteRange: Range | null = null;
@@ -188,19 +189,11 @@ ${this.indentation}${this.indentation}$0
             (item: CompletionItem) => item.parent?.schema === schema && item.kind === parentCompletionKind
           );
 
-          if (
-            !parentCompletion ||
-            !parentCompletion.parent ||
-            !parentCompletion.parent.insertTexts ||
-            !completionItem.insertText
-          ) {
-            return;
+          if (!completionItem.insertText) {
+            completionItem.insertText = completionItem.label;
           }
 
-          if (parentCompletion.parent.insertTexts.includes(completionItem.insertText)) {
-            // already exists in the parent
-            return;
-          } else if (!parentCompletion) {
+          if (!parentCompletion) {
             // create a new parent
             parentCompletion = {
               ...completionItem,
@@ -520,7 +513,7 @@ ${this.indentation}${this.indentation}$0
           }
         }
 
-        this.addPropertyCompletions(
+        await this.addPropertyCompletions(
           documentContext,
           currentDoc,
           node,
@@ -530,6 +523,10 @@ ${this.indentation}${this.indentation}$0
           textBuffer,
           overwriteRange
         );
+
+        if (collector.getNumberOfProposals() > 0) {
+          return collector.result;
+        }
 
         if (!schema && currentWord.length > 0 && text.charAt(offset - currentWord.length - 1) !== '"') {
           collector.add({
@@ -641,10 +638,6 @@ ${this.indentation}${this.indentation}$0
         } else if (propertySchema.anyOf) {
           type = "anyOf";
         }
-      }
-
-      if (!type) {
-        return value;
       }
 
       if (propertySchema.enum) {
@@ -929,7 +922,7 @@ ${this.indentation}${this.indentation}$0
     });
   }
 
-  private addPropertyCompletions(
+  private async addPropertyCompletions(
     documentContext: DocumentContext,
     doc: YAMLSubDocument,
     node: YAMLMap,
@@ -938,9 +931,10 @@ ${this.indentation}${this.indentation}$0
     collector: CompletionsCollector,
     textBuffer: TextBuffer,
     overwriteRange: Range
-  ): void {
+  ): Promise<void> {
     const didCallFromAutoComplete = true;
-    const matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, -1, didCallFromAutoComplete);
+    const nodeOffset = textBuffer.getOffsetAt(overwriteRange.start);
+    let matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, nodeOffset, didCallFromAutoComplete);
     const existingKey = textBuffer.getText(overwriteRange);
     const lineContent = textBuffer.getLineContent(overwriteRange.start.line);
     const hasOnlyWhitespace = lineContent.trim().length === 0;
@@ -950,6 +944,60 @@ ${this.indentation}${this.indentation}$0
     const matchOriginal = matchingSchemas.find(function (it) {
       return it.node.internalNode === originalNode && it.schema.properties;
     });
+
+    // if the parent is the `job` key, then we need to add the `job` properties from the document context
+    if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key) && nodeParent.key.value === "job") {
+      const testDocument = documentContext as WorkflowTestsDocument;
+      const workflowInputs = await testDocument.getWorkflowInputs();
+      // create a completion item for the inputs excluding the ones already defined
+      workflowInputs.forEach((input) => {
+        collector.add({
+          kind: CompletionItemKind.Property,
+          label: input.name,
+          insertText: `${input.name}:`,
+          insertTextFormat: InsertTextFormat.Snippet,
+          documentation: this.fromMarkup(input.description),
+        });
+      });
+      return;
+    }
+
+    //If the parent is a workflow input, then we need to add the properties from the document context
+    if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key)) {
+      const testDocument = documentContext as WorkflowTestsDocument;
+      const workflowInputs = await testDocument.getWorkflowInputs();
+      const nodeParentKey = nodeParent.key.value;
+      const matchingWorkflowInput = workflowInputs.find((input) => input.name === nodeParentKey);
+      if (matchingWorkflowInput) {
+        const type = matchingWorkflowInput.type;
+        switch (type) {
+          case "data_input":
+            if (node.items.length === 1 && isScalar(node.items[0].key) && node.items[0].key.value === "") {
+              collector.add(
+                {
+                  kind: CompletionItemKind.Property,
+                  label: "class",
+                  insertText: "class: File",
+                  insertTextFormat: InsertTextFormat.Snippet,
+                },
+                false
+              );
+              return;
+            }
+
+            matchingSchemas = matchingSchemas.filter(
+              (schema) =>
+                schema.schema.title && ["LocationFile", "PathFile", "CompositeDataFile"].includes(schema.schema.title)
+            );
+            break;
+          case "data_collection_input":
+            // The valid schema is "Collection"
+            matchingSchemas = matchingSchemas.filter((schema) => schema.schema.title === "Collection");
+            break;
+        }
+      }
+    }
+
     const oneOfSchema = matchingSchemas
       .filter((schema) => schema.schema.oneOf)
       .map((oneOfSchema) => oneOfSchema.schema.oneOf)[0];
@@ -964,18 +1012,30 @@ ${this.indentation}${this.indentation}$0
         }
       });
     }
+
+    function hasSameRange(nodeA: YAMLMap, nodeB: YAMLMap): boolean {
+      // loop through ranges of each node and compare them
+      if (nodeA.range && nodeB.range && nodeA.range.length === nodeB.range.length) {
+        for (let i = 0; i < nodeA.range.length; i++) {
+          if (nodeA.range[i] === nodeB.range[i]) {
+            continue;
+          } else {
+            return false;
+          }
+        }
+        return true;
+      }
+      return false;
+    }
+
     for (const schema of matchingSchemas) {
+      const internalNode = schema.node.internalNode as YAMLMap;
       if (
-        (schema.node.internalNode === node && !matchOriginal) ||
-        (schema.node.internalNode === originalNode && !hasColon) ||
+        // (internalNode.range === node.range && !matchOriginal) ||
+        (hasSameRange(internalNode, node) && !matchOriginal) ||
+        (internalNode === originalNode && !hasColon) ||
         (schema.node.parent?.internalNode === originalNode && !hasColon)
       ) {
-        // this.collectDefaultSnippets(schema.schema, separatorAfter, collector, {
-        //   newLineFirst: false,
-        //   indentFirstObject: false,
-        //   shouldIndentWithTab: isInArray,
-        // });
-
         const schemaProperties = schema.schema.properties;
         if (schemaProperties) {
           const maxProperties = schema.schema.maxProperties;
@@ -1489,7 +1549,7 @@ ${this.indentation}${this.indentation}$0
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private getInsertTextForGuessedValue(value: any, separatorAfter: string, type: string): string {
+  private getInsertTextForGuessedValue(value: any, separatorAfter: string, type?: string): string {
     switch (typeof value) {
       case "object":
         if (value === null) {
