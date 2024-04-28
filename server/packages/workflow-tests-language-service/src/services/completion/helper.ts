@@ -197,19 +197,18 @@ ${this.indentation}${this.indentation}$0
             // create a new parent
             parentCompletion = {
               ...completionItem,
-              label: schemaType,
               documentation: schemaDescription,
               sortText: "_" + schemaType, // this parent completion goes first,
               kind: parentCompletionKind,
             };
             parentCompletion.label = parentCompletion.label || completionItem.label;
-            if (parentCompletion.parent) {
-              parentCompletion.parent.insertTexts = [completionItem.insertText];
-            }
             result.items.push(parentCompletion);
+          } else if (parentCompletion.parent?.insertTexts?.includes(completionItem.insertText)) {
+            // already exists in the parent
+            return;
           } else {
             // add to the existing parent
-            parentCompletion.parent.insertTexts.push(completionItem.insertText);
+            parentCompletion.parent?.insertTexts?.push(completionItem.insertText);
           }
         };
 
@@ -524,10 +523,6 @@ ${this.indentation}${this.indentation}$0
           overwriteRange
         );
 
-        if (collector.getNumberOfProposals() > 0) {
-          return collector.result;
-        }
-
         if (!schema && currentWord.length > 0 && text.charAt(offset - currentWord.length - 1) !== '"') {
           collector.add({
             kind: CompletionItemKind.Property,
@@ -547,19 +542,78 @@ ${this.indentation}${this.indentation}$0
 
     this.finalizeParentCompletion(result);
 
-    const uniqueItems = result.items.filter(
-      (arr, index, self) =>
-        index ===
-        self.findIndex(
-          (item) => item.label === arr.label && item.insertText === arr.insertText && item.kind === arr.kind
-        )
-    );
+    result.items = this.mergeCompletionItems(result.items);
 
-    if (uniqueItems?.length > 0) {
-      result.items = uniqueItems;
+    console.debug("COMPLETION RESULT:", result);
+    return result;
+  }
+
+  /**
+   * Returns a new list of completion items with unique labels.
+   * If the label is the same, the information is merged.
+   * @param items The list of completion items to merge
+   * @returns A list of completion items with unique labels
+   */
+  mergeCompletionItems(items: CompletionItem[]): CompletionItem[] {
+    const uniqueItems: CompletionItem[] = [];
+    const existingItems: { [key: string]: CompletionItem } = {};
+
+    items.forEach((item) => {
+      const key = `${item.label}-${item.insertText}`;
+      if (!existingItems[key]) {
+        existingItems[key] = item;
+        uniqueItems.push(item);
+      } else {
+        const existingItem = existingItems[key];
+        if (item.documentation && existingItem.documentation) {
+          existingItem.documentation = this.mergeMarkupContent(existingItem.documentation, item.documentation);
+        }
+      }
+    });
+
+    return uniqueItems;
+  }
+
+  /**
+   * Merges two MarkupContent objects into one.
+   * @param existing The existing MarkupContent object
+   * @param newContent The new MarkupContent object
+   * @returns The merged MarkupContent object
+   */
+  mergeMarkupContent(existing?: string | MarkupContent, newContent?: string | MarkupContent): MarkupContent {
+    const existingContent = this.getMarkupContent(existing);
+    const newContentContent = this.getMarkupContent(newContent);
+
+    if (!existingContent) {
+      return newContentContent;
     }
 
-    return result;
+    if (!newContentContent) {
+      return existingContent;
+    }
+
+    return {
+      kind: MarkupKind.Markdown,
+      value: `${existingContent.value}\n\n${newContentContent.value}`,
+    };
+  }
+
+  /**
+   * Returns a MarkupContent object from a string or MarkupContent object.
+   * @param content The content to convert
+   * @returns The MarkupContent object
+   */
+  getMarkupContent(content?: string | MarkupContent): MarkupContent {
+    if (!content) {
+      content = "";
+    }
+    if (typeof content === "string") {
+      return {
+        kind: MarkupKind.Markdown,
+        value: content,
+      };
+    }
+    return content;
   }
 
   updateCompletionText(completionItem: CompletionItem, text: string): void {
@@ -890,13 +944,15 @@ ${this.indentation}${this.indentation}$0
     };
 
     result.items.forEach((completionItem) => {
-      if (isParentCompletionItem(completionItem) && completionItem.parent && completionItem.parent.insertTexts) {
+      if (isParentCompletionItem(completionItem) && completionItem.parent) {
         const indent = completionItem.parent.indent || "";
 
+        let insertText = completionItem.insertText || "";
+        if (completionItem.parent.insertTexts) {
         const reindexedTexts = reindexText(completionItem.parent.insertTexts);
 
         // add indent to each object property and join completion item texts
-        let insertText = reindexedTexts.join(`\n${indent}`);
+          insertText = reindexedTexts.join(`\n${indent}`);
 
         // trim $1 from end of completion
         if (insertText.endsWith("$1")) {
@@ -904,8 +960,10 @@ ${this.indentation}${this.indentation}$0
         }
 
         completionItem.insertText = this.arrayPrefixIndentation + insertText;
+        }
+
         if (completionItem.textEdit) {
-          completionItem.textEdit.newText = completionItem.insertText;
+          completionItem.textEdit.newText = insertText;
         }
         // remove $x or use {$x:value} in documentation
         const mdText = insertText.replace(/\${[0-9]+[:|](.*)}/g, (s, arg) => arg).replace(/\$([0-9]+)/g, "");
@@ -992,6 +1050,7 @@ ${this.indentation}${this.indentation}$0
             break;
           case "data_collection_input":
             // The valid schema is "Collection"
+            // TODO add class: Collection
             matchingSchemas = matchingSchemas.filter((schema) => schema.schema.title === "Collection");
             break;
         }
