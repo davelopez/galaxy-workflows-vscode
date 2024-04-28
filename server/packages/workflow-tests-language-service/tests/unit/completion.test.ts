@@ -62,4 +62,54 @@ describe("Workflow Tests Completion Service", () => {
     expect(completions?.items[0].labelDetails?.detail).toBe("New Workflow Test");
     expect(completions?.items[0].label).toBe("- doc:");
   });
+
+  it("should suggest the `job` and `outputs` entries when the position is at the same level as `doc`", async () => {
+    const template = `
+- doc: The docs
+  $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions).not.toBeNull();
+    const jobCompletion = completions?.items.find((item) => item.label === "job");
+    const outputCompletion = completions?.items.find((item) => item.label === "outputs");
+    expect(jobCompletion).not.toBeUndefined();
+    expect(outputCompletion).not.toBeUndefined();
+  });
+
+  it("should suggest the `job` entry as first suggestion when the position is at the Test definition level and starts with a `j`", async () => {
+    const template = `
+- doc: The docs
+  j$`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions).not.toBeNull();
+    const jobCompletion = completions!.items[0]!;
+    expect(jobCompletion.label).toBe("job");
+  });
 });
+
+function parseTemplate(
+  template: string,
+  char?: string
+): { contents: string; position: { line: number; character: number } } {
+  if (!char) {
+    char = "$";
+  }
+  let position = { line: 0, character: 0 };
+  const contents = template.replace(char, "");
+
+  const lines = template.split("\n");
+  for (let i = 0; i < lines.length; i++) {
+    const character = lines[i].indexOf(char);
+    if (character !== -1) {
+      position = { line: i, character };
+      return { contents, position };
+    }
+  }
+
+  return { contents, position };
+}
