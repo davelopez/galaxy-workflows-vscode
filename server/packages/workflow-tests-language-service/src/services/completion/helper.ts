@@ -22,7 +22,7 @@ import {
   Position,
   Range,
   TextEdit,
-WorkflowTestsDocument,
+  WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
 import { YamlNode } from "@gxwf/yaml-language-service/src/parser/astTypes";
 import { YAMLSubDocument } from "@gxwf/yaml-language-service/src/parser/yamlDocument";
@@ -749,7 +749,7 @@ ${this.indentation}${this.indentation}$0
             value = " $1";
             break;
           default:
-            return propertyText;
+            return resultText;
         }
       }
     }
@@ -949,17 +949,17 @@ ${this.indentation}${this.indentation}$0
 
         let insertText = completionItem.insertText || "";
         if (completionItem.parent.insertTexts) {
-        const reindexedTexts = reindexText(completionItem.parent.insertTexts);
+          const reindexedTexts = reindexText(completionItem.parent.insertTexts);
 
-        // add indent to each object property and join completion item texts
+          // add indent to each object property and join completion item texts
           insertText = reindexedTexts.join(`\n${indent}`);
 
-        // trim $1 from end of completion
-        if (insertText.endsWith("$1")) {
-          insertText = insertText.substring(0, insertText.length - 2);
-        }
+          // trim $1 from end of completion
+          if (insertText.endsWith("$1")) {
+            insertText = insertText.substring(0, insertText.length - 2);
+          }
 
-        completionItem.insertText = this.arrayPrefixIndentation + insertText;
+          completionItem.insertText = this.arrayPrefixIndentation + insertText;
         }
 
         if (completionItem.textEdit) {
