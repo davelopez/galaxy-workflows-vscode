@@ -29,7 +29,7 @@ import { YAMLSubDocument } from "@gxwf/yaml-language-service/src/parser/yamlDocu
 import { indexOf, isMapContainsEmptyPair } from "@gxwf/yaml-language-service/src/utils";
 import { guessIndentation } from "@gxwf/yaml-language-service/src/utils/indentationGuesser";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
-import { Node, Pair, YAMLMap, YAMLSeq, isMap, isNode, isPair, isScalar, isSeq } from "yaml";
+import { Node, Pair, YAMLMap, YAMLSeq, Range as YamlRange, isMap, isNode, isPair, isScalar, isSeq } from "yaml";
 import { isDefined, isString } from "../../schema/adapter";
 import { JSONSchema, JSONSchemaRef } from "../../schema/jsonSchema";
 import { WorkflowTestsSchemaService } from "../../schema/service";
@@ -448,7 +448,18 @@ ${this.indentation}${this.indentation}$0
             }
           } else if (isSeq(node)) {
             if (lineContent.charAt(position.character - 1) !== "-") {
-              const map = this.createTempObjNode(currentWord, node, currentDoc);
+              /**
+               * It the indentation of the current line matches the indentation of the item in the sequence node
+               * then we are at the same level as the item in the sequence so it should be a sibling of the item
+               */
+              let range: YamlRange | undefined = undefined;
+              const lastItem = node.items[node.items.length - 1] as YAMLMap;
+              if (lastItem) {
+                node = lastItem;
+                range = lastItem.range ?? undefined;
+              }
+
+              const map = this.createTempObjNode(currentWord, node, currentDoc, range);
               map.items = [];
               currentDoc.updateFromInternalDocument();
               for (const pair of node.items) {
@@ -834,13 +845,17 @@ ${this.indentation}${this.indentation}$0
     return { insertText, insertIndex };
   }
 
-  private createTempObjNode(currentWord: string, node: Node, currentDoc: YAMLSubDocument): YAMLMap {
+  private createTempObjNode(currentWord: string, node: Node, currentDoc: YAMLSubDocument, range?: YamlRange): YAMLMap {
+    range = range || node.range || undefined;
     const obj: { [key: string]: unknown } = {}; // Add index signature to allow indexing with a string
     obj[currentWord] = null;
     const map: YAMLMap = currentDoc.internalDocument.createNode(obj) as YAMLMap;
-    map.range = node.range;
-    (map.items[0].key as Node).range = node.range;
-    (map.items[0].value as Node).range = node.range;
+    //**********************************
+    //TODO: the range here is not correct, it should be the range of the current line
+    //**********************************
+    map.range = range;
+    (map.items[0].key as Node).range = range;
+    (map.items[0].value as Node).range = range;
     return map;
   }
 
