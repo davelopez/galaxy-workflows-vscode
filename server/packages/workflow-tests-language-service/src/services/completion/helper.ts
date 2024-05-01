@@ -1047,26 +1047,10 @@ ${this.indentation}${this.indentation}$0
       });
     }
 
-    function hasSameRange(nodeA: YAMLMap, nodeB: YAMLMap): boolean {
-      // loop through ranges of each node and compare them
-      if (nodeA.range && nodeB.range && nodeA.range.length === nodeB.range.length) {
-        for (let i = 0; i < nodeA.range.length; i++) {
-          if (nodeA.range[i] === nodeB.range[i]) {
-            continue;
-          } else {
-            return false;
-          }
-        }
-        return true;
-      }
-      return false;
-    }
-
     for (const schema of matchingSchemas) {
-      const internalNode = schema.node.internalNode as YAMLMap;
+      const internalNode = schema.node.internalNode as HasRange;
       if (
-        // (internalNode.range === node.range && !matchOriginal) ||
-        (hasSameRange(internalNode, node) && !matchOriginal) ||
+        (rangeMatches(internalNode, node as HasRange) && !matchOriginal) ||
         (internalNode === originalNode && !hasColon) ||
         (schema.node.parent?.internalNode === originalNode && !hasColon)
       ) {
@@ -1230,9 +1214,10 @@ ${this.indentation}${this.indentation}$0
     if (node && (parentKey !== null || isSeq(node))) {
       const separatorAfter = "";
       const didCallFromAutoComplete = true;
-      const matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, -1, didCallFromAutoComplete);
+      const matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, offset, didCallFromAutoComplete);
       for (const s of matchingSchemas) {
-        if (s.node.internalNode === node && s.schema) {
+        const internalNode = s.node.internalNode as HasRange;
+        if (rangeMatches(internalNode, node as HasRange) && s.schema) {
           if (s.schema.items) {
             if (isSeq(node) && node.items) {
               if (Array.isArray(s.schema.items)) {
@@ -1694,4 +1679,15 @@ export function getSchemaRefTypeTitle($ref: string): string {
     console.error(`$ref (${$ref}) not parsed properly`);
   }
   return type;
+}
+
+interface HasRange {
+  range: YamlRange;
+}
+
+function rangeMatches(nodeA: HasRange, nodeB: HasRange): boolean {
+  if (nodeA.range && nodeB.range && nodeA.range.length === nodeB.range.length) {
+    return nodeA.range.every((value, index) => value === nodeB.range[index]);
+  }
+  return false;
 }
