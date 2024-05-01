@@ -463,11 +463,7 @@ ${this.indentation}${this.indentation}$0
               map.items = [];
               currentDoc.updateFromInternalDocument();
               for (const pair of node.items) {
-                if (isMap(pair)) {
-                  pair.items.forEach((value) => {
-                    map.items.push(value);
-                  });
-                }
+                map.items.push(pair as Pair);
               }
               node = map;
             }
