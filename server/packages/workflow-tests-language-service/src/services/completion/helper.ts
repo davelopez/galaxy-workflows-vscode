@@ -291,48 +291,12 @@ ${this.indentation}${this.indentation}$0
       proposed,
     };
 
-    // Not supported in this version
-    // if (this.customTags.length > 0) {
-    //   this.getCustomTagValueCompletions(collector);
-    // }
-
     if (lineContent.endsWith("\n")) {
       lineContent = lineContent.substring(0, lineContent.length - 1);
     }
 
     try {
       const schema = this.schemaService.schema;
-
-      // Modeline not supported in this version
-      // if (!schema || schema.errors.length) {
-      //   if (position.line === 0 && position.character === 0 && !isModeline(lineContent)) {
-      //     const inlineSchemaCompletion = {
-      //       kind: CompletionItemKind.Text,
-      //       label: "Inline schema",
-      //       insertText: "# yaml-language-server: $schema=",
-      //       insertTextFormat: InsertTextFormat.PlainText,
-      //     };
-      //     result.items.push(inlineSchemaCompletion);
-      //   }
-      // }
-
-      // if (isModeline(lineContent) || isInComment(doc.tokens, offset)) {
-      //   const schemaIndex = lineContent.indexOf("$schema=");
-      //   if (schemaIndex !== -1 && schemaIndex + "$schema=".length <= position.character) {
-      //     this.schemaService.getAllSchemas().forEach((schema) => {
-      //       const schemaIdCompletion: CompletionItem = {
-      //         kind: CompletionItemKind.Constant,
-      //         label: schema.name ?? schema.uri,
-      //         detail: schema.description,
-      //         insertText: schema.uri,
-      //         insertTextFormat: InsertTextFormat.PlainText,
-      //         insertTextMode: InsertTextMode.asIs,
-      //       };
-      //       result.items.push(schemaIdCompletion);
-      //     });
-      //   }
-      //   return result;
-      // }
 
       if (!schema || schema.errors.length) {
         return result;
@@ -1219,50 +1183,7 @@ ${this.indentation}${this.indentation}$0
             Array.isArray(nodeParent.items)
           );
         }
-
-        // if (schema.schema.propertyNames && schema.schema.additionalProperties && schema.schema.type === "object") {
-        //   const propertyNameSchema = asSchema(schema.schema.propertyNames);
-        //   const label = propertyNameSchema.title || "property";
-        //   collector.add({
-        //     kind: CompletionItemKind.Property,
-        //     label,
-        //     insertText: "$" + `{1:${label}}: `,
-        //     insertTextFormat: InsertTextFormat.Snippet,
-        //     documentation:
-        //       this.fromMarkup(propertyNameSchema.markdownDescription) || propertyNameSchema.description || "",
-        //   });
-        // }
       }
-
-      // if (nodeParent && schema.node.internalNode === nodeParent && schema.schema.defaultSnippets) {
-      //   // For some reason the first item in the array needs to be treated differently, otherwise
-      //   // the indentation will not be correct
-      //   if (node.items.length === 1) {
-      //     this.collectDefaultSnippets(
-      //       schema.schema,
-      //       separatorAfter,
-      //       collector,
-      //       {
-      //         newLineFirst: false,
-      //         indentFirstObject: false,
-      //         shouldIndentWithTab: true,
-      //       },
-      //       1
-      //     );
-      //   } else {
-      //     this.collectDefaultSnippets(
-      //       schema.schema,
-      //       separatorAfter,
-      //       collector,
-      //       {
-      //         newLineFirst: false,
-      //         indentFirstObject: true,
-      //         shouldIndentWithTab: false,
-      //       },
-      //       1
-      //     );
-      //   }
-      // }
     }
   }
 
@@ -1302,11 +1223,6 @@ ${this.indentation}${this.indentation}$0
       for (const s of matchingSchemas) {
         if (s.node.internalNode === node && s.schema) {
           if (s.schema.items) {
-            // this.collectDefaultSnippets(s.schema, separatorAfter, collector, {
-            //   newLineFirst: false,
-            //   indentFirstObject: false,
-            //   shouldIndentWithTab: false,
-            // });
             if (isSeq(node) && node.items) {
               if (Array.isArray(s.schema.items)) {
                 const index = this.findItemAtOffset(node, offset);
@@ -1537,28 +1453,7 @@ ${this.indentation}${this.indentation}$0
       });
       hasProposals = true;
     }
-    // if (Array.isArray(schema.examples)) {
-    //   schema.examples.forEach((example) => {
-    //     let type = schema.type;
-    //     let value = example;
-    //     for (let i = arrayDepth; i > 0; i--) {
-    //       value = [value];
-    //       type = "array";
-    //     }
-    //     collector.add({
-    //       kind: this.getSuggestionKind(type),
-    //       label: this.getLabelForValue(value),
-    //       insertText: this.getInsertTextForValue(value, separatorAfter, type),
-    //       insertTextFormat: InsertTextFormat.Snippet,
-    //     });
-    //     hasProposals = true;
-    //   });
-    // }
-    // this.collectDefaultSnippets(schema, separatorAfter, collector, {
-    //   newLineFirst: true,
-    //   indentFirstObject: true,
-    //   shouldIndentWithTab: true,
-    // });
+
     if (!hasProposals && typeof schema.items === "object" && !Array.isArray(schema.items)) {
       this.addDefaultValueCompletions(schema.items, separatorAfter, collector, arrayDepth + 1);
     }
