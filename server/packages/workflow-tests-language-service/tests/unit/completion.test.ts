@@ -66,6 +66,7 @@ describe("Workflow Tests Completion Service", () => {
   });
 
   it("should suggest the `job` and `outputs` entries when the position is at the same level as `doc`", async () => {
+    const expectedLabels = ["job", "outputs"];
     const template = `
 - doc: The docs
   $`;
@@ -75,10 +76,9 @@ describe("Workflow Tests Completion Service", () => {
 
     expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(2);
-    const jobCompletion = completions?.items.find((item) => item.label === "job");
-    const outputCompletion = completions?.items.find((item) => item.label === "outputs");
-    expect(jobCompletion).toBeDefined();
-    expect(outputCompletion).toBeDefined();
+    for (const completionItem of completions!.items) {
+      expect(expectedLabels).toContain(completionItem.label);
+    }
   });
 
   it("should suggest the `job` entry as first suggestion when the position is at the Test definition level and starts with a `j`", async () => {
@@ -155,7 +155,8 @@ describe("Workflow Tests Completion Service", () => {
     });
 
     describe("Dataset Input Completions", () => {
-      it("should suggest the File class if there is nothing defined", async () => {
+      it("should suggest the 3 possible File classes if there is nothing defined", async () => {
+        const DATA_INPUT_TYPE_OPTIONS = ["PathFile", "LocationFile", "CompositeDataFile"];
         const datasetInput = FAKE_DATASET_INPUT;
         const template = `
 - doc: The docs
@@ -167,9 +168,33 @@ describe("Workflow Tests Completion Service", () => {
         const completions = await getCompletions(contents, position, workflowDataProviderMock);
 
         expect(completions).not.toBeNull();
-        expect(completions?.items.length).toBe(1);
-        expect(completions?.items[0].label).toBe("class");
-        expect(completions?.items[0].insertText).toBe("class: File");
+        expect(completions?.items.length).toBe(3);
+        for (const completionItem of completions!.items) {
+          expect(completionItem.label).toContain("class");
+          expect(completionItem.insertText).toContain("class: File");
+          expect(DATA_INPUT_TYPE_OPTIONS).toContain(completionItem.label.replace("class ", "").trim());
+        }
+      });
+
+      it("should suggest possible attributes for a (PathFile) File input", async () => {
+        const datasetInput = FAKE_DATASET_INPUT;
+        const expectedAttributes = ["name", "info", "dbkey", "filetype", "deferred"];
+        const template = `
+- doc: The docs
+  job:
+    ${datasetInput.name}:
+      class: File
+      path: /path/to/file
+      $`;
+        const { contents, position } = parseTemplate(template);
+
+        const completions = await getCompletions(contents, position, workflowDataProviderMock);
+
+        expect(completions).not.toBeNull();
+        for (const expectedAttribute of expectedAttributes) {
+          const completionItem = completions?.items.find((item) => item.label === expectedAttribute);
+          expect(completionItem).toBeDefined();
+        }
       });
     });
   });
