@@ -1003,26 +1003,31 @@ ${this.indentation}${this.indentation}$0
       const matchingWorkflowInput = workflowInputs.find((input) => input.name === nodeParentKey);
       if (matchingWorkflowInput) {
         const type = matchingWorkflowInput.type;
+        const DATA_INPUT_TYPE_OPTIONS = ["PathFile", "LocationFile", "CompositeDataFile"];
         switch (type) {
           case "data_input":
+            matchingSchemas = matchingSchemas.filter(
+              (schema) => schema.schema.title && DATA_INPUT_TYPE_OPTIONS.includes(schema.schema.title)
+            );
             if (node.items.length === 1 && isScalar(node.items[0].key) && node.items[0].key.value === "") {
-              collector.add(
-                {
-                  kind: CompletionItemKind.Property,
-                  label: "class",
-                  insertText: "class: File",
-                  insertTextFormat: InsertTextFormat.Snippet,
-                  documentation: this.fromMarkup("The class of the input. Default is `File` for this type of input."),
-                },
-                false
-              );
+              for (const schema of matchingSchemas) {
+                const firstRequired = schema.schema.required?.find((key) => key !== "class") ?? "";
+                collector.add(
+                  {
+                    kind: CompletionItemKind.Property,
+                    label: `class ${schema.schema.title}`,
+                    insertText: `class: File\n${firstRequired}: \${1:${firstRequired}}`,
+                    insertTextFormat: InsertTextFormat.Snippet,
+                    documentation: this.fromMarkup(
+                      `The class of the input. This type of input requires the \`${firstRequired}\` attribute.`
+                    ),
+                    sortText: `${DATA_INPUT_TYPE_OPTIONS.indexOf(schema.schema.title!)}`,
+                  },
+                  false
+                );
+              }
               return;
             }
-
-            matchingSchemas = matchingSchemas.filter(
-              (schema) =>
-                schema.schema.title && ["LocationFile", "PathFile", "CompositeDataFile"].includes(schema.schema.title)
-            );
             break;
           case "data_collection_input":
             // The valid schema is "Collection"
