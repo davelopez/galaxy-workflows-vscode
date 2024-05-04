@@ -1012,6 +1012,7 @@ ${this.indentation}${this.indentation}$0
                   label: "class",
                   insertText: "class: File",
                   insertTextFormat: InsertTextFormat.Snippet,
+                  documentation: this.fromMarkup("The class of the input. Default is `File` for this type of input."),
                 },
                 false
               );
