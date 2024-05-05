@@ -7,6 +7,7 @@ export namespace LSRequestIdentifiers {
   export const CLEAN_WORKFLOW_DOCUMENT = "galaxy-workflows-ls.cleanWorkflowDocument";
   export const CLEAN_WORKFLOW_CONTENTS = "galaxy-workflows-ls.cleanWorkflowContents";
   export const GET_WORKFLOW_INPUTS = "galaxy-workflows-ls.getWorkflowInputs";
+  export const GET_WORKFLOW_OUTPUTS = "galaxy-workflows-ls.getWorkflowOutputs";
 }
 
 export interface CleanWorkflowDocumentParams {
@@ -51,4 +52,18 @@ export interface WorkflowInput {
 
 export interface GetWorkflowInputsResult {
   inputs: WorkflowInput[];
+}
+
+export interface GetWorkflowOutputsParams {
+  uri: string;
+}
+
+export interface WorkflowOutput {
+  label: string;
+  output_name: string;
+  uuid: string;
+}
+
+export interface GetWorkflowOutputsResult {
+  outputs: WorkflowOutput[];
 }

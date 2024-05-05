@@ -54,7 +54,7 @@ import { ASTNodeManager } from "./ast/nodeManager";
 import { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
-import { GetWorkflowInputsResult } from "./services/requestsDefinitions";
+import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "./services/requestsDefinitions";
 
 export {
   CodeAction,
@@ -236,6 +236,7 @@ export interface DocumentsCache {
 
 export interface WorkflowDataProvider {
   getWorkflowInputs(workflowDocumentUri: string): Promise<GetWorkflowInputsResult>;
+  getWorkflowOutputs(workflowDocumentUri: string): Promise<GetWorkflowOutputsResult>;
 }
 
 const TYPES = {

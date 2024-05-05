@@ -1,5 +1,5 @@
 import { WorkflowDataProvider } from "../languageTypes";
-import { WorkflowInput } from "../services/requestsDefinitions";
+import { WorkflowInput, WorkflowOutput } from "../services/requestsDefinitions";
 import { DocumentBase } from "./document";
 
 /**
@@ -14,5 +14,13 @@ export abstract class WorkflowTestsDocument extends DocumentBase {
   public async getWorkflowInputs(): Promise<WorkflowInput[]> {
     const result = await this.workflowDataProvider?.getWorkflowInputs(this.textDocument.uri);
     return result?.inputs ?? [];
+  }
+
+  /**
+   * Returns the outputs of the associated workflow if available or an empty array otherwise.
+   */
+  public async getWorkflowOutputs(): Promise<WorkflowOutput[]> {
+    const result = await this.workflowDataProvider?.getWorkflowOutputs(this.textDocument.uri);
+    return result?.outputs ?? [];
   }
 }
