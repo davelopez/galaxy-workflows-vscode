@@ -2,11 +2,10 @@ import { inject, injectable } from "inversify";
 import { Connection } from "vscode-languageserver";
 import { DocumentsCache, TYPES, WorkflowDataProvider, WorkflowDocument } from "../languageTypes";
 import {
-  GetWorkflowInputsParams,
   GetWorkflowInputsResult,
-  GetWorkflowOutputsParams,
   GetWorkflowOutputsResult,
   LSRequestIdentifiers,
+  TargetWorkflowDocumentParams,
 } from "../services/requestsDefinitions";
 
 @injectable()
@@ -16,7 +15,7 @@ export class WorkflowDataProviderImpl implements WorkflowDataProvider {
     @inject(TYPES.DocumentsCache) public readonly documentsCache: DocumentsCache
   ) {
     // Register the request handler for getting workflow inputs
-    connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_INPUTS, (params: GetWorkflowInputsParams) => {
+    connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_INPUTS, (params: TargetWorkflowDocumentParams) => {
       // if we receive a request to get workflow inputs, we can expect that the workflow document is in the cache
       // because the client should have opened it before sending the request.
       const workflowDocument = this.getWorkflowDocument(params.uri);
@@ -24,7 +23,7 @@ export class WorkflowDataProviderImpl implements WorkflowDataProvider {
     });
 
     // Register the request handler for getting workflow outputs
-    connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_OUTPUTS, (params: GetWorkflowOutputsParams) => {
+    connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_OUTPUTS, (params: TargetWorkflowDocumentParams) => {
       // if we receive a request to get workflow outputs, we can expect that the workflow document is in the cache
       // because the client should have opened it before sending the request.
       const workflowDocument = this.getWorkflowDocument(params.uri);
@@ -38,7 +37,7 @@ export class WorkflowDataProviderImpl implements WorkflowDataProvider {
    * @returns The inputs of the associated workflow.
    */
   public async getWorkflowInputs(workflowDocumentUri: string): Promise<GetWorkflowInputsResult> {
-    const params: GetWorkflowInputsParams = {
+    const params: TargetWorkflowDocumentParams = {
       uri: workflowDocumentUri.toString(),
     };
     // The URI could be of the associated test document. Since we don't know which kind of workflow document
@@ -54,7 +53,7 @@ export class WorkflowDataProviderImpl implements WorkflowDataProvider {
    * @returns The outputs of the associated workflow.
    */
   public async getWorkflowOutputs(workflowDocumentUri: string): Promise<GetWorkflowOutputsResult> {
-    const params: GetWorkflowOutputsParams = {
+    const params: TargetWorkflowDocumentParams = {
       uri: workflowDocumentUri.toString(),
     };
     // The URI could be of the associated test document. Since we don't know which kind of workflow document

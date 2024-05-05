@@ -38,7 +38,8 @@ export namespace CleanWorkflowContentsRequest {
   );
 }
 
-export interface GetWorkflowInputsParams {
+export interface TargetWorkflowDocumentParams {
+  /** The URI of the target workflow document. */
   uri: string;
 }
 
@@ -52,10 +53,6 @@ export interface WorkflowInput {
 
 export interface GetWorkflowInputsResult {
   inputs: WorkflowInput[];
-}
-
-export interface GetWorkflowOutputsParams {
-  uri: string;
 }
 
 export interface WorkflowOutput {
