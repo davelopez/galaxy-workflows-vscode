@@ -995,6 +995,20 @@ ${this.indentation}${this.indentation}$0
       return;
     }
 
+    if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key) && nodeParent.key.value === "outputs") {
+      const testDocument = documentContext as WorkflowTestsDocument;
+      const workflowOutputs = await testDocument.getWorkflowOutputs();
+      workflowOutputs.forEach((output) => {
+        collector.add({
+          kind: CompletionItemKind.Property,
+          label: output.label,
+          insertText: `${output.label}:`,
+          insertTextFormat: InsertTextFormat.Snippet,
+        });
+      });
+      return;
+    }
+
     //If the parent is a workflow input, then we need to add the properties from the document context
     if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key)) {
       const testDocument = documentContext as WorkflowTestsDocument;
