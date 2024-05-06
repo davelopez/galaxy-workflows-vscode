@@ -1,6 +1,6 @@
 import { container } from "@gxwf/server-common/src/inversify.config";
 import { CompletionItem, CompletionList, WorkflowDataProvider } from "@gxwf/server-common/src/languageTypes";
-import { WorkflowInput } from "@gxwf/server-common/src/services/requestsDefinitions";
+import { WorkflowInput, WorkflowOutput } from "@gxwf/server-common/src/services/requestsDefinitions";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
 import "reflect-metadata";
 import { WorkflowTestsSchemaService } from "../../src/schema/service";
@@ -107,12 +107,29 @@ describe("Workflow Tests Completion Service", () => {
       type: "data_collection_input",
     };
     const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [FAKE_DATASET_INPUT, FAKE_DATASET_COLLECTION_INPUT];
+    const FAKE_WORKFLOW_OUTPUTS: WorkflowOutput[] = [
+      {
+        label: "My output",
+        output_name: "output",
+        uuid: "1234-5678-91011-1213",
+      },
+      {
+        label: "My second output",
+        output_name: "output2",
+        uuid: "1234-5678-91011-1214",
+      },
+    ];
 
     beforeAll(() => {
       workflowDataProviderMock = {
         async getWorkflowInputs(_workflowDocumentUri: string) {
           return {
             inputs: FAKE_WORKFLOW_INPUTS,
+          };
+        },
+        async getWorkflowOutputs(_workflowDocumentUri: string) {
+          return {
+            outputs: FAKE_WORKFLOW_OUTPUTS,
           };
         },
       };
@@ -194,6 +211,25 @@ describe("Workflow Tests Completion Service", () => {
         for (const expectedAttribute of expectedAttributes) {
           const completionItem = completions?.items.find((item) => item.label === expectedAttribute);
           expect(completionItem).toBeDefined();
+        }
+      });
+    });
+    describe("Dataset Output Completions", () => {
+      it("should suggest all the defined outputs of the workflow when no outputs are defined in the test", async () => {
+        const template = `
+- doc: The docs
+  outputs:
+    $`;
+        const { contents, position } = parseTemplate(template);
+
+        const completions = await getCompletions(contents, position, workflowDataProviderMock);
+
+        expect(completions).not.toBeNull();
+        expect(completions?.items.length).toBe(FAKE_WORKFLOW_OUTPUTS.length);
+        for (let index = 0; index < FAKE_WORKFLOW_OUTPUTS.length; index++) {
+          const workflowOutput = FAKE_WORKFLOW_OUTPUTS[index];
+          const completionItem = completions!.items[index];
+          expect(completionItem.label).toEqual(workflowOutput.label);
         }
       });
     });
