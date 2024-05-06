@@ -47,7 +47,7 @@ export function debugPrintCommandArgs(command: string, args: unknown[], outputCh
 }
 
 export function isWorkflowTestsDocument(uri: Uri): boolean {
-  return uri.path.endsWith("-test.yml");
+  return uri.path.endsWith("-test.yml") || uri.path.endsWith("-tests.yml");
 }
 
 export function isNativeWorkflowDocument(uri: Uri): boolean {
@@ -55,12 +55,16 @@ export function isNativeWorkflowDocument(uri: Uri): boolean {
 }
 
 export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: Uri): Promise<Uri | undefined> {
-  const format2WorkflowUri = Uri.parse(workflowTestsDocumentUri.toString().replace("-test.yml", ".yml"));
+  const format2WorkflowUri = Uri.parse(
+    workflowTestsDocumentUri.toString().replace("-test.yml", ".yml").replace("-tests.yml", ".yml")
+  );
   try {
     await workspace.fs.stat(format2WorkflowUri);
     return format2WorkflowUri;
   } catch {
-    const nativeWorkflowUri = Uri.parse(workflowTestsDocumentUri.toString().replace("-test.yml", ".ga"));
+    const nativeWorkflowUri = Uri.parse(
+      workflowTestsDocumentUri.toString().replace("-test.yml", ".ga").replace("-tests.yml", ".ga")
+    );
     try {
       await workspace.fs.stat(nativeWorkflowUri);
       return nativeWorkflowUri;
