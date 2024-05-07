@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Document, Node, YAMLMap, YAMLSeq, isDocument, isScalar, visit } from "yaml";
+import { Document, Node, Range, YAMLMap, YAMLSeq, isDocument, isScalar, visit } from "yaml";
 import { YamlNode } from "../parser/astTypes";
 import { CharCode } from "../parser/charCode";
 
@@ -55,4 +55,15 @@ export function isMapContainsEmptyPair(map: YAMLMap): boolean {
 
   const pair = map.items[0];
   return isScalar(pair.key) && isScalar(pair.value) && pair.key.value === "" && !pair.value.value;
+}
+
+export interface HasRange {
+  range: Range;
+}
+
+export function rangeMatches(nodeA: HasRange, nodeB: HasRange): boolean {
+  if (nodeA.range && nodeB.range && nodeA.range.length === nodeB.range.length) {
+    return nodeA.range.every((value, index) => value === nodeB.range[index]);
+  }
+  return false;
 }

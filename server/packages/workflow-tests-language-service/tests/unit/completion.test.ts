@@ -101,12 +101,21 @@ describe("Workflow Tests Completion Service", () => {
       description: "This is a simple dataset",
       type: "data_input",
     };
+    const FAKE_DATASET_INPUT_COLON: WorkflowInput = {
+      name: "Input dataset: fake",
+      description: "This is a simple dataset with a colon in the name",
+      type: "data_input",
+    };
     const FAKE_DATASET_COLLECTION_INPUT: WorkflowInput = {
       name: "My fake collection",
       description: "This is a collection",
       type: "data_collection_input",
     };
-    const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [FAKE_DATASET_INPUT, FAKE_DATASET_COLLECTION_INPUT];
+    const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [
+      FAKE_DATASET_INPUT,
+      FAKE_DATASET_COLLECTION_INPUT,
+      FAKE_DATASET_INPUT_COLON,
+    ];
     const FAKE_WORKFLOW_OUTPUTS: WorkflowOutput[] = [
       {
         label: "My output",
@@ -117,6 +126,11 @@ describe("Workflow Tests Completion Service", () => {
         label: "My second output",
         output_name: "output2",
         uuid: "1234-5678-91011-1214",
+      },
+      {
+        label: "My third output: with colon",
+        output_name: "output3",
+        uuid: "1234-5678-91011-1215",
       },
     ];
 

@@ -26,7 +26,7 @@ import {
 } from "@gxwf/server-common/src/languageTypes";
 import { YamlNode } from "@gxwf/yaml-language-service/src/parser/astTypes";
 import { YAMLSubDocument } from "@gxwf/yaml-language-service/src/parser/yamlDocument";
-import { indexOf, isMapContainsEmptyPair } from "@gxwf/yaml-language-service/src/utils";
+import { HasRange, indexOf, isMapContainsEmptyPair, rangeMatches } from "@gxwf/yaml-language-service/src/utils";
 import { guessIndentation } from "@gxwf/yaml-language-service/src/utils/indentationGuesser";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { Node, Pair, YAMLMap, YAMLSeq, Range as YamlRange, isMap, isNode, isPair, isScalar, isSeq } from "yaml";
@@ -987,7 +987,7 @@ ${this.indentation}${this.indentation}$0
         collector.add({
           kind: CompletionItemKind.Property,
           label: input.name,
-          insertText: `${input.name}:`,
+          insertText: `${this.quoteIfColon(input.name)}:`,
           insertTextFormat: InsertTextFormat.Snippet,
           documentation: this.fromMarkup(input.description),
         });
@@ -1002,7 +1002,7 @@ ${this.indentation}${this.indentation}$0
         collector.add({
           kind: CompletionItemKind.Property,
           label: output.label,
-          insertText: `${output.label}:`,
+          insertText: `${this.quoteIfColon(output.label)}:`,
           insertTextFormat: InsertTextFormat.Snippet,
         });
       });
@@ -1321,6 +1321,10 @@ ${this.indentation}${this.indentation}$0
       };
     }
     return undefined;
+  }
+
+  private quoteIfColon(value: string): string {
+    return value.includes(":") ? `'${value}'` : `${value}`;
   }
 
   private doesSupportMarkdown(): boolean {
@@ -1699,15 +1703,4 @@ export function getSchemaRefTypeTitle($ref: string): string {
     console.error(`$ref (${$ref}) not parsed properly`);
   }
   return type;
-}
-
-interface HasRange {
-  range: YamlRange;
-}
-
-function rangeMatches(nodeA: HasRange, nodeB: HasRange): boolean {
-  if (nodeA.range && nodeB.range && nodeA.range.length === nodeB.range.length) {
-    return nodeA.range.every((value, index) => value === nodeB.range[index]);
-  }
-  return false;
 }
