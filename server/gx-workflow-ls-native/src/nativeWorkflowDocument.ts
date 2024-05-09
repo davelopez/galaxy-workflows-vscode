@@ -1,3 +1,4 @@
+import { ASTNode, ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
 import { JSONDocument } from "vscode-json-languageservice";
 
@@ -8,7 +9,16 @@ export class NativeWorkflowDocument extends WorkflowDocument {
   private _jsonDocument: JSONDocument;
 
   constructor(textDocument: TextDocument, jsonDocument: JSONDocument) {
-    super(textDocument, { ...jsonDocument, internalDocument: jsonDocument });
+    const parsedDocument: ParsedDocument = {
+      ...{
+        root: jsonDocument.root as ASTNode,
+        getNodeFromOffset(offset: number) {
+          return jsonDocument.getNodeFromOffset(offset) as ASTNode | undefined;
+        },
+      },
+      internalDocument: jsonDocument,
+    };
+    super(textDocument, parsedDocument);
     this._jsonDocument = jsonDocument;
   }
 
