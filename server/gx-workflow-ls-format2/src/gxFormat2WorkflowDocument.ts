@@ -1,4 +1,8 @@
 import { TextDocument, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
+import {
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
+} from "@gxwf/server-common/src/services/requestsDefinitions";
 import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 
 /**
@@ -13,5 +17,12 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
 
   public get yamlDocument(): YAMLDocument {
     return this._yamlDocument;
+  }
+
+  public getWorkflowInputs(): GetWorkflowInputsResult {
+    throw new Error("Method not implemented.");
+  }
+  public getWorkflowOutputs(): GetWorkflowOutputsResult {
+    throw new Error("Method not implemented.");
   }
 }
