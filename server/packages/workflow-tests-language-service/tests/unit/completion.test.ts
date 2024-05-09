@@ -167,6 +167,18 @@ describe("Workflow Tests Completion Service", () => {
       }
     });
 
+    it("should suggest the input including quotes if the name contains colon", async () => {
+      const template = `
+- doc: The docs
+  job:
+    Input$`;
+      const { contents, position } = parseTemplate(template);
+
+      const completions = await getCompletions(contents, position, workflowDataProviderMock);
+
+      expect(completions).not.toBeNull();
+    });
+
     it("should not suggest an existing input when suggesting inputs", async () => {
       const existingInput = FAKE_DATASET_INPUT;
       const expectedNumOfRemainingInputs = FAKE_WORKFLOW_INPUTS.length - 1;
