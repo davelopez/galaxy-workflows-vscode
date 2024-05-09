@@ -26,7 +26,7 @@ export function getIndentation(lineContent: string, lineOffset: number): number 
 export function getParent(doc: Document, nodeToFind: YamlNode): YamlNode | undefined {
   let parentNode: Node | undefined = undefined;
   visit(doc, (_, node, path) => {
-    if (node === nodeToFind) {
+    if (node === nodeToFind || rangeMatches(node as HasRange, nodeToFind as HasRange)) {
       parentNode = path[path.length - 1] as Node;
       return visit.BREAK;
     }
