@@ -56,7 +56,7 @@ export function isNativeWorkflowDocument(uri: Uri): boolean {
 
 export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: Uri): Promise<Uri | undefined> {
   const format2WorkflowUri = Uri.parse(
-    workflowTestsDocumentUri.toString().replace("-test.yml", ".yml").replace("-tests.yml", ".yml")
+    workflowTestsDocumentUri.toString().replace("-test.yml", ".gxwf.yml").replace("-tests.yml", ".gxwf.yml")
   );
   try {
     await workspace.fs.stat(format2WorkflowUri);
