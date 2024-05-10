@@ -1,6 +1,10 @@
 import { window } from "vscode";
-import { CleanWorkflowDocumentParams, CleanWorkflowDocumentRequest } from "../common/requestsDefinitions";
 import { CustomCommand, getCommandFullIdentifier } from ".";
+import {
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
+  LSRequestIdentifiers,
+} from "../common/requestsDefinitions";
 
 /**
  * Command to 'clean' the selected workflow document.
@@ -17,7 +21,10 @@ export class CleanWorkflowCommand extends CustomCommand {
     const { document } = window.activeTextEditor;
 
     const params: CleanWorkflowDocumentParams = { uri: this.client.code2ProtocolConverter.asUri(document.uri) };
-    const result = await this.client.sendRequest(CleanWorkflowDocumentRequest.type, params);
+    const result = await this.client.sendRequest<CleanWorkflowDocumentResult>(
+      LSRequestIdentifiers.CLEAN_WORKFLOW_DOCUMENT,
+      params
+    );
     if (!result) {
       throw new Error("Cannot clean the requested document. The server returned no result.");
     }

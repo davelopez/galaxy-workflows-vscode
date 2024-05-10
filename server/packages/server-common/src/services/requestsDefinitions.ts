@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { RequestType } from "vscode-languageserver";
 
 // TODO: Move the contents of this file to a shared lib https://github.com/Microsoft/vscode/issues/15829
 
@@ -26,23 +25,12 @@ export interface CleanWorkflowContentsResult {
   contents: string;
 }
 
-export namespace CleanWorkflowDocumentRequest {
-  export const type = new RequestType<CleanWorkflowDocumentParams, CleanWorkflowDocumentResult, void>(
-    LSRequestIdentifiers.CLEAN_WORKFLOW_DOCUMENT
-  );
-}
-
-export namespace CleanWorkflowContentsRequest {
-  export const type = new RequestType<CleanWorkflowContentsParams, CleanWorkflowContentsResult, void>(
-    LSRequestIdentifiers.CLEAN_WORKFLOW_CONTENTS
-  );
-}
-
 export interface TargetWorkflowDocumentParams {
   /** The URI of the target workflow document. */
   uri: string;
 }
 
+// TODO: rename to File and Collection
 export type WorkflowInputType = "data_input" | "data_collection_input";
 
 export interface WorkflowInput {

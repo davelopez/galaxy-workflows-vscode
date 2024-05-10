@@ -1,16 +1,15 @@
 import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { GalaxyWorkflowLanguageServer, WorkflowDocument } from "../languageTypes";
 import { ServiceBase } from ".";
+import { ASTNode, PropertyASTNode } from "../ast/types";
+import { GalaxyWorkflowLanguageServer, WorkflowDocument } from "../languageTypes";
 import {
   CleanWorkflowContentsParams,
-  CleanWorkflowContentsRequest,
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
-  CleanWorkflowDocumentRequest,
   CleanWorkflowDocumentResult,
+  LSRequestIdentifiers,
 } from "./requestsDefinitions";
-import { ASTNode, PropertyASTNode } from "../ast/types";
 
 /**
  * Service for handling workflow `cleaning` requests.
@@ -29,16 +28,18 @@ export class CleanWorkflowService extends ServiceBase {
   }
 
   protected listenToRequests(): void {
-    this.server.connection.onRequest(CleanWorkflowContentsRequest.type, (params) =>
-      this.onCleanWorkflowContentsRequest(params)
+    this.server.connection.onRequest(
+      LSRequestIdentifiers.CLEAN_WORKFLOW_CONTENTS,
+      (params: CleanWorkflowContentsParams) => this.onCleanWorkflowContentsRequest(params)
     );
-    this.server.connection.onRequest(CleanWorkflowDocumentRequest.type, (params) =>
-      this.onCleanWorkflowDocumentRequest(params)
+    this.server.connection.onRequest(
+      LSRequestIdentifiers.CLEAN_WORKFLOW_DOCUMENT,
+      (params: CleanWorkflowDocumentParams) => this.onCleanWorkflowDocumentRequest(params)
     );
   }
 
   /**
-   * Processes a `CleanWorkflowContentsRequest` by returning the `clean` contents
+   * Processes a `CLEAN_WORKFLOW_DOCUMENT` request by returning the `clean` contents
    * of a workflow document given the raw text contents of the workflow document.
    * @param params The request parameters containing the raw text contents of the workflow
    * @returns The `clean` contents of the workflow document
