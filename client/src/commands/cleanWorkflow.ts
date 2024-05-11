@@ -4,7 +4,7 @@ import {
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
   LSRequestIdentifiers,
-} from "../common/requestsDefinitions";
+} from "../../../shared/src/requestsDefinitions";
 
 /**
  * Command to 'clean' the selected workflow document.

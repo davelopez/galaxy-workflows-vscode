@@ -50,11 +50,11 @@ import {
   HoverParams,
 } from "vscode-languageserver/browser";
 import { URI } from "vscode-uri";
+import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
 import { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
-import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "./services/requestsDefinitions";
 
 export {
   CodeAction,

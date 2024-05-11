@@ -1,9 +1,6 @@
 import { TextDocument, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
-import {
-  GetWorkflowInputsResult,
-  GetWorkflowOutputsResult,
-} from "@gxwf/server-common/src/services/requestsDefinitions";
 import { YAMLDocument } from "@gxwf/yaml-language-service/src";
+import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "../../../shared/src/requestsDefinitions";
 
 /**
  * This class provides information about a gxformat2 workflow document structure.

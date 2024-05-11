@@ -4,7 +4,7 @@ import {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,
   LSRequestIdentifiers,
-} from "../common/requestsDefinitions";
+} from "../../../shared/src/requestsDefinitions";
 import { getWorkspaceScheme, replaceUriScheme } from "../common/utils";
 import { GitProvider } from "./git";
 

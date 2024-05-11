@@ -1,8 +1,8 @@
 import { container } from "@gxwf/server-common/src/inversify.config";
 import { CompletionItem, CompletionList, WorkflowDataProvider } from "@gxwf/server-common/src/languageTypes";
-import { WorkflowInput, WorkflowOutput } from "@gxwf/server-common/src/services/requestsDefinitions";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
 import "reflect-metadata";
+import { WorkflowInput, WorkflowOutput } from "../../../../../shared/src/requestsDefinitions";
 import { WorkflowTestsSchemaService } from "../../src/schema/service";
 import { YAMLCompletionHelper } from "../../src/services/completion/helper";
 import { TYPES } from "../../src/types";

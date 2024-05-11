@@ -1,15 +1,15 @@
 import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ServiceBase } from ".";
-import { ASTNode, PropertyASTNode } from "../ast/types";
-import { GalaxyWorkflowLanguageServer, WorkflowDocument } from "../languageTypes";
 import {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
   LSRequestIdentifiers,
-} from "./requestsDefinitions";
+} from "../../../../../shared/src/requestsDefinitions";
+import { ASTNode, PropertyASTNode } from "../ast/types";
+import { GalaxyWorkflowLanguageServer, WorkflowDocument } from "../languageTypes";
 
 /**
  * Service for handling workflow `cleaning` requests.

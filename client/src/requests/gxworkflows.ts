@@ -5,7 +5,7 @@ import {
   GetWorkflowOutputsResult,
   LSRequestIdentifiers,
   TargetWorkflowDocumentParams,
-} from "../common/requestsDefinitions";
+} from "../../../shared/src/requestsDefinitions";
 import {
   getAssociatedWorkflowUriFromTestsUri,
   isNativeWorkflowDocument,

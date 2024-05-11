@@ -15,6 +15,5 @@
     "paths": {
       "@schemas/*": ["../../workflow-languages/schemas/*"]
     }
-  },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  }
 }

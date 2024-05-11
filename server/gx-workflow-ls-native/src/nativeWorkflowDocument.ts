@@ -1,11 +1,8 @@
 import { ASTNode, ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
-import {
-  GetWorkflowInputsResult,
-  GetWorkflowOutputsResult,
-} from "@gxwf/server-common/src/services/requestsDefinitions";
 import { isWorkflowInputType } from "@gxwf/server-common/src/utils";
 import { JSONDocument } from "vscode-json-languageservice";
+import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "../../../shared/src/requestsDefinitions";
 
 /**
  * This class provides information about a Native workflow document structure.
@@ -45,7 +42,7 @@ export class NativeWorkflowDocument extends WorkflowDocument {
         result.inputs.push({
           name: labelValue ?? "UNKNOWN",
           description: annotationValue,
-          type: stepTypeValue,
+          type: stepTypeValue as "data_input" | "data_collection_input",
         });
       }
     });

@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
-// TODO: Move the contents of this file to a shared lib https://github.com/Microsoft/vscode/issues/15829
-
 export namespace LSRequestIdentifiers {
   export const CLEAN_WORKFLOW_DOCUMENT = "galaxy-workflows-ls.cleanWorkflowDocument";
   export const CLEAN_WORKFLOW_CONTENTS = "galaxy-workflows-ls.cleanWorkflowContents";

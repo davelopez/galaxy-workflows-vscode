@@ -11,6 +11,7 @@
     "sourceMap": true,
     "strict": true,
     "composite": true,
+    "baseUrl": ".",
     "paths": {
       "@schemas/*": ["../workflow-languages/schemas/*"]
     }
