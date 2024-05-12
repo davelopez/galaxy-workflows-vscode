@@ -99,17 +99,17 @@ describe("Workflow Tests Completion Service", () => {
     const FAKE_DATASET_INPUT: WorkflowInput = {
       name: "My fake dataset",
       description: "This is a simple dataset",
-      type: "data_input",
+      type: "data",
     };
     const FAKE_DATASET_INPUT_COLON: WorkflowInput = {
       name: "Input dataset: fake",
       description: "This is a simple dataset with a colon in the name",
-      type: "data_input",
+      type: "File",
     };
     const FAKE_DATASET_COLLECTION_INPUT: WorkflowInput = {
       name: "My fake collection",
       description: "This is a collection",
-      type: "data_collection_input",
+      type: "collection",
     };
     const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [
       FAKE_DATASET_INPUT,

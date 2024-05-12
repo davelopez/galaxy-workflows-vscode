@@ -30,7 +30,7 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
         inputList.forEach((input) => {
           if (input.type !== "property" || !input.keyNode) return;
           const inputName = String(input.keyNode.value);
-          const inputType = this.getInputType(input);
+          const inputType = this.extractInputType(input);
           const inputDocNode = input.valueNode?.children?.find(
             (prop) => prop.type === "property" && prop.keyNode.value === "doc"
           ) as PropertyASTNode;
@@ -50,7 +50,7 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
     throw new Error("Method not implemented.");
   }
 
-  private getInputType(input: PropertyASTNode): WorkflowInputType {
+  private extractInputType(input: PropertyASTNode): WorkflowInputType {
     let inputType: WorkflowInputType = "data";
     const inputTypeNode = input.valueNode?.children?.find(
       (prop) => prop.type === "property" && prop.keyNode.value === "type"

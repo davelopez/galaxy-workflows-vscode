@@ -1019,7 +1019,8 @@ ${this.indentation}${this.indentation}$0
         const type = matchingWorkflowInput.type;
         const DATA_INPUT_TYPE_OPTIONS = ["PathFile", "LocationFile", "CompositeDataFile"];
         switch (type) {
-          case "data_input":
+          case "data":
+          case "File":
             matchingSchemas = matchingSchemas.filter(
               (schema) => schema.schema.title && DATA_INPUT_TYPE_OPTIONS.includes(schema.schema.title)
             );
@@ -1043,7 +1044,7 @@ ${this.indentation}${this.indentation}$0
               return;
             }
             break;
-          case "data_collection_input":
+          case "collection":
             // The valid schema is "Collection"
             // TODO add class: Collection
             matchingSchemas = matchingSchemas.filter((schema) => schema.schema.title === "Collection");
