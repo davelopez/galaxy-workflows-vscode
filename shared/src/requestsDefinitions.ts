@@ -28,7 +28,19 @@ export interface TargetWorkflowDocumentParams {
   uri: string;
 }
 
-export type WorkflowInputType = "data_input" | "data_collection_input";
+export type WorkflowInputType =
+  | "null"
+  | "boolean"
+  | "int"
+  | "long"
+  | "float"
+  | "double"
+  | "string"
+  | "integer"
+  | "text"
+  | "File"
+  | "data"
+  | "collection";
 
 export interface WorkflowInput {
   name: string;
