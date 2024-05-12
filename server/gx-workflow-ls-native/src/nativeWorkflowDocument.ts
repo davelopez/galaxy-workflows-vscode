@@ -5,7 +5,7 @@ import { JSONDocument } from "vscode-json-languageservice";
 import {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
-  WorkflowInputType,
+  WorkflowDataType,
 } from "../../../shared/src/requestsDefinitions";
 
 /**
@@ -84,7 +84,7 @@ export class NativeWorkflowDocument extends WorkflowDocument {
     return result;
   }
 
-  private getInputType(typeName: string): WorkflowInputType {
+  private getInputType(typeName: string): WorkflowDataType {
     switch (typeName) {
       case "data_input":
         return "data";

@@ -28,7 +28,7 @@ export interface TargetWorkflowDocumentParams {
   uri: string;
 }
 
-export type WorkflowInputType =
+export type WorkflowDataType =
   | "null"
   | "boolean"
   | "int"
@@ -44,7 +44,7 @@ export type WorkflowInputType =
 
 export interface WorkflowInput {
   name: string;
-  type: WorkflowInputType;
+  type: WorkflowDataType;
   description: string;
 }
 

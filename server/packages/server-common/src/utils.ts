@@ -1,5 +1,5 @@
-import { WorkflowInputType } from "../../../../shared/src/requestsDefinitions";
+import { WorkflowDataType } from "../../../../shared/src/requestsDefinitions";
 
-export function isWorkflowInputType(input: string): input is WorkflowInputType {
+export function isWorkflowInputType(input: string): input is WorkflowDataType {
   return input === "data_input" || input === "data_collection_input";
 }

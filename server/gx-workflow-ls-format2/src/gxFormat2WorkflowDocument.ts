@@ -4,7 +4,7 @@ import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 import {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
-  WorkflowInputType,
+  WorkflowDataType,
 } from "../../../shared/src/requestsDefinitions";
 
 /**
@@ -50,16 +50,16 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
     throw new Error("Method not implemented.");
   }
 
-  private extractInputType(input: PropertyASTNode): WorkflowInputType {
-    let inputType: WorkflowInputType = "data";
+  private extractInputType(input: PropertyASTNode): WorkflowDataType {
+    let inputType: WorkflowDataType = "data";
     const inputTypeNode = input.valueNode?.children?.find(
       (prop) => prop.type === "property" && prop.keyNode.value === "type"
     ) as PropertyASTNode;
     if (inputTypeNode) {
-      inputType = String(inputTypeNode.valueNode?.value) as WorkflowInputType;
+      inputType = String(inputTypeNode.valueNode?.value) as WorkflowDataType;
     } else {
       // If the type property is not specified, it might be defined in the value node itself
-      inputType = input.valueNode?.value as WorkflowInputType;
+      inputType = input.valueNode?.value as WorkflowDataType;
     }
     return inputType;
   }
