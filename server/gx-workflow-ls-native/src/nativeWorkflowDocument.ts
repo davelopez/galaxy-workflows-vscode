@@ -40,12 +40,23 @@ export class NativeWorkflowDocument extends WorkflowDocument {
       const stepTypeValue = String(stepTypeNode?.valueNode?.value);
       if (isWorkflowInputType(stepTypeValue)) {
         const labelNode = step.properties.find((property) => property.keyNode.value === "label");
-        const labelValue = String(labelNode?.valueNode?.value);
+        let labelValue = labelNode?.valueNode?.value;
         const annotationNode = step.properties.find((property) => property.keyNode.value === "annotation");
-        const annotationValue = String(annotationNode?.valueNode?.value);
+        let annotationValue = annotationNode?.valueNode?.value;
+        if (!labelNode) {
+          const inputs = step.properties.find((property) => property.keyNode.value === "inputs");
+          if (inputs?.valueNode && inputs.valueNode.type === "array") {
+            const input = inputs?.valueNode.items.at(0);
+            if (input && input.type === "object") {
+              labelValue = input.properties.find((p) => p.keyNode.value === "name")?.valueNode?.value ?? labelValue;
+              annotationValue =
+                input.properties.find((p) => p.keyNode.value === "description")?.valueNode?.value ?? annotationValue;
+            }
+          }
+        }
         result.inputs.push({
-          name: labelValue ?? "UNKNOWN",
-          doc: annotationValue,
+          name: String(labelValue),
+          doc: String(annotationValue ?? ""),
           type: this.getInputType(stepTypeValue),
         });
       }
