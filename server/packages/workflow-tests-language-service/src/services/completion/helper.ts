@@ -989,7 +989,7 @@ ${this.indentation}${this.indentation}$0
           label: input.name,
           insertText: `${this.quoteIfColon(input.name)}:`,
           insertTextFormat: InsertTextFormat.Snippet,
-          documentation: this.fromMarkup(input.description),
+          documentation: this.fromMarkup(input.doc),
         });
       });
       return;
@@ -1001,8 +1001,8 @@ ${this.indentation}${this.indentation}$0
       workflowOutputs.forEach((output) => {
         collector.add({
           kind: CompletionItemKind.Property,
-          label: output.label,
-          insertText: `${this.quoteIfColon(output.label)}:`,
+          label: output.name,
+          insertText: `${this.quoteIfColon(output.name)}:`,
           insertTextFormat: InsertTextFormat.Snippet,
         });
       });

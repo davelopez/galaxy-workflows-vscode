@@ -45,7 +45,7 @@ export class NativeWorkflowDocument extends WorkflowDocument {
         const annotationValue = String(annotationNode?.valueNode?.value);
         result.inputs.push({
           name: labelValue ?? "UNKNOWN",
-          description: annotationValue,
+          doc: annotationValue,
           type: this.getInputType(stepTypeValue),
         });
       }
@@ -69,13 +69,10 @@ export class NativeWorkflowDocument extends WorkflowDocument {
           }
           const labelNode = workflowOutput.properties.find((property) => property.keyNode.value === "label");
           const labelValue = String(labelNode?.valueNode?.value);
-          const outputNameNode = workflowOutput.properties.find((property) => property.keyNode.value === "output_name");
-          const outputNameValue = String(outputNameNode?.valueNode?.value);
           const uuidNode = workflowOutput.properties.find((property) => property.keyNode.value === "uuid");
           const uuidValue = String(uuidNode?.valueNode?.value);
           result.outputs.push({
-            label: labelValue ?? "UNKNOWN",
-            output_name: outputNameValue,
+            name: labelValue,
             uuid: uuidValue,
           });
         });

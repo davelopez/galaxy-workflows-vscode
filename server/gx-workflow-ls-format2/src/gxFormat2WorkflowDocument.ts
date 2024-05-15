@@ -37,7 +37,7 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
           const inputDescription = String(inputDocNode?.valueNode?.value ?? "");
           result.inputs.push({
             name: inputName,
-            description: inputDescription,
+            doc: inputDescription,
             type: inputType,
           });
         });
@@ -47,7 +47,26 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
   }
 
   public getWorkflowOutputs(): GetWorkflowOutputsResult {
-    throw new Error("Method not implemented.");
+    const result: GetWorkflowOutputsResult = { outputs: [] };
+    const output = this.nodeManager.getNodeFromPath("outputs");
+    if (output?.type === "property") {
+      const outputList = output.valueNode?.children;
+      if (outputList) {
+        outputList.forEach((output) => {
+          if (output.type !== "property" || !output.keyNode) return;
+          const outputName = String(output.keyNode.value);
+          const outputDocNode = output.valueNode?.children?.find(
+            (prop) => prop.type === "property" && prop.keyNode.value === "doc"
+          ) as PropertyASTNode;
+          const outputDoc = String(outputDocNode?.valueNode?.value ?? "");
+          result.outputs.push({
+            name: outputName,
+            doc: outputDoc,
+          });
+        });
+      }
+    }
+    return result;
   }
 
   private extractInputType(input: PropertyASTNode): WorkflowDataType {

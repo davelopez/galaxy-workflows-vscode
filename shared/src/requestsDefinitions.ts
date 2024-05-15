@@ -45,17 +45,19 @@ export type WorkflowDataType =
 export interface WorkflowInput {
   name: string;
   type: WorkflowDataType;
-  description: string;
+  doc: string;
 }
 
 export interface GetWorkflowInputsResult {
   inputs: WorkflowInput[];
 }
 
+//TODO: unify format1 and format2 output definitions
 export interface WorkflowOutput {
-  label: string;
-  output_name: string;
-  uuid: string;
+  name: string;
+  uuid?: string;
+  doc?: string;
+  type?: WorkflowDataType;
 }
 
 export interface GetWorkflowOutputsResult {

@@ -98,17 +98,17 @@ describe("Workflow Tests Completion Service", () => {
     let workflowDataProviderMock: WorkflowDataProvider;
     const FAKE_DATASET_INPUT: WorkflowInput = {
       name: "My fake dataset",
-      description: "This is a simple dataset",
+      doc: "This is a simple dataset",
       type: "data",
     };
     const FAKE_DATASET_INPUT_COLON: WorkflowInput = {
       name: "Input dataset: fake",
-      description: "This is a simple dataset with a colon in the name",
+      doc: "This is a simple dataset with a colon in the name",
       type: "File",
     };
     const FAKE_DATASET_COLLECTION_INPUT: WorkflowInput = {
       name: "My fake collection",
-      description: "This is a collection",
+      doc: "This is a collection",
       type: "collection",
     };
     const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [
@@ -118,18 +118,15 @@ describe("Workflow Tests Completion Service", () => {
     ];
     const FAKE_WORKFLOW_OUTPUTS: WorkflowOutput[] = [
       {
-        label: "My output",
-        output_name: "output",
+        name: "My output",
         uuid: "1234-5678-91011-1213",
       },
       {
-        label: "My second output",
-        output_name: "output2",
+        name: "My second output",
         uuid: "1234-5678-91011-1214",
       },
       {
-        label: "My third output: with colon",
-        output_name: "output3",
+        name: "My third output: with colon",
         uuid: "1234-5678-91011-1215",
       },
     ];
@@ -255,7 +252,7 @@ describe("Workflow Tests Completion Service", () => {
         for (let index = 0; index < FAKE_WORKFLOW_OUTPUTS.length; index++) {
           const workflowOutput = FAKE_WORKFLOW_OUTPUTS[index];
           const completionItem = completions!.items[index];
-          expect(completionItem.label).toEqual(workflowOutput.label);
+          expect(completionItem.label).toEqual(workflowOutput.name);
         }
       });
     });
@@ -295,5 +292,5 @@ function expectCompletionItemDocumentationToContain(completionItem: CompletionIt
 
 function expectCompletionItemToMatchWorkflowInput(completionItem: CompletionItem, workflowInput: WorkflowInput): void {
   expect(completionItem.label).toEqual(workflowInput.name);
-  expectCompletionItemDocumentationToContain(completionItem, workflowInput.description);
+  expectCompletionItemDocumentationToContain(completionItem, workflowInput.doc);
 }

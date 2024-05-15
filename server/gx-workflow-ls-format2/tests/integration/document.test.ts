@@ -27,28 +27,55 @@ inputs:
     expect(result.inputs).toEqual([
       {
         name: "input_1",
-        description: "",
+        doc: "",
         type: "data",
       },
       {
         name: "input_2",
-        description: "This is the input 2",
+        doc: "This is the input 2",
         type: "File",
       },
       {
         name: "the_collection",
-        description: "This is a collection",
+        doc: "This is a collection",
         type: "collection",
       },
       {
         name: "input_int",
-        description: "",
+        doc: "",
         type: "integer",
       },
       {
         name: "text_param",
-        description: "",
+        doc: "",
         type: "text",
+      },
+    ]);
+  });
+
+  it("should get workflow outputs", () => {
+    const TEST_WORKFLOW_CONTENT = `
+class: GalaxyWorkflow
+outputs:
+  output_1:
+    outputSource: second_cat/out_file1
+  output_2:
+    outputSource: first_cat/out_file2
+    doc: This is the output 2
+    `;
+    const document = createFormat2WorkflowDocument(TEST_WORKFLOW_CONTENT);
+
+    const result = document.getWorkflowOutputs();
+
+    expect(result.outputs.length).toBe(2);
+    expect(result.outputs).toEqual([
+      {
+        name: "output_1",
+        doc: "",
+      },
+      {
+        name: "output_2",
+        doc: "This is the output 2",
       },
     ]);
   });
