@@ -79,11 +79,15 @@ export class NativeWorkflowDocument extends WorkflowDocument {
             return;
           }
           const labelNode = workflowOutput.properties.find((property) => property.keyNode.value === "label");
-          const labelValue = String(labelNode?.valueNode?.value);
+          let labelValue = labelNode?.valueNode?.value;
+          if (!labelValue) {
+            labelValue = workflowOutput.properties.find((property) => property.keyNode.value === "output_name")
+              ?.valueNode?.value;
+          }
           const uuidNode = workflowOutput.properties.find((property) => property.keyNode.value === "uuid");
           const uuidValue = String(uuidNode?.valueNode?.value);
           result.outputs.push({
-            name: labelValue,
+            name: String(labelValue),
             uuid: uuidValue,
           });
         });
