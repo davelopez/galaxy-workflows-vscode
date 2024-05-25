@@ -31,7 +31,11 @@
       "sourceMaps": true,
       "preLaunchTask": {
         "type": "npm",
-        "script": "compile"
+        "script": "watch"
+      },
+      "resolveSourceMapLocations": ["${workspaceFolder}/client/dist/**/*.js"],
+      "sourceMapPathOverrides": {
+        "webpack://?:*/*": "${workspaceFolder}/client/*"
       }
     },
     {
