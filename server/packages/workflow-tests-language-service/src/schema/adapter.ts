@@ -18,9 +18,9 @@ import {
   StringASTNode,
 } from "@gxwf/server-common/src/ast/types";
 import { Diagnostic, DiagnosticSeverity, DocumentContext, Range } from "@gxwf/server-common/src/languageTypes";
+import { injectable } from "inversify";
 import { URI } from "vscode-uri";
 import { JSONSchema, JSONSchemaRef } from "./jsonSchema";
-import { injectable } from "inversify";
 
 const YAML_SCHEMA_PREFIX = "yaml-schema: ";
 export const YAML_SOURCE = "YAML";
@@ -437,7 +437,7 @@ export function asSchema(schema?: JSONSchemaRef): JSONSchema | undefined {
     };
   }
   if (schema.$ref) {
-    console.log(`DEF ${schema.$ref}`);
+    console.debug(`DEF ${schema.$ref}`);
   }
   return schema;
 }

@@ -515,7 +515,7 @@ ${this.indentation}${this.indentation}$0
 
     result.items = this.mergeCompletionItems(result.items);
 
-    console.debug("COMPLETION RESULT:", result);
+    // console.debug("COMPLETION RESULT:", result);
     return result;
   }
 
