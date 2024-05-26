@@ -55,6 +55,10 @@ export class NativeWorkflowDocument extends WorkflowDocument {
             }
           }
         }
+        if (!labelValue) {
+          const nameNode = step.properties.find((property) => property.keyNode.value === "name");
+          labelValue = nameNode?.valueNode?.value;
+        }
         const toolStateNode = step.properties.find((property) => property.keyNode.value === "tool_state");
         const toolStateValue = JSON.parse(
           toolStateNode?.valueNode?.value ? String(toolStateNode?.valueNode?.value) : "{}"
