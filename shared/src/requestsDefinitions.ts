@@ -29,6 +29,7 @@ export interface TargetWorkflowDocumentParams {
 }
 
 export type WorkflowDataType =
+  | "color" //TODO: this type seems to be missing in format2 schema
   | "null"
   | "boolean"
   | "int"
