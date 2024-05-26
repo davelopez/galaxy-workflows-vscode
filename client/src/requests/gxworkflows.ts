@@ -1,16 +1,16 @@
 import { ExtensionContext, Uri, workspace } from "vscode";
 import { BaseLanguageClient } from "vscode-languageclient";
 import {
-  GetWorkflowInputsResult,
-  GetWorkflowOutputsResult,
-  LSRequestIdentifiers,
-  TargetWorkflowDocumentParams,
-} from "../../../shared/src/requestsDefinitions";
-import {
   getAssociatedWorkflowUriFromTestsUri,
   isNativeWorkflowDocument,
   isWorkflowTestsDocument,
 } from "../common/utils";
+import {
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
+  LSRequestIdentifiers,
+  TargetWorkflowDocumentParams,
+} from "../languageTypes";
 
 export function setupRequests(
   context: ExtensionContext,

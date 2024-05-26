@@ -1,10 +1,6 @@
 import { window } from "vscode";
 import { CustomCommand, getCommandFullIdentifier } from ".";
-import {
-  CleanWorkflowDocumentParams,
-  CleanWorkflowDocumentResult,
-  LSRequestIdentifiers,
-} from "../../../shared/src/requestsDefinitions";
+import { CleanWorkflowDocumentParams, CleanWorkflowDocumentResult, LSRequestIdentifiers } from "../languageTypes";
 
 /**
  * Command to 'clean' the selected workflow document.

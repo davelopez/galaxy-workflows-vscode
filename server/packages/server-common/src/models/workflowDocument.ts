@@ -1,4 +1,4 @@
-import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "../../../../../shared/src/requestsDefinitions";
+import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "../languageTypes";
 import { DocumentBase } from "./document";
 
 /**

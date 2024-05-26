@@ -1,11 +1,12 @@
 import { PropertyASTNode } from "@gxwf/server-common/src/ast/types";
-import { TextDocument, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
-import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 import {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
+  TextDocument,
   WorkflowDataType,
-} from "../../../shared/src/requestsDefinitions";
+  WorkflowDocument,
+} from "@gxwf/server-common/src/languageTypes";
+import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 
 /**
  * This class provides information about a gxformat2 workflow document structure.

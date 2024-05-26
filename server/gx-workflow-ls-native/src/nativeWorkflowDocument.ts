@@ -1,12 +1,13 @@
 import { ASTNode, ParsedDocument } from "@gxwf/server-common/src/ast/types";
-import { TextDocument, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
-import { isWorkflowInputType } from "@gxwf/server-common/src/utils";
-import { JSONDocument } from "vscode-json-languageservice";
 import {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
+  TextDocument,
   WorkflowDataType,
-} from "../../../shared/src/requestsDefinitions";
+  WorkflowDocument,
+} from "@gxwf/server-common/src/languageTypes";
+import { JSONDocument } from "vscode-json-languageservice";
+import { ToolState, isWorkflowInputType, type ParameterInputToolState } from "./utils";
 
 /**
  * This class provides information about a Native workflow document structure.

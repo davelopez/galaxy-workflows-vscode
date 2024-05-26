@@ -50,13 +50,29 @@ import {
   HoverParams,
 } from "vscode-languageserver/browser";
 import { URI } from "vscode-uri";
-import { GetWorkflowInputsResult, GetWorkflowOutputsResult } from "../../../../shared/src/requestsDefinitions";
+import {
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsResult,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
+  LSRequestIdentifiers,
+  TargetWorkflowDocumentParams,
+  WorkflowDataType,
+  WorkflowInput,
+  WorkflowOutput,
+} from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
 import { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
 
 export {
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsResult,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
   CodeAction,
   CodeActionContext,
   CodeActionKind,
@@ -81,9 +97,12 @@ export {
   DocumentUri,
   FoldingRange,
   FoldingRangeKind,
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
   Hover,
   HoverParams,
   InsertTextFormat,
+  LSRequestIdentifiers,
   Location,
   MarkedString,
   MarkupContent,
@@ -93,11 +112,15 @@ export {
   SelectionRange,
   SymbolInformation,
   SymbolKind,
+  TargetWorkflowDocumentParams,
   TextDocument,
   TextDocumentEdit,
   TextEdit,
   VersionedTextDocumentIdentifier,
+  WorkflowDataType,
   WorkflowDocument,
+  WorkflowInput,
+  WorkflowOutput,
   WorkflowTestsDocument,
   WorkspaceEdit,
 };

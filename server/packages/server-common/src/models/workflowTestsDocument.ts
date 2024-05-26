@@ -1,5 +1,4 @@
-import { WorkflowInput, WorkflowOutput } from "../../../../../shared/src/requestsDefinitions";
-import { WorkflowDataProvider } from "../languageTypes";
+import { WorkflowDataProvider, WorkflowInput, WorkflowOutput } from "../languageTypes";
 import { DocumentBase } from "./document";
 
 /**

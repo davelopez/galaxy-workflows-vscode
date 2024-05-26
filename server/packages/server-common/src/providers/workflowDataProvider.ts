@@ -1,12 +1,15 @@
 import { inject, injectable } from "inversify";
 import { Connection } from "vscode-languageserver";
 import {
+  DocumentsCache,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
   LSRequestIdentifiers,
+  TYPES,
   TargetWorkflowDocumentParams,
-} from "../../../../../shared/src/requestsDefinitions";
-import { DocumentsCache, TYPES, WorkflowDataProvider, WorkflowDocument } from "../languageTypes";
+  WorkflowDataProvider,
+  WorkflowDocument,
+} from "../languageTypes";
 
 @injectable()
 export class WorkflowDataProviderImpl implements WorkflowDataProvider {

@@ -1,11 +1,7 @@
 import { Uri, window, workspace } from "vscode";
 import { BaseLanguageClient } from "vscode-languageclient";
-import {
-  CleanWorkflowContentsParams,
-  CleanWorkflowContentsResult,
-  LSRequestIdentifiers,
-} from "../../../shared/src/requestsDefinitions";
 import { getWorkspaceScheme, replaceUriScheme } from "../common/utils";
+import { CleanWorkflowContentsParams, CleanWorkflowContentsResult, LSRequestIdentifiers } from "../languageTypes";
 import { GitProvider } from "./git";
 
 /**
