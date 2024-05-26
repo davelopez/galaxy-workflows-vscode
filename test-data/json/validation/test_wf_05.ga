@@ -1,0 +1,201 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "",
+    "comments": [],
+    "format-version": "0.1",
+    "name": "Workflow with inputs only",
+    "steps": {
+        "0": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Dataset Input"
+                }
+            ],
+            "label": "Dataset Input",
+            "name": "Input dataset",
+            "outputs": [],
+            "position": {
+                "left": 21,
+                "top": 0
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": null}",
+            "tool_version": null,
+            "type": "data_input",
+            "uuid": "f38a0899-4d6a-42ef-a25e-fb860d624230",
+            "when": null,
+            "workflow_outputs": []
+        },
+        "1": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 1,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Collection Input"
+                }
+            ],
+            "label": "Collection Input",
+            "name": "Input dataset collection",
+            "outputs": [],
+            "position": {
+                "left": 20,
+                "top": 123
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": null, \"collection_type\": \"list\"}",
+            "tool_version": null,
+            "type": "data_collection_input",
+            "uuid": "ee32048f-8e39-49cd-a2ff-cd24582a6bac",
+            "when": null,
+            "workflow_outputs": []
+        },
+        "2": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 2,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Text Param"
+                }
+            ],
+            "label": "Text Param",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "left": 20,
+                "top": 260
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"text\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "f15e91fb-b5f1-4a3d-910a-436e617afc53",
+            "when": null,
+            "workflow_outputs": []
+        },
+        "3": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 3,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Integer Param"
+                }
+            ],
+            "label": "Integer Param",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "left": 24,
+                "top": 374
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"integer\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "847d6938-c7aa-41fa-a139-611f4aaa900d",
+            "when": null,
+            "workflow_outputs": []
+        },
+        "4": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 4,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Float Param"
+                }
+            ],
+            "label": "Float Param",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "left": 22,
+                "top": 489
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"float\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "dd9fdf0e-76af-4de8-a1d8-e6a2f6265013",
+            "when": null,
+            "workflow_outputs": []
+        },
+        "5": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 5,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Boolean Param"
+                }
+            ],
+            "label": "Boolean Param",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "left": 12,
+                "top": 596
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"boolean\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "e600a8b4-3255-4f22-9452-71bde2b2a687",
+            "when": null,
+            "workflow_outputs": []
+        },
+        "6": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 6,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "Color Param"
+                }
+            ],
+            "label": "Color Param",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "left": 0,
+                "top": 712
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"color\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "28d79f2e-a8d0-49e1-aab3-a032b2d3d327",
+            "when": null,
+            "workflow_outputs": []
+        }
+    },
+    "tags": [],
+    "uuid": "a1d51848-2a7b-4ec1-b1a7-624e25d9c47a",
+    "version": 1
+}

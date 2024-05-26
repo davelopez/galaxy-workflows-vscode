@@ -47,6 +47,18 @@ describe("NativeWorkflowDocument", () => {
         TestWorkflowProvider.workflows.validation.withoutWorkflowOutputLabels,
         [{ doc: "Step description", name: "Test Step", type: "data" }],
       ],
+      [
+        TestWorkflowProvider.workflows.validation.withOnlyInputs,
+        [
+          { doc: "", name: "Dataset Input", type: "data" },
+          { doc: "", name: "Collection Input", type: "collection" },
+          { doc: "", name: "Text Param", type: "text" },
+          { doc: "", name: "Integer Param", type: "integer" },
+          { doc: "", name: "Float Param", type: "float" },
+          { doc: "", name: "Boolean Param", type: "boolean" },
+          { doc: "", name: "Color Param", type: "color" },
+        ],
+      ],
     ])("returns the expected inputs", (wfContent: string, expectedInputs: WorkflowInput[]) => {
       const document = createNativeWorkflowDocument(wfContent);
       const result = document.getWorkflowInputs();

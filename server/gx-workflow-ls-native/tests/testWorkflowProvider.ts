@@ -16,6 +16,8 @@ interface TestJsonWorkflows {
     withoutWorkflowOutputLabels: string;
     /** Workflow with 1 step. The step has 2 workflow_outputs with labels. */
     withWorkflowOutputLabels: string;
+    /** Workflow with 6 steps. All steps are inputs with different types. */
+    withOnlyInputs: string;
   };
 }
 
@@ -33,6 +35,7 @@ export class TestWorkflowProvider {
         path.join(TEST_DATA_PATH, "json", "validation", "test_wf_04.ga"),
         "utf-8"
       ),
+      withOnlyInputs: fs.readFileSync(path.join(TEST_DATA_PATH, "json", "validation", "test_wf_05.ga"), "utf-8"),
     },
   };
 
