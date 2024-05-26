@@ -22,6 +22,8 @@ import {
   Position,
   Range,
   TextEdit,
+  WorkflowInput,
+  WorkflowOutput,
   WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
 import { YamlNode } from "@gxwf/yaml-language-service/src/parser/astTypes";
@@ -65,6 +67,8 @@ interface InsertText {
 export class YAMLCompletionHelper {
   private indentation: string = "  ";
   private arrayPrefixIndentation: string = "";
+  private workflowInputs: WorkflowInput[] = [];
+  private workflowOutputs: WorkflowOutput[] = [];
 
   constructor(protected schemaService: WorkflowTestsSchemaService) {}
 
@@ -131,6 +135,11 @@ ${this.indentation}${this.indentation}$0
       result.items.push(this.newTestSnippetCompletion);
       return Promise.resolve(result);
     }
+
+    // Gather all the workflow information needed to provide completions
+    const testDocument = documentContext as WorkflowTestsDocument;
+    this.workflowInputs = await testDocument.getWorkflowInputs();
+    this.workflowOutputs = await testDocument.getWorkflowOutputs();
 
     let overwriteRange: Range | null = null;
     if (areOnlySpacesAfterPosition) {
@@ -978,12 +987,9 @@ ${this.indentation}${this.indentation}$0
       return it.node.internalNode === originalNode && it.schema.properties;
     });
 
-    // if the parent is the `job` key, then we need to add the `job` properties from the document context
+    // if the parent is the `job` key, then we need to add the workflow inputs
     if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key) && nodeParent.key.value === "job") {
-      const testDocument = documentContext as WorkflowTestsDocument;
-      const workflowInputs = await testDocument.getWorkflowInputs();
-      // create a completion item for the inputs excluding the ones already defined
-      workflowInputs.forEach((input) => {
+      this.workflowInputs.forEach((input) => {
         collector.add({
           kind: CompletionItemKind.Property,
           label: input.name,
@@ -995,10 +1001,9 @@ ${this.indentation}${this.indentation}$0
       return;
     }
 
+    // if the parent is the `outputs` key, then we need to add the workflow outputs
     if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key) && nodeParent.key.value === "outputs") {
-      const testDocument = documentContext as WorkflowTestsDocument;
-      const workflowOutputs = await testDocument.getWorkflowOutputs();
-      workflowOutputs.forEach((output) => {
+      this.workflowOutputs.forEach((output) => {
         collector.add({
           kind: CompletionItemKind.Property,
           label: output.name,
@@ -1011,10 +1016,8 @@ ${this.indentation}${this.indentation}$0
 
     //If the parent is a workflow input, then we need to add the properties from the document context
     if (nodeParent && isPair(nodeParent) && isScalar(nodeParent.key)) {
-      const testDocument = documentContext as WorkflowTestsDocument;
-      const workflowInputs = await testDocument.getWorkflowInputs();
       const nodeParentKey = nodeParent.key.value;
-      const matchingWorkflowInput = workflowInputs.find((input) => input.name === nodeParentKey);
+      const matchingWorkflowInput = this.workflowInputs.find((input) => input.name === nodeParentKey);
       if (matchingWorkflowInput) {
         const type = matchingWorkflowInput.type;
         const DATA_INPUT_TYPE_OPTIONS = ["PathFile", "LocationFile", "CompositeDataFile"];
@@ -1235,6 +1238,7 @@ ${this.indentation}${this.indentation}$0
     if (node && (parentKey !== null || isSeq(node))) {
       const separatorAfter = "";
       const didCallFromAutoComplete = true;
+      //TODO: check if parentKey is as input or output
       const matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, offset, didCallFromAutoComplete);
       for (const s of matchingSchemas) {
         const internalNode = s.node.internalNode as HasRange;
