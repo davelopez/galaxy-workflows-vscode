@@ -1238,7 +1238,30 @@ ${this.indentation}${this.indentation}$0
     if (node && (parentKey !== null || isSeq(node))) {
       const separatorAfter = "";
       const didCallFromAutoComplete = true;
-      //TODO: check if parentKey is as input or output
+      // Check if the parent is a workflow input
+      const matchingInput = this.workflowInputs.find((input) => input.name === parentKey);
+      if (matchingInput) {
+        const type = matchingInput.type;
+        let typeSchema: JSONSchema = { type: "string" };
+        switch (type) {
+          case "boolean":
+            this.addBooleanValueCompletion(true, separatorAfter, collector);
+            this.addBooleanValueCompletion(false, separatorAfter, collector);
+            return;
+          case "null":
+            this.addNullValueCompletion(separatorAfter, collector);
+            return;
+          case "double":
+          case "float":
+          case "long":
+          case "int":
+          case "integer":
+            typeSchema = { type: "number" };
+            break;
+        }
+        this.addSchemaValueCompletions(typeSchema, separatorAfter, collector, types, "value");
+        return;
+      }
       const matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, offset, didCallFromAutoComplete);
       for (const s of matchingSchemas) {
         const internalNode = s.node.internalNode as HasRange;
