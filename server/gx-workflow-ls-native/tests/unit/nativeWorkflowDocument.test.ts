@@ -1,3 +1,4 @@
+import { WorkflowInput } from "@gxwf/server-common/src/languageTypes";
 import { createNativeWorkflowDocument } from "../testHelpers";
 import { TestWorkflowProvider } from "../testWorkflowProvider";
 
@@ -16,35 +17,41 @@ describe("NativeWorkflowDocument", () => {
   });
 
   describe("getWorkflowInputs", () => {
-    it.each([
-      ["", 0],
-      [TestWorkflowProvider.workflows.validation.withoutSteps, 0],
-      [TestWorkflowProvider.workflows.validation.withOneStep, 1],
-      [TestWorkflowProvider.workflows.validation.withThreeSteps, 2],
-      [TestWorkflowProvider.workflows.validation.withWorkflowOutputLabels, 1],
-      [TestWorkflowProvider.workflows.validation.withoutWorkflowOutputLabels, 1],
-    ])("returns the expected number of inputs", (wf_content: string, expectedNumInputs: number) => {
-      const document = createNativeWorkflowDocument(wf_content);
+    it.each<[string, WorkflowInput[]]>([
+      ["", []],
+      [TestWorkflowProvider.workflows.validation.withoutSteps, []],
+      [
+        TestWorkflowProvider.workflows.validation.withOneStep,
+        [{ doc: "Step description", name: "Test Step", type: "data" }],
+      ],
+      [
+        TestWorkflowProvider.workflows.validation.withThreeSteps,
+        [
+          {
+            name: "WorkflowInput1",
+            doc: "input1 description",
+            type: "data",
+          },
+          {
+            name: "WorkflowInput2",
+            doc: "",
+            type: "data",
+          },
+        ],
+      ],
+      [
+        TestWorkflowProvider.workflows.validation.withWorkflowOutputLabels,
+        [{ doc: "Step description", name: "Test Step", type: "data" }],
+      ],
+      [
+        TestWorkflowProvider.workflows.validation.withoutWorkflowOutputLabels,
+        [{ doc: "Step description", name: "Test Step", type: "data" }],
+      ],
+    ])("returns the expected inputs", (wfContent: string, expectedInputs: WorkflowInput[]) => {
+      const document = createNativeWorkflowDocument(wfContent);
       const result = document.getWorkflowInputs();
-      expect(result.inputs).toHaveLength(expectedNumInputs);
-    });
-
-    it("should return the expected information of the inputs", () => {
-      const document = createNativeWorkflowDocument(TestWorkflowProvider.workflows.validation.withThreeSteps);
-      const result = document.getWorkflowInputs();
-      expect(result.inputs).toHaveLength(2);
-      expect(result.inputs).toEqual([
-        {
-          name: "WorkflowInput1",
-          doc: "input1 description",
-          type: "data",
-        },
-        {
-          name: "WorkflowInput2",
-          doc: "",
-          type: "data",
-        },
-      ]);
+      expect(result.inputs).toHaveLength(expectedInputs.length);
+      expect(result.inputs).toEqual(expectedInputs);
     });
   });
 
