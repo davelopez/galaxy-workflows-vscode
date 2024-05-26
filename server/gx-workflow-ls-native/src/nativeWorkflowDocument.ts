@@ -55,10 +55,14 @@ export class NativeWorkflowDocument extends WorkflowDocument {
             }
           }
         }
+        const toolStateNode = step.properties.find((property) => property.keyNode.value === "tool_state");
+        const toolStateValue = JSON.parse(
+          toolStateNode?.valueNode?.value ? String(toolStateNode?.valueNode?.value) : "{}"
+        );
         result.inputs.push({
           name: String(labelValue),
           doc: String(annotationValue ?? ""),
-          type: this.getInputType(stepTypeValue),
+          type: this.getInputType(stepTypeValue, toolStateValue),
         });
       }
     });
@@ -97,12 +101,14 @@ export class NativeWorkflowDocument extends WorkflowDocument {
     return result;
   }
 
-  private getInputType(typeName: string): WorkflowDataType {
+  private getInputType(typeName: string, toolStateValue: ToolState): WorkflowDataType {
     switch (typeName) {
       case "data_input":
         return "data";
       case "data_collection_input":
         return "collection";
+      case "parameter_input":
+        return (toolStateValue as ParameterInputToolState).parameter_type as WorkflowDataType;
       default:
         return "data";
     }
