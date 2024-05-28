@@ -14,8 +14,10 @@
     "composite": true,
     "declaration": true,
     "baseUrl": ".",
+    "rootDir": "../../../",
     "paths": {
       "@schemas/*": ["../../../workflow-languages/schemas/*"]
     }
-  }
+  },
+  "include": ["src/**/*", "../../../shared/**/*", "../../../workflow-languages/**/*"]
 }
