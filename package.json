@@ -221,7 +221,7 @@
     "@types/webpack-env": "^1.18.1",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
-    "@vscode/test-electron": "^2.3.4",
+    "@vscode/test-electron": "^2.3.10",
     "assert": "^2.0.0",
     "concurrently": "^8.2.1",
     "eslint": "^8.48.0",
