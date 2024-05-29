@@ -1048,8 +1048,6 @@ ${this.indentation}${this.indentation}$0
             }
             break;
           case "collection":
-            // The valid schema is "Collection"
-            // TODO add class: Collection
             matchingSchemas = matchingSchemas.filter((schema) => schema.schema.title === "Collection");
             break;
         }
