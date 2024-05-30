@@ -1,3 +1,4 @@
+import { ASTNode } from "@gxwf/server-common/src/ast/types";
 import {
   DocumentContext,
   Hover,
@@ -5,12 +6,13 @@ import {
   MarkupKind,
   Position,
   Range,
+  WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
-import { TYPES } from "../types";
 import { isAllSchemasMatched, isBoolean } from "../schema/adapter";
 import { JSONSchemaRef } from "../schema/jsonSchema";
 import { WorkflowTestsSchemaService } from "../schema/service";
+import { TYPES } from "../types";
 
 export interface WorkflowTestsHoverService {
   doHover(documentContext: DocumentContext, position: Position): Promise<Hover | null>;
@@ -49,6 +51,20 @@ export class WorkflowTestsHoverServiceImpl implements WorkflowTestsHoverService 
       documentContext.textDocument.positionAt(hoverRangeNode.offset),
       documentContext.textDocument.positionAt(hoverRangeNode.offset + hoverRangeNode.length)
     );
+
+    if (this.parentPropertyMatchesKey(node, "job")) {
+      const inputHover = await this.getHoverForWorkflowInput(documentContext, node, hoverRange);
+      if (inputHover) {
+        return inputHover;
+      }
+    }
+
+    if (this.parentPropertyMatchesKey(node, "outputs")) {
+      const outputHover = await this.getHoverForWorkflowOutput(documentContext, node, hoverRange);
+      if (outputHover) {
+        return outputHover;
+      }
+    }
 
     const matchingSchemas = this.schemaService.getMatchingSchemas(documentContext, node.offset);
 
@@ -113,5 +129,71 @@ export class WorkflowTestsHoverServiceImpl implements WorkflowTestsHoverService 
       range: hoverRange,
     };
     return result;
+  }
+
+  private parentPropertyMatchesKey(node: ASTNode, key: string): boolean {
+    // The first parent is the value node (object), the second parent is the property node
+    // we are looking for.
+    // ParentNode (property) <- Target node
+    //   |- ValueNode (object)
+    //     |- Node (property) <- Initial node
+    const parent = node.parent?.parent;
+    if (!parent || parent.type !== "property") {
+      return false;
+    }
+    return parent.keyNode.value === key;
+  }
+
+  private async getHoverForWorkflowInput(
+    documentContext: DocumentContext,
+    node: ASTNode,
+    hoverRange: Range
+  ): Promise<Hover | null> {
+    if (node.type !== "property") {
+      return null;
+    }
+    const key = node.keyNode.value;
+    const testDocument = documentContext as WorkflowTestsDocument;
+    const inputs = await testDocument.getWorkflowInputs();
+    const matchingInput = inputs.find((input) => input.name === key);
+    if (matchingInput) {
+      const hoverContents = [`**${matchingInput.name}** (Input)`];
+      if (matchingInput.doc) {
+        hoverContents.push(matchingInput.doc);
+      }
+      if (matchingInput.type) {
+        hoverContents.push(`Type: ${matchingInput.type}`);
+      }
+      return this.createHover(hoverContents.join("\n\n"), hoverRange);
+    }
+    return this.createHover("Input not found", hoverRange);
+  }
+
+  private async getHoverForWorkflowOutput(
+    documentContext: DocumentContext,
+    node: ASTNode,
+    hoverRange: Range
+  ): Promise<Hover | null> {
+    if (node.type !== "property") {
+      return null;
+    }
+    const key = node.keyNode.value;
+    const testDocument = documentContext as WorkflowTestsDocument;
+    const outputs = await testDocument.getWorkflowOutputs();
+    const matchingOutput = outputs.find((output) => output.name === key);
+    if (matchingOutput) {
+      const hoverContents = [`**${matchingOutput.name}** (Output)`];
+      if (matchingOutput.doc) {
+        hoverContents.push(matchingOutput.doc);
+      }
+      if (matchingOutput.type) {
+        hoverContents.push(`Type: ${matchingOutput.type}`);
+      }
+      if (matchingOutput.uuid) {
+        hoverContents.push(matchingOutput.uuid);
+      }
+      return this.createHover(hoverContents.join("\n\n"), hoverRange);
+    }
+    return this.createHover("Output not found", hoverRange);
   }
 }
