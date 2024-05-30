@@ -6,11 +6,12 @@ import {
   WorkflowInput,
   WorkflowOutput,
 } from "@gxwf/server-common/src/languageTypes";
+import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
+import { WorkflowTestsSchemaService } from "@gxwf/workflow-tests-language-service/src/schema/service";
+import { YAMLCompletionHelper } from "@gxwf/workflow-tests-language-service/src/services/completion/helper";
+import { TYPES } from "@gxwf/workflow-tests-language-service/src/types";
 import "reflect-metadata";
-import { WorkflowTestsSchemaService } from "../../src/schema/service";
-import { YAMLCompletionHelper } from "../../src/services/completion/helper";
-import { TYPES } from "../../src/types";
 import { createGxWorkflowTestsDocument } from "../testHelpers";
 
 describe("Workflow Tests Completion Service", () => {
@@ -263,28 +264,6 @@ describe("Workflow Tests Completion Service", () => {
     });
   });
 });
-
-function parseTemplate(
-  template: string,
-  char?: string
-): { contents: string; position: { line: number; character: number } } {
-  if (!char) {
-    char = "$";
-  }
-  let position = { line: 0, character: 0 };
-  const contents = template.replace(char, "");
-
-  const lines = template.split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    const character = lines[i].indexOf(char);
-    if (character !== -1) {
-      position = { line: i, character };
-      return { contents, position };
-    }
-  }
-
-  return { contents, position };
-}
 
 function expectCompletionItemDocumentationToContain(completionItem: CompletionItem, value: string): void {
   expect(completionItem.documentation).toBeDefined();
