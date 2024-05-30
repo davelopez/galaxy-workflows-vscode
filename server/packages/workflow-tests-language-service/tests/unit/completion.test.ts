@@ -4,9 +4,14 @@ import {
   CompletionList,
   WorkflowDataProvider,
   WorkflowInput,
-  WorkflowOutput,
 } from "@gxwf/server-common/src/languageTypes";
-import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
+import {
+  EXPECTED_WORKFLOW_INPUTS,
+  EXPECTED_WORKFLOW_OUTPUTS,
+  FAKE_DATASET_INPUT,
+  FAKE_WORKFLOW_DATA_PROVIDER,
+  parseTemplate,
+} from "@gxwf/server-common/tests/testHelpers";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
 import { WorkflowTestsSchemaService } from "@gxwf/workflow-tests-language-service/src/schema/service";
 import { YAMLCompletionHelper } from "@gxwf/workflow-tests-language-service/src/services/completion/helper";
@@ -25,7 +30,7 @@ describe("Workflow Tests Completion Service", () => {
   async function getCompletions(
     contents: string,
     position: { line: number; character: number },
-    workflowDataProvider?: WorkflowDataProvider
+    workflowDataProvider: WorkflowDataProvider = FAKE_WORKFLOW_DATA_PROVIDER
   ): Promise<CompletionList | null> {
     const documentContext = createGxWorkflowTestsDocument(contents, workflowDataProvider);
 
@@ -101,57 +106,6 @@ describe("Workflow Tests Completion Service", () => {
   });
 
   describe("Workflow Inputs Completion", () => {
-    let workflowDataProviderMock: WorkflowDataProvider;
-    const FAKE_DATASET_INPUT: WorkflowInput = {
-      name: "My fake dataset",
-      doc: "This is a simple dataset",
-      type: "data",
-    };
-    const FAKE_DATASET_INPUT_COLON: WorkflowInput = {
-      name: "Input dataset: fake",
-      doc: "This is a simple dataset with a colon in the name",
-      type: "File",
-    };
-    const FAKE_DATASET_COLLECTION_INPUT: WorkflowInput = {
-      name: "My fake collection",
-      doc: "This is a collection",
-      type: "collection",
-    };
-    const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [
-      FAKE_DATASET_INPUT,
-      FAKE_DATASET_COLLECTION_INPUT,
-      FAKE_DATASET_INPUT_COLON,
-    ];
-    const FAKE_WORKFLOW_OUTPUTS: WorkflowOutput[] = [
-      {
-        name: "My output",
-        uuid: "1234-5678-91011-1213",
-      },
-      {
-        name: "My second output",
-        uuid: "1234-5678-91011-1214",
-      },
-      {
-        name: "My third output: with colon",
-        uuid: "1234-5678-91011-1215",
-      },
-    ];
-
-    beforeAll(() => {
-      workflowDataProviderMock = {
-        async getWorkflowInputs(_workflowDocumentUri: string) {
-          return {
-            inputs: FAKE_WORKFLOW_INPUTS,
-          };
-        },
-        async getWorkflowOutputs(_workflowDocumentUri: string) {
-          return {
-            outputs: FAKE_WORKFLOW_OUTPUTS,
-          };
-        },
-      };
-    });
-
     it("should suggest all the defined inputs of the workflow when no inputs are defined in the test", async () => {
       const template = `
 - doc: The docs
@@ -159,12 +113,12 @@ describe("Workflow Tests Completion Service", () => {
     $`;
       const { contents, position } = parseTemplate(template);
 
-      const completions = await getCompletions(contents, position, workflowDataProviderMock);
+      const completions = await getCompletions(contents, position);
 
       expect(completions).not.toBeNull();
-      expect(completions?.items.length).toBe(FAKE_WORKFLOW_INPUTS.length);
-      for (let index = 0; index < FAKE_WORKFLOW_INPUTS.length; index++) {
-        const workflowInput = FAKE_WORKFLOW_INPUTS[index];
+      expect(completions?.items.length).toBe(EXPECTED_WORKFLOW_INPUTS.length);
+      for (let index = 0; index < EXPECTED_WORKFLOW_INPUTS.length; index++) {
+        const workflowInput = EXPECTED_WORKFLOW_INPUTS[index];
         const completionItem = completions!.items[index];
         expectCompletionItemToMatchWorkflowInput(completionItem, workflowInput);
       }
@@ -177,14 +131,14 @@ describe("Workflow Tests Completion Service", () => {
     Input$`;
       const { contents, position } = parseTemplate(template);
 
-      const completions = await getCompletions(contents, position, workflowDataProviderMock);
+      const completions = await getCompletions(contents, position);
 
       expect(completions).not.toBeNull();
     });
 
     it("should not suggest an existing input when suggesting inputs", async () => {
       const existingInput = FAKE_DATASET_INPUT;
-      const expectedNumOfRemainingInputs = FAKE_WORKFLOW_INPUTS.length - 1;
+      const expectedNumOfRemainingInputs = EXPECTED_WORKFLOW_INPUTS.length - 1;
       const template = `
 - doc: The docs
   job:
@@ -192,7 +146,7 @@ describe("Workflow Tests Completion Service", () => {
     $`;
       const { contents, position } = parseTemplate(template);
 
-      const completions = await getCompletions(contents, position, workflowDataProviderMock);
+      const completions = await getCompletions(contents, position);
 
       expect(completions).not.toBeNull();
       expect(completions?.items.length).toBe(expectedNumOfRemainingInputs);
@@ -211,7 +165,7 @@ describe("Workflow Tests Completion Service", () => {
       $`;
         const { contents, position } = parseTemplate(template);
 
-        const completions = await getCompletions(contents, position, workflowDataProviderMock);
+        const completions = await getCompletions(contents, position);
 
         expect(completions).not.toBeNull();
         expect(completions?.items.length).toBe(3);
@@ -234,7 +188,7 @@ describe("Workflow Tests Completion Service", () => {
       $`;
         const { contents, position } = parseTemplate(template);
 
-        const completions = await getCompletions(contents, position, workflowDataProviderMock);
+        const completions = await getCompletions(contents, position);
 
         expect(completions).not.toBeNull();
         for (const expectedAttribute of expectedAttributes) {
@@ -251,12 +205,12 @@ describe("Workflow Tests Completion Service", () => {
     $`;
         const { contents, position } = parseTemplate(template);
 
-        const completions = await getCompletions(contents, position, workflowDataProviderMock);
+        const completions = await getCompletions(contents, position);
 
         expect(completions).not.toBeNull();
-        expect(completions?.items.length).toBe(FAKE_WORKFLOW_OUTPUTS.length);
-        for (let index = 0; index < FAKE_WORKFLOW_OUTPUTS.length; index++) {
-          const workflowOutput = FAKE_WORKFLOW_OUTPUTS[index];
+        expect(completions?.items.length).toBe(EXPECTED_WORKFLOW_OUTPUTS.length);
+        for (let index = 0; index < EXPECTED_WORKFLOW_OUTPUTS.length; index++) {
+          const workflowOutput = EXPECTED_WORKFLOW_OUTPUTS[index];
           const completionItem = completions!.items[index];
           expect(completionItem.label).toEqual(workflowOutput.name);
         }

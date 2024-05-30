@@ -1,11 +1,6 @@
 import { container } from "@gxwf/server-common/src/inversify.config";
-import {
-  Diagnostic,
-  DiagnosticSeverity,
-  WorkflowDataProvider,
-  WorkflowInput,
-  WorkflowOutput,
-} from "@gxwf/server-common/src/languageTypes";
+import { Diagnostic, DiagnosticSeverity, WorkflowDataProvider } from "@gxwf/server-common/src/languageTypes";
+import { FAKE_WORKFLOW_DATA_PROVIDER } from "@gxwf/server-common/tests/testHelpers";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
 import { WorkflowTestsValidationService } from "@gxwf/workflow-tests-language-service/src/services/validation";
 import "reflect-metadata";
@@ -19,7 +14,10 @@ describe("Workflow Tests Validation Service", () => {
     service = container.get<WorkflowTestsValidationService>(TYPES.WorkflowTestsValidationService);
   });
 
-  async function validate(contents: string, workflowDataProvider?: WorkflowDataProvider): Promise<Diagnostic[]> {
+  async function validate(
+    contents: string,
+    workflowDataProvider: WorkflowDataProvider = FAKE_WORKFLOW_DATA_PROVIDER
+  ): Promise<Diagnostic[]> {
     const documentContext = createGxWorkflowTestsDocument(contents, workflowDataProvider);
     return await service.doValidation(documentContext);
   }
@@ -39,57 +37,6 @@ describe("Workflow Tests Validation Service", () => {
   });
 
   describe("Workflow Inputs/Outputs Validation", () => {
-    let workflowDataProviderMock: WorkflowDataProvider;
-    const FAKE_DATASET_INPUT: WorkflowInput = {
-      name: "My fake dataset",
-      doc: "This is a simple dataset",
-      type: "data",
-    };
-    const FAKE_DATASET_INPUT_COLON: WorkflowInput = {
-      name: "Input dataset: fake",
-      doc: "This is a simple dataset with a colon in the name",
-      type: "File",
-    };
-    const FAKE_DATASET_COLLECTION_INPUT: WorkflowInput = {
-      name: "My fake collection",
-      doc: "This is a collection",
-      type: "collection",
-    };
-    const FAKE_WORKFLOW_INPUTS: WorkflowInput[] = [
-      FAKE_DATASET_INPUT,
-      FAKE_DATASET_COLLECTION_INPUT,
-      FAKE_DATASET_INPUT_COLON,
-    ];
-    const FAKE_WORKFLOW_OUTPUTS: WorkflowOutput[] = [
-      {
-        name: "My output",
-        uuid: "1234-5678-91011-1213",
-      },
-      {
-        name: "My second output",
-        uuid: "1234-5678-91011-1214",
-      },
-      {
-        name: "My third output: with colon",
-        uuid: "1234-5678-91011-1215",
-      },
-    ];
-
-    beforeAll(() => {
-      workflowDataProviderMock = {
-        async getWorkflowInputs(_workflowDocumentUri: string) {
-          return {
-            inputs: FAKE_WORKFLOW_INPUTS,
-          };
-        },
-        async getWorkflowOutputs(_workflowDocumentUri: string) {
-          return {
-            outputs: FAKE_WORKFLOW_OUTPUTS,
-          };
-        },
-      };
-    });
-
     it("should pass validation when the inputs and outputs are defined in the workflow", async () => {
       const testDocumentContents = `
 - doc: The docs
@@ -98,7 +45,7 @@ describe("Workflow Tests Validation Service", () => {
   outputs:
     My output: out/output.txt`;
 
-      const diagnostics = await validate(testDocumentContents, workflowDataProviderMock);
+      const diagnostics = await validate(testDocumentContents);
 
       expect(diagnostics).not.toBeNull();
     });
@@ -111,7 +58,7 @@ describe("Workflow Tests Validation Service", () => {
   outputs:
     My output: out/output.txt`;
 
-      const diagnostics = await validate(testDocumentContents, workflowDataProviderMock);
+      const diagnostics = await validate(testDocumentContents);
 
       expect(diagnostics.length).toBe(1);
       expect(diagnostics[0].message).toBe('Input "Missing input" is not defined in the associated workflow.');
@@ -126,7 +73,7 @@ describe("Workflow Tests Validation Service", () => {
   outputs:
     Missing output: out/output.txt`;
 
-      const diagnostics = await validate(testDocumentContents, workflowDataProviderMock);
+      const diagnostics = await validate(testDocumentContents);
 
       expect(diagnostics.length).toBe(1);
       expect(diagnostics[0].message).toBe('Output "Missing output" is not defined in the associated workflow.');
