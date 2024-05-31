@@ -1342,7 +1342,7 @@ export function safeCreateUnicodeRegExp(pattern: string): RegExp {
   // fall back to regular regexp if we cannot create Unicode one
   try {
     return new RegExp(pattern, "u");
-  } catch (ignore) {
+  } catch (_ignore) {
     return new RegExp(pattern);
   }
 }

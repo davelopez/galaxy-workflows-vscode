@@ -267,7 +267,7 @@ export class YAMLSubDocument {
     let offsetDiff = this.parsedDocument.range?.[2] ?? 0;
     let maxOffset = this.parsedDocument.range?.[0] ?? 0;
     let closestNode: YamlNode | undefined = undefined;
-    visit(this.parsedDocument, (key, node) => {
+    visit(this.parsedDocument, (_key, node) => {
       if (!node) {
         return;
       }
