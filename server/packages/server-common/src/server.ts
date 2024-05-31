@@ -6,30 +6,46 @@ import {
   TextDocuments,
   WorkspaceFolder,
 } from "vscode-languageserver";
-import { TextDocument, WorkflowDocument, WorkflowLanguageService } from "./languageTypes";
-import { WorkflowDocuments } from "./models/workflowDocuments";
+import {
+  DocumentContext,
+  DocumentsCache,
+  GalaxyWorkflowLanguageServer,
+  LanguageService,
+  TYPES,
+  TextDocument,
+  WorkflowDataProvider,
+  WorkflowLanguageService,
+  WorkflowTestsLanguageService,
+} from "./languageTypes";
 import { FormattingProvider } from "./providers/formattingProvider";
 import { HoverProvider } from "./providers/hover/hoverProvider";
 import { SymbolsProvider } from "./providers/symbolsProvider";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
+import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
 import { CompletionProvider } from "./providers/completionProvider";
 import { ValidationProfiles } from "./providers/validation/profiles";
 
-export class GalaxyWorkflowLanguageServer {
-  public readonly languageService: WorkflowLanguageService;
-  public readonly configService: ConfigService;
+@injectable()
+export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageServer {
   public readonly documents = new TextDocuments(TextDocument);
-  public readonly workflowDocuments = new WorkflowDocuments();
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
+  private languageServiceMapper: Map<string, LanguageService<DocumentContext>> = new Map();
 
   constructor(
-    public readonly connection: Connection,
-    languageService: WorkflowLanguageService
+    @inject(TYPES.Connection) public readonly connection: Connection,
+    @inject(TYPES.DocumentsCache) public readonly documentsCache: DocumentsCache,
+    @inject(TYPES.ConfigService) public readonly configService: ConfigService,
+    @inject(TYPES.WorkflowDataProvider) public readonly workflowDataProvider: WorkflowDataProvider,
+    @inject(TYPES.WorkflowLanguageService) public readonly workflowLanguageService: WorkflowLanguageService,
+    @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService
   ) {
-    this.languageService = languageService;
-    this.configService = new ConfigService(connection, () => this.onConfigurationChanged());
+    this.languageServiceMapper.set(workflowLanguageService.languageId, workflowLanguageService);
+    this.languageServiceMapper.set(workflowTestsLanguageService.languageId, workflowTestsLanguageService);
+    workflowLanguageService.setServer(this);
+    workflowTestsLanguageService.setServer(this);
+
     // Track open, change and close text document events
     this.trackDocumentChanges(connection);
 
@@ -46,8 +62,16 @@ export class GalaxyWorkflowLanguageServer {
     this.connection.listen();
   }
 
+  public getLanguageServiceById(languageId: string): LanguageService<DocumentContext> {
+    const languageService = this.languageServiceMapper.get(languageId);
+    if (!languageService) {
+      throw new Error(`Language service not found for languageId: ${languageId}`);
+    }
+    return languageService;
+  }
+
   private async initialize(params: InitializeParams): Promise<InitializeResult> {
-    this.configService.initialize(params.capabilities);
+    this.configService.initialize(params.capabilities, () => this.onConfigurationChanged());
     this.workspaceFolders = params.workspaceFolders;
 
     const capabilities: ServerCapabilities = {
@@ -88,35 +112,37 @@ export class GalaxyWorkflowLanguageServer {
    * An event that fires when a workflow document has been opened or the content changes.
    */
   private onDidChangeContent(textDocument: TextDocument): void {
-    const workflowDocument = this.languageService.parseWorkflowDocument(textDocument);
-    this.workflowDocuments.addOrReplaceWorkflowDocument(workflowDocument);
-    this.validate(workflowDocument);
+    const languageService = this.getLanguageServiceById(textDocument.languageId);
+    const documentContext = languageService.parseDocument(textDocument);
+    this.documentsCache.addOrReplaceDocument(documentContext);
+    this.validateDocument(documentContext);
   }
 
   private onDidClose(textDocument: TextDocument): void {
-    this.workflowDocuments.removeWorkflowDocument(textDocument.uri);
+    this.documentsCache.removeDocument(textDocument.uri);
     this.configService.onDocumentClose(textDocument.uri);
     this.clearValidation(textDocument);
   }
 
   private onConfigurationChanged(): void {
-    this.workflowDocuments.all().forEach((workflowDocument) => {
-      this.validate(workflowDocument);
+    this.documentsCache.all().forEach((documentContext) => {
+      this.validateDocument(documentContext);
     });
   }
 
   private cleanup(): void {
-    this.workflowDocuments.dispose();
+    this.documentsCache.dispose();
   }
 
-  private async validate(workflowDocument: WorkflowDocument): Promise<void> {
-    if (WorkflowDocuments.schemesToSkip.includes(workflowDocument.uri.scheme)) {
+  private async validateDocument(documentContext: DocumentContext): Promise<void> {
+    if (this.documentsCache.schemesToSkip.includes(documentContext.uri.scheme)) {
       return;
     }
-    const settings = await this.configService.getDocumentSettings(workflowDocument.textDocument.uri);
+    const settings = await this.configService.getDocumentSettings(documentContext.textDocument.uri);
     const validationProfile = ValidationProfiles.get(settings.validation.profile);
-    this.languageService.validate(workflowDocument, validationProfile).then((diagnostics) => {
-      this.connection.sendDiagnostics({ uri: workflowDocument.textDocument.uri, diagnostics });
+    const languageService = this.getLanguageServiceById(documentContext.languageId);
+    languageService.validate(documentContext, validationProfile).then((diagnostics) => {
+      this.connection.sendDiagnostics({ uri: documentContext.textDocument.uri, diagnostics });
     });
   }
 

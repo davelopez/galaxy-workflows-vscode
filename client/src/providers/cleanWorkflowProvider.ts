@@ -1,7 +1,7 @@
 import { Uri, window, workspace } from "vscode";
 import { BaseLanguageClient } from "vscode-languageclient";
-import { CleanWorkflowContentsParams, CleanWorkflowContentsRequest } from "../common/requestsDefinitions";
 import { getWorkspaceScheme, replaceUriScheme } from "../common/utils";
+import { CleanWorkflowContentsParams, CleanWorkflowContentsResult, LSRequestIdentifiers } from "../languageTypes";
 import { GitProvider } from "./git";
 
 /**
@@ -56,7 +56,10 @@ export class CleanWorkflowProvider {
     const params: CleanWorkflowContentsParams = {
       contents: contents,
     };
-    const result = await this.languageClient.sendRequest(CleanWorkflowContentsRequest.type, params);
+    const result = await this.languageClient.sendRequest<CleanWorkflowContentsResult>(
+      LSRequestIdentifiers.CLEAN_WORKFLOW_CONTENTS,
+      params
+    );
     if (!result) {
       throw new Error("Cannot clean the requested document contents. The server returned no content");
     }

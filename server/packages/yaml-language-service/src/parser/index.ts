@@ -1,10 +1,9 @@
 "use strict";
 
-import { Parser, Composer, Document, LineCounter, ParseOptions, DocumentOptions, SchemaOptions, Node } from "yaml";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { YAMLDocument, YAMLSubDocument } from "./yamlDocument";
+import { Composer, Document, DocumentOptions, LineCounter, ParseOptions, Parser, SchemaOptions } from "yaml";
 import { TextBuffer } from "../utils/textBuffer";
-import { convertAST } from "./astConverter";
+import { YAMLDocument, YAMLSubDocument } from "./yamlDocument";
 
 export { YAMLDocument };
 
@@ -42,6 +41,5 @@ export function parse(textDocument: TextDocument, parserOptions: ParserOptions =
 }
 
 function getParsedSubDocument(parsedDocument: Document, lineCounter: LineCounter): YAMLSubDocument {
-  const root = convertAST(undefined, parsedDocument.contents as Node, parsedDocument, lineCounter);
-  return new YAMLSubDocument(root, parsedDocument);
+  return new YAMLSubDocument(parsedDocument, lineCounter);
 }

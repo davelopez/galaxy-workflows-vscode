@@ -60,6 +60,16 @@
           ".gxwf.yml"
         ],
         "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
+      },
+      {
+        "id": "gxwftests",
+        "aliases": [
+          "Galaxy Workflow Tests (YAML)"
+        ],
+        "extensions": [
+          "-tests.yml"
+        ],
+        "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
       }
     ],
     "grammars": [
@@ -70,6 +80,11 @@
       },
       {
         "language": "gxformat2",
+        "scopeName": "source.gxformat2",
+        "path": "./workflow-languages/syntaxes/yml.tmLanguage.json"
+      },
+      {
+        "language": "gxwftests",
         "scopeName": "source.gxformat2",
         "path": "./workflow-languages/syntaxes/yml.tmLanguage.json"
       }
@@ -207,21 +222,23 @@
     "watch": "concurrently --kill-others \"npm run watch-server\" \"npm run watch-client\"",
     "watch-server": "cd server && npm run watch",
     "watch-client": "cd client && npm run watch",
-    "test": "jest",
+    "test": "npm run test-client && npm run test-server",
     "test-client": "cd client && npm test",
     "test-server": "cd server && npm test",
     "test-compile": "tsc --project ./client --outDir client/out",
     "pretest:e2e": "npm run compile && npm run test-compile",
-    "test:e2e": "node ./client/out/e2e/runTests.js"
+    "test:e2e": "node ./client/out/e2e/runTests.js",
+    "test-browser": "vscode-test-web --extensionDevelopmentPath=. ./test-data"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.4",
+    "@types/jest": "^29.5.8",
     "@types/mocha": "^10.0.1",
     "@types/vscode": "^1.81.0",
     "@types/webpack-env": "^1.18.1",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
-    "@vscode/test-electron": "^2.3.10",
+    "@vscode/test-electron": "^2.3.4",
+    "@vscode/test-web": "^0.0.54",
     "assert": "^2.0.0",
     "concurrently": "^8.2.1",
     "eslint": "^8.48.0",

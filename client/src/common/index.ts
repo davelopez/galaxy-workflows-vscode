@@ -5,6 +5,7 @@ import { CleanWorkflowDocumentProvider } from "../providers/cleanWorkflowDocumen
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
 import { GitProvider } from "../providers/git";
 import { BuiltinGitProvider } from "../providers/git/gitProvider";
+import { setupRequests } from "../requests/gxworkflows";
 
 export function buildBasicLanguageClientOptions(documentSelector: DocumentSelector): LanguageClientOptions {
   // Options to control the language client
@@ -30,6 +31,8 @@ export function initExtension(
 
   // Setup gxformat2 language features
   startLanguageClient(context, gxFormat2Client);
+
+  setupRequests(context, nativeClient, gxFormat2Client);
 }
 
 function initGitProvider(context: ExtensionContext): BuiltinGitProvider {

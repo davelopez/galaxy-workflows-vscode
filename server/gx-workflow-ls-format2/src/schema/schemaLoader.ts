@@ -12,10 +12,15 @@ import {
   SchemaField,
   SchemaRecord,
 } from "./definitions";
-import { SchemaNodeResolver } from "./schemaNodeResolver";
+import { SchemaNodeResolver, SchemaNodeResolverImpl } from "./schemaNodeResolver";
 import { SCHEMA_DOCS_v19_09_MAP } from "./versions";
 
-export class GalaxyWorkflowFormat2SchemaLoader {
+export interface GalaxyWorkflowSchemaLoader {
+  readonly definitions: SchemaDefinitions;
+  readonly nodeResolver: SchemaNodeResolver;
+}
+
+export class GalaxyWorkflowFormat2SchemaLoader implements GalaxyWorkflowSchemaLoader {
   private _documentEntryMap = new Map<string, Map<string, SchemaEntry>>();
   private _rawSchemaEntries = new Map<string, SchemaEntry>();
   private _namespaces = new Map<string, string>();
@@ -250,7 +255,7 @@ export class GalaxyWorkflowFormat2SchemaLoader {
   }
 
   private createNodeResolver(): SchemaNodeResolver {
-    return new SchemaNodeResolver(this.definitions, this._root);
+    return new SchemaNodeResolverImpl(this.definitions, this._root);
   }
 
   /** Expands all entries with the types defined in the extended types.*/

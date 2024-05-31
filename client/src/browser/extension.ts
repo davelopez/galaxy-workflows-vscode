@@ -9,11 +9,11 @@ let gxFormat2LanguageClient: LanguageClient;
 
 export function activate(context: ExtensionContext): void {
   nativeLanguageClient = createWebWorkerLanguageClient(
-    Constants.NATIVE_WORKFLOW_LANGUAGE_ID,
+    [Constants.NATIVE_WORKFLOW_LANGUAGE_ID],
     Uri.joinPath(context.extensionUri, "server/gx-workflow-ls-native/dist/web/nativeServer.js")
   );
   gxFormat2LanguageClient = createWebWorkerLanguageClient(
-    Constants.GXFORMAT2_WORKFLOW_LANGUAGE_ID,
+    [Constants.GXFORMAT2_WORKFLOW_LANGUAGE_ID, Constants.GXFORMAT2_WORKFLOW_TESTS_LANGUAGE_ID],
     Uri.joinPath(context.extensionUri, "server/gx-workflow-ls-format2/dist/web/gxFormat2Server.js")
   );
 
@@ -25,9 +25,14 @@ export async function deactivate(): Promise<void> {
   await gxFormat2LanguageClient?.stop();
 }
 
-function createWebWorkerLanguageClient(languageId: string, serverUri: Uri): LanguageClient {
-  const documentSelector = [{ language: languageId }];
+function createWebWorkerLanguageClient(languageIds: string[], serverUri: Uri): LanguageClient {
+  const documentSelector = languageIds.map((languageId) => ({ language: languageId }));
   const clientOptions: LanguageClientOptions = buildBasicLanguageClientOptions(documentSelector);
   const worker = new Worker(serverUri.toString());
-  return new LanguageClient(`${languageId}-language-client`, `Galaxy Workflows (${languageId})`, clientOptions, worker);
+  return new LanguageClient(
+    `${languageIds}-language-client`,
+    `Galaxy Workflows (${languageIds})`,
+    clientOptions,
+    worker
+  );
 }

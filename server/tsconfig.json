@@ -3,19 +3,19 @@
     "target": "es2019",
     "lib": ["ES2019", "WebWorker"],
     "module": "commonjs",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
     "composite": true,
+    "baseUrl": ".",
     "paths": {
       "@schemas/*": ["../workflow-languages/schemas/*"]
     }
   },
-  "files": [],
-  "include": [],
-  "exclude": [],
   "references": [
     {
       "path": "packages/server-common"

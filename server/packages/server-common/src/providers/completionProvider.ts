@@ -1,6 +1,6 @@
 import { CompletionList, CompletionParams } from "vscode-languageserver";
-import { GalaxyWorkflowLanguageServer } from "../server";
 import { Provider } from "./provider";
+import { GalaxyWorkflowLanguageServer } from "../languageTypes";
 
 export class CompletionProvider extends Provider {
   public static register(server: GalaxyWorkflowLanguageServer): CompletionProvider {
@@ -9,12 +9,14 @@ export class CompletionProvider extends Provider {
 
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.connection.onCompletion(async (params) => this.onCompletion(params));
+    this.server.connection.onCompletion(async (params) => this.onCompletion(params));
   }
+
   private async onCompletion(params: CompletionParams): Promise<CompletionList | null> {
-    const workflowDocument = this.workflowDocuments.get(params.textDocument.uri);
-    if (workflowDocument) {
-      const result = await this.languageService.doComplete(workflowDocument, params.position);
+    const documentContext = this.server.documentsCache.get(params.textDocument.uri);
+    if (documentContext) {
+      const languageService = this.server.getLanguageServiceById(documentContext.languageId);
+      const result = await languageService.doComplete(documentContext, params.position);
       return result;
     }
     return null;

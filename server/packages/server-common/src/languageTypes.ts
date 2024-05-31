@@ -1,99 +1,128 @@
+import "reflect-metadata";
 import {
-  Range,
-  Position,
-  DocumentUri,
-  MarkupContent,
-  MarkupKind,
+  CodeAction,
+  CodeActionContext,
+  CodeActionKind,
   Color,
   ColorInformation,
   ColorPresentation,
-  FoldingRange,
-  FoldingRangeKind,
-  SelectionRange,
-  Diagnostic,
-  DiagnosticSeverity,
+  Command,
   CompletionItem,
   CompletionItemKind,
-  CompletionList,
   CompletionItemTag,
+  CompletionList,
+  DefinitionLink,
+  Diagnostic,
+  DiagnosticSeverity,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentLink,
+  DocumentSymbol,
+  DocumentUri,
+  FoldingRange,
+  FoldingRangeKind,
+  Hover,
   InsertTextFormat,
+  FormattingOptions as LSPFormattingOptions,
+  Location,
+  MarkedString,
+  MarkupContent,
+  MarkupKind,
+  Position,
+  Range,
+  SelectionRange,
   SymbolInformation,
   SymbolKind,
-  DocumentSymbol,
-  Location,
-  Hover,
-  MarkedString,
-  FormattingOptions as LSPFormattingOptions,
-  DefinitionLink,
-  CodeActionContext,
-  Command,
-  CodeAction,
-  DocumentHighlight,
-  DocumentLink,
-  WorkspaceEdit,
-  TextEdit,
-  CodeActionKind,
   TextDocumentEdit,
+  TextEdit,
   VersionedTextDocumentIdentifier,
-  DocumentHighlightKind,
+  WorkspaceEdit,
 } from "vscode-languageserver-types";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 
+import { injectable, unmanaged } from "inversify";
 import {
   Connection,
   DocumentFormattingParams,
   DocumentRangeFormattingParams,
-  HoverParams,
   DocumentSymbolParams,
+  HoverParams,
 } from "vscode-languageserver/browser";
+import { URI } from "vscode-uri";
+import {
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsResult,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
+  LSRequestIdentifiers,
+  TargetWorkflowDocumentParams,
+  WorkflowDataType,
+  WorkflowInput,
+  WorkflowOutput,
+} from "../../../../shared/src/requestsDefinitions";
+import { ASTNodeManager } from "./ast/nodeManager";
+import { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
-import { WorkflowDocuments } from "./models/workflowDocuments";
-import { GalaxyWorkflowLanguageServer } from "./server";
+import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
 
 export {
-  TextDocument,
-  Range,
-  Position,
-  DocumentUri,
-  MarkupContent,
-  MarkupKind,
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsResult,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
+  CodeAction,
+  CodeActionContext,
+  CodeActionKind,
   Color,
   ColorInformation,
   ColorPresentation,
-  FoldingRange,
-  FoldingRangeKind,
-  SelectionRange,
-  Diagnostic,
-  DiagnosticSeverity,
+  Command,
   CompletionItem,
   CompletionItemKind,
-  CompletionList,
   CompletionItemTag,
-  InsertTextFormat,
+  CompletionList,
   DefinitionLink,
-  SymbolInformation,
-  SymbolKind,
+  Diagnostic,
+  DiagnosticSeverity,
+  DocumentFormattingParams,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentLink,
+  DocumentRangeFormattingParams,
   DocumentSymbol,
-  Location,
+  DocumentSymbolParams,
+  DocumentUri,
+  FoldingRange,
+  FoldingRangeKind,
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
   Hover,
   HoverParams,
+  InsertTextFormat,
+  LSRequestIdentifiers,
+  Location,
   MarkedString,
-  CodeActionContext,
-  Command,
-  CodeAction,
-  DocumentHighlight,
-  DocumentLink,
-  WorkspaceEdit,
-  TextEdit,
-  CodeActionKind,
+  MarkupContent,
+  MarkupKind,
+  Position,
+  Range,
+  SelectionRange,
+  SymbolInformation,
+  SymbolKind,
+  TargetWorkflowDocumentParams,
+  TextDocument,
   TextDocumentEdit,
+  TextEdit,
   VersionedTextDocumentIdentifier,
-  DocumentHighlightKind,
-  DocumentFormattingParams,
-  DocumentRangeFormattingParams,
+  WorkflowDataType,
   WorkflowDocument,
-  DocumentSymbolParams,
+  WorkflowInput,
+  WorkflowOutput,
+  WorkflowTestsDocument,
+  WorkspaceEdit,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
@@ -103,10 +132,10 @@ export interface FormattingOptions extends LSPFormattingOptions {
 export interface HoverContentContributor {
   /**
    * Gets the contents that will be contributed to a new section of the Hover message
-   * @param workflowDocument The workflow document
+   * @param documentContext The document context
    * @param position The hover position
    */
-  onHoverContent(workflowDocument: WorkflowDocument, position: Position): string;
+  onHoverContent(documentContext: DocumentContext, position: Position): string;
 }
 
 /**
@@ -116,9 +145,9 @@ export interface ValidationRule {
   /**
    * Validates the given workflow document and provides diagnostics according
    * to this rule.
-   * @param workflowDocument The workflow document
+   * @param documentContext The workflow document
    */
-  validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+  validate(documentContext: DocumentContext): Promise<Diagnostic[]>;
 }
 
 /**
@@ -141,47 +170,106 @@ export interface WorkflowValidator {
 }
 
 /**
- * Abstract service defining the base functionality that a workflow language must
- * implement to provide assistance for workflow documents editing.
+ * Provides information about a processed text document.
  */
-export abstract class WorkflowLanguageService {
-  public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
-  public abstract parseWorkflowDocument(document: TextDocument): WorkflowDocument;
-  public abstract doHover(workflowDocument: WorkflowDocument, position: Position): Promise<Hover | null>;
-  public abstract doComplete(workflowDocument: WorkflowDocument, position: Position): Promise<CompletionList | null>;
+export interface DocumentContext {
+  languageId: string;
+  uri: URI;
+  textDocument: TextDocument;
+  nodeManager: ASTNodeManager;
+  internalDocument: unknown;
+}
 
-  /** Performs basic syntax and semantic validation based on the workflow schema. */
-  protected abstract doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]>;
+export interface LanguageService<T extends DocumentContext> {
+  readonly languageId: string;
+
+  parseDocument(document: TextDocument): T;
+  format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
+  doHover(documentContext: T, position: Position): Promise<Hover | null>;
+  doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
 
   /**
    * Validates the document and reports all the diagnostics found.
    * An optional validation profile can be used to provide additional custom diagnostics.
    */
-  public async validate(
-    workflowDocument: WorkflowDocument,
-    useProfile: ValidationProfile | null = null
-  ): Promise<Diagnostic[]> {
-    const diagnostics = await this.doValidation(workflowDocument);
+  validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]>;
+
+  setServer(server: GalaxyWorkflowLanguageServer): void;
+}
+
+/**
+ * Abstract service defining the base functionality that a workflow language must
+ * implement to provide assistance for workflow documents editing.
+ */
+@injectable()
+export abstract class LanguageServiceBase<T extends DocumentContext> implements LanguageService<T> {
+  constructor(@unmanaged() public readonly languageId: string) {}
+
+  protected server?: GalaxyWorkflowLanguageServer;
+
+  public abstract parseDocument(document: TextDocument): T;
+  public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
+  public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;
+  public abstract doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+
+  /** Performs basic syntax and semantic validation based on the document schema. */
+  protected abstract doValidation(documentContext: T): Promise<Diagnostic[]>;
+
+  /**
+   * Validates the document and reports all the diagnostics found.
+   * An optional validation profile can be used to provide additional custom diagnostics.
+   */
+  public async validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]> {
+    const diagnostics = await this.doValidation(documentContext);
     if (useProfile) {
       useProfile.rules.forEach(async (validationRule) => {
-        const contributedDiagnostics = await validationRule.validate(workflowDocument);
+        const contributedDiagnostics = await validationRule.validate(documentContext);
         diagnostics.push(...contributedDiagnostics);
       });
     }
     return diagnostics;
   }
-}
 
-export abstract class ServerContext {
-  protected connection: Connection;
-  protected workflowDocuments: WorkflowDocuments;
-  protected languageService: WorkflowLanguageService;
-  protected server: GalaxyWorkflowLanguageServer;
-
-  constructor(server: GalaxyWorkflowLanguageServer) {
+  public setServer(server: GalaxyWorkflowLanguageServer): void {
     this.server = server;
-    this.workflowDocuments = server.workflowDocuments;
-    this.languageService = server.languageService;
-    this.connection = server.connection;
   }
 }
+
+export interface WorkflowLanguageService extends LanguageService<WorkflowDocument> {}
+export interface WorkflowTestsLanguageService extends LanguageService<WorkflowTestsDocument> {}
+
+export interface GalaxyWorkflowLanguageServer {
+  connection: Connection;
+  documentsCache: DocumentsCache;
+  configService: ConfigService;
+  workflowDataProvider: WorkflowDataProvider;
+  start(): void;
+  getLanguageServiceById(languageId: string): LanguageService<DocumentContext>;
+}
+
+export interface DocumentsCache {
+  get(documentUri: string): DocumentContext | undefined;
+  all(): DocumentContext[];
+  addOrReplaceDocument(documentContext: DocumentContext): void;
+  removeDocument(documentUri: string): void;
+  dispose(): void;
+
+  get schemesToSkip(): string[];
+}
+
+export interface WorkflowDataProvider {
+  getWorkflowInputs(workflowDocumentUri: string): Promise<GetWorkflowInputsResult>;
+  getWorkflowOutputs(workflowDocumentUri: string): Promise<GetWorkflowOutputsResult>;
+}
+
+const TYPES = {
+  DocumentsCache: Symbol.for("DocumentsCache"),
+  ConfigService: Symbol.for("ConfigService"),
+  Connection: Symbol.for("Connection"),
+  WorkflowLanguageService: Symbol.for("WorkflowLanguageService"),
+  WorkflowTestsLanguageService: Symbol.for("WorkflowTestsLanguageService"),
+  GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
+  WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
+};
+
+export { TYPES };

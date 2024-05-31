@@ -5,7 +5,7 @@ import { OutputChannel, Uri, workspace } from "vscode";
  * @returns true if the workspace is not mounted on a regular filesystem.
  */
 export function isVirtualWorkspace(): boolean {
-  return workspace.workspaceFolders && workspace.workspaceFolders.every((f) => f.uri.scheme !== "file");
+  return (workspace.workspaceFolders ?? []).every((f) => f.uri.scheme !== "file");
 }
 
 /**
@@ -44,4 +44,32 @@ export function debugPrintCommandArgs(command: string, args: unknown[], outputCh
     outputChannel.appendLine(` [${index}] ${JSON.stringify(element)}`);
   }
   outputChannel.appendLine(`---\n`);
+}
+
+export function isWorkflowTestsDocument(uri: Uri): boolean {
+  return uri.path.endsWith("-test.yml") || uri.path.endsWith("-tests.yml");
+}
+
+export function isNativeWorkflowDocument(uri: Uri): boolean {
+  return uri.path.endsWith(".ga");
+}
+
+export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: Uri): Promise<Uri | undefined> {
+  const format2WorkflowUri = Uri.parse(
+    workflowTestsDocumentUri.toString().replace("-test.yml", ".gxwf.yml").replace("-tests.yml", ".gxwf.yml")
+  );
+  try {
+    await workspace.fs.stat(format2WorkflowUri);
+    return format2WorkflowUri;
+  } catch {
+    const nativeWorkflowUri = Uri.parse(
+      workflowTestsDocumentUri.toString().replace("-test.yml", ".ga").replace("-tests.yml", ".ga")
+    );
+    try {
+      await workspace.fs.stat(nativeWorkflowUri);
+      return nativeWorkflowUri;
+    } catch {
+      return undefined;
+    }
+  }
 }

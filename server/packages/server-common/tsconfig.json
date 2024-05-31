@@ -3,6 +3,9 @@
     "target": "es2019",
     "lib": ["ES2019", "WebWorker"],
     "module": "commonjs",
+    "types": ["reflect-metadata", "jest", "node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -10,8 +13,11 @@
     "strict": true,
     "composite": true,
     "declaration": true,
-    "rootDirs": ["src", "tests"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "rootDir": "../../../",
+    "paths": {
+      "@schemas/*": ["../../../workflow-languages/schemas/*"]
+    }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../../../shared/**/*", "../../../workflow-languages/**/*"]
 }
