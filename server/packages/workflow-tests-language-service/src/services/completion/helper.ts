@@ -920,8 +920,8 @@ ${this.indentation}${this.indentation}$0
           .map((m) => +m.replace(/\${([0-9]+)[:|]/g, "$1").replace("$", "")) // get numbers form $1 or ${1:...}
           .reduce((p, n) => (n > p ? n : p), 0); // find the max one
         const reindexedStr = text
-          .replace(/\$([0-9]+)/g, (s, args) => "$" + (+args + max$index)) // increment each by max$index
-          .replace(/\${([0-9]+)[:|]/g, (s, args) => "${" + (+args + max$index) + ":"); // increment each by max$index
+          .replace(/\$([0-9]+)/g, (_s, args) => "$" + (+args + max$index)) // increment each by max$index
+          .replace(/\${([0-9]+)[:|]/g, (_s, args) => "${" + (+args + max$index) + ":"); // increment each by max$index
         max$index += max$indexLocal;
         return reindexedStr;
       });
@@ -950,7 +950,7 @@ ${this.indentation}${this.indentation}$0
           completionItem.textEdit.newText = insertText;
         }
         // remove $x or use {$x:value} in documentation
-        const mdText = insertText.replace(/\${[0-9]+[:|](.*)}/g, (s, arg) => arg).replace(/\$([0-9]+)/g, "");
+        const mdText = insertText.replace(/\${[0-9]+[:|](.*)}/g, (_s, arg) => arg).replace(/\$([0-9]+)/g, "");
 
         const originalDocumentation = completionItem.documentation
           ? [completionItem.documentation, "", "----", ""]
@@ -1330,7 +1330,7 @@ ${this.indentation}${this.indentation}$0
     let res: string | MarkupContent = documentation;
     if (this.doesSupportMarkdown()) {
       insertText = insertText
-        .replace(/\${[0-9]+[:|](.*)}/g, (s, arg) => {
+        .replace(/\${[0-9]+[:|](.*)}/g, (_s, arg) => {
           return arg;
         })
         .replace(/\$([0-9]+)/g, "");

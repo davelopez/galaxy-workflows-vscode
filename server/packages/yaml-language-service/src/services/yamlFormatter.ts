@@ -1,7 +1,7 @@
-import { Range, Position, TextEdit, FormattingOptions } from "vscode-languageserver-types";
-import { CustomFormatterOptions, LanguageSettings } from "../yamlLanguageService";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { parse, stringify, ToStringOptions } from "yaml";
+import { FormattingOptions, Position, Range, TextEdit } from "vscode-languageserver-types";
+import { ToStringOptions, parse, stringify } from "yaml";
+import { CustomFormatterOptions, LanguageSettings } from "../yamlLanguageService";
 
 export class YAMLFormatter {
   private formatterEnabled? = true;
@@ -29,6 +29,7 @@ export class YAMLFormatter {
 
       return [TextEdit.replace(Range.create(Position.create(0, 0), document.positionAt(text.length)), formatted)];
     } catch (error) {
+      console.debug("Error formatting YAML document", error);
       return [];
     }
   }
