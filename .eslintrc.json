@@ -15,6 +15,17 @@
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "/built/**",
+    "/tests/**",
+    "/lib/**",
+    "/src/lib/*.generated.d.ts",
+    "/scripts/**/*.js",
+    "/scripts/**/*.d.*",
+    "/internal/**",
+    "/coverage/**"
+  ],
   "rules": {
     "prettier/prettier": "error",
     "@typescript-eslint/no-use-before-define": [
@@ -24,7 +35,18 @@
         "classes": false
       }
     ],
-    "@typescript-eslint/no-unused-vars": ["warn"],
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
     "@typescript-eslint/explicit-function-return-type": [
       1,
       {
@@ -45,6 +67,5 @@
       }
     ],
     "keyword-spacing": ["error"]
-  },
-  "ignorePatterns": ["**/*.d.ts"]
+  }
 }
