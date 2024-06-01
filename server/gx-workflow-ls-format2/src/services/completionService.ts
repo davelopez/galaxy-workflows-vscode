@@ -1,8 +1,15 @@
-import { ASTNode, PropertyASTNode } from "@gxwf/server-common/src/ast/types";
-import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
+import { ASTNode } from "@gxwf/server-common/src/ast/types";
+import {
+  CompletionItem,
+  CompletionItemKind,
+  CompletionList,
+  Position,
+  Range,
+} from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
+import { EnumSchemaNode } from "../schema/definitions";
 
 export class GxFormat2CompletionService {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
@@ -27,23 +34,23 @@ export class GxFormat2CompletionService {
     }
 
     const currentWord = textBuffer.getCurrentWord(offset);
-
-    DEBUG_printNodeName(node);
+    const overwriteRange = textBuffer.getCurrentWordRange(offset);
 
     const existing = nodeManager.getDeclaredPropertyNames(node);
-    if (nodeManager.isRoot(node)) {
-      result.items = this.getProposedItems(this.schemaNodeResolver.rootNode, currentWord, existing);
-      return Promise.resolve(result);
-    }
     const nodePath = nodeManager.getPathFromNode(node);
     const schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
     if (schemaNode) {
-      result.items = this.getProposedItems(schemaNode, currentWord, existing);
+      result.items = this.getProposedItems(schemaNode, currentWord, existing, overwriteRange);
     }
     return Promise.resolve(result);
   }
 
-  private getProposedItems(schemaNode: SchemaNode, currentWord: string, exclude: Set<string>): CompletionItem[] {
+  private getProposedItems(
+    schemaNode: SchemaNode,
+    currentWord: string,
+    exclude: Set<string>,
+    overwriteRange: Range
+  ): CompletionItem[] {
     const result: CompletionItem[] = [];
     if (schemaNode instanceof RecordSchemaNode) {
       schemaNode.fields
@@ -56,15 +63,40 @@ export class GxFormat2CompletionService {
             sortText: `_${field.name}`,
             kind: CompletionItemKind.Field,
             insertText: `${field.name}: `,
+            textEdit: {
+              range: overwriteRange,
+              newText: `${field.name}: `,
+            },
           };
           result.push(item);
         });
+    } else if (schemaNode instanceof FieldSchemaNode) {
+      const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
+      if (schemaRecord instanceof EnumSchemaNode) {
+        schemaRecord.symbols
+          .filter((v) => v.startsWith(currentWord))
+          .forEach((value) => {
+            if (exclude.has(value)) return;
+            const item: CompletionItem = {
+              label: value,
+              sortText: `_${value}`,
+              kind: CompletionItemKind.EnumMember,
+              documentation: schemaRecord.documentation,
+              insertText: value,
+              textEdit: {
+                range: overwriteRange,
+                newText: value,
+              },
+            };
+            result.push(item);
+          });
+      }
     }
     return result;
   }
 }
 
-function DEBUG_printNodeName(node: ASTNode): void {
+function _DEBUG_printNodeName(node: ASTNode): void {
   let nodeName = "_root_";
   if (node?.type === "property") {
     nodeName = node.keyNode.value;
