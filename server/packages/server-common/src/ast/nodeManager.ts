@@ -85,6 +85,11 @@ export class ASTNodeManager {
         const key = node.keyNode.value;
         result.add(key);
       }
+      if (node.type === "object") {
+        node.properties.forEach((p) => {
+          result.add(p.keyNode.value);
+        });
+      }
     });
     return result;
   }
