@@ -64,6 +64,23 @@ export class GxFormat2CompletionService {
           result.push(item);
         });
     } else if (schemaNode instanceof FieldSchemaNode) {
+      if (this.schemaNodeResolver.definitions.primitiveTypes.has(schemaNode.typeRef)) {
+        const defaultValue = String(schemaNode.default ?? "");
+        if (defaultValue) {
+          const item: CompletionItem = {
+            label: defaultValue,
+            kind: CompletionItemKind.Value,
+            documentation: schemaNode.documentation,
+            insertText: defaultValue,
+            textEdit: {
+              range: overwriteRange,
+              newText: defaultValue,
+            },
+          };
+          result.push(item);
+          return result;
+        }
+      }
       const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
       if (schemaRecord instanceof EnumSchemaNode) {
         schemaRecord.symbols
