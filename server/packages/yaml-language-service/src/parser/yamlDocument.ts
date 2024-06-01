@@ -92,7 +92,7 @@ export class YAMLDocument implements ParsedDocument {
     if (indentation === 0 && contentAfterCursor.length === 0) return rootNode;
     let result = rootNode.getNodeFromOffsetEndInclusive(offset);
     const parent = this.findParentNodeByIndentation(offset, indentation);
-    if (!result || (parent && result.offset < parent.offset && result.length > parent.length)) {
+    if (!result || (parent && result.offset <= parent.offset && result.length > parent.length)) {
       result = parent;
     }
     return result;
