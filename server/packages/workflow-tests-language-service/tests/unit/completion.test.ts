@@ -127,6 +127,14 @@ describe("Workflow Tests Completion Service", () => {
       const { contents, position } = parseTemplate(template);
 
       const completions = await getCompletions(contents, position);
+
+      const completionItem = completions!.items.find((item) => item.label.startsWith("Input"));
+      expect(completionItem).toBeDefined();
+      expect(completionItem?.insertText).toBeDefined();
+      const insertText = completionItem!.insertText!;
+      expect(insertText.startsWith("'")).toBeTruthy();
+      expect(insertText.endsWith(":")).toBeTruthy();
+      expect(insertText.lastIndexOf("'")).toBe(insertText.length - 2);
     });
 
     it("should not suggest an existing input when suggesting inputs", async () => {
