@@ -22,11 +22,11 @@ describe("Format2 Workflow Completion Service", () => {
     return await service.doComplete(documentContext, position);
   }
 
-  it("should suggest the basic properties of the workflow", async () => {
+  it("should suggest all the basic properties of the workflow when the document is empty", async () => {
     const template = `
-class: GalaxyWorkflow
 $`;
     const EXPECTED_COMPLETION_LABELS = [
+      "class",
       "steps",
       "report",
       "tags",
@@ -38,6 +38,55 @@ $`;
       "id",
       "label",
       "doc",
+      "uuid",
+    ];
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
+
+  it("should suggest the `class` property if the word starts with `cl`", async () => {
+    const template = `
+cl$`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items.length).toBe(1);
+    expect(completions?.items[0].label).toBe("class");
+  });
+
+  it("should suggest the available classes for the `class` property", async () => {
+    const template = `
+class: $`;
+    const EXPECTED_COMPLETION_LABELS = ["GalaxyWorkflow"];
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
+
+  it("should suggest the basic properties of the workflow that are not already defined", async () => {
+    const template = `
+class: GalaxyWorkflow
+id: my_workflow
+doc: This is a simple workflow
+$`;
+    const EXPECTED_COMPLETION_LABELS = [
+      "steps",
+      "report",
+      "tags",
+      "creator",
+      "license",
+      "release",
+      "inputs",
+      "outputs",
+      "label",
       "uuid",
     ];
     const { contents, position } = parseTemplate(template);
