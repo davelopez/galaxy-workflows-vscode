@@ -77,9 +77,12 @@ export class ASTNodeManager {
     return node.children ?? [];
   }
 
-  public getDeclaredPropertyNames(node: ASTNode): Set<string> {
-    const declaredNodes = this.getChildren(node);
+  public getDeclaredPropertyNames(node?: ASTNode): Set<string> {
     const result = new Set<string>();
+    if (!node) {
+      return result;
+    }
+    const declaredNodes = this.getChildren(node);
     declaredNodes.forEach((node) => {
       if (node.type === "property") {
         const key = node.keyNode.value;
@@ -114,9 +117,9 @@ export class ASTNodeManager {
     return result;
   }
 
-  public getPathFromNode(node: ASTNode): NodePath {
+  public getPathFromNode(node?: ASTNode): NodePath {
     const path: NodePath = [];
-    let current: ASTNode | undefined = node;
+    let current = node;
     while (current) {
       const segment = this.getNodeSegment(current);
       if (segment) {

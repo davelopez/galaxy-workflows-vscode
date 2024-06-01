@@ -23,15 +23,8 @@ export class GxFormat2CompletionService {
     };
     // TODO: Refactor most of this to an Context class with all the information around the cursor
     const textBuffer = new TextBuffer(textDocument);
-    const text = textBuffer.getText();
     const offset = textBuffer.getOffsetAt(position);
     const node = nodeManager.getNodeFromOffset(offset);
-    if (!node) {
-      return Promise.resolve(result);
-    }
-    if (text.charAt(offset - 1) === ":") {
-      return Promise.resolve(result);
-    }
 
     const currentWord = textBuffer.getCurrentWord(offset);
     const overwriteRange = textBuffer.getCurrentWordRange(offset);
