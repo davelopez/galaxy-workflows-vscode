@@ -41,7 +41,10 @@ export class SchemaNodeResolverImpl implements SchemaNodeResolver {
       if (this.definitions.records.has(pathSegment)) {
         return this.definitions.records.get(pathSegment);
       }
-      return this.definitions.fields.get(pathSegment);
+      if (this.definitions.fields.has(pathSegment)) {
+        return this.definitions.fields.get(pathSegment);
+      }
+      return this.definitions.enums.get(pathSegment);
     }
     return undefined;
   }

@@ -1,4 +1,5 @@
 import {
+  EnumSchemaNode,
   FieldSchemaNode,
   isSchemaEntryBase,
   isSchemaEnumType,
@@ -71,6 +72,7 @@ export class GalaxyWorkflowFormat2SchemaLoader implements GalaxyWorkflowSchemaLo
     const definitions: SchemaDefinitions = {
       records: new Map<string, RecordSchemaNode>(),
       fields: new Map<string, FieldSchemaNode>(),
+      enums: new Map<string, EnumSchemaNode>(),
       specializations: new Map<string, string>(),
       primitiveTypes: new Set<string>(),
     };
@@ -92,6 +94,8 @@ export class GalaxyWorkflowFormat2SchemaLoader implements GalaxyWorkflowSchemaLo
         });
       } else if (isSchemaEnumType(v) && v.name === "GalaxyType") {
         definitions.primitiveTypes = new Set(v.symbols);
+      } else if (isSchemaEnumType(v)) {
+        definitions.enums.set(k, new EnumSchemaNode(v));
       }
     });
     return definitions;

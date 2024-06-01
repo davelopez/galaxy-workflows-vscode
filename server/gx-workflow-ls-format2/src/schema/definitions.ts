@@ -164,6 +164,40 @@ export interface SchemaNode {
   isRoot: boolean;
 }
 
+export class EnumSchemaNode implements SchemaNode {
+  public static definitions: SchemaDefinitions;
+
+  private readonly _schemaEnum: SchemaEnum;
+
+  constructor(schemaEnum: SchemaEnum) {
+    this._schemaEnum = schemaEnum;
+  }
+
+  public get name(): string {
+    return this._schemaEnum.name;
+  }
+
+  public get symbols(): string[] {
+    return this._schemaEnum.symbols;
+  }
+
+  public get documentation(): string | undefined {
+    return this._schemaEnum.doc;
+  }
+
+  public get isRoot(): boolean {
+    return !!this._schemaEnum.documentRoot;
+  }
+
+  public get canBeArray(): boolean {
+    return false;
+  }
+
+  public get typeRef(): string {
+    return this._schemaEnum.name;
+  }
+}
+
 export class FieldSchemaNode implements SchemaNode, IdMapper {
   public static definitions: SchemaDefinitions;
 
@@ -348,6 +382,7 @@ export class RecordSchemaNode implements SchemaNode {
 export interface SchemaDefinitions {
   records: Map<string, RecordSchemaNode>;
   fields: Map<string, FieldSchemaNode>;
+  enums: Map<string, EnumSchemaNode>;
   specializations: Map<string, string>;
   primitiveTypes: Set<string>;
 }
