@@ -10,6 +10,7 @@ import {
   EXPECTED_WORKFLOW_OUTPUTS,
   FAKE_DATASET_INPUT,
   FAKE_WORKFLOW_DATA_PROVIDER,
+  expectCompletionItemDocumentationToContain,
   parseTemplate,
 } from "@gxwf/server-common/tests/testHelpers";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
@@ -218,15 +219,6 @@ describe("Workflow Tests Completion Service", () => {
     });
   });
 });
-
-function expectCompletionItemDocumentationToContain(completionItem: CompletionItem, value: string): void {
-  expect(completionItem.documentation).toBeDefined();
-  if (typeof completionItem.documentation === "string") {
-    expect(completionItem.documentation).toContain(value);
-  } else {
-    expect(completionItem.documentation?.value).toContain(value);
-  }
-}
 
 function expectCompletionItemToMatchWorkflowInput(completionItem: CompletionItem, workflowInput: WorkflowInput): void {
   expect(completionItem.label).toEqual(workflowInput.name);

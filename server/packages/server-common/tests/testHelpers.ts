@@ -1,9 +1,28 @@
 import { ASTNode, PropertyASTNode } from "../src/ast/types";
-import { WorkflowDataProvider, WorkflowInput, WorkflowOutput } from "../src/languageTypes";
+import {
+  CompletionItem,
+  CompletionList,
+  WorkflowDataProvider,
+  WorkflowInput,
+  WorkflowOutput,
+} from "../src/languageTypes";
 
 export function expectPropertyNodeToHaveKey(propertyNode: ASTNode | null, expectedPropertyKey: string): void {
   expect(propertyNode?.type).toBe("property");
   expect((propertyNode as PropertyASTNode).keyNode.value).toBe(expectedPropertyKey);
+}
+
+export function expectCompletionItemDocumentationToContain(completionItem: CompletionItem, value: string): void {
+  expect(completionItem.documentation).toBeDefined();
+  if (typeof completionItem.documentation === "string") {
+    expect(completionItem.documentation).toContain(value);
+  } else {
+    expect(completionItem.documentation?.value).toContain(value);
+  }
+}
+
+export function getCompletionItemsLabels(completionItems?: CompletionList | null): string[] {
+  return completionItems?.items.map((item) => item.label) ?? [];
 }
 
 /**
