@@ -32,7 +32,7 @@ describe("Workflow Tests Completion Service", () => {
     contents: string,
     position: { line: number; character: number },
     workflowDataProvider: WorkflowDataProvider = FAKE_WORKFLOW_DATA_PROVIDER
-  ): Promise<CompletionList | null> {
+  ): Promise<CompletionList> {
     const documentContext = createGxWorkflowTestsDocument(contents, workflowDataProvider);
 
     return await helper.doComplete(documentContext, position);
@@ -44,7 +44,6 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(1);
 
     expect(completions?.items[0].labelDetails?.detail).toBe("New Workflow Test");
@@ -57,7 +56,6 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(1);
 
     expect(completions?.items[0].labelDetails?.detail).toBe("New Workflow Test");
@@ -70,7 +68,6 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(1);
 
     expect(completions?.items[0].labelDetails?.detail).toBe("New Workflow Test");
@@ -86,7 +83,6 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(2);
     for (const completionItem of completions!.items) {
       expect(expectedLabels).toContain(completionItem.label);
@@ -101,7 +97,6 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     const jobCompletion = completions!.items[0]!;
     expect(jobCompletion.label).toBe("job");
   });
@@ -116,7 +111,6 @@ describe("Workflow Tests Completion Service", () => {
 
       const completions = await getCompletions(contents, position);
 
-      expect(completions).not.toBeNull();
       expect(completions?.items.length).toBe(EXPECTED_WORKFLOW_INPUTS.length);
       for (let index = 0; index < EXPECTED_WORKFLOW_INPUTS.length; index++) {
         const workflowInput = EXPECTED_WORKFLOW_INPUTS[index];
@@ -133,8 +127,6 @@ describe("Workflow Tests Completion Service", () => {
       const { contents, position } = parseTemplate(template);
 
       const completions = await getCompletions(contents, position);
-
-      expect(completions).not.toBeNull();
     });
 
     it("should not suggest an existing input when suggesting inputs", async () => {
@@ -149,7 +141,6 @@ describe("Workflow Tests Completion Service", () => {
 
       const completions = await getCompletions(contents, position);
 
-      expect(completions).not.toBeNull();
       expect(completions?.items.length).toBe(expectedNumOfRemainingInputs);
       const existingTestInput = completions?.items.find((item) => item.label === existingInput.name);
       expect(existingTestInput).toBeUndefined();
@@ -168,7 +159,6 @@ describe("Workflow Tests Completion Service", () => {
 
         const completions = await getCompletions(contents, position);
 
-        expect(completions).not.toBeNull();
         expect(completions?.items.length).toBe(3);
         for (const completionItem of completions!.items) {
           expect(completionItem.label).toContain("class");
@@ -191,7 +181,6 @@ describe("Workflow Tests Completion Service", () => {
 
         const completions = await getCompletions(contents, position);
 
-        expect(completions).not.toBeNull();
         for (const expectedAttribute of expectedAttributes) {
           const completionItem = completions?.items.find((item) => item.label === expectedAttribute);
           expect(completionItem).toBeDefined();
@@ -208,7 +197,6 @@ describe("Workflow Tests Completion Service", () => {
 
         const completions = await getCompletions(contents, position);
 
-        expect(completions).not.toBeNull();
         expect(completions?.items.length).toBe(EXPECTED_WORKFLOW_OUTPUTS.length);
         for (let index = 0; index < EXPECTED_WORKFLOW_OUTPUTS.length; index++) {
           const workflowOutput = EXPECTED_WORKFLOW_OUTPUTS[index];

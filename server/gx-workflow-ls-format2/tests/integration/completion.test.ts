@@ -16,7 +16,7 @@ describe("Format2 Workflow Completion Service", () => {
   async function getCompletions(
     contents: string,
     position: { line: number; character: number }
-  ): Promise<CompletionList | null> {
+  ): Promise<CompletionList> {
     const documentContext = createFormat2WorkflowDocument(contents);
 
     return await service.doComplete(documentContext, position);
@@ -44,7 +44,6 @@ $`;
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
   });
@@ -58,7 +57,6 @@ in$
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(1);
     expect(completions?.items[0].label).toBe("inputs");
   });
@@ -84,7 +82,6 @@ inputs:
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
   });
@@ -99,7 +96,6 @@ inputs:
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     expect(completions?.items.length).toBe(1);
     expect(completions?.items[0].label).toBe("type");
   });
@@ -126,7 +122,6 @@ inputs:
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     const completionLabels = completions?.items.map((item) => item.label) ?? [];
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
     expect(completionLabels).not.toContain(EXPECTED_EXISITING_PROPERTIES);
@@ -155,7 +150,6 @@ inputs:
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions).not.toBeNull();
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
   });
