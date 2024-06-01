@@ -319,7 +319,7 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
 
 export class RecordSchemaNode implements SchemaNode {
   public static definitions: SchemaDefinitions;
-  public static readonly NULL: SchemaNode = new RecordSchemaNode({
+  public static readonly NULL = new RecordSchemaNode({
     name: "null",
     type: "null",
     fields: [],
@@ -381,7 +381,6 @@ export class RecordSchemaNode implements SchemaNode {
 
 export interface SchemaDefinitions {
   records: Map<string, RecordSchemaNode>;
-  fields: Map<string, FieldSchemaNode>;
   enums: Map<string, EnumSchemaNode>;
   specializations: Map<string, string>;
   primitiveTypes: Set<string>;

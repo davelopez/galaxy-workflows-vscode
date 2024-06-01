@@ -71,7 +71,6 @@ export class GalaxyWorkflowFormat2SchemaLoader implements GalaxyWorkflowSchemaLo
   private loadSchemaDefinitions(schemaEntries: Map<string, SchemaEntry>): SchemaDefinitions {
     const definitions: SchemaDefinitions = {
       records: new Map<string, RecordSchemaNode>(),
-      fields: new Map<string, FieldSchemaNode>(),
       enums: new Map<string, EnumSchemaNode>(),
       specializations: new Map<string, string>(),
       primitiveTypes: new Set<string>(),
@@ -80,22 +79,18 @@ export class GalaxyWorkflowFormat2SchemaLoader implements GalaxyWorkflowSchemaLo
     this.expandEntries(schemaEntries.values());
     schemaEntries.forEach((v, k) => {
       if (isSchemaRecord(v)) {
-        definitions.records.set(k, new RecordSchemaNode(v));
+        const record = new RecordSchemaNode(v);
+        definitions.records.set(k, record);
         if (v.specialize) {
           v.specialize.forEach((sp) => {
             definitions.specializations.set(sp.specializeFrom, sp.specializeTo);
           });
         }
-        v.fields.forEach((field) => {
-          if (definitions.fields.has(field.name)) {
-            if (this.enableDebugTrace) console.debug("****** DUPLICATED FIELD", field.name);
-          }
-          definitions.fields.set(field.name, new FieldSchemaNode(field));
-        });
-      } else if (isSchemaEnumType(v) && v.name === "GalaxyType") {
-        definitions.primitiveTypes = new Set(v.symbols);
       } else if (isSchemaEnumType(v)) {
         definitions.enums.set(k, new EnumSchemaNode(v));
+        if (v.name === "GalaxyType") {
+          definitions.primitiveTypes = new Set(v.symbols);
+        }
       }
     });
     return definitions;
