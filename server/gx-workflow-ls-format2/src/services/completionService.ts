@@ -1,23 +1,15 @@
-import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
-import { ASTNode } from "@gxwf/server-common/src/ast/types";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  Position,
-  TextDocument,
-} from "@gxwf/server-common/src/languageTypes";
+import { ASTNode, PropertyASTNode } from "@gxwf/server-common/src/ast/types";
+import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
-import { RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
+import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
+import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
 
 export class GxFormat2CompletionService {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
 
-  public doComplete(
-    textDocument: TextDocument,
-    position: Position,
-    nodeManager: ASTNodeManager
-  ): Promise<CompletionList> {
+  public doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
+    const textDocument = documentContext.textDocument;
+    const nodeManager = documentContext.nodeManager;
     const result: CompletionList = {
       items: [],
       isIncomplete: false,

@@ -1,24 +1,24 @@
 import {
-  TextDocument,
-  Range,
-  FormattingOptions,
-  TextEdit,
-  LanguageServiceBase,
-  Position,
-  Hover,
   CompletionList,
   Diagnostic,
-  WorkflowValidator,
+  FormattingOptions,
+  Hover,
   LanguageService,
+  LanguageServiceBase,
+  Position,
+  Range,
+  TextDocument,
+  TextEdit,
+  WorkflowValidator,
 } from "@gxwf/server-common/src/languageTypes";
+import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
+import { inject, injectable } from "inversify";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
 import { GxFormat2SchemaValidationService, WorkflowValidationService } from "./services/validation";
-import { inject, injectable } from "inversify";
-import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 
 const LANGUAGE_ID = "gxformat2";
 
@@ -61,19 +61,18 @@ export class GxFormat2WorkflowLanguageServiceImpl
   }
 
   public override doHover(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<Hover | null> {
-    return this._hoverService.doHover(documentContext.textDocument, position, documentContext.nodeManager);
+    return this._hoverService.doHover(documentContext, position);
   }
 
   public override async doComplete(
     documentContext: GxFormat2WorkflowDocument,
     position: Position
   ): Promise<CompletionList | null> {
-    return this._completionService.doComplete(documentContext.textDocument, position, documentContext.nodeManager);
+    return this._completionService.doComplete(documentContext, position);
   }
 
   protected override async doValidation(documentContext: GxFormat2WorkflowDocument): Promise<Diagnostic[]> {
-    const format2WorkflowDocument = documentContext as GxFormat2WorkflowDocument;
-    const diagnostics = await this._yamlLanguageService.doValidation(format2WorkflowDocument.yamlDocument);
+    const diagnostics = await this._yamlLanguageService.doValidation(documentContext.yamlDocument);
     for (const validator of this._validationServices) {
       const results = await validator.doValidation(documentContext);
       diagnostics.push(...results);
