@@ -1,5 +1,10 @@
 import { NodePath } from "@gxwf/server-common/src/ast/types";
-import { GalaxyWorkflowFormat2SchemaLoader, RecordSchemaNode, SchemaNodeResolver } from "../../src/schema";
+import {
+  FieldSchemaNode,
+  GalaxyWorkflowFormat2SchemaLoader,
+  RecordSchemaNode,
+  SchemaNodeResolver,
+} from "../../src/schema";
 
 describe("Gxformat2 Schema Handling", () => {
   describe("Schema Version 19_09", () => {
@@ -34,6 +39,37 @@ describe("Gxformat2 Schema Handling", () => {
           [["steps", "random", "tool_id"], "tool_id"],
         ])("returns expected schema node name from path", (nodePath: NodePath, expectedNodeName: string) => {
           const schemaNode = nodeResolver.resolveSchemaContext(nodePath);
+          expect(schemaNode).toBeDefined();
+          expect(schemaNode?.name).toBe(expectedNodeName);
+        });
+
+        it("returns undefined for unknown path", () => {
+          const schemaNode = nodeResolver.resolveSchemaContext(["unknown"]);
+          expect(schemaNode).toBeUndefined();
+        });
+
+        it("returns the correct schema node from a path pointing to a field", () => {
+          const schemaNode = nodeResolver.resolveSchemaContext(["inputs", "input1", "type"]);
+          expect(schemaNode).toBeDefined();
+          expect(schemaNode instanceof FieldSchemaNode).toBe(true);
+          expect((schemaNode as FieldSchemaNode).name).toBe("type");
+          expect((schemaNode as FieldSchemaNode).default).toBe("data");
+          expect((schemaNode as FieldSchemaNode).canBeAny).toBe(false);
+        });
+      });
+
+      describe("getSchemaNodeByTypeRef", () => {
+        it.each([
+          ["GalaxyWorkflow", "GalaxyWorkflow"],
+          ["WorkflowInputParameter", "WorkflowInputParameter"],
+          ["WorkflowOutputParameter", "WorkflowOutputParameter"],
+          ["WorkflowStep", "WorkflowStep"],
+          ["StepPosition", "StepPosition"],
+          ["ToolShedRepository", "ToolShedRepository"],
+          ["Report", "Report"],
+          ["Any", "Any"],
+        ])("returns expected schema node name from type ref", (typeRef: string, expectedNodeName: string) => {
+          const schemaNode = nodeResolver.getSchemaNodeByTypeRef(typeRef);
           expect(schemaNode).toBeDefined();
           expect(schemaNode?.name).toBe(expectedNodeName);
         });
