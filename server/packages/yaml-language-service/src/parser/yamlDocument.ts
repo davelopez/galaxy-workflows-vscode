@@ -89,7 +89,8 @@ export class YAMLDocument implements ParsedDocument {
     const indentation = this._textBuffer.getLineIndentationAtOffset(offset);
     const lineContent = this._textBuffer.getLineContent(position.line);
     const contentAfterCursor = lineContent.slice(position.character).replace(/\s/g, "");
-    if (indentation === 0 && contentAfterCursor.length === 0) return rootNode;
+    const hasColon = lineContent.includes(":");
+    if (indentation === 0 && contentAfterCursor.length === 0 && !hasColon) return rootNode;
     let result = rootNode.getNodeFromOffsetEndInclusive(offset);
     const parent = this.findParentNodeByIndentation(offset, indentation);
     if (!result || (parent && result.offset <= parent.offset && result.length > parent.length)) {
