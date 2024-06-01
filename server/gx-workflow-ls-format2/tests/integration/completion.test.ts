@@ -100,6 +100,34 @@ inputs:
     expect(completions?.items[0].label).toBe("type");
   });
 
+  it("should suggest the available types for the `type` property", async () => {
+    const template = `
+  class: GalaxyWorkflow
+  inputs:
+    My input:
+      type: $`;
+    const EXPECTED_COMPLETION_LABELS = [
+      "integer",
+      "text",
+      "File",
+      "data",
+      "collection",
+      "null",
+      "boolean",
+      "int",
+      "long",
+      "float",
+      "double",
+      "string",
+    ];
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
+
   it("should suggest the correct input properties when the cursor is inside a property of a particular type", async () => {
     const template = `
 class: GalaxyWorkflow
@@ -152,5 +180,31 @@ inputs:
 
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
+
+  it("should not suggest anythig when we are defining a workflow input", async () => {
+    const template = `
+class: GalaxyWorkflow
+inputs:
+  My$`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
+  });
+
+  it("should not suggest anythig when we are defining a workflow input and there are other inputs defined after the cursor", async () => {
+    const template = `
+class: GalaxyWorkflow
+inputs:
+  My$
+  Another input:
+  `;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
   });
 });
