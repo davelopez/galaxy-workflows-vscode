@@ -51,15 +51,16 @@ Just make sure to read the [Contributing Guidelines](docs/CONTRIBUTING.md) 😉
 
 The following table shows all the implemented features and the current support for each workflow format.
 
-| Feature                                                 | Legacy Workflows (.ga) | Format 2 Workflows (.gxwf.yml) |
-| ------------------------------------------------------- | :--------------------: | :----------------------------: |
-| [Validation](#workflow-validation)                      |           ✔️           |               ✔️               |
-| [Documentation on Hover](#documentation-on-hover)       |           ✔️           |               ✔️               |
-| [IntelliSense](#intellisense)                           |           ✔️           |               ✔️               |
-| [Formatting](#formatting)                               |           ✔️           |               ✔️               |
-| [Custom Outline](#custom-outline)                       |           ✔️           |               ✔️               |
-| [Workflow Cleanup Command](#workflow-cleanup-command)   |           ✔️           |               ❔               |
-| [Simplified Workflow Diffs](#simplified-workflow-diffs) |           🔶           |               ❔               |
+| Feature                                                             | Legacy Workflows (.ga) | Format 2 Workflows (.gxwf.yml) |
+| ------------------------------------------------------------------- | :--------------------: | :----------------------------: |
+| [Validation](#workflow-validation)                                  |           ✔️           |               ✔️               |
+| [Documentation on Hover](#documentation-on-hover)                   |           ✔️           |               ✔️               |
+| [IntelliSense](#intellisense)                                       |           ✔️           |               ✔️               |
+| [Formatting](#formatting)                                           |           ✔️           |               ✔️               |
+| [Custom Outline](#custom-outline)                                   |           ✔️           |               ✔️               |
+| [Workflow Cleanup Command](#workflow-cleanup-command)               |           ✔️           |               ❔               |
+| [Simplified Workflow Diffs](#simplified-workflow-diffs)             |           🔶           |               ❔               |
+| [Workflow Tests Document Support](#workflow-tests-document-support) |           ✔️           |               ✔️               |
 
 <details>
 <summary>Legend</summary>
@@ -169,5 +170,11 @@ Sometimes you want to compare different revisions of the same (legacy .ga) workf
 #### Legacy (ga)
 
 ![Simplified Workflow Diffs Demo](images/clean-diff-native.gif)
+
+### Workflow Tests Document Support
+
+You can now edit Workflow Test Files (`*-test.yml`) with basic language support. This includes syntax highlighting, validation, auto-completion, and documentation on hover based on the _experimental_ schema for Workflow Test Files.
+
+![Workflow Tests Document Support Demo](images/workflow-test-documents-support.gif)
 
 [Back to Features ⬆️](#features)
