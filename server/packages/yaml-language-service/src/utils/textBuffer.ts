@@ -113,4 +113,13 @@ export class TextBuffer {
     }
     return currentLine;
   }
+
+  public isPositionAfterToken(position: Position, token: string): boolean {
+    const lineContent = this.getLineContent(position.line);
+    const tokenIndex = lineContent.lastIndexOf(token, position.character);
+    if (tokenIndex === -1) {
+      return false; // No token found
+    }
+    return tokenIndex < position.character;
+  }
 }
