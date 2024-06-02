@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.0] - 2024-06-02
+
+### Added
+
+- Add basic support for Workflow Test Files (`*-test.yml`) [#63](https://github.com/davelopez/galaxy-workflows-vscode/pull/63)
+
+### Changed
+
+- Improve gxFormat2 auto-completion support [#67](https://github.com/davelopez/galaxy-workflows-vscode/pull/67)
+
 ## [0.3.1] - 2023-10-01
 
 ### Changed
