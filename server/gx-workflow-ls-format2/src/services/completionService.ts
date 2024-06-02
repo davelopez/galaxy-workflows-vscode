@@ -1,11 +1,5 @@
 import { ASTNode } from "@gxwf/server-common/src/ast/types";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  Position,
-  Range,
-} from "@gxwf/server-common/src/languageTypes";
+import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
@@ -21,31 +15,34 @@ export class GxFormat2CompletionService {
       items: [],
       isIncomplete: false,
     };
-    // TODO: Refactor most of this to an Context class with all the information around the cursor
     const textBuffer = new TextBuffer(textDocument);
     const offset = textBuffer.getOffsetAt(position);
     const node = nodeManager.getNodeFromOffset(offset);
-
-    const currentWord = textBuffer.getCurrentWord(offset);
-    const overwriteRange = textBuffer.getCurrentWordRange(offset);
 
     const existing = nodeManager.getDeclaredPropertyNames(node);
     const nodePath = nodeManager.getPathFromNode(node);
     const schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
     if (schemaNode) {
-      result.items = this.getProposedItems(schemaNode, currentWord, existing, overwriteRange);
+      result.items = this.getProposedItems(schemaNode, textBuffer, existing, offset);
     }
     return Promise.resolve(result);
   }
 
   private getProposedItems(
     schemaNode: SchemaNode,
-    currentWord: string,
+    textBuffer: TextBuffer,
     exclude: Set<string>,
-    overwriteRange: Range
+    offset: number
   ): CompletionItem[] {
     const result: CompletionItem[] = [];
+    const currentWord = textBuffer.getCurrentWord(offset);
+    const overwriteRange = textBuffer.getCurrentWordRange(offset);
+    const position = textBuffer.getPosition(offset);
+    const isPositionAfterColon = textBuffer.isPositionAfterToken(position, ":");
     if (schemaNode instanceof RecordSchemaNode) {
+      if (isPositionAfterColon) {
+        return result; // Do not suggest fields inlined after colon
+      }
       schemaNode.fields
         .filter((f) => f.name.startsWith(currentWord))
         .forEach((field) => {

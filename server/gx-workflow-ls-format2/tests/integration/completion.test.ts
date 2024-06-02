@@ -110,6 +110,18 @@ in$
     expect(completions?.items[0].label).toBe("inputs");
   });
 
+  it("should not suggest property completions inlined with the definition", async () => {
+    const template = `
+class: GalaxyWorkflow
+inputs:
+  My input:$`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
+  });
+
   it("should suggest the properties of a workflow input", async () => {
     const template = `
 class: GalaxyWorkflow
