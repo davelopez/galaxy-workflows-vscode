@@ -196,6 +196,11 @@ export class EnumSchemaNode implements SchemaNode {
   public get typeRef(): string {
     return this._schemaEnum.name;
   }
+
+  //Override toString for debugging purposes
+  public toString(): string {
+    return `EnumSchemaNode: ${this.name} - ${this.symbols}`;
+  }
 }
 
 export class FieldSchemaNode implements SchemaNode, IdMapper {
@@ -315,6 +320,11 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
   private isObjectType(typeName: string): boolean {
     return FieldSchemaNode.definitions.records.has(typeName);
   }
+
+  //Override toString for debugging purposes
+  public toString(): string {
+    return `FieldSchemaNode: ${this.name} - ${this.typeRef}`;
+  }
 }
 
 export class RecordSchemaNode implements SchemaNode {
@@ -376,6 +386,11 @@ export class RecordSchemaNode implements SchemaNode {
 
   public getFieldByName(name: string): FieldSchemaNode | undefined {
     return this.fields.find((t) => t.name === name);
+  }
+
+  //Override toString for debugging purposes
+  public toString(): string {
+    return `RecordSchemaNode: ${this.name}`;
   }
 }
 
