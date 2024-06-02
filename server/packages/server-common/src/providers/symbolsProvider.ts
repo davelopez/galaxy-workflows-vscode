@@ -1,10 +1,10 @@
 import { ASTNode, ObjectASTNode, PropertyASTNode } from "../ast/types";
 import {
-  DocumentSymbolParams,
-  DocumentSymbol,
-  SymbolKind,
   DocumentContext,
+  DocumentSymbol,
+  DocumentSymbolParams,
   GalaxyWorkflowLanguageServer,
+  SymbolKind,
 } from "../languageTypes";
 import { Provider } from "./provider";
 
@@ -156,7 +156,7 @@ export class SymbolsProvider extends Provider {
   }
 
   private getKeyLabel(property: PropertyASTNode): string {
-    let name = property.keyNode.value;
+    let name = String(property.keyNode.value);
     if (name) {
       name = name.replace(/[\n]/g, "↵");
     }
