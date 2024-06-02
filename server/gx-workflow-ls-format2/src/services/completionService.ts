@@ -17,12 +17,19 @@ export class GxFormat2CompletionService {
     };
     const textBuffer = new TextBuffer(textDocument);
     const offset = textBuffer.getOffsetAt(position);
-    const node = nodeManager.getNodeFromOffset(offset);
+    let node = nodeManager.getNodeFromOffset(offset);
 
-    const existing = nodeManager.getDeclaredPropertyNames(node);
     const nodePath = nodeManager.getPathFromNode(node);
-    const schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
+    let schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
+    if (schemaNode === undefined) {
+      // Try parent node
+      node = node?.parent;
+      const parentPath = nodePath.slice(0, -1);
+      const parentNode = this.schemaNodeResolver.resolveSchemaContext(parentPath);
+      schemaNode = parentNode;
+    }
     if (schemaNode) {
+      const existing = nodeManager.getDeclaredPropertyNames(node);
       result.items = this.getProposedItems(schemaNode, textBuffer, existing, offset);
     }
     return Promise.resolve(result);
