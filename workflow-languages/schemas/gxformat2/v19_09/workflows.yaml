@@ -362,6 +362,8 @@ $graph:
           "_id": "@type"
           "_type": "@vocab"
         type: string
+        # This default is a hack and is not included in the official schema.
+        default: "GalaxyWorkflow"
       - name: steps
         doc: { $include: ../common/steps_description.txt }
         type:

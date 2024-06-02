@@ -95,7 +95,7 @@ ${this.indentation}${this.indentation}$0
     return completionItem;
   }
 
-  public async doComplete(documentContext: DocumentContext, position: Position): Promise<CompletionList | null> {
+  public async doComplete(documentContext: DocumentContext, position: Position): Promise<CompletionList> {
     const result = CompletionList.create([], false);
 
     const document = documentContext.textDocument;

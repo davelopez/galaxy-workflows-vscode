@@ -164,6 +164,45 @@ export interface SchemaNode {
   isRoot: boolean;
 }
 
+export class EnumSchemaNode implements SchemaNode {
+  public static definitions: SchemaDefinitions;
+
+  private readonly _schemaEnum: SchemaEnum;
+
+  constructor(schemaEnum: SchemaEnum) {
+    this._schemaEnum = schemaEnum;
+  }
+
+  public get name(): string {
+    return this._schemaEnum.name;
+  }
+
+  public get symbols(): string[] {
+    return this._schemaEnum.symbols;
+  }
+
+  public get documentation(): string | undefined {
+    return this._schemaEnum.doc;
+  }
+
+  public get isRoot(): boolean {
+    return !!this._schemaEnum.documentRoot;
+  }
+
+  public get canBeArray(): boolean {
+    return false;
+  }
+
+  public get typeRef(): string {
+    return this._schemaEnum.name;
+  }
+
+  //Override toString for debugging purposes
+  public toString(): string {
+    return `EnumSchemaNode: ${this.name} - ${this.symbols}`;
+  }
+}
+
 export class FieldSchemaNode implements SchemaNode, IdMapper {
   public static definitions: SchemaDefinitions;
 
@@ -281,11 +320,16 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
   private isObjectType(typeName: string): boolean {
     return FieldSchemaNode.definitions.records.has(typeName);
   }
+
+  //Override toString for debugging purposes
+  public toString(): string {
+    return `FieldSchemaNode: ${this.name} - ${this.typeRef}`;
+  }
 }
 
 export class RecordSchemaNode implements SchemaNode {
   public static definitions: SchemaDefinitions;
-  public static readonly NULL: SchemaNode = new RecordSchemaNode({
+  public static readonly NULL = new RecordSchemaNode({
     name: "null",
     type: "null",
     fields: [],
@@ -343,11 +387,16 @@ export class RecordSchemaNode implements SchemaNode {
   public getFieldByName(name: string): FieldSchemaNode | undefined {
     return this.fields.find((t) => t.name === name);
   }
+
+  //Override toString for debugging purposes
+  public toString(): string {
+    return `RecordSchemaNode: ${this.name}`;
+  }
 }
 
 export interface SchemaDefinitions {
   records: Map<string, RecordSchemaNode>;
-  fields: Map<string, FieldSchemaNode>;
+  enums: Map<string, EnumSchemaNode>;
   specializations: Map<string, string>;
   primitiveTypes: Set<string>;
 }

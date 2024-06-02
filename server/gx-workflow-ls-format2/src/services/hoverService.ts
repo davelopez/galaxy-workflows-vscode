@@ -1,17 +1,15 @@
-import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { NodePath } from "@gxwf/server-common/src/ast/types";
-import { Hover, MarkupContent, MarkupKind, Position, Range, TextDocument } from "@gxwf/server-common/src/languageTypes";
+import { Hover, MarkupContent, MarkupKind, Position, Range } from "@gxwf/server-common/src/languageTypes";
+import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
 
 export class GxFormat2HoverService {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
 
   //Based on https://github.com/microsoft/vscode-json-languageservice/blob/12275e448a91973777c94a2e5d92c961f281231a/src/services/jsonHover.ts#L23
-  public async doHover(
-    textDocument: TextDocument,
-    position: Position,
-    nodeManager: ASTNodeManager
-  ): Promise<Hover | null> {
+  public async doHover(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<Hover | null> {
+    const textDocument = documentContext.textDocument;
+    const nodeManager = documentContext.nodeManager;
     const offset = textDocument.offsetAt(position);
     let node = nodeManager.getNodeFromOffset(offset);
     if (

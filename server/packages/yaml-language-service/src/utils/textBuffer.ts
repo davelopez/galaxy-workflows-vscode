@@ -76,6 +76,15 @@ export class TextBuffer {
     return text.substring(i + 1, offset);
   }
 
+  public getCurrentWordRange(offset: number): Range {
+    let i = offset - 1;
+    const text = this.getText();
+    while (i >= 0 && ' \t\n\r\v":{[,]}'.indexOf(text.charAt(i)) === -1) {
+      i--;
+    }
+    return Range.create(this.getPosition(i + 1), this.getPosition(offset));
+  }
+
   public hasTextAfterPosition(position: Position): boolean {
     const lineContent = this.getLineContent(position.line);
     return lineContent.charAt(position.character + 1).trim() !== "";
@@ -103,5 +112,14 @@ export class TextBuffer {
       }
     }
     return currentLine;
+  }
+
+  public isPositionAfterToken(position: Position, token: string): boolean {
+    const lineContent = this.getLineContent(position.line);
+    const tokenIndex = lineContent.lastIndexOf(token, position.character);
+    if (tokenIndex === -1) {
+      return false; // No token found
+    }
+    return tokenIndex < position.character;
   }
 }

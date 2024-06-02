@@ -1,59 +1,55 @@
-import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { ASTNode } from "@gxwf/server-common/src/ast/types";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  CompletionList,
-  Position,
-  TextDocument,
-} from "@gxwf/server-common/src/languageTypes";
+import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
-import { RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
+import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
+import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
+import { EnumSchemaNode } from "../schema/definitions";
 
 export class GxFormat2CompletionService {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
 
-  public doComplete(
-    textDocument: TextDocument,
-    position: Position,
-    nodeManager: ASTNodeManager
-  ): Promise<CompletionList> {
+  public doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
+    const textDocument = documentContext.textDocument;
+    const nodeManager = documentContext.nodeManager;
     const result: CompletionList = {
       items: [],
       isIncomplete: false,
     };
-    // TODO: Refactor most of this to an Context class with all the information around the cursor
     const textBuffer = new TextBuffer(textDocument);
-    const text = textBuffer.getText();
     const offset = textBuffer.getOffsetAt(position);
-    const node = nodeManager.getNodeFromOffset(offset);
-    if (!node) {
-      return Promise.resolve(result);
-    }
-    if (text.charAt(offset - 1) === ":") {
-      return Promise.resolve(result);
-    }
+    let node = nodeManager.getNodeFromOffset(offset);
 
-    const currentWord = textBuffer.getCurrentWord(offset);
-
-    DEBUG_printNodeName(node);
-
-    const existing = nodeManager.getDeclaredPropertyNames(node);
-    if (nodeManager.isRoot(node)) {
-      result.items = this.getProposedItems(this.schemaNodeResolver.rootNode, currentWord, existing);
-      return Promise.resolve(result);
-    }
     const nodePath = nodeManager.getPathFromNode(node);
-    const schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
+    let schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
+    if (schemaNode === undefined) {
+      // Try parent node
+      node = node?.parent;
+      const parentPath = nodePath.slice(0, -1);
+      const parentNode = this.schemaNodeResolver.resolveSchemaContext(parentPath);
+      schemaNode = parentNode;
+    }
     if (schemaNode) {
-      result.items = this.getProposedItems(schemaNode, currentWord, existing);
+      const existing = nodeManager.getDeclaredPropertyNames(node);
+      result.items = this.getProposedItems(schemaNode, textBuffer, existing, offset);
     }
     return Promise.resolve(result);
   }
 
-  private getProposedItems(schemaNode: SchemaNode, currentWord: string, exclude: Set<string>): CompletionItem[] {
+  private getProposedItems(
+    schemaNode: SchemaNode,
+    textBuffer: TextBuffer,
+    exclude: Set<string>,
+    offset: number
+  ): CompletionItem[] {
     const result: CompletionItem[] = [];
+    const currentWord = textBuffer.getCurrentWord(offset);
+    const overwriteRange = textBuffer.getCurrentWordRange(offset);
+    const position = textBuffer.getPosition(offset);
+    const isPositionAfterColon = textBuffer.isPositionAfterToken(position, ":");
     if (schemaNode instanceof RecordSchemaNode) {
+      if (isPositionAfterColon) {
+        return result; // Do not suggest fields inlined after colon
+      }
       schemaNode.fields
         .filter((f) => f.name.startsWith(currentWord))
         .forEach((field) => {
@@ -64,15 +60,57 @@ export class GxFormat2CompletionService {
             sortText: `_${field.name}`,
             kind: CompletionItemKind.Field,
             insertText: `${field.name}: `,
+            textEdit: {
+              range: overwriteRange,
+              newText: `${field.name}: `,
+            },
           };
           result.push(item);
         });
+    } else if (schemaNode instanceof FieldSchemaNode) {
+      if (this.schemaNodeResolver.definitions.primitiveTypes.has(schemaNode.typeRef)) {
+        const defaultValue = String(schemaNode.default ?? "");
+        if (defaultValue) {
+          const item: CompletionItem = {
+            label: defaultValue,
+            kind: CompletionItemKind.Value,
+            documentation: schemaNode.documentation,
+            insertText: defaultValue,
+            textEdit: {
+              range: overwriteRange,
+              newText: defaultValue,
+            },
+          };
+          result.push(item);
+          return result;
+        }
+      }
+      const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
+      if (schemaRecord instanceof EnumSchemaNode) {
+        schemaRecord.symbols
+          .filter((v) => v.startsWith(currentWord))
+          .forEach((value) => {
+            if (exclude.has(value)) return;
+            const item: CompletionItem = {
+              label: value,
+              sortText: `_${value}`,
+              kind: CompletionItemKind.EnumMember,
+              documentation: schemaRecord.documentation,
+              insertText: value,
+              textEdit: {
+                range: overwriteRange,
+                newText: value,
+              },
+            };
+            result.push(item);
+          });
+      }
     }
     return result;
   }
 }
 
-function DEBUG_printNodeName(node: ASTNode): void {
+function _DEBUG_printNodeName(node: ASTNode): void {
   let nodeName = "_root_";
   if (node?.type === "property") {
     nodeName = node.keyNode.value;
