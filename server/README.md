@@ -27,3 +27,7 @@ This library contains common classes, interfaces and type definitions used by bo
 ### packages/yaml-language-service
 
 This library implements a language service to provide basic _smarts_ for YAML documents. It is based and inspired by both the [YAML Language Server](https://github.com/redhat-developer/yaml-language-server) implementation from Red Hat and the [vscode-json-languageservice](https://github.com/microsoft/vscode-json-languageservice) by Microsoft.
+
+### packages/workflow-tests-language-service
+
+This library implements a language service to provide basic _smarts_ for **Galaxy workflow test documents**. This library is used by the `gxformat2` language server to provide autocompletion, validation and hover information for test documents.
