@@ -91,6 +91,14 @@ export class YAMLDocument implements ParsedDocument {
     const contentAfterCursor = lineContent.slice(position.character).replace(/\s/g, "");
     const hasColon = lineContent.includes(":");
     if (indentation === 0 && contentAfterCursor.length === 0 && !hasColon) return rootNode;
+    const isPositionAfterColon = this._textBuffer.isPositionAfterToken(position, ":");
+    if (isPositionAfterColon) {
+      // If the cursor is after a colon, we want to return the node in the same line
+      const indexBeforeColon = lineContent.lastIndexOf(":");
+      const offsetBeforeColon = this._textBuffer.getOffsetAt(Position.create(position.line, indexBeforeColon));
+      const node = rootNode.getNodeFromOffsetEndInclusive(offsetBeforeColon);
+      return node;
+    }
     let result = rootNode.getNodeFromOffsetEndInclusive(offset);
     const parent = this.findParentNodeByIndentation(offset, indentation);
     if (!result || (parent && result.offset <= parent.offset && result.length > parent.length)) {
