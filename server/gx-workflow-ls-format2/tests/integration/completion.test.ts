@@ -268,4 +268,37 @@ inputs:
 
     expect(completions?.items).toHaveLength(0);
   });
+
+  it("should suggest expected fields starting with `s` for a workflow step when there are other fields defined before the cursor", async () => {
+    const template = `
+class: GalaxyWorkflow
+steps:
+  my_step:
+    tool: my_tool
+    s$`;
+    const EXPECTED_COMPLETION_LABELS = ["state"];
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
+
+  it("should suggest the list of available types for a step", async () => {
+    const template = `
+class: GalaxyWorkflow
+steps:
+  my_step:
+    tool: my_tool
+    type: $
+outputs:`;
+    const EXPECTED_COMPLETION_LABELS = ["tool", "subworkflow", "pause"];
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
 });

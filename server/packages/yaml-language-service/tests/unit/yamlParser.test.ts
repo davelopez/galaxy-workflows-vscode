@@ -177,6 +177,7 @@ test: value
 test02:
   prop03:
     test04: val
+    test05: 
       
 `;
     it.each([
@@ -194,8 +195,12 @@ test02:
       [46, "test04"],
       [47, "_root_"],
       [49, "test02"],
-      [51, "prop03"],
-      [53, "test04"],
+      [51, "test05"],
+      [59, "test05"],
+      [60, "_root_"],
+      [62, "test02"],
+      [64, "prop03"],
+      [66, "test05"],
     ])("should return for offset %p the expected node name %p", (offset: number, expectedNodeName: string) => {
       const parsedDocument = parse(SAMPLE_DOC);
       const node = parsedDocument.getNodeFromOffset(offset);
