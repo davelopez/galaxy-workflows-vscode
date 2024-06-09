@@ -16,7 +16,8 @@
     "vscode": "^1.63.0"
   },
   "dependencies": {
-    "vscode-languageclient": "^8.1.0"
+    "vscode-languageclient": "^8.1.0",
+    "vscode-uri": "^3.0.8"
   },
   "scripts": {
     "webpack": "webpack",
