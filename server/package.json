@@ -6,6 +6,7 @@
   "author": "davelopez",
   "license": "MIT",
   "scripts": {
+    "clean": "rimraf ./gx-workflow-ls-native/dist && rimraf ./gx-workflow-ls-format2/dist",
     "compile-native-server": "webpack --config ./gx-workflow-ls-native/webpack.config.js",
     "compile-format2-server": "webpack --config ./gx-workflow-ls-format2/webpack.config.js",
     "compile": "npm run compile-native-server && npm run compile-format2-server",

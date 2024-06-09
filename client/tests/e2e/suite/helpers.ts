@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
-import * as path from "path";
 import * as assert from "assert";
+import * as path from "path";
+import * as vscode from "vscode";
 
 /**
  * Contains the document and its corresponding editor
@@ -60,7 +60,7 @@ export async function waitForDiagnostics(docUri: vscode.Uri, timeoutInMillisecon
 }
 
 export const getDocPath = (filePath: string): string => {
-  return path.resolve(__dirname, path.join("..", "..", "..", "..", "test-data", filePath));
+  return path.resolve(__dirname, path.join("..", "..", "..", "..", "..", "test-data", filePath));
 };
 
 export const getDocUri = (filePath: string): vscode.Uri => {

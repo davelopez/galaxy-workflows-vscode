@@ -219,7 +219,7 @@
     "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "lint": "eslint ./client/src ./server --ext .ts,.tsx",
     "format": "prettier --write .",
-    "clean": "rimraf client/dist && rimraf server/dist",
+    "clean": "rimraf client/dist && rimraf client/out && cd server && npm run clean && cd ..",
     "compile-servers": "cd server && npm run compile",
     "compile": "npm run clean && webpack --config ./client/webpack.config.js && npm run compile-servers",
     "vscode:prepublish": "npm run compile",
@@ -230,8 +230,8 @@
     "test-client": "cd client && npm test",
     "test-server": "cd server && npm test",
     "test-compile": "tsc --project ./client --outDir client/out",
-    "pretest:e2e": "npm run compile && npm run test-compile",
-    "test:e2e": "node ./client/out/e2e/runTests.js",
+    "pretest:e2e": "npm run clean && npm run compile && npm run test-compile",
+    "test:e2e": "node ./client/out/tests/e2e/runTests.js",
     "test-browser": "vscode-test-web --extensionDevelopmentPath=. ./test-data"
   },
   "devDependencies": {
