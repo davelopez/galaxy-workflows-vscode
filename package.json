@@ -57,7 +57,8 @@
           "Galaxy Workflow (YAML)"
         ],
         "extensions": [
-          ".gxwf.yml"
+          ".gxwf.yml",
+          ".gxwf.yaml"
         ],
         "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
       },
@@ -67,7 +68,10 @@
           "Galaxy Workflow Tests (YAML)"
         ],
         "extensions": [
-          "-tests.yml"
+          "-test.yml",
+          "-tests.yml",
+          "-test.yaml",
+          "-tests.yaml"
         ],
         "configuration": "./workflow-languages/configurations/yml.language-configuration.json"
       }
