@@ -57,6 +57,11 @@ export class ComparableWorkflow {
   uri: Uri;
   ref?: string;
 
+  constructor(uri: Uri, ref?: string) {
+    this.uri = uri;
+    this.ref = ref;
+  }
+
   // TODO: This is no longer working until a new API is available
   // ref: https://github.com/microsoft/vscode/issues/177319
   // ref: https://github.com/microsoft/vscode/issues/84297

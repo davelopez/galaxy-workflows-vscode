@@ -229,7 +229,7 @@
     "test": "npm run test-client && npm run test-server",
     "test-client": "cd client && npm test",
     "test-server": "cd server && npm test",
-    "test-compile": "tsc --project ./client --outDir client/out",
+    "test-compile": "tsc --project ./client/tests/e2e --outDir client/out/tests/e2e",
     "pretest:e2e": "npm run clean && npm run compile && npm run test-compile",
     "test:e2e": "node ./client/out/tests/e2e/runTests.js",
     "test-browser": "vscode-test-web --extensionDevelopmentPath=. ./test-data"
