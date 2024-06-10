@@ -3,13 +3,9 @@ import { GalaxyWorkflowLanguageServer } from "../languageTypes";
 import { ServerEventHandler } from "./handler";
 
 export class CompletionHandler extends ServerEventHandler {
-  public static register(server: GalaxyWorkflowLanguageServer): CompletionHandler {
-    return new CompletionHandler(server);
-  }
-
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.server.connection.onCompletion(async (params) => this.onCompletion(params));
+    this.register(this.server.connection.onCompletion(async (params) => this.onCompletion(params)));
   }
 
   private async onCompletion(params: CompletionParams): Promise<CompletionList | null> {

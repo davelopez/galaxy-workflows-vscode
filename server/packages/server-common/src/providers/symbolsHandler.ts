@@ -11,13 +11,9 @@ import { ServerEventHandler } from "./handler";
 const IGNORE_SYMBOL_NAMES = new Set(["a_galaxy_workflow", "position", "uuid", "errors", "format-version", "version"]);
 
 export class SymbolsHandler extends ServerEventHandler {
-  public static register(server: GalaxyWorkflowLanguageServer): SymbolsHandler {
-    return new SymbolsHandler(server);
-  }
-
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.server.connection.onDocumentSymbol((params) => this.onDocumentSymbol(params));
+    this.register(this.server.connection.onDocumentSymbol((params) => this.onDocumentSymbol(params)));
   }
 
   public onDocumentSymbol(params: DocumentSymbolParams): DocumentSymbol[] {

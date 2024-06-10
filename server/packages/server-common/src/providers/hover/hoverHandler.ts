@@ -11,14 +11,10 @@ import { ServerEventHandler } from "../handler";
 export class HoverHandler extends ServerEventHandler {
   private contributors: HoverContentContributor[];
 
-  public static register(server: GalaxyWorkflowLanguageServer, contributors?: HoverContentContributor[]): HoverHandler {
-    return new HoverHandler(server, contributors);
-  }
-
   constructor(server: GalaxyWorkflowLanguageServer, contributors?: HoverContentContributor[]) {
     super(server);
     this.contributors = contributors ?? [];
-    this.server.connection.onHover((params) => this.onHover(params));
+    this.register(this.server.connection.onHover((params) => this.onHover(params)));
   }
 
   private async onHover(params: HoverParams): Promise<Hover | null> {

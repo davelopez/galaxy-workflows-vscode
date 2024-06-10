@@ -25,6 +25,7 @@ import { CleanWorkflowService } from "./services/cleanWorkflow";
 import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
 import { CompletionHandler } from "./providers/completionHandler";
+import { ServerEventHandler } from "./providers/handler";
 import { ValidationProfiles } from "./providers/validation/profiles";
 
 @injectable()
@@ -32,6 +33,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   public readonly documents = new TextDocuments(TextDocument);
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
   private languageServiceMapper: Map<string, LanguageService<DocumentContext>> = new Map();
+  private serverEventHandlers: ServerEventHandler[] = [];
 
   constructor(
     @inject(TYPES.Connection) public readonly connection: Connection,
@@ -90,12 +92,14 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   }
 
   private registerHandlers(): void {
-    FormattingHandler.register(this);
-    HoverHandler.register(this, [
-      // new DebugHoverContentContributor(), //TODO remove this contributor before release
-    ]);
-    SymbolsHandler.register(this);
-    CompletionHandler.register(this);
+    this.serverEventHandlers.push(new FormattingHandler(this));
+    this.serverEventHandlers.push(
+      new HoverHandler(this, [
+        // new DebugHoverContentContributor(), //TODO remove this contributor before release
+      ])
+    );
+    this.serverEventHandlers.push(new SymbolsHandler(this));
+    this.serverEventHandlers.push(new CompletionHandler(this));
   }
 
   private registerServices(): void {
@@ -132,6 +136,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private cleanup(): void {
     this.documentsCache.dispose();
+    this.serverEventHandlers.forEach((handler) => handler.dispose());
   }
 
   private async validateDocument(documentContext: DocumentContext): Promise<void> {
