@@ -1,4 +1,5 @@
-import { OutputChannel, Uri, workspace } from "vscode";
+import { workspace } from "vscode";
+import { URI } from "vscode-uri";
 
 /**
  * Determines if the current workspace contains
@@ -22,8 +23,8 @@ export function getWorkspaceScheme(): "file" | "vscode-vfs" {
  * @param targetScheme The new scheme.
  * @returns A new copy of the URI with the new scheme.
  */
-export function replaceUriScheme(uri: Uri, targetScheme: string): Uri {
-  return Uri.parse(uri.toString().replace(uri.scheme, targetScheme));
+export function replaceUriScheme(uri: URI, targetScheme: string): URI {
+  return URI.parse(uri.toString().replace(uri.scheme, targetScheme));
 }
 
 /**
@@ -32,44 +33,77 @@ export function replaceUriScheme(uri: Uri, targetScheme: string): Uri {
  * @param ref The git ref to add to the URI query
  * @returns The URI with a ref query value set
  */
-export function addRefToUri(uri: Uri, ref: string): Uri {
-  return Uri.parse(uri.toString() + `?ref=${ref}`);
+export function addRefToUri(uri: URI, ref: string): URI {
+  return URI.parse(uri.toString() + `?ref=${ref}`);
 }
 
-/** Just for debugging */
-export function debugPrintCommandArgs(command: string, args: unknown[], outputChannel: OutputChannel): void {
-  outputChannel.appendLine(`Command ${command} args:`);
-  for (let index = 0; index < args.length; index++) {
-    const element = args[index];
-    outputChannel.appendLine(` [${index}] ${JSON.stringify(element)}`);
+// Workflow tests document can end with -test.yml, -tests.yml, -test.yaml, -tests.yaml
+const workflowTestsDocumentPattern = /(.*)-(test|tests)\.(yml|yaml)$/;
+
+// Workflow format1 documents can end with .ga
+// Workflow format2 documents can end with .gxwf.yml or .gxwf.yaml
+const format1WorkflowDocumentPattern = /\.ga$/;
+const format2WorkflowDocumentPattern = /\.gxwf\.(yml|yaml)$/;
+
+export function isWorkflowTestsDocument(uri: URI): boolean {
+  return workflowTestsDocumentPattern.test(uri.path);
+}
+
+export function isNativeWorkflowDocument(uri: URI): boolean {
+  return format1WorkflowDocumentPattern.test(uri.path);
+}
+
+export function isFormat2WorkflowDocument(uri: URI): boolean {
+  return format2WorkflowDocumentPattern.test(uri.path);
+}
+
+export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: URI): Promise<URI | undefined> {
+  if (!isWorkflowTestsDocument(workflowTestsDocumentUri)) {
+    return undefined;
   }
-  outputChannel.appendLine(`---\n`);
+
+  //Try to find a format1 workflow document first
+  let workflowDocumentUri = replaceUriPattern(workflowTestsDocumentUri, workflowTestsDocumentPattern, ".ga");
+  if (await fileUriExistsInWorkspace(workflowDocumentUri)) {
+    return workflowDocumentUri;
+  }
+  //Try to find a format2 workflow document
+  workflowDocumentUri = replaceUriPattern(workflowTestsDocumentUri, workflowTestsDocumentPattern, ".gxwf.yaml");
+  if (await fileUriExistsInWorkspace(workflowDocumentUri)) {
+    return workflowDocumentUri;
+  }
+
+  workflowDocumentUri = replaceUriPattern(workflowTestsDocumentUri, workflowTestsDocumentPattern, ".gxwf.yml");
+  if (await fileUriExistsInWorkspace(workflowDocumentUri)) {
+    return workflowDocumentUri;
+  }
+  return undefined;
 }
 
-export function isWorkflowTestsDocument(uri: Uri): boolean {
-  return uri.path.endsWith("-test.yml") || uri.path.endsWith("-tests.yml");
+/**
+ * Replaces the matched pattern in the URI path with the replacement.
+ * @param uri The URI to be modified.
+ * @param pattern The pattern to match in the URI path.
+ * @param replacement The replacement string.
+ * @returns A new copy of the URI with the pattern replaced.
+ */
+export function replaceUriPattern(uri: URI, pattern: RegExp, replacement: string): URI {
+  const uriString = uri.toString();
+  const newUriString = uriString.replace(pattern, `$1${replacement}`);
+  const result = URI.parse(newUriString);
+  return result;
 }
 
-export function isNativeWorkflowDocument(uri: Uri): boolean {
-  return uri.path.endsWith(".ga");
-}
-
-export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: Uri): Promise<Uri | undefined> {
-  const format2WorkflowUri = Uri.parse(
-    workflowTestsDocumentUri.toString().replace("-test.yml", ".gxwf.yml").replace("-tests.yml", ".gxwf.yml")
-  );
+/**
+ * Determines if a file exists at the given URI in the workspace.
+ * @param uri The URI to check for existence.
+ * @returns true if the (virtual) file exists, false otherwise.
+ */
+export async function fileUriExistsInWorkspace(uri: URI): Promise<boolean> {
   try {
-    await workspace.fs.stat(format2WorkflowUri);
-    return format2WorkflowUri;
+    await workspace.fs.stat(uri);
+    return true;
   } catch {
-    const nativeWorkflowUri = Uri.parse(
-      workflowTestsDocumentUri.toString().replace("-test.yml", ".ga").replace("-tests.yml", ".ga")
-    );
-    try {
-      await workspace.fs.stat(nativeWorkflowUri);
-      return nativeWorkflowUri;
-    } catch {
-      return undefined;
-    }
+    return false;
   }
 }

@@ -82,9 +82,9 @@
       "args": [
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/client/out/e2e/suite/index"
+        "--extensionTestsPath=${workspaceFolder}/client/out/tests/e2e/suite/index"
       ],
-      "outFiles": ["${workspaceFolder}client/out/e2e/**/*.js"],
+      "outFiles": ["${workspaceFolder}client/out/tests/e2e/**/*.js"],
       "preLaunchTask": {
         "type": "npm",
         "script": "test-compile"

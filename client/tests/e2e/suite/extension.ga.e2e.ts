@@ -1,18 +1,18 @@
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import * as vscode from "vscode";
-import * as path from "path";
 import * as assert from "assert";
 import { beforeEach } from "mocha";
+import * as path from "path";
+import * as vscode from "vscode";
 import {
   activateAndOpenInEditor,
-  getDocUri,
-  closeAllEditors,
-  openDocument,
-  sleep,
   assertDiagnostics,
-  updateSettings,
+  closeAllEditors,
+  getDocUri,
+  openDocument,
   resetSettings,
+  sleep,
+  updateSettings,
   waitForDiagnostics,
 } from "./helpers";
 
@@ -22,7 +22,9 @@ suite("Native (JSON) Workflows", () => {
     test("Clean workflow command removes non-essential properties", async () => {
       const dirtyDocUri = getDocUri(path.join("json", "clean", "wf_01_dirty.ga"));
       const cleanDocUri = getDocUri(path.join("json", "clean", "wf_01_clean.ga"));
-      const { document } = await activateAndOpenInEditor(dirtyDocUri);
+      const editor = await activateAndOpenInEditor(dirtyDocUri);
+      const document = editor?.document;
+      assert.ok(document);
       await sleep(500); // Wait for extension to fully activate... yes Windows CI I'm looking at you...
       const dirtyDoc = document.getText();
       await vscode.commands.executeCommand("galaxy-workflows.cleanWorkflow");
@@ -30,6 +32,7 @@ suite("Native (JSON) Workflows", () => {
       const actualCleanJson = document.getText();
       assert.notEqual(dirtyDoc, actualCleanJson);
       const expectedCleanDocument = await openDocument(cleanDocUri);
+      assert.ok(expectedCleanDocument);
       const expectedCleanJson = expectedCleanDocument.getText();
       assert.strictEqual(actualCleanJson, expectedCleanJson);
     });

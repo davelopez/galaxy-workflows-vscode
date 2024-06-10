@@ -1,6 +1,6 @@
-import * as vscode from "vscode";
-import * as path from "path";
 import * as assert from "assert";
+import * as path from "path";
+import * as vscode from "vscode";
 
 /**
  * Contains the document and its corresponding editor
@@ -12,11 +12,11 @@ export interface DocumentEditor {
 
 export async function activate(): Promise<unknown> {
   const ext = vscode.extensions.getExtension("davelopez.galaxy-workflows");
-  const api = ext.isActive ? ext.exports : await ext.activate();
+  const api = ext?.isActive ? ext.exports : await ext?.activate();
   return api;
 }
 
-export async function openDocumentInEditor(docUri: vscode.Uri): Promise<DocumentEditor> {
+export async function openDocumentInEditor(docUri: vscode.Uri): Promise<DocumentEditor | undefined> {
   try {
     const document = await vscode.workspace.openTextDocument(docUri);
     const editor = await vscode.window.showTextDocument(document);
@@ -29,16 +29,18 @@ export async function openDocumentInEditor(docUri: vscode.Uri): Promise<Document
   }
 }
 
-export async function openDocument(docUri: vscode.Uri): Promise<vscode.TextDocument> {
+export async function openDocument(docUri: vscode.Uri): Promise<vscode.TextDocument | undefined> {
   try {
     const document = await vscode.workspace.openTextDocument(docUri);
     return document;
   } catch (e) {
     console.error(e);
   }
+
+  return undefined;
 }
 
-export async function activateAndOpenInEditor(docUri: vscode.Uri): Promise<DocumentEditor> {
+export async function activateAndOpenInEditor(docUri: vscode.Uri): Promise<DocumentEditor | undefined> {
   await activate();
   const documentEditor = await openDocumentInEditor(docUri);
   return documentEditor;
@@ -60,7 +62,7 @@ export async function waitForDiagnostics(docUri: vscode.Uri, timeoutInMillisecon
 }
 
 export const getDocPath = (filePath: string): string => {
-  return path.resolve(__dirname, path.join("..", "..", "..", "..", "test-data", filePath));
+  return path.resolve(__dirname, path.join("..", "..", "..", "..", "..", "test-data", filePath));
 };
 
 export const getDocUri = (filePath: string): vscode.Uri => {

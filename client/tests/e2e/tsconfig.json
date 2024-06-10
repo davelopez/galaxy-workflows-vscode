@@ -7,7 +7,5 @@
     "strict": true,
     "baseUrl": ".",
     "skipLibCheck": true
-  },
-  "include": ["tests"],
-  "exclude": ["node_modules"]
+  }
 }
