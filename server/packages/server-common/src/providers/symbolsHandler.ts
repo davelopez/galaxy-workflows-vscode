@@ -6,13 +6,13 @@ import {
   GalaxyWorkflowLanguageServer,
   SymbolKind,
 } from "../languageTypes";
-import { Provider } from "./provider";
+import { ServerEventHandler } from "./handler";
 
 const IGNORE_SYMBOL_NAMES = new Set(["a_galaxy_workflow", "position", "uuid", "errors", "format-version", "version"]);
 
-export class SymbolsProvider extends Provider {
-  public static register(server: GalaxyWorkflowLanguageServer): SymbolsProvider {
-    return new SymbolsProvider(server);
+export class SymbolsHandler extends ServerEventHandler {
+  public static register(server: GalaxyWorkflowLanguageServer): SymbolsHandler {
+    return new SymbolsHandler(server);
   }
 
   constructor(server: GalaxyWorkflowLanguageServer) {

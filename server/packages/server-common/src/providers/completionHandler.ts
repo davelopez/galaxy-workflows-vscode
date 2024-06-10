@@ -1,10 +1,10 @@
 import { CompletionList, CompletionParams } from "vscode-languageserver";
-import { Provider } from "./provider";
 import { GalaxyWorkflowLanguageServer } from "../languageTypes";
+import { ServerEventHandler } from "./handler";
 
-export class CompletionProvider extends Provider {
-  public static register(server: GalaxyWorkflowLanguageServer): CompletionProvider {
-    return new CompletionProvider(server);
+export class CompletionHandler extends ServerEventHandler {
+  public static register(server: GalaxyWorkflowLanguageServer): CompletionHandler {
+    return new CompletionHandler(server);
   }
 
   constructor(server: GalaxyWorkflowLanguageServer) {

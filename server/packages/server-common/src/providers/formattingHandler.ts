@@ -1,18 +1,18 @@
 import {
-  FormattingOptions,
-  TextDocument,
-  TextEdit,
-  Position,
-  Range,
   DocumentFormattingParams,
   DocumentRangeFormattingParams,
+  FormattingOptions,
   GalaxyWorkflowLanguageServer,
+  Position,
+  Range,
+  TextDocument,
+  TextEdit,
 } from "../languageTypes";
-import { Provider } from "./provider";
+import { ServerEventHandler } from "./handler";
 
-export class FormattingProvider extends Provider {
-  public static register(server: GalaxyWorkflowLanguageServer): FormattingProvider {
-    return new FormattingProvider(server);
+export class FormattingHandler extends ServerEventHandler {
+  public static register(server: GalaxyWorkflowLanguageServer): FormattingHandler {
+    return new FormattingHandler(server);
   }
 
   constructor(server: GalaxyWorkflowLanguageServer) {

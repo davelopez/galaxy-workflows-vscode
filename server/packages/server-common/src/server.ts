@@ -17,14 +17,14 @@ import {
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
 } from "./languageTypes";
-import { FormattingProvider } from "./providers/formattingProvider";
-import { HoverProvider } from "./providers/hover/hoverProvider";
-import { SymbolsProvider } from "./providers/symbolsProvider";
+import { FormattingHandler } from "./providers/formattingHandler";
+import { HoverHandler } from "./providers/hover/hoverHandler";
+import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
-import { CompletionProvider } from "./providers/completionProvider";
+import { CompletionHandler } from "./providers/completionHandler";
 import { ValidationProfiles } from "./providers/validation/profiles";
 
 @injectable()
@@ -51,7 +51,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
     this.connection.onInitialize((params) => this.initialize(params));
 
-    this.registerProviders();
+    this.registerHandlers();
 
     this.registerServices();
 
@@ -89,13 +89,13 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     };
   }
 
-  private registerProviders(): void {
-    FormattingProvider.register(this);
-    HoverProvider.register(this, [
+  private registerHandlers(): void {
+    FormattingHandler.register(this);
+    HoverHandler.register(this, [
       // new DebugHoverContentContributor(), //TODO remove this contributor before release
     ]);
-    SymbolsProvider.register(this);
-    CompletionProvider.register(this);
+    SymbolsHandler.register(this);
+    CompletionHandler.register(this);
   }
 
   private registerServices(): void {
