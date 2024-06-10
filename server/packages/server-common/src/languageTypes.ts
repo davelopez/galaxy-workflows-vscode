@@ -180,6 +180,10 @@ export interface DocumentContext {
   internalDocument: unknown;
 }
 
+export interface SymbolsProvider {
+  getSymbols(documentContext: DocumentContext): DocumentSymbol[];
+}
+
 export interface LanguageService<T extends DocumentContext> {
   readonly languageId: string;
 
@@ -187,6 +191,7 @@ export interface LanguageService<T extends DocumentContext> {
   format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   doHover(documentContext: T, position: Position): Promise<Hover | null>;
   doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+  getSymbols(documentContext: T): DocumentSymbol[];
 
   /**
    * Validates the document and reports all the diagnostics found.
@@ -204,13 +209,13 @@ export interface LanguageService<T extends DocumentContext> {
 @injectable()
 export abstract class LanguageServiceBase<T extends DocumentContext> implements LanguageService<T> {
   constructor(@unmanaged() public readonly languageId: string) {}
-
   protected server?: GalaxyWorkflowLanguageServer;
 
   public abstract parseDocument(document: TextDocument): T;
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;
   public abstract doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+  public abstract getSymbols(documentContext: T): DocumentSymbol[];
 
   /** Performs basic syntax and semantic validation based on the document schema. */
   protected abstract doValidation(documentContext: T): Promise<Diagnostic[]>;
@@ -270,6 +275,7 @@ const TYPES = {
   WorkflowTestsLanguageService: Symbol.for("WorkflowTestsLanguageService"),
   GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
   WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
+  SymbolsProvider: Symbol.for("SymbolsProvider"),
 };
 
 export { TYPES };

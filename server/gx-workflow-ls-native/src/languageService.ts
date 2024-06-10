@@ -1,27 +1,30 @@
 import {
+  CompletionList,
+  Diagnostic,
+  DocumentSymbol,
+  FormattingOptions,
+  Hover,
+  LanguageService,
+  LanguageServiceBase,
+  Position,
+  Range,
+  SymbolsProvider,
+  TYPES,
+  TextDocument,
+  TextEdit,
+} from "@gxwf/server-common/src/languageTypes";
+import { inject, injectable } from "inversify";
+import {
   DocumentLanguageSettings,
-  getLanguageService,
-  JSONSchema,
   LanguageService as JSONLanguageService,
+  JSONSchema,
   LanguageServiceParams,
   LanguageSettings,
   SchemaConfiguration,
+  getLanguageService,
 } from "vscode-json-languageservice";
-import {
-  CompletionList,
-  Diagnostic,
-  FormattingOptions,
-  Hover,
-  Position,
-  Range,
-  TextDocument,
-  TextEdit,
-  LanguageServiceBase,
-  LanguageService,
-} from "@gxwf/server-common/src/languageTypes";
 import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
-import { injectable } from "inversify";
 
 const LANGUAGE_ID = "galaxyworkflow";
 
@@ -39,7 +42,7 @@ export class NativeWorkflowLanguageServiceImpl
   private _jsonLanguageService: JSONLanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
 
-  constructor() {
+  constructor(@inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider) {
     super(LANGUAGE_ID);
     const params: LanguageServiceParams = {};
     const settings = this.getLanguageSettings();
@@ -92,6 +95,10 @@ export class NativeWorkflowLanguageServiceImpl
       this.schema
     );
     return schemaValidationResults;
+  }
+
+  public override getSymbols(documentContext: NativeWorkflowDocument): DocumentSymbol[] {
+    return this.symbolsProvider.getSymbols(documentContext);
   }
 
   private getLanguageSettings(): LanguageSettings {

@@ -1,11 +1,13 @@
 import {
   CompletionList,
   Diagnostic,
+  DocumentSymbol,
   FormattingOptions,
   Hover,
   LanguageServiceBase,
   Position,
   Range,
+  SymbolsProvider,
   TextDocument,
   TextEdit,
   WorkflowTestsDocument,
@@ -32,7 +34,8 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
     @inject(YAML_TYPES.YAMLLanguageService) protected yamlLanguageService: YAMLLanguageService,
     @inject(TYPES.WorkflowTestsHoverService) protected hoverService: WorkflowTestsHoverService,
     @inject(TYPES.WorkflowTestsCompletionService) protected completionService: WorkflowTestsCompletionService,
-    @inject(TYPES.WorkflowTestsValidationService) protected validationService: WorkflowTestsValidationService
+    @inject(TYPES.WorkflowTestsValidationService) protected validationService: WorkflowTestsValidationService,
+    @inject(TYPES.WorkflowTestsSymbolsProvider) private symbolsProvider: SymbolsProvider
   ) {
     super(LANGUAGE_ID);
   }
@@ -59,5 +62,9 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
 
   protected override async doValidation(documentContext: WorkflowTestsDocument): Promise<Diagnostic[]> {
     return this.validationService.doValidation(documentContext);
+  }
+
+  public override getSymbols(documentContext: WorkflowTestsDocument): DocumentSymbol[] {
+    return this.symbolsProvider.getSymbols(documentContext);
   }
 }
