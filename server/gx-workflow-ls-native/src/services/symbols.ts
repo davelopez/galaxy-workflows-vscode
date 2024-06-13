@@ -13,5 +13,6 @@ export class NativeWorkflowSymbolsProvider extends SymbolsProviderBase {
       "format-version",
       "version",
     ]);
+    this.stepContainerNames = new Set(["steps"]);
   }
 }

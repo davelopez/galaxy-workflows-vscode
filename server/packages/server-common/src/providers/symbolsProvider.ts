@@ -8,7 +8,13 @@ export class SymbolsProviderBase implements SymbolsProvider {
    * Set of symbol names to ignore when generating the outline.
    * This is useful to avoid showing internal properties in the outline.
    */
-  protected symbolNamesToIgnore = new Set();
+  protected symbolNamesToIgnore = new Set<string>();
+
+  /**
+   * Set of property names that are considered containers of steps.
+   * This is useful to determine if a property is a step, input, or output.
+   */
+  protected stepContainerNames = new Set<string>();
 
   public getSymbols(documentContext: DocumentContext): DocumentSymbol[] {
     const root = documentContext.nodeManager.root;
@@ -23,7 +29,7 @@ export class SymbolsProviderBase implements SymbolsProvider {
       if (node.type === "array") {
         node.items.forEach((node, index) => {
           if (node) {
-            const name = this.getNodeName(node) || String(index);
+            const name = this.getArrayNodeName(node, index);
             if (this.symbolNamesToIgnore.has(name)) {
               return;
             }
@@ -74,13 +80,13 @@ export class SymbolsProviderBase implements SymbolsProvider {
     return result;
   }
 
-  private isStepProperty(property: PropertyASTNode | undefined): boolean {
+  protected isStepProperty(property: PropertyASTNode | undefined): boolean {
     // The direct parent is the object containing this property and we want
     // to check the "steps" property which is the parent of that object
     const grandParent = property?.parent?.parent;
     if (grandParent && grandParent.type === "property") {
       const name = this.getKeyLabel(grandParent);
-      return name === "steps";
+      return this.stepContainerNames.has(name);
     }
     return false;
   }
@@ -97,8 +103,9 @@ export class SymbolsProviderBase implements SymbolsProvider {
       case "class":
         return SymbolKind.Class;
       case "object":
-        return SymbolKind.Module;
+        return SymbolKind.Object;
       case "string":
+      case "text":
         return SymbolKind.String;
       case "annotation":
       case "description":
@@ -113,13 +120,18 @@ export class SymbolsProviderBase implements SymbolsProvider {
       case "array":
         return SymbolKind.Array;
       case "boolean":
+      case "when":
         return SymbolKind.Boolean;
-      default:
+      case "value":
         return SymbolKind.Variable;
+      case "null":
+        return SymbolKind.Null;
+      default:
+        return SymbolKind.Field;
     }
   }
 
-  private getNodeName(node: ASTNode | undefined): string | undefined {
+  protected getNodeName(node: ASTNode | undefined): string | undefined {
     if (node && node.type === "object") {
       return this.getPropertyValueAsString(node, "name") || this.getPropertyValueAsString(node, "label");
     } else if (node && node.type === "string") {
@@ -128,7 +140,11 @@ export class SymbolsProviderBase implements SymbolsProvider {
     return undefined;
   }
 
-  private getPropertyValueAsString(node: ObjectASTNode, propertyName: string): string | undefined {
+  protected getArrayNodeName(node: ASTNode | undefined, index: number): string {
+    return this.getNodeName(node) ?? String(index);
+  }
+
+  protected getPropertyValueAsString(node: ObjectASTNode, propertyName: string): string | undefined {
     const nameProp = node.properties.find((p) => !!p.valueNode?.value && p.keyNode.value === propertyName);
     if (nameProp) {
       return nameProp.valueNode?.value?.toString();
@@ -136,7 +152,7 @@ export class SymbolsProviderBase implements SymbolsProvider {
     return undefined;
   }
 
-  private getKeyLabel(property: PropertyASTNode): string {
+  protected getKeyLabel(property: PropertyASTNode): string {
     let name = String(property.keyNode.value);
     if (name) {
       name = name.replace(/[\n]/g, "↵");
@@ -147,7 +163,7 @@ export class SymbolsProviderBase implements SymbolsProvider {
     return `"${name}"`;
   }
 
-  private getDetail(node: ASTNode | undefined): string | undefined {
+  protected getDetail(node: ASTNode | undefined): string | undefined {
     if (!node) {
       return undefined;
     }
