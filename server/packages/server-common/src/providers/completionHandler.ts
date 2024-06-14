@@ -1,15 +1,11 @@
 import { CompletionList, CompletionParams } from "vscode-languageserver";
-import { Provider } from "./provider";
 import { GalaxyWorkflowLanguageServer } from "../languageTypes";
+import { ServerEventHandler } from "./handler";
 
-export class CompletionProvider extends Provider {
-  public static register(server: GalaxyWorkflowLanguageServer): CompletionProvider {
-    return new CompletionProvider(server);
-  }
-
+export class CompletionHandler extends ServerEventHandler {
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.server.connection.onCompletion(async (params) => this.onCompletion(params));
+    this.register(this.server.connection.onCompletion(async (params) => this.onCompletion(params)));
   }
 
   private async onCompletion(params: CompletionParams): Promise<CompletionList | null> {

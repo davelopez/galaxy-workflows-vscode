@@ -1,12 +1,15 @@
 import {
   CompletionList,
   Diagnostic,
+  DocumentSymbol,
   FormattingOptions,
   Hover,
   LanguageService,
   LanguageServiceBase,
   Position,
   Range,
+  SymbolsProvider,
+  TYPES,
   TextDocument,
   TextEdit,
   WorkflowValidator,
@@ -39,7 +42,10 @@ export class GxFormat2WorkflowLanguageServiceImpl
   private _completionService: GxFormat2CompletionService;
   private _validationServices: WorkflowValidator[];
 
-  constructor(@inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService) {
+  constructor(
+    @inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService,
+    @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider
+  ) {
     super(LANGUAGE_ID);
     this._schemaLoader = new GalaxyWorkflowFormat2SchemaLoader();
     this._yamlLanguageService = yamlLanguageService;
@@ -78,5 +84,9 @@ export class GxFormat2WorkflowLanguageServiceImpl
       diagnostics.push(...results);
     }
     return diagnostics;
+  }
+
+  public override getSymbols(documentContext: GxFormat2WorkflowDocument): DocumentSymbol[] {
+    return this.symbolsProvider.getSymbols(documentContext);
   }
 }

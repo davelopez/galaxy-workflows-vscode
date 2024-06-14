@@ -1,27 +1,20 @@
 import {
-  Hover,
-  HoverParams,
-  MarkupKind,
-  MarkupContent,
-  HoverContentContributor,
   GalaxyWorkflowLanguageServer,
+  Hover,
+  HoverContentContributor,
+  HoverParams,
+  MarkupContent,
+  MarkupKind,
 } from "../../languageTypes";
-import { Provider } from "../provider";
+import { ServerEventHandler } from "../handler";
 
-export class HoverProvider extends Provider {
+export class HoverHandler extends ServerEventHandler {
   private contributors: HoverContentContributor[];
-
-  public static register(
-    server: GalaxyWorkflowLanguageServer,
-    contributors?: HoverContentContributor[]
-  ): HoverProvider {
-    return new HoverProvider(server, contributors);
-  }
 
   constructor(server: GalaxyWorkflowLanguageServer, contributors?: HoverContentContributor[]) {
     super(server);
     this.contributors = contributors ?? [];
-    this.server.connection.onHover((params) => this.onHover(params));
+    this.register(this.server.connection.onHover((params) => this.onHover(params)));
   }
 
   private async onHover(params: HoverParams): Promise<Hover | null> {

@@ -1,24 +1,20 @@
 import {
-  FormattingOptions,
-  TextDocument,
-  TextEdit,
-  Position,
-  Range,
   DocumentFormattingParams,
   DocumentRangeFormattingParams,
+  FormattingOptions,
   GalaxyWorkflowLanguageServer,
+  Position,
+  Range,
+  TextDocument,
+  TextEdit,
 } from "../languageTypes";
-import { Provider } from "./provider";
+import { ServerEventHandler } from "./handler";
 
-export class FormattingProvider extends Provider {
-  public static register(server: GalaxyWorkflowLanguageServer): FormattingProvider {
-    return new FormattingProvider(server);
-  }
-
+export class FormattingHandler extends ServerEventHandler {
   constructor(server: GalaxyWorkflowLanguageServer) {
     super(server);
-    this.server.connection.onDocumentFormatting((params) => this.onDocumentFormatting(params));
-    this.server.connection.onDocumentRangeFormatting((params) => this.onDocumentRangeFormatting(params));
+    this.register(this.server.connection.onDocumentFormatting((params) => this.onDocumentFormatting(params)));
+    this.register(this.server.connection.onDocumentRangeFormatting((params) => this.onDocumentRangeFormatting(params)));
   }
 
   public onDocumentFormatting(params: DocumentFormattingParams): TextEdit[] {

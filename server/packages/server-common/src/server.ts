@@ -17,14 +17,15 @@ import {
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
 } from "./languageTypes";
-import { FormattingProvider } from "./providers/formattingProvider";
-import { HoverProvider } from "./providers/hover/hoverProvider";
-import { SymbolsProvider } from "./providers/symbolsProvider";
+import { FormattingHandler } from "./providers/formattingHandler";
+import { HoverHandler } from "./providers/hover/hoverHandler";
+import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
-import { CompletionProvider } from "./providers/completionProvider";
+import { CompletionHandler } from "./providers/completionHandler";
+import { ServerEventHandler } from "./providers/handler";
 import { ValidationProfiles } from "./providers/validation/profiles";
 
 @injectable()
@@ -32,6 +33,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   public readonly documents = new TextDocuments(TextDocument);
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
   private languageServiceMapper: Map<string, LanguageService<DocumentContext>> = new Map();
+  private serverEventHandlers: ServerEventHandler[] = [];
 
   constructor(
     @inject(TYPES.Connection) public readonly connection: Connection,
@@ -51,7 +53,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
     this.connection.onInitialize((params) => this.initialize(params));
 
-    this.registerProviders();
+    this.registerHandlers();
 
     this.registerServices();
 
@@ -89,13 +91,15 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     };
   }
 
-  private registerProviders(): void {
-    FormattingProvider.register(this);
-    HoverProvider.register(this, [
-      // new DebugHoverContentContributor(), //TODO remove this contributor before release
-    ]);
-    SymbolsProvider.register(this);
-    CompletionProvider.register(this);
+  private registerHandlers(): void {
+    this.serverEventHandlers.push(new FormattingHandler(this));
+    this.serverEventHandlers.push(
+      new HoverHandler(this, [
+        // new DebugHoverContentContributor(), //TODO remove this contributor before release
+      ])
+    );
+    this.serverEventHandlers.push(new SymbolsHandler(this));
+    this.serverEventHandlers.push(new CompletionHandler(this));
   }
 
   private registerServices(): void {
@@ -132,6 +136,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private cleanup(): void {
     this.documentsCache.dispose();
+    this.serverEventHandlers.forEach((handler) => handler.dispose());
   }
 
   private async validateDocument(documentContext: DocumentContext): Promise<void> {
