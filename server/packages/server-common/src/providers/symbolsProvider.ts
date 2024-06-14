@@ -28,46 +28,24 @@ export class SymbolsProviderBase implements SymbolsProvider {
     const collectOutlineEntries = (node: ASTNode, result: DocumentSymbol[]): void => {
       if (node.type === "array") {
         node.items.forEach((node, index) => {
-          if (node) {
-            const name = this.getArrayNodeName(node, index);
-            if (this.symbolNamesToIgnore.has(name)) {
-              return;
-            }
-            const range = documentContext.nodeManager.getNodeRange(node);
-            const selectionRange = range;
-            const symbol = { name, kind: this.getSymbolKind(node.type), range, selectionRange, children: [] };
+          if (!node) {
+            return;
+          }
+          const symbol = this.getArrayItemSymbol(node, index, documentContext);
+          if (symbol) {
             result.push(symbol);
-            toVisit.push({ result: symbol.children, node });
+            toVisit.push({ result: symbol.children!, node });
           }
         });
       } else if (node.type === "object") {
         node.properties.forEach((property: PropertyASTNode) => {
-          const valueNode = property.valueNode;
-          if (valueNode) {
-            let name = undefined;
-            let customSymbol = undefined;
-            if (this.isStepProperty(property)) {
-              name = this.getNodeName(property.valueNode);
-              customSymbol = "step";
-            }
-            name = name || this.getKeyLabel(property);
-            customSymbol = customSymbol || name;
-            if (this.symbolNamesToIgnore.has(name)) {
-              return;
-            }
-            const range = documentContext.nodeManager.getNodeRange(property);
-            const selectionRange = documentContext.nodeManager.getNodeRange(property.keyNode);
-            const children: DocumentSymbol[] = [];
-            const symbol: DocumentSymbol = {
-              name: name,
-              kind: this.getSymbolKind(customSymbol),
-              range,
-              selectionRange,
-              children,
-              detail: this.getDetail(valueNode),
-            };
+          if (!property.valueNode) {
+            return;
+          }
+          const symbol = this.getPropertySymbol(property, documentContext);
+          if (symbol) {
             result.push(symbol);
-            toVisit.push({ result: children, node: valueNode });
+            toVisit.push({ result: symbol.children!, node: property.valueNode });
           }
         });
       }
@@ -80,7 +58,13 @@ export class SymbolsProviderBase implements SymbolsProvider {
     return result;
   }
 
-  protected isStepProperty(property: PropertyASTNode | undefined): boolean {
+  /**
+   * Determines if the given property is a step property.
+   * Inputs and outputs are also considered step properties.
+   * @param property The property to check.
+   * @returns True if the property is a step property, false otherwise.
+   */
+  protected isStepProperty(property: PropertyASTNode): boolean {
     // The direct parent is the object containing this property and we want
     // to check the "steps" property which is the parent of that object
     const grandParent = property?.parent?.parent;
@@ -89,6 +73,51 @@ export class SymbolsProviderBase implements SymbolsProvider {
       return this.stepContainerNames.has(name);
     }
     return false;
+  }
+
+  protected getPropertySymbol(property: PropertyASTNode, documentContext: DocumentContext): DocumentSymbol | undefined {
+    const name = this.getSymbolName(property);
+    if (this.symbolNamesToIgnore.has(name)) {
+      return;
+    }
+    const symbolName = this.isStepProperty(property) ? "step" : name;
+    const range = documentContext.nodeManager.getNodeRange(property);
+    const selectionRange = documentContext.nodeManager.getNodeRange(property.keyNode);
+    const children: DocumentSymbol[] = [];
+    const symbol: DocumentSymbol = {
+      name: name,
+      kind: this.getSymbolKind(symbolName),
+      range,
+      selectionRange,
+      children,
+      detail: this.getDetail(property.valueNode),
+    };
+    return symbol;
+  }
+
+  protected getArrayItemSymbol(
+    node: ASTNode,
+    index: number,
+    documentContext: DocumentContext
+  ): DocumentSymbol | undefined {
+    const name = this.getArrayNodeName(node, index);
+    if (this.symbolNamesToIgnore.has(name)) {
+      return;
+    }
+    const range = documentContext.nodeManager.getNodeRange(node);
+    const selectionRange = range;
+    const symbol: DocumentSymbol = {
+      name,
+      kind: this.getSymbolKind(node.type),
+      range,
+      selectionRange,
+      children: [],
+    };
+    return symbol;
+  }
+
+  protected getSymbolName(property: PropertyASTNode): string {
+    return this.getKeyLabel(property) ?? this.getNodeName(property.valueNode);
   }
 
   protected getSymbolKind(nodeType: string): SymbolKind {
@@ -141,7 +170,8 @@ export class SymbolsProviderBase implements SymbolsProvider {
   }
 
   protected getArrayNodeName(node: ASTNode | undefined, index: number): string {
-    return this.getNodeName(node) ?? String(index);
+    const nodeName = this.getNodeName(node);
+    return nodeName || String(index + 1);
   }
 
   protected getPropertyValueAsString(node: ObjectASTNode, propertyName: string): string | undefined {
