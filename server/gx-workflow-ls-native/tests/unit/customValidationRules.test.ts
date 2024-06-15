@@ -86,6 +86,30 @@ describe("Custom Validation Rules", () => {
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
 
+    it("should provide warning diagnostics when the property is missing and severity is set to warning", async () => {
+      rule = new MissingPropertyValidationRule("release", true, DiagnosticSeverity.Warning);
+      const wfContents = `{
+        "a_galaxy_workflow": "true",
+      }`;
+      const wfDocument = createNativeWorkflowDocument(wfContents);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toBe('Missing property "release".');
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Warning);
+    });
+
+    it("should display a custom message when provided", async () => {
+      rule = new MissingPropertyValidationRule("release", true, DiagnosticSeverity.Warning, "Custom message");
+      const wfContents = `{
+        "a_galaxy_workflow": "true",
+      }`;
+      const wfDocument = createNativeWorkflowDocument(wfContents);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toBe("Custom message");
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Warning);
+    });
+
     describe("when valueRequired is false", () => {
       beforeEach(() => {
         rule = new MissingPropertyValidationRule("release", false);

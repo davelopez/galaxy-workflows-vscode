@@ -13,9 +13,10 @@ import { ValidationRule, WorkflowDocument } from "../../../languageTypes";
  */
 export class MissingPropertyValidationRule implements ValidationRule {
   constructor(
-    readonly nodePath: string,
+    private nodePath: string,
     private valueRequired: boolean = true,
-    readonly severity: DiagnosticSeverity = DiagnosticSeverity.Error
+    private severity: DiagnosticSeverity = DiagnosticSeverity.Error,
+    private message?: string
   ) {}
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
@@ -23,7 +24,7 @@ export class MissingPropertyValidationRule implements ValidationRule {
     const targetNode = workflowDocument.nodeManager.getNodeFromPath(this.nodePath);
     if (!targetNode) {
       result.push({
-        message: `Missing property "${this.nodePath}".`,
+        message: this.message ?? `Missing property "${this.nodePath}".`,
         range: workflowDocument.nodeManager.getDefaultRange(),
         severity: this.severity,
       });

@@ -25,9 +25,24 @@ export class BasicValidationProfile implements ValidationProfile {
 export class IWCValidationProfile implements ValidationProfile {
   protected static readonly ID = "iwc";
   protected static readonly RULES = new Set([
-    new MissingPropertyValidationRule("release"),
-    new MissingPropertyValidationRule("creator"),
-    new MissingPropertyValidationRule("license"),
+    new MissingPropertyValidationRule(
+      "release",
+      true,
+      DiagnosticSeverity.Error,
+      "The workflow must have a release version."
+    ),
+    new MissingPropertyValidationRule(
+      "creator",
+      true,
+      DiagnosticSeverity.Error,
+      "The workflow does not specify a creator."
+    ),
+    new MissingPropertyValidationRule(
+      "license",
+      true,
+      DiagnosticSeverity.Error,
+      "The workflow does not specify a license."
+    ),
     new WorkflowOutputLabelValidation(DiagnosticSeverity.Error),
     // Add more custom rules here...
   ]);
