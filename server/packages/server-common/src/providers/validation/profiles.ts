@@ -26,7 +26,10 @@ export class IWCValidationProfile implements ValidationProfile {
   protected static readonly ID = "iwc";
   protected static readonly RULES = new Set([
     new MissingPropertyValidationRule("release"),
+    new MissingPropertyValidationRule("creator"),
+    new MissingPropertyValidationRule("license"),
     new WorkflowOutputLabelValidation(DiagnosticSeverity.Error),
+    // Add more custom rules here...
   ]);
 
   public get id(): string {
