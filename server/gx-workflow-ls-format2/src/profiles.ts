@@ -1,5 +1,6 @@
-import { ValidationRule } from "@gxwf/server-common/src/languageTypes";
+import { DiagnosticSeverity, ValidationRule } from "@gxwf/server-common/src/languageTypes";
 import { IWCValidationProfile } from "@gxwf/server-common/src/providers/validation/profiles";
+import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 
 /**
  * *Intergalactic Workflow Commission* (IWC) validation profile for gxformat2 Galaxy workflows.
@@ -8,6 +9,12 @@ import { IWCValidationProfile } from "@gxwf/server-common/src/providers/validati
 export class GxFormat2IWCValidationProfile extends IWCValidationProfile {
   protected static readonly RULES = new Set([
     ...super.RULES,
+    new MissingPropertyValidationRule(
+      "doc",
+      true,
+      DiagnosticSeverity.Error,
+      "The workflow is not documented. Documenting workflows helps users understand the purpose of the workflow."
+    ),
     // Add more custom rules here...
   ]);
 
