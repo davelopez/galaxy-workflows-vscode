@@ -159,6 +159,9 @@ export type ValidationProfileIdentifier = "basic" | "iwc";
 export interface ValidationProfile {
   /** The set of rules defining this validation profile. */
   get rules(): Set<ValidationRule>;
+
+  /** The human-readable name of the profile. */
+  name: string;
 }
 
 /**
@@ -246,6 +249,9 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
       const profile = this.getValidationProfile(useProfile);
       profile.rules.forEach(async (validationRule) => {
         const contributedDiagnostics = await validationRule.validate(documentContext);
+        contributedDiagnostics.forEach((diagnostic) => {
+          diagnostic.source = profile.name;
+        });
         diagnostics.push(...contributedDiagnostics);
       });
     }

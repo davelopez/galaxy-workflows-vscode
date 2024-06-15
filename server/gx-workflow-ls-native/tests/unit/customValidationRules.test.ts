@@ -1,17 +1,17 @@
 import { DiagnosticSeverity } from "@gxwf/server-common/src/languageTypes";
 import {
   MissingPropertyValidationRule,
-  WorkflowOutputLabelValidation,
+  WorkflowOutputLabelValidationRule,
 } from "@gxwf/server-common/src/providers/validation/rules";
 import { createNativeWorkflowDocument } from "../testHelpers";
 import { TestWorkflowProvider } from "../testWorkflowProvider";
 
 describe("Custom Validation Rules", () => {
   describe("WorkflowOutputLabelValidation Rule", () => {
-    let rule: WorkflowOutputLabelValidation;
+    let rule: WorkflowOutputLabelValidationRule;
 
     beforeEach(() => {
-      rule = new WorkflowOutputLabelValidation();
+      rule = new WorkflowOutputLabelValidationRule();
     });
 
     it("should not provide diagnostics when there are no steps", async () => {

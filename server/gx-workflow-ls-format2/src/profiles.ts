@@ -1,15 +1,13 @@
-import { DiagnosticSeverity, ValidationProfile, ValidationRule } from "@gxwf/server-common/src/languageTypes";
-import { COMMON_IWC_WORKFLOW_RULES } from "@gxwf/server-common/src/providers/validation/profiles";
-import { WorkflowOutputLabelValidation } from "@gxwf/server-common/src/providers/validation/rules";
+import { ValidationRule } from "@gxwf/server-common/src/languageTypes";
+import { IWCValidationProfile } from "@gxwf/server-common/src/providers/validation/profiles";
 
 /**
- * *Intergalactic Workflow Commission* (IWC) validation profile for Native Galaxy workflows.
+ * *Intergalactic Workflow Commission* (IWC) validation profile for gxformat2 Galaxy workflows.
  * Defines custom validation rules to comply with the IWC best practices guidelines.
  */
-export class GxFormat2IWCValidationProfile implements ValidationProfile {
+export class GxFormat2IWCValidationProfile extends IWCValidationProfile {
   protected static readonly RULES = new Set([
-    ...COMMON_IWC_WORKFLOW_RULES,
-    new WorkflowOutputLabelValidation(DiagnosticSeverity.Error),
+    ...super.RULES,
     // Add more custom rules here...
   ]);
 
