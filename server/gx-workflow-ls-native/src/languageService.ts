@@ -25,6 +25,7 @@ import {
 } from "vscode-json-languageservice";
 import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
+import { NativeIWCValidationProfile } from "./profiles";
 
 const LANGUAGE_ID = "galaxyworkflow";
 
@@ -84,6 +85,11 @@ export class NativeWorkflowLanguageServiceImpl
       nativeWorkflowDocument.jsonDocument
     );
     return completionResult;
+  }
+
+  protected override initializeValidationProfiles(): void {
+    super.initializeValidationProfiles();
+    this.validationProfiles.set("iwc", new NativeIWCValidationProfile());
   }
 
   protected override async doValidation(workflowDocument: NativeWorkflowDocument): Promise<Diagnostic[]> {

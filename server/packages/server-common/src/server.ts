@@ -26,7 +26,6 @@ import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
 import { CompletionHandler } from "./providers/completionHandler";
 import { ServerEventHandler } from "./providers/handler";
-import { ValidationProfiles } from "./providers/validation/profiles";
 
 @injectable()
 export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageServer {
@@ -144,9 +143,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
       return;
     }
     const settings = await this.configService.getDocumentSettings(documentContext.textDocument.uri);
-    const validationProfile = ValidationProfiles.get(settings.validation.profile);
     const languageService = this.getLanguageServiceById(documentContext.languageId);
-    languageService.validate(documentContext, validationProfile).then((diagnostics) => {
+    languageService.validate(documentContext, settings.validation.profile).then((diagnostics) => {
       this.connection.sendDiagnostics({ uri: documentContext.textDocument.uri, diagnostics });
     });
   }

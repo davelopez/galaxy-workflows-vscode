@@ -18,6 +18,7 @@ import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.c
 import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { inject, injectable } from "inversify";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
+import { GxFormat2IWCValidationProfile } from "./profiles";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
@@ -75,6 +76,11 @@ export class GxFormat2WorkflowLanguageServiceImpl
     position: Position
   ): Promise<CompletionList | null> {
     return this._completionService.doComplete(documentContext, position);
+  }
+
+  protected override initializeValidationProfiles(): void {
+    super.initializeValidationProfiles();
+    this.validationProfiles.set("iwc", new GxFormat2IWCValidationProfile());
   }
 
   protected override async doValidation(documentContext: GxFormat2WorkflowDocument): Promise<Diagnostic[]> {
