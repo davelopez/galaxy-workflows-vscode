@@ -190,4 +190,19 @@ export class ASTNodeManager {
       doVisit(this.root);
     }
   }
+
+  public isNodeEmpty(node: ASTNode): boolean {
+    switch (node.type) {
+      case "object":
+        return node.properties.length === 0;
+      case "array":
+        return node.items.length === 0;
+      case "property":
+        return !node.valueNode || this.isNodeEmpty(node.valueNode);
+      case "string":
+        return node.value === "";
+      default:
+        return false;
+    }
+  }
 }
