@@ -1,10 +1,10 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
-import { ValidationRule, WorkflowDocument } from "../../languageTypes";
+import { ValidationRule, WorkflowDocument } from "../../../languageTypes";
 
 /**
  * Validation rule to check that all defined `workflow_outputs` have a `label`.
  */
-export class WorkflowOutputLabelValidation implements ValidationRule {
+export class WorkflowOutputLabelValidationRule implements ValidationRule {
   constructor(readonly severity: DiagnosticSeverity = DiagnosticSeverity.Error) {}
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {

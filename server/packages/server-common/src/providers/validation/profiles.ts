@@ -1,6 +1,5 @@
 import { DiagnosticSeverity, ValidationProfile, ValidationRule } from "../../languageTypes";
-import { MissingPropertyValidationRule } from "./MissingPropertyValidation";
-import { WorkflowOutputLabelValidation } from "./WorkflowOutputLabelValidation";
+import { MissingPropertyValidationRule, WorkflowOutputLabelValidation } from "./rules";
 
 /**
  * The default validation profile.

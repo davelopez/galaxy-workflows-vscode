@@ -1,5 +1,5 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
-import { ValidationRule, WorkflowDocument } from "../../languageTypes";
+import { ValidationRule, WorkflowDocument } from "../../../languageTypes";
 
 /**
  * Validation rule to check that a particular property exists in a workflow.
