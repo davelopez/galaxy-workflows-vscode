@@ -73,5 +73,150 @@ describe("Custom Validation Rules", () => {
       expect(diagnostics[0].message).toBe('Missing property "release".');
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
+
+    it("should provide error diagnostics when the property is present but has no value", async () => {
+      const wfContents = `{
+        "a_galaxy_workflow": "true",
+        "release": "",
+      }`;
+      const wfDocument = createNativeWorkflowDocument(wfContents);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toBe('Missing value in property "release".');
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+    });
+
+    describe("when valueRequired is false", () => {
+      beforeEach(() => {
+        rule = new MissingPropertyValidationRule("release", false);
+      });
+
+      it("should not provide diagnostics when the property is present", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "release": "0.1",
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should provide diagnostics when the property is missing", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing property "release".');
+        expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+      });
+
+      it("should not provide diagnostics when the property is present but has no value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "release": "",
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(0);
+      });
+    });
+
+    describe("when the property is an array", () => {
+      beforeEach(() => {
+        rule = new MissingPropertyValidationRule("creator");
+      });
+
+      it("should not provide diagnostics when the property has a value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "creator": [{ "name": "John Doe" }],
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should provide diagnostics when the property is present but has empty value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "creator": [],
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing value in property "creator".');
+        expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+      });
+    });
+
+    describe("when the property is an object", () => {
+      beforeEach(() => {
+        rule = new MissingPropertyValidationRule("steps");
+      });
+
+      it("should not provide diagnostics when the property has a value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "steps": { "0": { "tool_id": "tool1" } },
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should provide diagnostics when the property is present but has empty value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "steps": {},
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing value in property "steps".');
+        expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+      });
+    });
+
+    describe("when the property is nested", () => {
+      beforeEach(() => {
+        rule = new MissingPropertyValidationRule("steps/0/tool_id");
+      });
+
+      it("should not provide diagnostics when the property has a value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "steps": { "0": { "tool_id": "tool1" } },
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should provide diagnostics when the property is missing", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "steps": { "0": {} },
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing property "steps/0/tool_id".');
+        expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+      });
+
+      it("should provide diagnostics when the property is present but has empty value", async () => {
+        const wfContents = `{
+          "a_galaxy_workflow": "true",
+          "steps": { "0": { "tool_id": "" } },
+        }`;
+        const wfDocument = createNativeWorkflowDocument(wfContents);
+        const diagnostics = await rule.validate(wfDocument);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing value in property "steps/0/tool_id".');
+        expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+      });
+    });
   });
 });
