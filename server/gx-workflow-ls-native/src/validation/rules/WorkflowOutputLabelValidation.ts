@@ -1,5 +1,5 @@
+import { ValidationRule, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
-import { ValidationRule, WorkflowDocument } from "../../../languageTypes";
 
 /**
  * Validation rule to check that all defined `workflow_outputs` have a `label`.

@@ -1,6 +1,6 @@
 import { DiagnosticSeverity, ValidationRule } from "@gxwf/server-common/src/languageTypes";
 import { IWCValidationProfile } from "@gxwf/server-common/src/providers/validation/profiles";
-import { WorkflowOutputLabelValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { WorkflowOutputLabelValidationRule } from "./validation/rules/WorkflowOutputLabelValidation";
 
 /**
  * *Intergalactic Workflow Commission* (IWC) validation profile for Native Galaxy workflows.

@@ -1,4 +1,3 @@
 import { MissingPropertyValidationRule } from "./MissingPropertyValidation";
-import { WorkflowOutputLabelValidationRule } from "./WorkflowOutputLabelValidation";
 
-export { MissingPropertyValidationRule, WorkflowOutputLabelValidationRule };
+export { MissingPropertyValidationRule };
