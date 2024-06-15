@@ -9,7 +9,7 @@ import { ValidationRule, WorkflowDocument } from "../../../languageTypes";
 export class MissingPropertyValidationRule implements ValidationRule {
   constructor(
     readonly nodePath: string,
-    readonly severity?: DiagnosticSeverity | undefined
+    readonly severity: DiagnosticSeverity = DiagnosticSeverity.Error
   ) {}
 
   validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
