@@ -1,14 +1,14 @@
-import { DiagnosticSeverity } from "@gxwf/server-common/src/languageTypes";
+import { DiagnosticSeverity, ValidationRule } from "@gxwf/server-common/src/languageTypes";
 import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 import { WorkflowOutputLabelValidationRule } from "../../src/validation/rules/WorkflowOutputLabelValidationRule";
 import { createNativeWorkflowDocument } from "../testHelpers";
 import { TestWorkflowProvider } from "../testWorkflowProvider";
 
 describe("Custom Validation Rules", () => {
-  describe("WorkflowOutputLabelValidation Rule", () => {
-    let rule: WorkflowOutputLabelValidationRule;
+  let rule: ValidationRule;
 
-    beforeEach(() => {
+  describe("WorkflowOutputLabelValidation Rule", () => {
+    beforeAll(() => {
       rule = new WorkflowOutputLabelValidationRule();
     });
 
@@ -45,9 +45,7 @@ describe("Custom Validation Rules", () => {
   });
 
   describe("MissingPropertyValidation Rule", () => {
-    let rule: MissingPropertyValidationRule;
-
-    beforeEach(() => {
+    beforeAll(() => {
       rule = new MissingPropertyValidationRule("release");
     });
 
@@ -109,7 +107,7 @@ describe("Custom Validation Rules", () => {
     });
 
     describe("when valueRequired is false", () => {
-      beforeEach(() => {
+      beforeAll(() => {
         rule = new MissingPropertyValidationRule("release", false);
       });
 
@@ -146,7 +144,7 @@ describe("Custom Validation Rules", () => {
     });
 
     describe("when the property is an array", () => {
-      beforeEach(() => {
+      beforeAll(() => {
         rule = new MissingPropertyValidationRule("creator");
       });
 
@@ -174,7 +172,7 @@ describe("Custom Validation Rules", () => {
     });
 
     describe("when the property is an object", () => {
-      beforeEach(() => {
+      beforeAll(() => {
         rule = new MissingPropertyValidationRule("steps");
       });
 
@@ -202,7 +200,7 @@ describe("Custom Validation Rules", () => {
     });
 
     describe("when the property is nested", () => {
-      beforeEach(() => {
+      beforeAll(() => {
         rule = new MissingPropertyValidationRule("steps/0/tool_id");
       });
 
