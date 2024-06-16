@@ -8,7 +8,7 @@ import {
   WorkflowValidator,
 } from "@gxwf/server-common/src/languageTypes";
 import { SchemaNode, SchemaNodeResolver } from "../../schema";
-import { RecordSchemaNode, IdMapper } from "../../schema/definitions";
+import { IdMapper, RecordSchemaNode } from "../../schema/definitions";
 
 export class GxFormat2SchemaValidationService implements WorkflowValidator {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
@@ -16,6 +16,9 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
   public doValidation(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [];
     this.collectSchemaDiagnostics(workflowDocument, diagnostics);
+    diagnostics.forEach((diagnostic) => {
+      diagnostic.source = "Format2 Schema";
+    });
     return Promise.resolve(diagnostics);
   }
 

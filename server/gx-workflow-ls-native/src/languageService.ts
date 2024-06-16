@@ -100,6 +100,9 @@ export class NativeWorkflowLanguageServiceImpl
       this._documentSettings,
       this.schema
     );
+    schemaValidationResults.forEach((diagnostic) => {
+      diagnostic.source = "Native Workflow Schema";
+    });
     return schemaValidationResults;
   }
 

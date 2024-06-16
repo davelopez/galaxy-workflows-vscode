@@ -73,6 +73,9 @@ export class WorkflowTestsValidationServiceImpl implements WorkflowTestsValidati
 
     const schema = this.schemaProvider.getResolvedSchema();
     const schemaValidation = getDiagnostics(schema);
+    schemaValidation.forEach((diagnostic) => {
+      diagnostic.source = "Workflow Tests Schema";
+    });
     const semanticValidation = await this.doSemanticValidation(documentContext);
     return schemaValidation.concat(semanticValidation);
   }
