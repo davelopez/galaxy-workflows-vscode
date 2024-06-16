@@ -1,5 +1,5 @@
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
-import { ValidationRule, WorkflowDocument } from "../../../languageTypes";
+import { DocumentContext, ValidationRule } from "../../../languageTypes";
 
 /**
  * Validation rule to check that a particular property exists in a workflow.
@@ -19,23 +19,23 @@ export class MissingPropertyValidationRule implements ValidationRule {
     private message?: string
   ) {}
 
-  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  public async validate(documentContext: DocumentContext): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
-    const targetNode = workflowDocument.nodeManager.getNodeFromPath(this.nodePath);
+    const targetNode = documentContext.nodeManager.getNodeFromPath(this.nodePath);
     if (!targetNode) {
       result.push({
         message: this.message ?? `Missing property "${this.nodePath}".`,
-        range: workflowDocument.nodeManager.getDefaultRange(),
+        range: documentContext.nodeManager.getDefaultRange(),
         severity: this.severity,
       });
     }
 
     if (this.valueRequired && targetNode) {
-      const missingValue = workflowDocument.nodeManager.isNodeEmpty(targetNode);
+      const missingValue = documentContext.nodeManager.isNodeEmpty(targetNode);
       if (missingValue) {
         result.push({
           message: `Missing value in property "${this.nodePath}".`,
-          range: workflowDocument.nodeManager.getNodeRange(targetNode),
+          range: documentContext.nodeManager.getNodeRange(targetNode),
           severity: this.severity,
         });
       }

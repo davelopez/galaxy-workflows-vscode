@@ -1,4 +1,4 @@
-import { ValidationRule, WorkflowDocument } from "@gxwf/server-common/src/languageTypes";
+import { DocumentContext, ValidationRule } from "@gxwf/server-common/src/languageTypes";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 
 /**
@@ -7,14 +7,14 @@ import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 export class TestToolshedValidationRule implements ValidationRule {
   constructor(readonly severity: DiagnosticSeverity = DiagnosticSeverity.Error) {}
 
-  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  public async validate(documentContext: DocumentContext): Promise<Diagnostic[]> {
     const diagnostics: Diagnostic[] = [];
-    const steps = workflowDocument.nodeManager.getStepNodes(true);
+    const steps = documentContext.nodeManager.getStepNodes(true);
     steps.forEach((step) => {
       const tool_id = step.properties.find((p) => p.keyNode.value === "tool_id");
       if (tool_id) {
         if (tool_id.valueNode?.value?.toString().includes("testtoolshed")) {
-          const range = workflowDocument.nodeManager.getNodeRange(tool_id);
+          const range = documentContext.nodeManager.getNodeRange(tool_id);
           diagnostics.push(
             Diagnostic.create(
               range,
