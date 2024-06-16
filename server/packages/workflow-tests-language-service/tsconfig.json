@@ -12,7 +12,6 @@
     "sourceMap": true,
     "strict": true,
     "composite": true,
-    "rootDirs": ["src", "tests"],
     "rootDir": "../../../"
   },
   "include": ["src/**/*", "../../../workflow-languages/schemas/*.json"],
