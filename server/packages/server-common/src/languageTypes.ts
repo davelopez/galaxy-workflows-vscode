@@ -247,13 +247,13 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
     const diagnostics = await this.doValidation(documentContext);
     if (useProfile) {
       const profile = this.getValidationProfile(useProfile);
-      profile.rules.forEach(async (validationRule) => {
-        const contributedDiagnostics = await validationRule.validate(documentContext);
+      for (const rule of profile.rules) {
+        const contributedDiagnostics = await rule.validate(documentContext);
         contributedDiagnostics.forEach((diagnostic) => {
           diagnostic.source = profile.name;
         });
         diagnostics.push(...contributedDiagnostics);
-      });
+      }
     }
     return diagnostics;
   }

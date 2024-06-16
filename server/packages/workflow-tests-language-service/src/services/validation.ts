@@ -80,6 +80,7 @@ export class WorkflowTestsValidationServiceImpl implements WorkflowTestsValidati
     return schemaValidation.concat(semanticValidation);
   }
 
+  // TODO: convert to rules
   async doSemanticValidation(documentContext: DocumentContext): Promise<Diagnostic[]> {
     const testDocument = documentContext as WorkflowTestsDocument;
     const inputDiagnostics = await this.validateWorkflowInputs(testDocument);

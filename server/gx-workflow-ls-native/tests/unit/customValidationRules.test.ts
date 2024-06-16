@@ -1,6 +1,6 @@
 import { DiagnosticSeverity } from "@gxwf/server-common/src/languageTypes";
 import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
-import { WorkflowOutputLabelValidationRule } from "../../src/validation/rules/WorkflowOutputLabelValidation";
+import { WorkflowOutputLabelValidationRule } from "../../src/validation/rules/WorkflowOutputLabelValidationRule";
 import { createNativeWorkflowDocument } from "../testHelpers";
 import { TestWorkflowProvider } from "../testWorkflowProvider";
 

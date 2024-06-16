@@ -1,5 +1,5 @@
 import { DiagnosticSeverity, ValidationProfile, ValidationRule } from "../../languageTypes";
-import { MissingPropertyValidationRule } from "./rules";
+import { MissingPropertyValidationRule, StepExportErrorValidationRule, TestToolshedValidationRule } from "./rules";
 
 /**
  * The *NoOp* validation profile.
@@ -14,7 +14,27 @@ export class NoOpValidationProfile implements ValidationProfile {
   }
 }
 
-export class IWCValidationProfile implements ValidationProfile {
+/**
+ * Common set of validation rules for basic validation of any workflow format.
+ */
+export class BasicCommonValidationProfile implements ValidationProfile {
+  public readonly name: string = "Basic Validation";
+
+  protected static readonly RULES: Set<ValidationRule> = new Set([
+    new TestToolshedValidationRule(DiagnosticSeverity.Error),
+    new StepExportErrorValidationRule(DiagnosticSeverity.Error),
+    // Add common basic rules here...
+  ]);
+
+  public get rules(): Set<ValidationRule> {
+    return BasicCommonValidationProfile.RULES;
+  }
+}
+
+/**
+ *  Common set of validation rules for IWC best practices.
+ */
+export class IWCCommonValidationProfile implements ValidationProfile {
   public readonly name: string = "IWC Best Practices";
 
   protected static readonly RULES: Set<ValidationRule> = new Set([
@@ -36,10 +56,10 @@ export class IWCValidationProfile implements ValidationProfile {
       DiagnosticSeverity.Error,
       "The workflow does not specify a license."
     ),
-    // Add more custom rules here...
+    // Add more common rules here...
   ]);
 
   public get rules(): Set<ValidationRule> {
-    return IWCValidationProfile.RULES;
+    return IWCCommonValidationProfile.RULES;
   }
 }

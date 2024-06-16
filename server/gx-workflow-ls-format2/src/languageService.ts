@@ -12,7 +12,6 @@ import {
   TYPES,
   TextDocument,
   TextEdit,
-  WorkflowValidator,
 } from "@gxwf/server-common/src/languageTypes";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
@@ -22,7 +21,7 @@ import { GxFormat2IWCValidationProfile } from "./profiles";
 import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
-import { GxFormat2SchemaValidationService, WorkflowValidationService } from "./services/validation";
+import { GxFormat2SchemaValidationService } from "./services/schemaValidationService";
 
 const LANGUAGE_ID = "gxformat2";
 
@@ -41,7 +40,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
   private _schemaLoader: GalaxyWorkflowFormat2SchemaLoader;
   private _hoverService: GxFormat2HoverService;
   private _completionService: GxFormat2CompletionService;
-  private _validationServices: WorkflowValidator[];
+  private _schemaValidationService: GxFormat2SchemaValidationService;
 
   constructor(
     @inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService,
@@ -52,10 +51,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
     this._yamlLanguageService = yamlLanguageService;
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
     this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver);
-    this._validationServices = [
-      new GxFormat2SchemaValidationService(this._schemaLoader.nodeResolver),
-      new WorkflowValidationService(),
-    ];
+    this._schemaValidationService = new GxFormat2SchemaValidationService(this._schemaLoader.nodeResolver);
   }
 
   public override parseDocument(document: TextDocument): GxFormat2WorkflowDocument {
@@ -84,12 +80,15 @@ export class GxFormat2WorkflowLanguageServiceImpl
   }
 
   protected override async doValidation(documentContext: GxFormat2WorkflowDocument): Promise<Diagnostic[]> {
-    const diagnostics = await this._yamlLanguageService.doValidation(documentContext.yamlDocument);
-    for (const validator of this._validationServices) {
-      const results = await validator.doValidation(documentContext);
-      diagnostics.push(...results);
-    }
-    return diagnostics;
+    const syntaxDiagnostics = await this._yamlLanguageService.doValidation(documentContext.yamlDocument);
+    syntaxDiagnostics.forEach((diagnostic) => {
+      diagnostic.source = "YAML Syntax";
+    });
+    const schemaDiagnostics = await this._schemaValidationService.doValidation(documentContext);
+    schemaDiagnostics.forEach((diagnostic) => {
+      diagnostic.source = "Format2 Schema";
+    });
+    return syntaxDiagnostics.concat(schemaDiagnostics);
   }
 
   public override getSymbols(documentContext: GxFormat2WorkflowDocument): DocumentSymbol[] {

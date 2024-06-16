@@ -7,7 +7,7 @@ import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 export class WorkflowOutputLabelValidationRule implements ValidationRule {
   constructor(readonly severity: DiagnosticSeverity = DiagnosticSeverity.Error) {}
 
-  validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
     const stepNodes = workflowDocument.nodeManager.getStepNodes();
     stepNodes.forEach((step) => {

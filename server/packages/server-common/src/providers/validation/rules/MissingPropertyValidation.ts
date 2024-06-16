@@ -19,7 +19,7 @@ export class MissingPropertyValidationRule implements ValidationRule {
     private message?: string
   ) {}
 
-  validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
+  public async validate(workflowDocument: WorkflowDocument): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
     const targetNode = workflowDocument.nodeManager.getNodeFromPath(this.nodePath);
     if (!targetNode) {
