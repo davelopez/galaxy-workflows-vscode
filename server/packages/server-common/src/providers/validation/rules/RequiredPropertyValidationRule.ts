@@ -11,7 +11,7 @@ import { DocumentContext, ValidationRule } from "../../../languageTypes";
  * property is an object or an array, the rule will also check that it has at
  * least one property or item.
  */
-export class MissingPropertyValidationRule implements ValidationRule {
+export class RequiredPropertyValidationRule implements ValidationRule {
   constructor(
     private nodePath: string,
     private valueRequired: boolean = true,

@@ -1,5 +1,5 @@
 import { DiagnosticSeverity, ValidationRule } from "@gxwf/server-common/src/languageTypes";
-import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 import { WorkflowOutputLabelValidationRule } from "../../src/validation/rules/WorkflowOutputLabelValidationRule";
 import { createNativeWorkflowDocument } from "../testHelpers";
 import { TestWorkflowProvider } from "../testWorkflowProvider";
@@ -46,7 +46,7 @@ describe("Custom Validation Rules", () => {
 
   describe("MissingPropertyValidation Rule", () => {
     beforeAll(() => {
-      rule = new MissingPropertyValidationRule("release");
+      rule = new RequiredPropertyValidationRule("release");
     });
 
     it("should not provide diagnostics when the property is present", async () => {
@@ -83,7 +83,7 @@ describe("Custom Validation Rules", () => {
     });
 
     it("should provide warning diagnostics when the property is missing and severity is set to warning", async () => {
-      rule = new MissingPropertyValidationRule("release", true, DiagnosticSeverity.Warning);
+      rule = new RequiredPropertyValidationRule("release", true, DiagnosticSeverity.Warning);
       const wfContents = `{
         "a_galaxy_workflow": "true",
       }`;
@@ -95,7 +95,7 @@ describe("Custom Validation Rules", () => {
     });
 
     it("should display a custom message when provided", async () => {
-      rule = new MissingPropertyValidationRule("release", true, DiagnosticSeverity.Warning, "Custom message");
+      rule = new RequiredPropertyValidationRule("release", true, DiagnosticSeverity.Warning, "Custom message");
       const wfContents = `{
         "a_galaxy_workflow": "true",
       }`;
@@ -108,7 +108,7 @@ describe("Custom Validation Rules", () => {
 
     describe("when valueRequired is false", () => {
       beforeAll(() => {
-        rule = new MissingPropertyValidationRule("release", false);
+        rule = new RequiredPropertyValidationRule("release", false);
       });
 
       it("should not provide diagnostics when the property is present", async () => {
@@ -145,7 +145,7 @@ describe("Custom Validation Rules", () => {
 
     describe("when the property is an array", () => {
       beforeAll(() => {
-        rule = new MissingPropertyValidationRule("creator");
+        rule = new RequiredPropertyValidationRule("creator");
       });
 
       it("should not provide diagnostics when the property has a value", async () => {
@@ -173,7 +173,7 @@ describe("Custom Validation Rules", () => {
 
     describe("when the property is an object", () => {
       beforeAll(() => {
-        rule = new MissingPropertyValidationRule("steps");
+        rule = new RequiredPropertyValidationRule("steps");
       });
 
       it("should not provide diagnostics when the property has a value", async () => {
@@ -201,7 +201,7 @@ describe("Custom Validation Rules", () => {
 
     describe("when the property is nested", () => {
       beforeAll(() => {
-        rule = new MissingPropertyValidationRule("steps/0/tool_id");
+        rule = new RequiredPropertyValidationRule("steps/0/tool_id");
       });
 
       it("should not provide diagnostics when the property has a value", async () => {

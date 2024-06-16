@@ -1,5 +1,5 @@
-import { MissingPropertyValidationRule } from "./MissingPropertyValidation";
+import { RequiredPropertyValidationRule } from "./RequiredPropertyValidationRule";
 import { StepExportErrorValidationRule } from "./StepErrorValidationRule";
 import { TestToolshedValidationRule } from "./TestToolShedValidationRule";
 
-export { MissingPropertyValidationRule, StepExportErrorValidationRule, TestToolshedValidationRule };
+export { RequiredPropertyValidationRule, StepExportErrorValidationRule, TestToolshedValidationRule };

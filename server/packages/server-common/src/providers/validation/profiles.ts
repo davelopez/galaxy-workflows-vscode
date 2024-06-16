@@ -1,5 +1,5 @@
 import { DiagnosticSeverity, ValidationProfile, ValidationRule } from "../../languageTypes";
-import { MissingPropertyValidationRule, StepExportErrorValidationRule, TestToolshedValidationRule } from "./rules";
+import { RequiredPropertyValidationRule, StepExportErrorValidationRule, TestToolshedValidationRule } from "./rules";
 
 /**
  * The *NoOp* validation profile.
@@ -38,19 +38,19 @@ export class IWCCommonValidationProfile implements ValidationProfile {
   public readonly name: string = "IWC Best Practices";
 
   protected static readonly RULES: Set<ValidationRule> = new Set([
-    new MissingPropertyValidationRule(
+    new RequiredPropertyValidationRule(
       "release",
       true,
       DiagnosticSeverity.Error,
       "The workflow must have a release version."
     ),
-    new MissingPropertyValidationRule(
+    new RequiredPropertyValidationRule(
       "creator",
       true,
       DiagnosticSeverity.Error,
       "The workflow does not specify a creator."
     ),
-    new MissingPropertyValidationRule(
+    new RequiredPropertyValidationRule(
       "license",
       true,
       DiagnosticSeverity.Error,

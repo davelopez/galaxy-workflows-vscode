@@ -3,7 +3,7 @@ import {
   BasicCommonValidationProfile,
   IWCCommonValidationProfile,
 } from "@gxwf/server-common/src/providers/validation/profiles";
-import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 import { WorkflowInputsValidationRule } from "./validation/rules/WorkflowInputsValidationRule";
 import { WorkflowOutputsValidationRule } from "./validation/rules/WorkflowOutputsValidationRule";
 
@@ -30,13 +30,13 @@ export class TestDocumentBasicValidationProfile extends BasicCommonValidationPro
  */
 export class TestDocumentIWCValidationProfile extends IWCCommonValidationProfile {
   protected static readonly RULES = new Set([
-    ...super.RULES,
     ...TestDocumentBasicValidationProfile.RULES,
-    new MissingPropertyValidationRule(
+    // TODO: This rule needs to be updated to check for the presence of the `doc` property in each test.
+    new RequiredPropertyValidationRule(
       "doc",
       true,
       DiagnosticSeverity.Error,
-      "The workflow is not documented. Documenting workflows helps users understand the purpose of the workflow."
+      "The workflow test is not documented. Documenting workflows helps users understand the purpose of the workflow."
     ),
     // Add more custom rules specific to native workflows here...
   ]);

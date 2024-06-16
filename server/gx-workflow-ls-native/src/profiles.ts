@@ -3,7 +3,7 @@ import {
   BasicCommonValidationProfile,
   IWCCommonValidationProfile,
 } from "@gxwf/server-common/src/providers/validation/profiles";
-import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 import { WorkflowOutputLabelValidationRule } from "./validation/rules/WorkflowOutputLabelValidationRule";
 
 /**
@@ -29,7 +29,7 @@ export class NativeIWCValidationProfile extends IWCCommonValidationProfile {
   protected static readonly RULES = new Set([
     ...super.RULES,
     ...NativeBasicValidationProfile.RULES,
-    new MissingPropertyValidationRule(
+    new RequiredPropertyValidationRule(
       "annotation",
       true,
       DiagnosticSeverity.Error,

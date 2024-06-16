@@ -3,7 +3,7 @@ import {
   BasicCommonValidationProfile,
   IWCCommonValidationProfile,
 } from "@gxwf/server-common/src/providers/validation/profiles";
-import { MissingPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 
 /**
  * Defines the minimal set of validation rules for gxformat2 Galaxy workflows.
@@ -28,7 +28,7 @@ export class GxFormat2IWCValidationProfile extends IWCCommonValidationProfile {
   protected static readonly RULES = new Set([
     ...super.RULES,
     ...GxFormat2BasicValidationProfile.RULES,
-    new MissingPropertyValidationRule(
+    new RequiredPropertyValidationRule(
       "doc",
       true,
       DiagnosticSeverity.Error,
