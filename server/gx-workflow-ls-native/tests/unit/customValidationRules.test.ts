@@ -44,7 +44,7 @@ describe("Custom Validation Rules", () => {
     });
   });
 
-  describe("MissingPropertyValidation Rule", () => {
+  describe("Required Propery Validation Rule", () => {
     beforeAll(() => {
       rule = new RequiredPropertyValidationRule("release");
     });
@@ -66,7 +66,7 @@ describe("Custom Validation Rules", () => {
       const wfDocument = createNativeWorkflowDocument(wfContents);
       const diagnostics = await rule.validate(wfDocument);
       expect(diagnostics).toHaveLength(1);
-      expect(diagnostics[0].message).toBe('Missing property "release".');
+      expect(diagnostics[0].message).toBe('Missing required property "release".');
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
 
@@ -78,7 +78,7 @@ describe("Custom Validation Rules", () => {
       const wfDocument = createNativeWorkflowDocument(wfContents);
       const diagnostics = await rule.validate(wfDocument);
       expect(diagnostics).toHaveLength(1);
-      expect(diagnostics[0].message).toBe('Missing value in property "release".');
+      expect(diagnostics[0].message).toBe('Missing required value in property "release".');
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
 
@@ -90,7 +90,7 @@ describe("Custom Validation Rules", () => {
       const wfDocument = createNativeWorkflowDocument(wfContents);
       const diagnostics = await rule.validate(wfDocument);
       expect(diagnostics).toHaveLength(1);
-      expect(diagnostics[0].message).toBe('Missing property "release".');
+      expect(diagnostics[0].message).toBe('Missing required property "release".');
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Warning);
     });
 
@@ -128,7 +128,7 @@ describe("Custom Validation Rules", () => {
         const wfDocument = createNativeWorkflowDocument(wfContents);
         const diagnostics = await rule.validate(wfDocument);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].message).toBe('Missing property "release".');
+        expect(diagnostics[0].message).toBe('Missing required property "release".');
         expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
       });
 
@@ -166,7 +166,7 @@ describe("Custom Validation Rules", () => {
         const wfDocument = createNativeWorkflowDocument(wfContents);
         const diagnostics = await rule.validate(wfDocument);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].message).toBe('Missing value in property "creator".');
+        expect(diagnostics[0].message).toBe('Missing required value in property "creator".');
         expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
       });
     });
@@ -194,7 +194,7 @@ describe("Custom Validation Rules", () => {
         const wfDocument = createNativeWorkflowDocument(wfContents);
         const diagnostics = await rule.validate(wfDocument);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].message).toBe('Missing value in property "steps".');
+        expect(diagnostics[0].message).toBe('Missing required value in property "steps".');
         expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
       });
     });
@@ -222,7 +222,7 @@ describe("Custom Validation Rules", () => {
         const wfDocument = createNativeWorkflowDocument(wfContents);
         const diagnostics = await rule.validate(wfDocument);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].message).toBe('Missing property "steps/0/tool_id".');
+        expect(diagnostics[0].message).toBe('Missing required property "steps/0/tool_id".');
         expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
       });
 
@@ -234,7 +234,7 @@ describe("Custom Validation Rules", () => {
         const wfDocument = createNativeWorkflowDocument(wfContents);
         const diagnostics = await rule.validate(wfDocument);
         expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0].message).toBe('Missing value in property "steps/0/tool_id".');
+        expect(diagnostics[0].message).toBe('Missing required value in property "steps/0/tool_id".');
         expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
       });
     });

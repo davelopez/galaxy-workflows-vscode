@@ -24,7 +24,7 @@ export class RequiredPropertyValidationRule implements ValidationRule {
     const targetNode = documentContext.nodeManager.getNodeFromPath(this.nodePath);
     if (!targetNode) {
       result.push({
-        message: this.message ?? `Missing property "${this.nodePath}".`,
+        message: this.message ?? `Missing required property "${this.nodePath}".`,
         range: documentContext.nodeManager.getDefaultRange(),
         severity: this.severity,
       });
@@ -34,7 +34,7 @@ export class RequiredPropertyValidationRule implements ValidationRule {
       const missingValue = documentContext.nodeManager.isNodeEmpty(targetNode);
       if (missingValue) {
         result.push({
-          message: `Missing value in property "${this.nodePath}".`,
+          message: `Missing required value in property "${this.nodePath}".`,
           range: documentContext.nodeManager.getNodeRange(targetNode),
           severity: this.severity,
         });

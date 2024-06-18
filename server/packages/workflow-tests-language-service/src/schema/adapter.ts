@@ -227,7 +227,7 @@ enum ProblemType {
 }
 
 const ProblemTypeMessages: Record<ProblemType, string> = {
-  [ProblemType.missingRequiredPropWarning]: 'Missing property "{0}".',
+  [ProblemType.missingRequiredPropWarning]: 'Missing required property "{0}".',
   [ProblemType.typeMismatchWarning]: 'Incorrect type. Expected "{0}".',
   [ProblemType.constWarning]: "Value must be {0}.",
 };

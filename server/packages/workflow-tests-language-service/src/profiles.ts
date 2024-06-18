@@ -3,12 +3,12 @@ import {
   BasicCommonValidationProfile,
   IWCCommonValidationProfile,
 } from "@gxwf/server-common/src/providers/validation/profiles";
-import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { RequiredArrayPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 import { WorkflowInputsValidationRule } from "./validation/rules/WorkflowInputsValidationRule";
 import { WorkflowOutputsValidationRule } from "./validation/rules/WorkflowOutputsValidationRule";
 
 /**
- * Defines the minimal set of validation rules for Native Galaxy workflows.
+ * Defines the minimal set of validation rules for Galaxy Workflow Tests Documents.
  */
 export class TestDocumentBasicValidationProfile extends BasicCommonValidationProfile {
   public static readonly RULES = new Set([
@@ -24,19 +24,18 @@ export class TestDocumentBasicValidationProfile extends BasicCommonValidationPro
 }
 
 /**
- * *Intergalactic Workflow Commission* (IWC) validation profile for Native Galaxy workflows.
+ * *Intergalactic Workflow Commission* (IWC) validation profile for Galaxy Workflow Tests Documents.
  * This profile extends the basic validation profile and adds additional rules to comply
  * with the IWC best practices guidelines.
  */
 export class TestDocumentIWCValidationProfile extends IWCCommonValidationProfile {
   protected static readonly RULES = new Set([
     ...TestDocumentBasicValidationProfile.RULES,
-    // TODO: This rule needs to be updated to check for the presence of the `doc` property in each test.
-    new RequiredPropertyValidationRule(
+    new RequiredArrayPropertyValidationRule(
       "doc",
       true,
-      DiagnosticSeverity.Error,
-      "The workflow test is not documented. Documenting workflows helps users understand the purpose of the workflow."
+      DiagnosticSeverity.Warning,
+      "The workflow test is not documented. Documenting the tests helps reviewers understand the purpose of the tests."
     ),
     // Add more custom rules specific to native workflows here...
   ]);
