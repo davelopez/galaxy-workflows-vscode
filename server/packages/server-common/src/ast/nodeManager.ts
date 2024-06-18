@@ -201,6 +201,8 @@ export class ASTNodeManager {
         return !node.valueNode || this.isNodeEmpty(node.valueNode);
       case "string":
         return node.value === "";
+      case "null":
+        return true;
       default:
         return false;
     }
