@@ -50,13 +50,13 @@ describe("NativeWorkflowDocument", () => {
       [
         TestWorkflowProvider.workflows.validation.withOnlyInputs,
         [
-          { doc: "", name: "Dataset Input", type: "data" },
-          { doc: "", name: "Collection Input", type: "collection" },
-          { doc: "", name: "Text Param", type: "text" },
-          { doc: "", name: "Integer Param", type: "integer" },
-          { doc: "", name: "Float Param", type: "float" },
-          { doc: "", name: "Boolean Param", type: "boolean" },
-          { doc: "", name: "Color Param", type: "color" },
+          { default: undefined, doc: "", name: "Dataset Input", type: "data" },
+          { default: undefined, doc: "", name: "Collection Input", type: "collection" },
+          { default: undefined, doc: "", name: "Text Param", type: "text" },
+          { default: 10, doc: "", name: "Integer Param", type: "integer" },
+          { default: undefined, doc: "", name: "Float Param", type: "float" },
+          { default: undefined, doc: "", name: "Boolean Param", type: "boolean" },
+          { default: undefined, doc: "", name: "Color Param", type: "color" },
         ],
       ],
     ])("returns the expected inputs", (wfContent: string, expectedInputs: WorkflowInput[]) => {

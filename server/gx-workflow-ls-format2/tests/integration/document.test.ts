@@ -49,6 +49,7 @@ inputs:
         name: "text_param",
         doc: "",
         type: "text",
+        default: "text value",
       },
     ]);
   });

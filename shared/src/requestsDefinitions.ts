@@ -47,6 +47,7 @@ export interface WorkflowInput {
   name: string;
   type: WorkflowDataType;
   doc: string;
+  default?: unknown;
 }
 
 export interface GetWorkflowInputsResult {
