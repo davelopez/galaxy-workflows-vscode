@@ -1,4 +1,5 @@
 import { ValidationRule } from "@gxwf/server-common/src/languageTypes";
+import { isCompatibleType } from "@gxwf/server-common/src/utils";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 import { GxFormat2WorkflowDocument } from "../../gxFormat2WorkflowDocument";
 
@@ -13,36 +14,18 @@ export class InputTypeValidationRule implements ValidationRule {
 
     const inputNodes = documentContext.getRawInputNodes();
     inputNodes.forEach((input) => {
-      let defaultTypeMatchesValue = true;
-
       const inputName = String(input.keyNode.value);
-      const inputTypeValue = documentContext.nodeManager.getPropertyValueByName(input, "type");
+      const inputType = documentContext.nodeManager.getPropertyValueByName(input, "type") as string;
       const defaultValueNode = documentContext.nodeManager.getPropertyNodeByName(input, "default");
       const defaultValue = defaultValueNode?.valueNode?.value;
 
       const defaultValueType = typeof defaultValue;
-      if (inputTypeValue && defaultValue) {
-        switch (inputTypeValue) {
-          case "int":
-          case "integer":
-          case "long":
-          case "double":
-          case "float":
-            defaultTypeMatchesValue = defaultValueType === "number";
-            break;
-          case "boolean":
-            defaultTypeMatchesValue = defaultValueType === "boolean";
-            break;
-          case "string":
-            defaultTypeMatchesValue = defaultValueType === "string";
-            break;
-          case "null":
-            defaultTypeMatchesValue = defaultValueType === null;
-            break;
-        }
+
+      if (inputType && defaultValue) {
+        const defaultTypeMatchesValue = isCompatibleType(inputType, defaultValueType);
         if (!defaultTypeMatchesValue) {
           result.push({
-            message: `Input '${inputName}' default value has invalid type. Expected '${inputTypeValue}' but found '${defaultValueType}'.`,
+            message: `Input '${inputName}' default value has invalid type. Expected '${inputType}' but found '${defaultValueType}'.`,
             range: documentContext.nodeManager.getNodeRange(defaultValueNode),
             severity: this.severity,
           });
