@@ -4,6 +4,7 @@ import {
   IWCCommonValidationProfile,
 } from "@gxwf/server-common/src/providers/validation/profiles";
 import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import { InputTypeValidationRule } from "./validation/rules/InputTypeValidationRule";
 
 /**
  * Defines the minimal set of validation rules for gxformat2 Galaxy workflows.
@@ -34,6 +35,7 @@ export class GxFormat2IWCValidationProfile extends IWCCommonValidationProfile {
       DiagnosticSeverity.Error,
       "The workflow is not documented. Documenting workflows helps users understand the purpose of the workflow."
     ),
+    new InputTypeValidationRule(DiagnosticSeverity.Error),
     // Add more custom rules specific to gxformat2 workflows here...
   ]);
 
