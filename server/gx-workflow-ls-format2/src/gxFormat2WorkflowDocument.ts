@@ -62,24 +62,21 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
   private parseInputDefinition(input: PropertyASTNode): WorkflowInput {
     const inputName = String(input.keyNode.value);
     const inputType = this.parseInputType(input);
-    const inputDocNode = input.valueNode?.children?.find(
-      (prop) => prop.type === "property" && prop.keyNode.value === "doc"
-    ) as PropertyASTNode;
+    const inputDocNode = this.nodeManager.getPropertyNodeByName(input, "doc");
     const inputDescription = String(inputDocNode?.valueNode?.value ?? "");
+    const defaultValueNode = this.nodeManager.getPropertyNodeByName(input, "default");
     const inputDefinition: WorkflowInput = {
       name: inputName,
       doc: inputDescription,
       type: inputType,
-      //TODO: default
+      default: defaultValueNode?.valueNode?.value,
     };
     return inputDefinition;
   }
 
   private parseInputType(input: PropertyASTNode): WorkflowDataType {
     let inputType: WorkflowDataType = "data";
-    const inputTypeNode = input.valueNode?.children?.find(
-      (prop) => prop.type === "property" && prop.keyNode.value === "type"
-    ) as PropertyASTNode;
+    const inputTypeNode = this.nodeManager.getPropertyNodeByName(input, "type");
     if (inputTypeNode) {
       inputType = String(inputTypeNode.valueNode?.value) as WorkflowDataType;
     } else {
@@ -91,9 +88,7 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
 
   private parseOutputDefinition(output: PropertyASTNode): WorkflowOutput {
     const outputName = String(output.keyNode.value);
-    const outputDocNode = output.valueNode?.children?.find(
-      (prop) => prop.type === "property" && prop.keyNode.value === "doc"
-    ) as PropertyASTNode;
+    const outputDocNode = this.nodeManager.getPropertyNodeByName(output, "doc");
     const outputDoc = String(outputDocNode?.valueNode?.value ?? "");
     const outputDefinition = {
       name: outputName,
