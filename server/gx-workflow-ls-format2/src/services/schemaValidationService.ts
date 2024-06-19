@@ -1,5 +1,5 @@
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
-import { ASTNode, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNode, ObjectASTNode, StringASTNode } from "@gxwf/server-common/src/ast/types";
 import {
   Diagnostic,
   DiagnosticSeverity,
@@ -8,7 +8,7 @@ import {
   WorkflowValidator,
 } from "@gxwf/server-common/src/languageTypes";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
-import { IdMapper, RecordSchemaNode } from "../schema/definitions";
+import { EnumSchemaNode, IdMapper, RecordSchemaNode } from "../schema/definitions";
 
 export class GxFormat2SchemaValidationService implements WorkflowValidator {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
@@ -38,6 +38,10 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
     parenSchemaNode?: SchemaNode
   ): void {
     const range = this.getRange(nodeManager, node);
+    const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
+    if (schemaRecord instanceof EnumSchemaNode && node.type === "string") {
+      this.validateEnumValue(node, schemaRecord, range, diagnostics);
+    }
     if (schemaNode instanceof RecordSchemaNode) {
       switch (node.type) {
         case "object":
@@ -48,6 +52,22 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
           this.validateNodeTypeDefinition(schemaNode, node, range, diagnostics, parenSchemaNode);
           break;
       }
+    }
+  }
+  private validateEnumValue(
+    node: StringASTNode,
+    schemaRecord: EnumSchemaNode,
+    range: Range,
+    diagnostics: Diagnostic[]
+  ): void {
+    if (!schemaRecord.symbols.includes(node.value)) {
+      diagnostics.push(
+        Diagnostic.create(
+          range,
+          `The value is not a valid '${schemaRecord.name}'. Allowed values are: ${schemaRecord.symbols.join(", ")}.`,
+          DiagnosticSeverity.Error
+        )
+      );
     }
   }
 
@@ -67,6 +87,17 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
         );
       }
       if (nodeFound) {
+        if (schemaFieldNode.isPrimitiveType && propertyNode?.valueNode?.type) {
+          if (!schemaFieldNode.matchesType(propertyNode.valueNode.type)) {
+            diagnostics.push(
+              Diagnostic.create(
+                range,
+                `Type mismatch for field '${schemaFieldNode.name}'. Expected '${schemaFieldNode.typeRef}' but found '${propertyNode.valueNode.type}'.`,
+                DiagnosticSeverity.Error
+              )
+            );
+          }
+        }
         const childSchemaNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaFieldNode.typeRef);
         if (childSchemaNode && propertyNode.valueNode) {
           if (schemaFieldNode.canBeArray) {
