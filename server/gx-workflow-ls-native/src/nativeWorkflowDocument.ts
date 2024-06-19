@@ -70,6 +70,7 @@ export class NativeWorkflowDocument extends WorkflowDocument {
           doc: String(annotationValue ?? ""),
           type: this.getInputType(stepTypeValue, toolStateValue),
           default: toolStateValue.default,
+          optional: toolStateValue.optional,
         };
         result.inputs.push(inputDefinition);
       }

@@ -208,7 +208,7 @@ export class ASTNodeManager {
     }
   }
 
-  public getPropertyNodeByName(node: PropertyASTNode, propertyName: string): PropertyASTNode {
+  public getPropertyNodeByName(node: PropertyASTNode, propertyName: string): PropertyASTNode | undefined {
     const targetProperty = node.valueNode?.children?.find(
       (prop) => prop.type === "property" && prop.keyNode.value === propertyName
     ) as PropertyASTNode;
@@ -217,7 +217,7 @@ export class ASTNodeManager {
 
   public getPropertyValueByName(node: PropertyASTNode, propertyName: string): ValueTypes | undefined {
     const targetProperty = this.getPropertyNodeByName(node, propertyName);
-    const targetValue = targetProperty.valueNode?.value;
+    const targetValue = targetProperty?.valueNode?.value;
     return targetValue;
   }
 }

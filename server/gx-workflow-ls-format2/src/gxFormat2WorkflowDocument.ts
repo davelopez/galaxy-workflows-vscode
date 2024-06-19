@@ -65,11 +65,13 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
     const inputDocNode = this.nodeManager.getPropertyNodeByName(input, "doc");
     const inputDescription = String(inputDocNode?.valueNode?.value ?? "");
     const defaultValueNode = this.nodeManager.getPropertyNodeByName(input, "default");
+    const optionalValue = this.nodeManager.getPropertyValueByName(input, "optional");
     const inputDefinition: WorkflowInput = {
       name: inputName,
       doc: inputDescription,
       type: inputType,
       default: defaultValueNode?.valueNode?.value,
+      optional: optionalValue === undefined ? undefined : optionalValue === true,
     };
     return inputDefinition;
   }

@@ -18,7 +18,7 @@ export class InputTypeValidationRule implements ValidationRule {
       const inputName = String(input.keyNode.value);
       const inputTypeValue = documentContext.nodeManager.getPropertyValueByName(input, "type");
       const defaultValueNode = documentContext.nodeManager.getPropertyNodeByName(input, "default");
-      const defaultValue = defaultValueNode.valueNode?.value;
+      const defaultValue = defaultValueNode?.valueNode?.value;
 
       const defaultValueType = typeof defaultValue;
       if (inputTypeValue && defaultValue) {
