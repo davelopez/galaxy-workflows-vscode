@@ -26,14 +26,22 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
 
   public getWorkflowInputs(): GetWorkflowInputsResult {
     return {
-      inputs: this.getAllPropertyNodesAtPath("inputs").map((input) => this.parseInputDefinition(input)),
+      inputs: this.getRawInputNodes().map((input) => this.parseInputDefinition(input)),
     };
   }
 
   public getWorkflowOutputs(): GetWorkflowOutputsResult {
     return {
-      outputs: this.getAllPropertyNodesAtPath("outputs").map((output) => this.parseOutputDefinition(output)),
+      outputs: this.getRawOutputNodes().map((output) => this.parseOutputDefinition(output)),
     };
+  }
+
+  public getRawInputNodes(): PropertyASTNode[] {
+    return this.getAllPropertyNodesAtPath("inputs");
+  }
+
+  public getRawOutputNodes(): PropertyASTNode[] {
+    return this.getAllPropertyNodesAtPath("outputs");
   }
 
   private getAllPropertyNodesAtPath(path: string): PropertyASTNode[] {

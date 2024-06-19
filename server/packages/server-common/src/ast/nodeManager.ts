@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment } from "./types";
+import { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment, ValueTypes } from "./types";
 import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
@@ -206,5 +206,18 @@ export class ASTNodeManager {
       default:
         return false;
     }
+  }
+
+  public getPropertyNodeByName(node: PropertyASTNode, propertyName: string): PropertyASTNode {
+    const targetProperty = node.valueNode?.children?.find(
+      (prop) => prop.type === "property" && prop.keyNode.value === propertyName
+    ) as PropertyASTNode;
+    return targetProperty;
+  }
+
+  public getPropertyValueByName(node: PropertyASTNode, propertyName: string): ValueTypes | undefined {
+    const targetProperty = this.getPropertyNodeByName(node, propertyName);
+    const targetValue = targetProperty.valueNode?.value;
+    return targetValue;
   }
 }
