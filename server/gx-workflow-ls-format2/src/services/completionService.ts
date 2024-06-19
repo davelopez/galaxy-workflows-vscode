@@ -104,6 +104,8 @@ export class GxFormat2CompletionService {
             };
             result.push(item);
           });
+      } else if (schemaRecord instanceof RecordSchemaNode) {
+        return this.getProposedItems(schemaRecord, textBuffer, exclude, offset);
       }
     }
     return result;

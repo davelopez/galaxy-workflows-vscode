@@ -301,4 +301,18 @@ outputs:`;
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
   });
+
+  it("should suggest the list of available properties for 'report' when the cursor is inside the property", async () => {
+    const template = `
+class: GalaxyWorkflow
+report:
+  $`;
+    const EXPECTED_COMPLETION_LABELS = ["markdown"];
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
 });
