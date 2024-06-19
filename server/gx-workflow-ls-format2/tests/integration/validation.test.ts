@@ -1,6 +1,7 @@
-import { Diagnostic } from "@gxwf/server-common/src/languageTypes";
+import { Diagnostic, ValidationRule } from "@gxwf/server-common/src/languageTypes";
 import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
 import { GxFormat2SchemaValidationService } from "../../src/services/schemaValidationService";
+import { InputTypeValidationRule } from "../../src/validation/rules/InputTypeValidationRule";
 import { createFormat2WorkflowDocument } from "../testHelpers";
 
 describe("Schema validation", () => {
@@ -76,5 +77,51 @@ steps:
     expect(diagnostics[0].message).toBe(
       "The value is not a valid 'GalaxyType'. Allowed values are: integer, text, File, data, collection, null, boolean, int, long, float, double, string."
     );
+  });
+
+  describe("Custom Rules", () => {
+    let rule: ValidationRule;
+
+    function validateRule(documentContents: string): Promise<Diagnostic[]> {
+      const document = createFormat2WorkflowDocument(documentContents);
+      return rule.validate(document);
+    }
+
+    describe("InputTypeValidationRule", () => {
+      beforeAll(() => {
+        rule = new InputTypeValidationRule();
+      });
+
+      it("should report error when input default value has invalid type", async () => {
+        const content = `
+class: GalaxyWorkflow
+inputs:
+    the_input:
+        type: int
+        default: this is not a number
+outputs:
+steps:
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe(
+          "Input 'the_input' default value has invalid type. Expected 'int' but found 'string'."
+        );
+      });
+
+      it("should not report error when input default value has valid type", async () => {
+        const content = `
+class: GalaxyWorkflow
+inputs:
+    the_input:
+        type: int
+        default: 42
+outputs:
+steps:
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(0);
+      });
+    });
   });
 });

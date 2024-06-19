@@ -42,7 +42,7 @@ export class InputTypeValidationRule implements ValidationRule {
         }
         if (!defaultTypeMatchesValue) {
           result.push({
-            message: `Input '${inputName}' default value has invalid type. Expected ${inputTypeValue} but found ${defaultValueType}.`,
+            message: `Input '${inputName}' default value has invalid type. Expected '${inputTypeValue}' but found '${defaultValueType}'.`,
             range: documentContext.nodeManager.getNodeRange(defaultValueNode),
             severity: this.severity,
           });
