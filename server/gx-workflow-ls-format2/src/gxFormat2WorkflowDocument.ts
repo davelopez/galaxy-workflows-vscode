@@ -5,6 +5,8 @@ import {
   TextDocument,
   WorkflowDataType,
   WorkflowDocument,
+  WorkflowInput,
+  WorkflowOutput,
 } from "@gxwf/server-common/src/languageTypes";
 import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 
@@ -23,54 +25,49 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
   }
 
   public getWorkflowInputs(): GetWorkflowInputsResult {
-    const result: GetWorkflowInputsResult = { inputs: [] };
-    const inputs = this.nodeManager.getNodeFromPath("inputs");
-    if (inputs?.type === "property") {
-      const inputList = inputs.valueNode?.children;
-      if (inputList) {
-        inputList.forEach((input) => {
-          if (input.type !== "property" || !input.keyNode) return;
-          const inputName = String(input.keyNode.value);
-          const inputType = this.extractInputType(input);
-          const inputDocNode = input.valueNode?.children?.find(
-            (prop) => prop.type === "property" && prop.keyNode.value === "doc"
-          ) as PropertyASTNode;
-          const inputDescription = String(inputDocNode?.valueNode?.value ?? "");
-          result.inputs.push({
-            name: inputName,
-            doc: inputDescription,
-            type: inputType,
-          });
-        });
-      }
-    }
-    return result;
+    return {
+      inputs: this.getAllPropertyNodesAtPath("inputs").map((input) => this.parseInputDefinition(input)),
+    };
   }
 
   public getWorkflowOutputs(): GetWorkflowOutputsResult {
-    const result: GetWorkflowOutputsResult = { outputs: [] };
-    const output = this.nodeManager.getNodeFromPath("outputs");
-    if (output?.type === "property") {
-      const outputList = output.valueNode?.children;
-      if (outputList) {
-        outputList.forEach((output) => {
-          if (output.type !== "property" || !output.keyNode) return;
-          const outputName = String(output.keyNode.value);
-          const outputDocNode = output.valueNode?.children?.find(
-            (prop) => prop.type === "property" && prop.keyNode.value === "doc"
-          ) as PropertyASTNode;
-          const outputDoc = String(outputDocNode?.valueNode?.value ?? "");
-          result.outputs.push({
-            name: outputName,
-            doc: outputDoc,
-          });
+    return {
+      outputs: this.getAllPropertyNodesAtPath("outputs").map((output) => this.parseOutputDefinition(output)),
+    };
+  }
+
+  private getAllPropertyNodesAtPath(path: string): PropertyASTNode[] {
+    const result: PropertyASTNode[] = [];
+    const nodeAtPath = this.nodeManager.getNodeFromPath(path);
+    if (nodeAtPath?.type === "property") {
+      const propertyNodes = nodeAtPath.valueNode?.children;
+      if (propertyNodes) {
+        propertyNodes.forEach((node) => {
+          if (node.type !== "property" || !node.keyNode) return;
+          result.push(node);
         });
       }
     }
     return result;
   }
 
-  private extractInputType(input: PropertyASTNode): WorkflowDataType {
+  private parseInputDefinition(input: PropertyASTNode): WorkflowInput {
+    const inputName = String(input.keyNode.value);
+    const inputType = this.parseInputType(input);
+    const inputDocNode = input.valueNode?.children?.find(
+      (prop) => prop.type === "property" && prop.keyNode.value === "doc"
+    ) as PropertyASTNode;
+    const inputDescription = String(inputDocNode?.valueNode?.value ?? "");
+    const inputDefinition: WorkflowInput = {
+      name: inputName,
+      doc: inputDescription,
+      type: inputType,
+      //TODO: default
+    };
+    return inputDefinition;
+  }
+
+  private parseInputType(input: PropertyASTNode): WorkflowDataType {
     let inputType: WorkflowDataType = "data";
     const inputTypeNode = input.valueNode?.children?.find(
       (prop) => prop.type === "property" && prop.keyNode.value === "type"
@@ -82,5 +79,18 @@ export class GxFormat2WorkflowDocument extends WorkflowDocument {
       inputType = input.valueNode?.value as WorkflowDataType;
     }
     return inputType;
+  }
+
+  private parseOutputDefinition(output: PropertyASTNode): WorkflowOutput {
+    const outputName = String(output.keyNode.value);
+    const outputDocNode = output.valueNode?.children?.find(
+      (prop) => prop.type === "property" && prop.keyNode.value === "doc"
+    ) as PropertyASTNode;
+    const outputDoc = String(outputDocNode?.valueNode?.value ?? "");
+    const outputDefinition = {
+      name: outputName,
+      doc: outputDoc,
+    };
+    return outputDefinition;
   }
 }
