@@ -61,11 +61,25 @@ describe("Workflow Tests Validation Rules", () => {
       rule = new WorkflowInputsValidationRule();
     });
 
-    it("should pass validation when a valid input is defined in the workflow", async () => {
+    it("should pass validation when a valid input is defined in the workflow (inline)", async () => {
       const testDocumentContents = `
   - doc: The docs
     job:
       My fake dataset: data/input.txt
+    `;
+
+      const diagnostics = await validate(testDocumentContents);
+
+      expect(diagnostics).not.toBeNull();
+      expect(diagnostics.length).toBe(0);
+    });
+
+    it("should pass validation when a valid input is defined in the workflow", async () => {
+      const testDocumentContents = `
+  - doc: The docs
+    job:
+      My fake dataset:
+        class: File
     `;
 
       const diagnostics = await validate(testDocumentContents);
@@ -85,6 +99,39 @@ describe("Workflow Tests Validation Rules", () => {
 
       expect(diagnostics.length).toBe(1);
       expect(diagnostics[0].message).toBe('Input "Missing input" is not defined in the associated workflow.');
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+    });
+
+    it("should error when an input has an invalid type (inline)", async () => {
+      const testDocumentContents = `
+  - doc: The docs
+    job:
+      My fake string: 5
+    `;
+
+      const diagnostics = await validate(testDocumentContents);
+
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toBe(
+        'Input "My fake string" has an invalid type. Expected "string" but found "number".'
+      );
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+    });
+
+    it("should error when an input has an invalid type", async () => {
+      const testDocumentContents = `
+  - doc: The docs
+    job:
+      My fake number:
+        class: string
+    `;
+
+      const diagnostics = await validate(testDocumentContents);
+
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toBe(
+        'Input "My fake number" has an invalid type. Expected "int" but found "object".'
+      );
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
   });
