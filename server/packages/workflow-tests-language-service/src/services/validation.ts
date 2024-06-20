@@ -1,4 +1,4 @@
-import { Diagnostic, DiagnosticSeverity, DocumentContext, Range } from "@gxwf/server-common/src/languageTypes";
+import { Diagnostic, DiagnosticSeverity, DocumentContext } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
 import { ResolvedSchema } from "../schema/jsonSchema";
 import { WorkflowTestsSchemaProvider } from "../schema/provider";
@@ -37,16 +37,10 @@ export class WorkflowTestsValidationServiceImpl implements WorkflowTestsValidati
             const property = astRoot.type === "object" ? astRoot.properties[0] : undefined;
             if (property && property.keyNode.value === "$schema") {
               const node = property.valueNode || property;
-              const range = Range.create(
-                documentContext.textDocument.positionAt(node.offset),
-                documentContext.textDocument.positionAt(node.offset + node.length)
-              );
+              const range = documentContext.nodeManager.getNodeRange(node);
               addProblem(Diagnostic.create(range, errorMessage, severity));
             } else {
-              const range = Range.create(
-                documentContext.textDocument.positionAt(astRoot.offset),
-                documentContext.textDocument.positionAt(astRoot.offset + 1)
-              );
+              const range = documentContext.nodeManager.getDefaultRange();
               addProblem(Diagnostic.create(range, errorMessage, severity));
             }
           }

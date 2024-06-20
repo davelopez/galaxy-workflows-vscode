@@ -33,11 +33,7 @@ export class GxFormat2HoverService {
       }
     }
 
-    const hoverRange = Range.create(
-      textDocument.positionAt(hoverRangeNode.offset),
-      textDocument.positionAt(hoverRangeNode.offset + hoverRangeNode.length)
-    );
-
+    const hoverRange = nodeManager.getNodeRange(hoverRangeNode);
     const location = nodeManager.getPathFromNode(hoverRangeNode);
     const schemaNode = this.schemaNodeResolver.resolveSchemaContext(location);
     const contents = this.getHoverMarkdownContentsForNode(schemaNode);
