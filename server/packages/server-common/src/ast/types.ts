@@ -7,13 +7,15 @@ export type ASTNode =
   | BooleanASTNode
   | NullASTNode;
 
+export type ValueTypes = string | boolean | number | null;
+
 export interface BaseASTNode {
   readonly type: "object" | "array" | "property" | "string" | "number" | "boolean" | "null";
   readonly parent?: ASTNode;
   readonly offset: number;
   readonly length: number;
   readonly children?: ASTNode[];
-  readonly value?: string | boolean | number | null;
+  readonly value?: ValueTypes;
   readonly internalNode: unknown;
   getNodeFromOffsetEndInclusive(offset: number): ASTNode | undefined;
 }

@@ -20,8 +20,6 @@ export class YAMLValidation {
       return Promise.resolve([]);
     }
     const diagnostics: Diagnostic[] = [...yamlDocument.syntaxDiagnostics];
-    // TODO: add schema validation diagnostics
-
     return Promise.resolve(diagnostics);
   }
 }

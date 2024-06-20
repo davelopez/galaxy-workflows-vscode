@@ -16,6 +16,7 @@ import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.c
 import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { inject, injectable } from "inversify";
 import { GxWorkflowTestsDocument } from "./document";
+import { TestDocumentBasicValidationProfile, TestDocumentIWCValidationProfile } from "./profiles";
 import { WorkflowTestsCompletionService } from "./services/completion";
 import { WorkflowTestsHoverService } from "./services/hover";
 import { WorkflowTestsValidationService } from "./services/validation";
@@ -58,6 +59,12 @@ export class GxWorkflowTestsLanguageServiceImpl extends LanguageServiceBase<Work
     position: Position
   ): Promise<CompletionList | null> {
     return this.completionService.doComplete(documentContext, position);
+  }
+
+  protected override initializeValidationProfiles(): void {
+    super.initializeValidationProfiles();
+    this.validationProfiles.set("basic", new TestDocumentBasicValidationProfile());
+    this.validationProfiles.set("iwc", new TestDocumentIWCValidationProfile());
   }
 
   protected override async doValidation(documentContext: WorkflowTestsDocument): Promise<Diagnostic[]> {

@@ -9,6 +9,7 @@ inputs:
   input_2:
     type: File
     doc: This is the input 2
+    optional: false
   the_collection:
     type: collection
     doc: This is a collection
@@ -34,6 +35,7 @@ inputs:
         name: "input_2",
         doc: "This is the input 2",
         type: "File",
+        optional: false,
       },
       {
         name: "the_collection",
@@ -49,6 +51,8 @@ inputs:
         name: "text_param",
         doc: "",
         type: "text",
+        default: "text value",
+        optional: true,
       },
     ]);
   });

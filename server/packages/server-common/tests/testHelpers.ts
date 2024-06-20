@@ -57,6 +57,7 @@ export const FAKE_DATASET_INPUT: WorkflowInput = {
   name: "My fake dataset",
   doc: "This is a simple dataset",
   type: "data",
+  optional: true,
 };
 
 export const EXPECTED_WORKFLOW_INPUTS: WorkflowInput[] = [
@@ -65,11 +66,33 @@ export const EXPECTED_WORKFLOW_INPUTS: WorkflowInput[] = [
     name: "Input dataset: fake",
     doc: "This is a simple dataset with a colon in the name",
     type: "File",
+    optional: true,
   },
   {
     name: "My fake collection",
     doc: "This is a collection",
     type: "collection",
+    optional: true,
+  },
+  {
+    name: "My fake string",
+    doc: "This is an optional string with a default value",
+    type: "string",
+    default: "default string",
+    optional: true,
+  },
+  {
+    name: "My fake number",
+    doc: "This is a required number parameter",
+    type: "int",
+    optional: false,
+  },
+  {
+    name: "My fake boolean",
+    doc: "This is a required boolean parameter with a default value",
+    type: "boolean",
+    default: true,
+    optional: false,
   },
 ];
 

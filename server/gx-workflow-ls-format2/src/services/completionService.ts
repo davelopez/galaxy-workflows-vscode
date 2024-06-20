@@ -68,7 +68,7 @@ export class GxFormat2CompletionService {
           result.push(item);
         });
     } else if (schemaNode instanceof FieldSchemaNode) {
-      if (this.schemaNodeResolver.definitions.primitiveTypes.has(schemaNode.typeRef)) {
+      if (schemaNode.isPrimitiveType) {
         const defaultValue = String(schemaNode.default ?? "");
         if (defaultValue) {
           const item: CompletionItem = {
@@ -104,6 +104,8 @@ export class GxFormat2CompletionService {
             };
             result.push(item);
           });
+      } else if (schemaRecord instanceof RecordSchemaNode) {
+        return this.getProposedItems(schemaRecord, textBuffer, exclude, offset);
       }
     }
     return result;

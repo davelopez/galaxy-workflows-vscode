@@ -259,7 +259,7 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
   }
 
   public get canBeObject(): boolean {
-    return this.canBeAny || this._allowedTypes.some((t) => this.isObjectType(t.typeName));
+    return this.canBeAny || this._allowedTypes.some((t) => this.isRecordType(t.typeName));
   }
 
   public matchesType(typeName: string): boolean {
@@ -313,11 +313,15 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     return undefined;
   }
 
-  private isPrimitiveType(typeName: string): boolean {
-    return FieldSchemaNode.definitions.primitiveTypes.has(typeName);
+  public get isPrimitiveType(): boolean {
+    return FieldSchemaNode.definitions.primitiveTypes.has(this.typeRef);
   }
 
-  private isObjectType(typeName: string): boolean {
+  public get isObjectType(): boolean {
+    return this.isRecordType(this.typeRef);
+  }
+
+  private isRecordType(typeName: string): boolean {
     return FieldSchemaNode.definitions.records.has(typeName);
   }
 

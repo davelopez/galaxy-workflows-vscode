@@ -5,6 +5,8 @@ import {
   TextDocument,
   WorkflowDataType,
   WorkflowDocument,
+  WorkflowInput,
+  WorkflowOutput,
 } from "@gxwf/server-common/src/languageTypes";
 import { JSONDocument } from "vscode-json-languageservice";
 import { ToolState, isWorkflowInputType, type ParameterInputToolState } from "./utils";
@@ -63,11 +65,14 @@ export class NativeWorkflowDocument extends WorkflowDocument {
         const toolStateValue = JSON.parse(
           toolStateNode?.valueNode?.value ? String(toolStateNode?.valueNode?.value) : "{}"
         );
-        result.inputs.push({
+        const inputDefinition: WorkflowInput = {
           name: String(labelValue),
           doc: String(annotationValue ?? ""),
           type: this.getInputType(stepTypeValue, toolStateValue),
-        });
+          default: toolStateValue.default,
+          optional: toolStateValue.optional,
+        };
+        result.inputs.push(inputDefinition);
       }
     });
     return result;
@@ -95,10 +100,11 @@ export class NativeWorkflowDocument extends WorkflowDocument {
           }
           const uuidNode = workflowOutput.properties.find((property) => property.keyNode.value === "uuid");
           const uuidValue = String(uuidNode?.valueNode?.value);
-          result.outputs.push({
+          const outputDefinition: WorkflowOutput = {
             name: String(labelValue),
             uuid: uuidValue,
-          });
+          };
+          result.outputs.push(outputDefinition);
         });
       }
     });

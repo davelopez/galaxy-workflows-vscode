@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment } from "./types";
+import { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment, ValueTypes } from "./types";
 import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {
@@ -109,7 +109,7 @@ export class ASTNodeManager {
     if (!root) return result;
 
     this.visit((node) => {
-      if (node.type === "property" && node.keyNode.value === name && node.valueNode?.type === "object") {
+      if (node.type === "property" && node.keyNode.value === name) {
         result.push(node);
       }
       return true;
@@ -189,5 +189,35 @@ export class ASTNodeManager {
       };
       doVisit(this.root);
     }
+  }
+
+  public isNodeEmpty(node: ASTNode): boolean {
+    switch (node.type) {
+      case "object":
+        return node.properties.length === 0;
+      case "array":
+        return node.items.length === 0;
+      case "property":
+        return !node.valueNode || this.isNodeEmpty(node.valueNode);
+      case "string":
+        return node.value === "";
+      case "null":
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  public getPropertyNodeByName(node: PropertyASTNode, propertyName: string): PropertyASTNode | undefined {
+    const targetProperty = node.valueNode?.children?.find(
+      (prop) => prop.type === "property" && prop.keyNode.value === propertyName
+    ) as PropertyASTNode;
+    return targetProperty;
+  }
+
+  public getPropertyValueByName(node: PropertyASTNode, propertyName: string): ValueTypes | undefined {
+    const targetProperty = this.getPropertyNodeByName(node, propertyName);
+    const targetValue = targetProperty?.valueNode?.value;
+    return targetValue;
   }
 }

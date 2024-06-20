@@ -52,7 +52,17 @@ suite("Native (JSON) Workflows", () => {
       await waitForDiagnostics(docUri);
       await assertDiagnostics(docUri, [
         {
-          message: 'Missing property "release".',
+          message: "The workflow must have a release version.",
+          range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1)),
+          severity: vscode.DiagnosticSeverity.Error,
+        },
+        {
+          message: "The workflow does not specify a creator.",
+          range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1)),
+          severity: vscode.DiagnosticSeverity.Error,
+        },
+        {
+          message: "The workflow does not specify a license.",
           range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1)),
           severity: vscode.DiagnosticSeverity.Error,
         },

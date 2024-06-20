@@ -47,11 +47,7 @@ export class WorkflowTestsHoverServiceImpl implements WorkflowTestsHoverService 
       return Promise.resolve(null);
     }
 
-    const hoverRange = Range.create(
-      documentContext.textDocument.positionAt(hoverRangeNode.offset),
-      documentContext.textDocument.positionAt(hoverRangeNode.offset + hoverRangeNode.length)
-    );
-
+    const hoverRange = documentContext.nodeManager.getNodeRange(hoverRangeNode);
     if (this.parentPropertyMatchesKey(node, "job")) {
       const inputHover = await this.getHoverForWorkflowInput(documentContext, node, hoverRange);
       if (inputHover) {

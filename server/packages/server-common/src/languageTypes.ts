@@ -67,6 +67,7 @@ import { ASTNodeManager } from "./ast/nodeManager";
 import { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
+import { NoOpValidationProfile } from "./providers/validation/profiles";
 
 export {
   CleanWorkflowContentsParams,
@@ -150,15 +151,17 @@ export interface ValidationRule {
   validate(documentContext: DocumentContext): Promise<Diagnostic[]>;
 }
 
+export type ValidationProfileIdentifier = "basic" | "iwc";
+
 /**
  *  Interface representing a validation profile which contains a set of custom rules.
  */
 export interface ValidationProfile {
-  /** The unique identifier of this validation profile. */
-  get id(): string;
-
   /** The set of rules defining this validation profile. */
   get rules(): Set<ValidationRule>;
+
+  /** The human-readable name of the profile. */
+  name: string;
 }
 
 /**
@@ -197,7 +200,8 @@ export interface LanguageService<T extends DocumentContext> {
    * Validates the document and reports all the diagnostics found.
    * An optional validation profile can be used to provide additional custom diagnostics.
    */
-  validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]>;
+  validate(documentContext: T, useProfile?: ValidationProfileIdentifier): Promise<Diagnostic[]>;
+  getValidationProfile(profileId: ValidationProfileIdentifier): ValidationProfile;
 
   setServer(server: GalaxyWorkflowLanguageServer): void;
 }
@@ -208,8 +212,12 @@ export interface LanguageService<T extends DocumentContext> {
  */
 @injectable()
 export abstract class LanguageServiceBase<T extends DocumentContext> implements LanguageService<T> {
-  constructor(@unmanaged() public readonly languageId: string) {}
   protected server?: GalaxyWorkflowLanguageServer;
+  protected validationProfiles = new Map<ValidationProfileIdentifier, ValidationProfile>();
+
+  constructor(@unmanaged() public readonly languageId: string) {
+    this.initializeValidationProfiles();
+  }
 
   public abstract parseDocument(document: TextDocument): T;
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
@@ -221,18 +229,41 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
   protected abstract doValidation(documentContext: T): Promise<Diagnostic[]>;
 
   /**
+   * Initializes the validation profiles for this language service.
+   * Subclasses should override this method to provide custom validation profiles.
+   * The default implementation does nothing.
+   */
+  protected initializeValidationProfiles(): void {
+    const defaultProfile = new NoOpValidationProfile();
+    this.validationProfiles.set("basic", defaultProfile);
+    this.validationProfiles.set("iwc", defaultProfile);
+  }
+
+  /**
    * Validates the document and reports all the diagnostics found.
    * An optional validation profile can be used to provide additional custom diagnostics.
    */
-  public async validate(documentContext: T, useProfile?: ValidationProfile): Promise<Diagnostic[]> {
+  public async validate(documentContext: T, useProfile?: ValidationProfileIdentifier): Promise<Diagnostic[]> {
     const diagnostics = await this.doValidation(documentContext);
     if (useProfile) {
-      useProfile.rules.forEach(async (validationRule) => {
-        const contributedDiagnostics = await validationRule.validate(documentContext);
+      const profile = this.getValidationProfile(useProfile);
+      for (const rule of profile.rules) {
+        const contributedDiagnostics = await rule.validate(documentContext);
+        contributedDiagnostics.forEach((diagnostic) => {
+          diagnostic.source = diagnostic.source ?? profile.name;
+        });
         diagnostics.push(...contributedDiagnostics);
-      });
+      }
     }
     return diagnostics;
+  }
+
+  public getValidationProfile(profileId: ValidationProfileIdentifier): ValidationProfile {
+    const profile = this.validationProfiles.get(profileId);
+    if (!profile) {
+      throw new Error(`Validation profile not found for id: ${profileId}`);
+    }
+    return profile;
   }
 
   public setServer(server: GalaxyWorkflowLanguageServer): void {
