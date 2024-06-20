@@ -66,6 +66,7 @@ describe("Workflow Tests Validation Rules", () => {
   - doc: The docs
     job:
       My fake dataset: data/input.txt
+      My fake number: 5
     `;
 
       const diagnostics = await validate(testDocumentContents);
@@ -80,6 +81,7 @@ describe("Workflow Tests Validation Rules", () => {
     job:
       My fake dataset:
         class: File
+      My fake number: 5
     `;
 
       const diagnostics = await validate(testDocumentContents);
@@ -92,13 +94,14 @@ describe("Workflow Tests Validation Rules", () => {
       const testDocumentContents = `
   - doc: The docs
     job:
-      Missing input: data/input.txt
+      My fake number: 5
+      Unknown input: data/input.txt
     `;
 
       const diagnostics = await validate(testDocumentContents);
 
       expect(diagnostics.length).toBe(1);
-      expect(diagnostics[0].message).toBe('Input "Missing input" is not defined in the associated workflow.');
+      expect(diagnostics[0].message).toBe('Input "Unknown input" is not defined in the associated workflow.');
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
 
@@ -106,6 +109,7 @@ describe("Workflow Tests Validation Rules", () => {
       const testDocumentContents = `
   - doc: The docs
     job:
+      My fake number: 5
       My fake string: 5
     `;
 
@@ -122,7 +126,8 @@ describe("Workflow Tests Validation Rules", () => {
       const testDocumentContents = `
   - doc: The docs
     job:
-      My fake number:
+      My fake number: 5
+      My fake string:
         class: string
     `;
 
@@ -130,8 +135,37 @@ describe("Workflow Tests Validation Rules", () => {
 
       expect(diagnostics.length).toBe(1);
       expect(diagnostics[0].message).toBe(
-        'Input "My fake number" has an invalid type. Expected "int" but found "object".'
+        'Input "My fake string" has an invalid type. Expected "string" but found "object".'
       );
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+    });
+
+    it("should error when an input is required but not defined", async () => {
+      const testDocumentContents = `
+  - doc: The docs
+    job:
+    `;
+
+      const diagnostics = await validate(testDocumentContents);
+
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toBe('Input "My fake number" is required but no value or default was provided.');
+      expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
+    });
+
+    it("should error when an input is required in multiple tests but not defined in one of them", async () => {
+      const testDocumentContents = `
+  - doc: The docs
+    job:
+      My fake number: 5
+  - doc: The docs
+    job:
+    `;
+
+      const diagnostics = await validate(testDocumentContents);
+
+      expect(diagnostics.length).toBe(1);
+      expect(diagnostics[0].message).toBe('Input "My fake number" is required but no value or default was provided.');
       expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
     });
   });
