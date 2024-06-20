@@ -109,7 +109,7 @@ export class ASTNodeManager {
     if (!root) return result;
 
     this.visit((node) => {
-      if (node.type === "property" && node.keyNode.value === name && node.valueNode?.type === "object") {
+      if (node.type === "property" && node.keyNode.value === name) {
         result.push(node);
       }
       return true;
