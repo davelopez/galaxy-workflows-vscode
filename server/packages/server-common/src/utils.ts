@@ -1,3 +1,4 @@
+import { workflowDataTypes } from "../../../../shared/src/requestsDefinitions";
 import { WorkflowDataType } from "./languageTypes";
 
 /**
@@ -31,4 +32,11 @@ export function isCompatibleType(expectedType: WorkflowDataType, actualType: str
       break;
   }
   return isCompatible;
+}
+
+export function isWorkflowDataType(type?: string): type is WorkflowDataType {
+  if (!type) {
+    return false;
+  }
+  return type in workflowDataTypes;
 }

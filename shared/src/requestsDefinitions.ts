@@ -28,20 +28,33 @@ export interface TargetWorkflowDocumentParams {
   uri: string;
 }
 
-export type WorkflowDataType =
-  | "color" //TODO: this type seems to be missing in format2 schema
-  | "null"
-  | "boolean"
-  | "int"
-  | "long"
-  | "float"
-  | "double"
-  | "string"
-  | "integer"
-  | "text"
-  | "File"
-  | "data"
-  | "collection";
+/**
+ * This contains all the supported data types for workflow inputs.
+ *
+ * **Important**: This definition must be kept in sync with the schema definition.
+ *
+ * Note: Is defined as a const object to be used as a map and to be able to use the keys as a union type.
+ * This way we can maintain a single source of truth for the supported data types and generate WorkflowDataType
+ * type dynamically from it.
+ */
+export const workflowDataTypes = {
+  boolean: true,
+  collection: true,
+  color: true, //TODO: this type seems to be missing in format2 schema
+  data: true,
+  double: true,
+  File: true,
+  float: true,
+  int: true,
+  integer: true,
+  long: true,
+  null: true,
+  string: true,
+  text: true,
+} as const;
+
+// Extract the keys of the object to form the union type
+export type WorkflowDataType = keyof typeof workflowDataTypes;
 
 export interface WorkflowInput {
   name: string;
