@@ -1,4 +1,5 @@
 import { ValidationRule, WorkflowTestsDocument } from "@gxwf/server-common/src/languageTypes";
+import { isCompatibleType } from "@gxwf/server-common/src/utils";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 
 /**
@@ -12,9 +13,9 @@ export class WorkflowInputsValidationRule implements ValidationRule {
     const workflowInputs = await documentContext.getWorkflowInputs();
     const documentInputNodes =
       documentContext.nodeManager.getAllPropertyNodesByName("job")[0]?.valueNode?.children ?? [];
-    documentInputNodes.forEach((inputNode) => {
+    for (const inputNode of documentInputNodes) {
       if (inputNode.type !== "property") {
-        return;
+        continue;
       }
       const inputName = inputNode.keyNode.value as string;
       const input = workflowInputs.find((i) => i.name === inputName);
@@ -22,8 +23,18 @@ export class WorkflowInputsValidationRule implements ValidationRule {
         const range = documentContext.nodeManager.getNodeRange(inputNode);
         const message = `Input "${inputName}" is not defined in the associated workflow.`;
         diagnostics.push(Diagnostic.create(range, message, DiagnosticSeverity.Error));
+      } else {
+        if (inputNode.valueNode) {
+          const inputType = input.type;
+          const inputTypeValue = inputNode.valueNode.type;
+          if (!isCompatibleType(inputType, inputTypeValue)) {
+            const range = documentContext.nodeManager.getNodeRange(inputNode);
+            const message = `Input "${inputName}" has an invalid type. Expected "${inputType}" but found "${inputTypeValue}".`;
+            diagnostics.push(Diagnostic.create(range, message, DiagnosticSeverity.Error));
+          }
+        }
       }
-    });
+    }
     return Promise.resolve(diagnostics);
   }
 }

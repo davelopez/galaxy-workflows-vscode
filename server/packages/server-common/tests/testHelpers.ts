@@ -71,6 +71,19 @@ export const EXPECTED_WORKFLOW_INPUTS: WorkflowInput[] = [
     doc: "This is a collection",
     type: "collection",
   },
+  {
+    name: "My fake string",
+    doc: "This is an optional string with a default value",
+    type: "string",
+    default: "default string",
+    optional: true,
+  },
+  {
+    name: "My fake number",
+    doc: "This is a required number parameter",
+    type: "int",
+    optional: false,
+  },
 ];
 
 export const EXPECTED_WORKFLOW_OUTPUTS: WorkflowOutput[] = [
