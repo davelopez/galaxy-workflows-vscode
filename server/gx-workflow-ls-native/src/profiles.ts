@@ -10,6 +10,7 @@ import { WorkflowOutputLabelValidationRule } from "./validation/rules/WorkflowOu
  * Defines the minimal set of validation rules for Native Galaxy workflows.
  */
 export class NativeBasicValidationProfile extends BasicCommonValidationProfile {
+  public readonly name: string = "Workflow Validation";
   public static readonly RULES = new Set([
     ...super.RULES,
     // Add more custom rules specific to native workflows here...

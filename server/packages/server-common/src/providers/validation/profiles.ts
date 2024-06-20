@@ -18,7 +18,7 @@ export class NoOpValidationProfile implements ValidationProfile {
  * Common set of validation rules for basic validation of any workflow format.
  */
 export class BasicCommonValidationProfile implements ValidationProfile {
-  public readonly name: string = "Basic Validation";
+  public readonly name: string = "Workflow Validator";
 
   protected static readonly RULES: Set<ValidationRule> = new Set([
     new TestToolshedValidationRule(DiagnosticSeverity.Error),

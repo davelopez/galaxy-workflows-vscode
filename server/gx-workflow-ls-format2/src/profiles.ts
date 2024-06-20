@@ -10,6 +10,7 @@ import { InputTypeValidationRule } from "./validation/rules/InputTypeValidationR
  * Defines the minimal set of validation rules for gxformat2 Galaxy workflows.
  */
 export class GxFormat2BasicValidationProfile extends BasicCommonValidationProfile {
+  public readonly name: string = "GxFormat2 Validation";
   public static readonly RULES = new Set([
     ...super.RULES,
     // Add more custom rules specific to gxformat2 workflows here...

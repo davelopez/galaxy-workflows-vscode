@@ -250,7 +250,7 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
       for (const rule of profile.rules) {
         const contributedDiagnostics = await rule.validate(documentContext);
         contributedDiagnostics.forEach((diagnostic) => {
-          diagnostic.source = profile.name;
+          diagnostic.source = diagnostic.source ?? profile.name;
         });
         diagnostics.push(...contributedDiagnostics);
       }
