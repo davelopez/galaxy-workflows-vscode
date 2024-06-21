@@ -1,5 +1,8 @@
 import { DiagnosticSeverity, ValidationRule } from "@gxwf/server-common/src/languageTypes";
-import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import {
+  RequiredPropertyValidationRule,
+  StepExportErrorValidationRule,
+} from "@gxwf/server-common/src/providers/validation/rules";
 import { WorkflowOutputLabelValidationRule } from "../../src/validation/rules/WorkflowOutputLabelValidationRule";
 import { createNativeWorkflowDocument } from "../testHelpers";
 import { TestWorkflowProvider } from "../testWorkflowProvider";
@@ -237,6 +240,55 @@ describe("Custom Validation Rules", () => {
         expect(diagnostics[0].message).toBe('Missing required value in property "steps/0/tool_id".');
         expect(diagnostics[0].severity).toBe(DiagnosticSeverity.Error);
       });
+    });
+  });
+
+  describe("StepExportErrorValidationRule", () => {
+    beforeAll(() => {
+      rule = new StepExportErrorValidationRule();
+    });
+
+    it("should not provide diagnostics when there are no steps", async () => {
+      const wfDocument = createNativeWorkflowDocument(TestWorkflowProvider.workflows.validation.withoutSteps);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(0);
+    });
+
+    it("should not provide diagnostics when there are no errors in the steps", async () => {
+      const wfDocument = createNativeWorkflowDocument(TestWorkflowProvider.workflows.validation.withThreeSteps);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(0);
+    });
+
+    it("should provide diagnostics when the steps contain errors", async () => {
+      const wfContents = `{
+        "a_galaxy_workflow": "true",
+        "steps": {
+          "0": {
+            "errors": "Error in step 0",
+          },
+        }
+      }`;
+      const wfDocument = createNativeWorkflowDocument(wfContents);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(1);
+      diagnostics.forEach((diagnostic) => {
+        expect(diagnostic.message).toBe('Tool step contains error indicated during Galaxy export - "Error in step 0"');
+      });
+    });
+
+    it("should not provide diagnostics when the errors property is null", async () => {
+      const wfContents = `{
+        "a_galaxy_workflow": "true",
+        "steps": {
+          "0": {
+            "errors": null,
+          },
+        }
+      }`;
+      const wfDocument = createNativeWorkflowDocument(wfContents);
+      const diagnostics = await rule.validate(wfDocument);
+      expect(diagnostics).toHaveLength(0);
     });
   });
 });
