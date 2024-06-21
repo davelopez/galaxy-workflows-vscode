@@ -54,17 +54,20 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
       }
     }
   }
+
   private validateEnumValue(
     node: StringASTNode,
-    schemaRecord: EnumSchemaNode,
+    enumSchemaNode: EnumSchemaNode,
     range: Range,
     diagnostics: Diagnostic[]
   ): void {
-    if (!schemaRecord.symbols.includes(node.value)) {
+    if (!enumSchemaNode.matchesType(node.value)) {
       diagnostics.push(
         Diagnostic.create(
           range,
-          `The value is not a valid '${schemaRecord.name}'. Allowed values are: ${schemaRecord.symbols.join(", ")}.`,
+          `The value is not a valid '${enumSchemaNode.name}'. Allowed values are: ${enumSchemaNode.symbols.join(
+            ", "
+          )}.`,
           DiagnosticSeverity.Error
         )
       );

@@ -111,6 +111,21 @@ steps:
     expect(diagnostics[0].message).toContain("Type mismatch for field 'top'. Expected 'float' but found 'string'.");
   });
 
+  it("should not report error for properties with Any type", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      tool_state:
+        value: "any value"
+        another_value: 42
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(0);
+  });
+
   describe("Custom Rules", () => {
     let rule: ValidationRule;
 
