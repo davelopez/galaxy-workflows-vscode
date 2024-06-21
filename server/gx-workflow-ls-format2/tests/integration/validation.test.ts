@@ -80,6 +80,37 @@ steps:
     );
   });
 
+  it("should not report error for compatible primitive types", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      position:
+        top: 0
+        left: 0
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("should report error for incompatible primitive types", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      position:
+        top: "not a number"
+        left: 0
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toContain("Type mismatch for field 'top'. Expected 'float' but found 'string'.");
+  });
+
   describe("Custom Rules", () => {
     let rule: ValidationRule;
 
