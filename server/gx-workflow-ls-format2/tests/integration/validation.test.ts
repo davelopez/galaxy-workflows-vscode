@@ -1,4 +1,5 @@
 import { Diagnostic, ValidationRule } from "@gxwf/server-common/src/languageTypes";
+import { StepExportErrorValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
 import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
 import { GxFormat2SchemaValidationService } from "../../src/services/schemaValidationService";
 import { InputTypeValidationRule } from "../../src/validation/rules/InputTypeValidationRule";
@@ -118,6 +119,50 @@ inputs:
         default: 42
 outputs:
 steps:
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(0);
+      });
+    });
+
+    describe("StepExportErrorValidationRule", () => {
+      beforeAll(() => {
+        rule = new StepExportErrorValidationRule();
+      });
+
+      it("should report error when step contains export errors", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    step:
+        tool_id: tool_id
+        errors: error in step
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toContain(
+          "Tool step contains error indicated during Galaxy export - error in step"
+        );
+      });
+
+      it("should not report error when step does not contain export errors", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    step:
+        tool_id: tool_id
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should not report error when step errors are null", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    step:
+        tool_id: tool_id
+        errors: null
     `;
         const diagnostics = await validateRule(content);
         expect(diagnostics).toHaveLength(0);
