@@ -9,7 +9,7 @@ export class DocumentsCacheImpl implements DocumentsCache {
    * Document URI schemes that represent temporal or readonly documents
    * that should not be cached.
    */
-  private static schemesToSkip = ["temp", "galaxy-clean-workflow"];
+  private static schemesToSkip = ["temp", "galaxy-clean-workflow", "github"];
 
   constructor() {
     this.cache = new Map<string, DocumentContext>();
