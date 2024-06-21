@@ -199,6 +199,10 @@ export class EnumSchemaNode implements SchemaNode {
     return this._schemaEnum.name;
   }
 
+  public matchesType(typeName: string): boolean {
+    return this.name === "Any" || this.symbols.includes(typeName);
+  }
+
   //Override toString for debugging purposes
   public toString(): string {
     return `EnumSchemaNode: ${this.name} - ${this.symbols}`;
