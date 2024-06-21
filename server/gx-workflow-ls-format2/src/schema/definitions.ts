@@ -1,3 +1,5 @@
+import { isCompatibleType, isWorkflowDataType } from "@gxwf/server-common/src/utils";
+
 export interface SchemaDocument {
   $base: string;
   $namespaces?: object;
@@ -266,7 +268,10 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     if (this.canBeAny) return true;
     if (typeName === "null" && this.isOptional) return true;
     for (const allowedType of this._allowedTypes) {
-      if (allowedType.typeName === typeName) {
+      if (
+        allowedType.typeName === typeName ||
+        (isWorkflowDataType(allowedType.typeName) && isCompatibleType(allowedType.typeName, typeName))
+      ) {
         return true;
       }
       if (isArrayFieldType(allowedType)) {
