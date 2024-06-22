@@ -74,6 +74,9 @@ export class GalaxyWorkflowFormat2SchemaLoader implements GalaxyWorkflowSchemaLo
       enums: new Map<string, EnumSchemaNode>(),
       specializations: new Map<string, string>(),
       primitiveTypes: new Set<string>(),
+      isPrimitiveType: (type: string) => {
+        return definitions.primitiveTypes.has(type);
+      },
     };
 
     this.expandEntries(schemaEntries.values());

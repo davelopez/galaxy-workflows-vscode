@@ -297,9 +297,21 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
     if (this.canBeArray) {
       return this.getArrayItemTypeName() || "undefined";
     }
-    const mainType = this._allowedTypes.find((t) => t.typeName !== "null");
-    //TODO: this requires more logic... we cannot assume the first non-null type to be the main
+    const nonNullTypes = this._allowedTypes.filter((t) => t.typeName !== "null");
+    if (nonNullTypes.length > 1) {
+      // Union type
+      return nonNullTypes.map((t) => t.typeName).join("|");
+    }
+    const mainType = nonNullTypes[0];
     return isBasicFieldType(mainType) ? mainType.typeName : "unknown";
+  }
+
+  /**
+   * Returns the type references for union types or
+   * a single type reference for non-union types.
+   */
+  public get typeRefs(): string[] {
+    return this.typeRef.split("|");
   }
 
   public get mapSubject(): string | undefined {
@@ -316,14 +328,19 @@ export class FieldSchemaNode implements SchemaNode, IdMapper {
       return arrayType?.itemType.typeName;
     }
     if (arrayType?.itemType instanceof Array) {
-      return arrayType.itemType.map((i) => i.typeName).at(0); // TODO REMOVE AT
+      // Union type
+      return arrayType.itemType.map((t) => t.typeName).join("|");
     }
     console.debug("getArrayItemTypeName -> Type name not found");
     return undefined;
   }
 
   public get isPrimitiveType(): boolean {
-    return FieldSchemaNode.definitions.primitiveTypes.has(this.typeRef);
+    return FieldSchemaNode.definitions.isPrimitiveType(this.typeRef);
+  }
+
+  public get isUnionType(): boolean {
+    return this.typeRef.includes("|");
   }
 
   public get isObjectType(): boolean {
@@ -412,4 +429,5 @@ export interface SchemaDefinitions {
   enums: Map<string, EnumSchemaNode>;
   specializations: Map<string, string>;
   primitiveTypes: Set<string>;
+  isPrimitiveType(typeName: string): boolean;
 }

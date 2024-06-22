@@ -46,7 +46,25 @@ export class GxFormat2CompletionService {
     const overwriteRange = textBuffer.getCurrentWordRange(offset);
     const position = textBuffer.getPosition(offset);
     const isPositionAfterColon = textBuffer.isPositionAfterToken(position, ":");
-    if (schemaNode instanceof RecordSchemaNode) {
+    if (schemaNode instanceof EnumSchemaNode) {
+      schemaNode.symbols
+        .filter((v) => v.startsWith(currentWord))
+        .forEach((value) => {
+          if (exclude.has(value)) return;
+          const item: CompletionItem = {
+            label: value,
+            sortText: `_${value}`,
+            kind: CompletionItemKind.EnumMember,
+            documentation: schemaNode.documentation,
+            insertText: value,
+            textEdit: {
+              range: overwriteRange,
+              newText: value,
+            },
+          };
+          result.push(item);
+        });
+    } else if (schemaNode instanceof RecordSchemaNode) {
       if (isPositionAfterColon) {
         return result; // Do not suggest fields inlined after colon
       }
@@ -84,27 +102,17 @@ export class GxFormat2CompletionService {
           result.push(item);
           return result;
         }
+      } else if (schemaNode.isUnionType) {
+        for (const typeRef of schemaNode.typeRefs) {
+          const typeNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(typeRef);
+          if (typeNode === undefined) continue;
+          result.push(...this.getProposedItems(typeNode, textBuffer, exclude, offset));
+        }
+        return result;
       }
+
       const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
-      if (schemaRecord instanceof EnumSchemaNode) {
-        schemaRecord.symbols
-          .filter((v) => v.startsWith(currentWord))
-          .forEach((value) => {
-            if (exclude.has(value)) return;
-            const item: CompletionItem = {
-              label: value,
-              sortText: `_${value}`,
-              kind: CompletionItemKind.EnumMember,
-              documentation: schemaRecord.documentation,
-              insertText: value,
-              textEdit: {
-                range: overwriteRange,
-                newText: value,
-              },
-            };
-            result.push(item);
-          });
-      } else if (schemaRecord instanceof RecordSchemaNode) {
+      if (schemaRecord) {
         return this.getProposedItems(schemaRecord, textBuffer, exclude, offset);
       }
     }
