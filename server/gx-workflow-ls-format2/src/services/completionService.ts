@@ -25,6 +25,12 @@ export class GxFormat2CompletionService {
     const offset = textBuffer.getOffsetAt(position);
     let node = nodeManager.getNodeFromOffset(offset);
 
+    if (node === undefined && !textBuffer.isEmpty()) {
+      // Do not suggest completions if we cannot find a node at the current position
+      // If the document is empty, we can still suggest the root properties
+      return Promise.resolve(result);
+    }
+
     const nodePath = nodeManager.getPathFromNode(node);
     let schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
     if (schemaNode === undefined) {

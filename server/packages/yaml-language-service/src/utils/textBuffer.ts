@@ -97,7 +97,7 @@ export class TextBuffer {
     return indentation;
   }
 
-  public findPreviousLineWithSameIndentation(offset: number, indentation: number): number {
+  public findPreviousLineWithSameIndentation(offset: number, indentation: number): number | undefined {
     const position = this.getPosition(offset);
     const indentationSpaces = " ".repeat(indentation);
     let currentLine = position.line - 1;
@@ -111,6 +111,9 @@ export class TextBuffer {
         currentLine--;
       }
     }
+    if (!found) {
+      return undefined;
+    }
     return currentLine;
   }
 
@@ -121,5 +124,9 @@ export class TextBuffer {
       return false; // No token found
     }
     return tokenIndex < position.character;
+  }
+
+  public isEmpty(): boolean {
+    return this.doc.getText().trim().length === 0;
   }
 }
