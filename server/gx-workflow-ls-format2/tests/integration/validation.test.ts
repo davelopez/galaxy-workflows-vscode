@@ -64,20 +64,49 @@ class: GalaxyWorkflow
     expect(diagnostics[2].message).toBe("The 'outputs' field is required.");
   });
 
-  it("should report error for invalid enum value", async () => {
+  it("should report error for invalid input type value", async () => {
     const content = `
 class: GalaxyWorkflow
 inputs:
     the_input:
-        type: unknown
+        type: 5
 outputs:
 steps:
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toBe(
-      "The value is not a valid 'GalaxyType'. Allowed values are: integer, text, File, data, collection, null, boolean, int, long, float, double, string."
+      "Type mismatch for field 'type'. Expected 'GalaxyType | string' but found 'number'."
     );
+  });
+
+  it("should report error for invalid enum value", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      type: unknown
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].message).toBe(
+      "The value is not a valid 'WorkflowStepType'. Allowed values are: tool, subworkflow, pause."
+    );
+  });
+
+  it("should not report error for valid enum value", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      type: tool
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(0);
   });
 
   it("should not report error for compatible primitive types", async () => {
@@ -108,7 +137,9 @@ steps:
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
-    expect(diagnostics[0].message).toContain("Type mismatch for field 'top'. Expected 'float' but found 'string'.");
+    expect(diagnostics[0].message).toContain(
+      "Type mismatch for field 'top'. Expected 'float | int' but found 'string'."
+    );
   });
 
   it("should not report error for properties with Any type", async () => {
@@ -121,6 +152,35 @@ steps:
       tool_state:
         value: "any value"
         another_value: 42
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("should not report error when multiple types are allowed (string)", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      out: a string
+    `;
+    const diagnostics = await validateDocument(content);
+    expect(diagnostics).toHaveLength(0);
+  });
+
+  it("should not report error when multiple types are allowed (object)", async () => {
+    const content = `
+class: GalaxyWorkflow
+inputs:
+outputs:
+steps:
+    step:
+      out:
+        add_tags:
+          - tag1
+          - tag2
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(0);
