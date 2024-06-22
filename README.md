@@ -1,9 +1,17 @@
 # Galaxy Workflows VSCode Extension
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davelopez/galaxy-workflows-vscode)
-[![CI](https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml/badge.svg)](https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml)
-[![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/davelopez/galaxy-workflows-vscode)
+<a href="https://opensource.org/licenses/MIT" style="margin-right: 5px;">
+   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-brightgreen.svg?link=https%3A%2F%2Fopensource.org%2Flicenses%2FMIT">
+</a>
+<a href="https://github.com/davelopez/galaxy-workflows-vscode/releases" style="margin-right: 5px;">
+   <img alt="GitHub Release" src="https://img.shields.io/github/v/release/davelopez/galaxy-workflows-vscode">
+</a>
+<a href="https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml" style="margin-right: 5px;">
+   <img alt="CI" src="https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml/badge.svg">
+</a>
+<a href="https://open.vscode.dev/davelopez/galaxy-workflows-vscode">
+   <img alt="Open in Visual Studio Code" src="https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc">
+</a>
 
 The **Galaxy Workflows VSCode extension** assists in editing [Galaxy](https://galaxyproject.org/) Workflow files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html). Use it in combination with [Planemo](https://github.com/galaxyproject/planemo) for an optimal experience in developing and maintaining your Galaxy workflows.
 
@@ -29,7 +37,9 @@ If you find a bug or have a suggestion to improve your experience, please create
 
 1. For example, open the IWC (_Intergalactic Workflow Commission_) repository on GitHub
 
-   [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20IWC%20repository%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/galaxyproject/iwc)
+   <a href="https://vscode.dev/github/galaxyproject/iwc">
+      <img alt="Open IWC repository in Visual Studio Code" src="https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20IWC%20repository%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/galaxyproject/iwc">
+   </a>
 
 2. Install the extension if you haven't already:
 
@@ -85,6 +95,7 @@ You will receive diagnostics for every syntax error or incorrect property value 
 #### Gxformat2 (yaml)
 
 ![Workflow Validation Demo](images/validation-gxformat2.gif)
+<img src=https://raw.githubusercontent.com/microsoft/vscode-python/main/images/InterpreterSelectionZoom.gif width=280 height=100>
 
 #### Legacy (ga)
 
