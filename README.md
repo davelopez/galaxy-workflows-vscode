@@ -1,9 +1,17 @@
 # Galaxy Workflows VSCode Extension
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/davelopez/galaxy-workflows-vscode)
-[![CI](https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml/badge.svg)](https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml)
-[![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/davelopez/galaxy-workflows-vscode)
+<a href="https://opensource.org/licenses/MIT" style="margin-right: 5px;">
+   <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-brightgreen.svg?link=https%3A%2F%2Fopensource.org%2Flicenses%2FMIT">
+</a>
+<a href="https://github.com/davelopez/galaxy-workflows-vscode/releases" style="margin-right: 5px;">
+   <img alt="GitHub Release" src="https://img.shields.io/github/v/release/davelopez/galaxy-workflows-vscode">
+</a>
+<a href="https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml" style="margin-right: 5px;">
+   <img alt="CI" src="https://github.com/davelopez/galaxy-workflows-vscode/actions/workflows/main.yml/badge.svg">
+</a>
+<a href="https://open.vscode.dev/davelopez/galaxy-workflows-vscode">
+   <img alt="Open in Visual Studio Code" src="https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc">
+</a>
 
 The **Galaxy Workflows VSCode extension** assists in editing [Galaxy](https://galaxyproject.org/) Workflow files while enforcing [best practices](https://planemo.readthedocs.io/en/latest/best_practices_workflows.html). Use it in combination with [Planemo](https://github.com/galaxyproject/planemo) for an optimal experience in developing and maintaining your Galaxy workflows.
 
@@ -29,7 +37,9 @@ If you find a bug or have a suggestion to improve your experience, please create
 
 1. For example, open the IWC (_Intergalactic Workflow Commission_) repository on GitHub
 
-   [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20IWC%20repository%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/galaxyproject/iwc)
+   <a href="https://vscode.dev/github/galaxyproject/iwc">
+      <img alt="Open IWC repository in Visual Studio Code" src="https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20IWC%20repository%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://vscode.dev/github/galaxyproject/iwc">
+   </a>
 
 2. Install the extension if you haven't already:
 
@@ -84,11 +94,11 @@ You will receive diagnostics for every syntax error or incorrect property value 
 
 #### Gxformat2 (yaml)
 
-![Workflow Validation Demo](images/validation-gxformat2.gif)
+<img alt="Workflow Validation Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/validation-gxformat2.gif" width=1215 height=auto>
 
 #### Legacy (ga)
 
-![Workflow Validation Demo](images/validation-native.gif)
+<img alt="Workflow Validation Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/validation-native.gif" width=1024 height=auto>
 
 [Back to Features ⬆️](#features)
 
@@ -98,11 +108,11 @@ Hover over properties to get a description of what they are and how to use them.
 
 #### Gxformat2 (yaml)
 
-![Documentation on Hover Demo](images/doc-hover-gxformat2.gif)
+<img alt="Documentation on Hover Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/doc-hover-gxformat2.gif" width=877 height=auto>
 
 #### Legacy (ga)
 
-![Documentation on Hover Demo](images/doc-hover-native.gif)
+<img alt="Documentation on Hover Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/doc-hover-native.gif" width=699 height=auto>
 
 [Back to Features ⬆️](#features)
 
@@ -112,11 +122,11 @@ Get [IntelliSense](https://code.visualstudio.com/docs/editor/intellisense#:~:tex
 
 #### Gxformat2 (yaml)
 
-![IntelliSense Demo](images/intellisense-gxformat2.gif)
+<img alt="IntelliSense Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/intellisense-gxformat2.gif" width=760 height=auto>
 
 #### Legacy (ga)
 
-![IntelliSense Demo](images/intellisense-native.gif)
+<img alt="IntelliSense Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/intellisense-native.gif" width=785 height=auto>
 
 [Back to Features ⬆️](#features)
 
@@ -126,11 +136,11 @@ Keep your workflow document consistently formatted. We recommend enabling the VS
 
 #### Gxformat2 (yaml)
 
-![Auto Formatting Demo](images/format-document-gxformat2.gif)
+<img alt="Auto Formatting Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/format-document-gxformat2.gif" width=759 height=auto>
 
 #### Legacy (ga)
 
-![Auto Formatting Demo](images/format-document-native.gif)
+<img alt="Auto Formatting Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/format-document-native.gif" width=1024 height=auto>
 
 [Back to Features ⬆️](#features)
 
@@ -140,11 +150,11 @@ The `Custom Outline` allows you to navigate and find different parts of the Work
 
 #### Gxformat2 (yaml)
 
-![Custom Outline Demo](images/custom-outline-gxformat2.gif)
+<img alt="Custom Outline Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/custom-outline-gxformat2.gif" width=1255 height=auto>
 
 #### Legacy (ga)
 
-![Custom Outline Demo](images/custom-outline-native.gif)
+<img alt="Custom Outline Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/custom-outline-native.gif" width=1024 height=auto>
 
 [Back to Features ⬆️](#features)
 
@@ -154,7 +164,7 @@ You can clean up the non-essential properties of a (legacy .ga) workflow with th
 
 #### Legacy (ga)
 
-![Cleanup Command Demo](images/clean-up-command-native.gif)
+<img alt="Cleanup Command Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/clean-up-command-native.gif" width=1024 height=auto>
 
 [Back to Features ⬆️](#features)
 
@@ -169,12 +179,12 @@ Sometimes you want to compare different revisions of the same (legacy .ga) workf
 
 #### Legacy (ga)
 
-![Simplified Workflow Diffs Demo](images/clean-diff-native.gif)
+<img alt="Simplified Workflow Diffs Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/clean-diff-native.gif" width=1317 height=auto>
 
 ### Workflow Tests Document Support
 
 You can now edit Workflow Test Files (`*-test.yml`) with basic language support. This includes syntax highlighting, validation, auto-completion, and documentation on hover based on the _experimental_ schema for Workflow Test Files.
 
-![Workflow Tests Document Support Demo](images/workflow-test-documents-support.gif)
+<img alt="Workflow Tests Document Support Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/workflow-test-documents-support.gif" width=1315 height=auto>
 
 [Back to Features ⬆️](#features)
