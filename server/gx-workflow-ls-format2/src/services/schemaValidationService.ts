@@ -1,5 +1,5 @@
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
-import { ASTNode, ObjectASTNode, StringASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNode, ObjectASTNode, PropertyASTNode, StringASTNode } from "@gxwf/server-common/src/ast/types";
 import {
   Diagnostic,
   DiagnosticSeverity,
@@ -7,8 +7,9 @@ import {
   WorkflowDocument,
   WorkflowValidator,
 } from "@gxwf/server-common/src/languageTypes";
+import { isSimpleType } from "@gxwf/server-common/src/utils";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
-import { EnumSchemaNode, IdMapper, RecordSchemaNode } from "../schema/definitions";
+import { EnumSchemaNode, FieldSchemaNode, IdMapper, RecordSchemaNode } from "../schema/definitions";
 
 export class GxFormat2SchemaValidationService implements WorkflowValidator {
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
@@ -89,8 +90,10 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
           Diagnostic.create(range, `The '${schemaFieldNode.name}' field is required.`, DiagnosticSeverity.Error)
         );
       }
-      if (nodeFound) {
-        if (schemaFieldNode.isPrimitiveType && propertyNode?.valueNode?.type) {
+      if (nodeFound && propertyNode?.valueNode?.type) {
+        const isPropertyTypeSimple = isSimpleType(propertyNode.valueNode.type);
+        // Primitive type validation
+        if (schemaFieldNode.isPrimitiveType && isPropertyTypeSimple) {
           if (!schemaFieldNode.matchesType(propertyNode.valueNode.type)) {
             diagnostics.push(
               Diagnostic.create(
@@ -100,9 +103,30 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
               )
             );
           }
+          return;
         }
+
+        // Union type validation
+        if (schemaFieldNode.isUnionType) {
+          if (isPropertyTypeSimple) {
+            const hasMatchingType = this.propetyTypeMatchesAnyPrimitiveRef(schemaFieldNode, propertyNode);
+            if (!hasMatchingType) {
+              diagnostics.push(
+                Diagnostic.create(
+                  range,
+                  `Type mismatch for field '${schemaFieldNode.name}'. Expected '${schemaFieldNode.typeRefs.join(
+                    " | "
+                  )}' but found '${propertyNode.valueNode.type}'.`,
+                  DiagnosticSeverity.Error
+                )
+              );
+            }
+            return;
+          }
+        }
+
         const childSchemaNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaFieldNode.typeRef);
-        if (childSchemaNode && propertyNode.valueNode) {
+        if (childSchemaNode) {
           if (schemaFieldNode.canBeArray) {
             propertyNode.valueNode.children?.forEach((item) => {
               if (item.type === "property" && item.valueNode) {
@@ -115,6 +139,19 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
         }
       }
     });
+  }
+
+  private propetyTypeMatchesAnyPrimitiveRef(schemaFieldNode: FieldSchemaNode, propertyNode: PropertyASTNode): boolean {
+    let matchesSomeType = false;
+    const possibleTypes = schemaFieldNode.typeRefs;
+    for (const schemaFieldType of possibleTypes) {
+      const isPrimitive = this.schemaNodeResolver.definitions.isPrimitiveType(schemaFieldType);
+      if (isPrimitive && propertyNode.valueNode && schemaFieldNode.matchesType(propertyNode.valueNode.type)) {
+        matchesSomeType = true;
+        break;
+      }
+    }
+    return matchesSomeType;
   }
 
   private validateNodeTypeDefinition(
