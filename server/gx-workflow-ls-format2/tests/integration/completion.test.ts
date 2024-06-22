@@ -110,6 +110,45 @@ in$
     expect(completions?.items[0].label).toBe("inputs");
   });
 
+  it("should not suggest any properties when defining new workflow inputs", async () => {
+    const template = `
+class: GalaxyWorkflow
+inputs:
+  $
+`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items.length).toBe(0);
+  });
+
+  it("should not suggest any properties when defining new workflow outputs", async () => {
+    const template = `
+class: GalaxyWorkflow
+outputs:
+  $
+`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items.length).toBe(0);
+  });
+
+  it("should not suggest any properties when defining new workflow steps", async () => {
+    const template = `
+class: GalaxyWorkflow
+steps:
+  $
+`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items.length).toBe(0);
+  });
+
   it("should not suggest property completions inlined with the definition", async () => {
     const template = `
 class: GalaxyWorkflow
