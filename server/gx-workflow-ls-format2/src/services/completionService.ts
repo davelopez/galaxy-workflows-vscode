@@ -6,6 +6,12 @@ import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } fro
 import { EnumSchemaNode } from "../schema/definitions";
 
 export class GxFormat2CompletionService {
+  /**
+   * Schema references that should be ignored when suggesting completions.
+   * These are typically user-defined names and we cannot suggest completions for them.
+   */
+  private readonly ignoredSchemaRefs = new Set(["InputParameter", "OutputParameter", "WorkflowStep"]);
+
   constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
 
   public doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
@@ -108,6 +114,10 @@ export class GxFormat2CompletionService {
           if (typeNode === undefined) continue;
           result.push(...this.getProposedItems(typeNode, textBuffer, exclude, offset));
         }
+        return result;
+      }
+
+      if (this.ignoredSchemaRefs.has(schemaNode.typeRef)) {
         return result;
       }
 
