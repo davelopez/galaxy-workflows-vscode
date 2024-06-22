@@ -32,8 +32,21 @@ export class SchemaNodeResolverImpl implements SchemaNodeResolver {
       if (currentSchemaNode instanceof RecordSchemaNode) {
         currentSchemaNode = currentSchemaNode.fields.find((f) => f.name === currentSegment);
       } else if (currentSchemaNode instanceof FieldSchemaNode) {
-        const typeNode = this.getSchemaNodeByTypeRef(currentSchemaNode.typeRef);
-        currentSchemaNode = typeNode;
+        if (currentSchemaNode.isUnionType) {
+          for (const typeRef of currentSchemaNode.typeRefs) {
+            const resolvedNode = this.getSchemaNodeByTypeRef(typeRef);
+            if (resolvedNode instanceof RecordSchemaNode) {
+              const matchedField = resolvedNode.fields.find((f) => f.name === currentSegment);
+              if (matchedField) {
+                currentSchemaNode = matchedField;
+                break;
+              }
+            }
+          }
+        } else {
+          const typeNode = this.getSchemaNodeByTypeRef(currentSchemaNode.typeRef);
+          currentSchemaNode = typeNode;
+        }
       }
       currentSegment = toWalk.shift();
     }
