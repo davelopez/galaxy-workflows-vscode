@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.0] - 2024-06-22
+
+### Added
+
+- Add validation rule to IWC profile to check all steps are documented [#79](https://github.com/davelopez/galaxy-workflows-vscode/pull/79)
+- Handle union types in Format2 Schema [#76](https://github.com/davelopez/galaxy-workflows-vscode/pull/76)
+
+### Changed
+
+- Improve validation profiles [#71](https://github.com/davelopez/galaxy-workflows-vscode/pull/71)
+- Improve symbols provider [#70](https://github.com/davelopez/galaxy-workflows-vscode/pull/70)
+- Improve document detection [#69](https://github.com/davelopez/galaxy-workflows-vscode/pull/69)
+
+### Fixed
+
+- Fix some completion edge cases in Format2 [#78](https://github.com/davelopez/galaxy-workflows-vscode/pull/78)
+- Ignore auto-complete suggestions for some schema elements in Format2 [#77](https://github.com/davelopez/galaxy-workflows-vscode/pull/77)
+- Fix Format2 validation for Any type [#75](https://github.com/davelopez/galaxy-workflows-vscode/pull/75)
+- Fix Format2 compatible primitive types validation [#74](https://github.com/davelopez/galaxy-workflows-vscode/pull/74)
+- Fix duplicated document cache on remote GitHub repositories [#73](https://github.com/davelopez/galaxy-workflows-vscode/pull/73)
+- Fix step export error validation rule [#72](https://github.com/davelopez/galaxy-workflows-vscode/pull/72)
+
 ## [0.4.0] - 2024-06-02
 
 ### Added
