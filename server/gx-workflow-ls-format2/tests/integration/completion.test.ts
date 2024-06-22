@@ -354,4 +354,30 @@ report:
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
   });
+
+  it("should not suggest properties when the type of the property is 'Any'", async () => {
+    const template = `
+class: GalaxyWorkflow
+creator:
+  $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
+  });
+
+  it("should not suggest any properties when the indent is not correct", async () => {
+    const template = `
+class: GalaxyWorkflow
+inputs:
+  My input:
+      $`; // Incorrect indent
+
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
+  });
 });

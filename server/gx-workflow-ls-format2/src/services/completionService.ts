@@ -25,6 +25,12 @@ export class GxFormat2CompletionService {
     const offset = textBuffer.getOffsetAt(position);
     let node = nodeManager.getNodeFromOffset(offset);
 
+    if (node === undefined && !textBuffer.isEmpty()) {
+      // Do not suggest completions if we cannot find a node at the current position
+      // If the document is empty, we can still suggest the root properties
+      return Promise.resolve(result);
+    }
+
     const nodePath = nodeManager.getPathFromNode(node);
     let schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
     if (schemaNode === undefined) {
@@ -53,6 +59,8 @@ export class GxFormat2CompletionService {
     const position = textBuffer.getPosition(offset);
     const isPositionAfterColon = textBuffer.isPositionAfterToken(position, ":");
     if (schemaNode instanceof EnumSchemaNode) {
+      if (schemaNode.canBeAny) return result;
+
       schemaNode.symbols
         .filter((v) => v.startsWith(currentWord))
         .forEach((value) => {

@@ -111,6 +111,7 @@ export class YAMLDocument implements ParsedDocument {
     if (indentation === 0) return this.root;
     const parentIndentation = Math.max(0, indentation - this._indentation);
     const parentLine = this._textBuffer.findPreviousLineWithSameIndentation(offset, parentIndentation);
+    if (parentLine === undefined) return undefined;
     const parentOffset = this._textBuffer.getOffsetAt(Position.create(parentLine, parentIndentation));
 
     const rootNode = this.root as ObjectASTNodeImpl;

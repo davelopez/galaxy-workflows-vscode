@@ -195,12 +195,16 @@ export class EnumSchemaNode implements SchemaNode {
     return false;
   }
 
+  public get canBeAny(): boolean {
+    return this.name === "Any";
+  }
+
   public get typeRef(): string {
     return this._schemaEnum.name;
   }
 
   public matchesType(typeName: string): boolean {
-    return this.name === "Any" || this.symbols.includes(typeName);
+    return this.canBeAny || this.symbols.includes(typeName);
   }
 
   //Override toString for debugging purposes
