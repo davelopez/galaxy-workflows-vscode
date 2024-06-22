@@ -36,7 +36,7 @@ export class GxFormat2IWCValidationProfile extends IWCCommonValidationProfile {
     new RequiredPropertyValidationRule(
       "doc",
       true,
-      DiagnosticSeverity.Error,
+      DiagnosticSeverity.Warning,
       "The workflow is not documented. Documenting workflows helps users understand the purpose of the workflow."
     ),
     new InputTypeValidationRule(DiagnosticSeverity.Error),

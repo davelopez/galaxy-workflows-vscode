@@ -47,13 +47,13 @@ export class IWCCommonValidationProfile implements ValidationProfile {
     new RequiredPropertyValidationRule(
       "creator",
       true,
-      DiagnosticSeverity.Error,
+      DiagnosticSeverity.Warning,
       "The workflow does not specify a creator."
     ),
     new RequiredPropertyValidationRule(
       "license",
       true,
-      DiagnosticSeverity.Error,
+      DiagnosticSeverity.Warning,
       "The workflow does not specify a license."
     ),
     // Add more common rules here...
