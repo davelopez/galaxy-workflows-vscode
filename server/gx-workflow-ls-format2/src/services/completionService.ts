@@ -53,6 +53,8 @@ export class GxFormat2CompletionService {
     const position = textBuffer.getPosition(offset);
     const isPositionAfterColon = textBuffer.isPositionAfterToken(position, ":");
     if (schemaNode instanceof EnumSchemaNode) {
+      if (schemaNode.canBeAny) return result;
+
       schemaNode.symbols
         .filter((v) => v.startsWith(currentWord))
         .forEach((value) => {
