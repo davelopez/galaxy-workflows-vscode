@@ -33,7 +33,7 @@ export class NativeIWCValidationProfile extends IWCCommonValidationProfile {
     new RequiredPropertyValidationRule(
       "annotation",
       true,
-      DiagnosticSeverity.Error,
+      DiagnosticSeverity.Warning,
       "The workflow is not annotated. Annotating workflows helps users understand the purpose of the workflow."
     ),
     new WorkflowOutputLabelValidationRule(DiagnosticSeverity.Error),

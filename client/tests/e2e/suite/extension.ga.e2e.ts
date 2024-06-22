@@ -59,12 +59,12 @@ suite("Native (JSON) Workflows", () => {
         {
           message: "The workflow does not specify a creator.",
           range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1)),
-          severity: vscode.DiagnosticSeverity.Error,
+          severity: vscode.DiagnosticSeverity.Warning,
         },
         {
           message: "The workflow does not specify a license.",
           range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 1)),
-          severity: vscode.DiagnosticSeverity.Error,
+          severity: vscode.DiagnosticSeverity.Warning,
         },
         {
           message: "Missing label in workflow output.",

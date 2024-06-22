@@ -1,5 +1,8 @@
 import { Diagnostic, ValidationRule } from "@gxwf/server-common/src/languageTypes";
-import { StepExportErrorValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import {
+  ChildrenRequiredPropertyValidationRule,
+  StepExportErrorValidationRule,
+} from "@gxwf/server-common/src/providers/validation/rules";
 import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
 import { GxFormat2SchemaValidationService } from "../../src/services/schemaValidationService";
 import { InputTypeValidationRule } from "../../src/validation/rules/InputTypeValidationRule";
@@ -269,6 +272,69 @@ steps:
     step:
         tool_id: tool_id
         errors: null
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(0);
+      });
+    });
+
+    describe("ChildrenRequiredPropertyValidationRule", () => {
+      beforeAll(() => {
+        rule = new ChildrenRequiredPropertyValidationRule("steps", "doc");
+      });
+
+      it("should report error when step is missing required property", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    step:
+        tool_id: tool_id
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing required property "doc".');
+      });
+
+      it("should not report error when all steps have required property", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    step:
+        tool_id: tool_id
+        doc: step doc
+    step2:
+        tool_id: tool_id
+        doc: step2 doc
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should report error when step has empty required property", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    step:
+        tool_id: tool_id
+        doc:
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0].message).toBe('Missing required value in property "doc".');
+      });
+
+      it("should not report error when there are no steps", async () => {
+        const content = `
+class: GalaxyWorkflow
+steps:
+    `;
+        const diagnostics = await validateRule(content);
+        expect(diagnostics).toHaveLength(0);
+      });
+
+      it("should not report error when the steps property does not exist", async () => {
+        const content = `
+class: GalaxyWorkflow
     `;
         const diagnostics = await validateRule(content);
         expect(diagnostics).toHaveLength(0);

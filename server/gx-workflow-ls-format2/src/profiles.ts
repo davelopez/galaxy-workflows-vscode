@@ -3,7 +3,10 @@ import {
   BasicCommonValidationProfile,
   IWCCommonValidationProfile,
 } from "@gxwf/server-common/src/providers/validation/profiles";
-import { RequiredPropertyValidationRule } from "@gxwf/server-common/src/providers/validation/rules";
+import {
+  ChildrenRequiredPropertyValidationRule,
+  RequiredPropertyValidationRule,
+} from "@gxwf/server-common/src/providers/validation/rules";
 import { InputTypeValidationRule } from "./validation/rules/InputTypeValidationRule";
 
 /**
@@ -33,10 +36,18 @@ export class GxFormat2IWCValidationProfile extends IWCCommonValidationProfile {
     new RequiredPropertyValidationRule(
       "doc",
       true,
-      DiagnosticSeverity.Error,
+      DiagnosticSeverity.Warning,
       "The workflow is not documented. Documenting workflows helps users understand the purpose of the workflow."
     ),
     new InputTypeValidationRule(DiagnosticSeverity.Error),
+    new ChildrenRequiredPropertyValidationRule(
+      "steps",
+      "doc",
+      true,
+      DiagnosticSeverity.Warning,
+      "The step is not documented. Documenting steps helps users understand the purpose of the step."
+    ),
+
     // Add more custom rules specific to gxformat2 workflows here...
   ]);
 
