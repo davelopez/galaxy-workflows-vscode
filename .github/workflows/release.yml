@@ -15,7 +15,7 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        uses: battila7/get-version-action@v2
+        uses: jannemattila/get-version-from-tag@v3
 
       - name: Create Release
         id: create_release
@@ -32,12 +32,12 @@ jobs:
 
             You can also manually install the extension by downloading the VSIX package included in this release and then running:
             ```
-            code --install-extension galaxy-workflows-${{ steps.get_version.outputs.version-without-v }}.vsix
+            code --install-extension galaxy-workflows-${{ steps.get_version.outputs.version }}.vsix
             ```
           draft: false
           prerelease: false
     outputs:
-      release_version: ${{ steps.get_version.outputs.version-without-v }}
+      release_version: ${{ steps.get_version.outputs.version }}
       release_upload_url: ${{ steps.create_release.outputs.upload_url }}
 
   publish_release:
