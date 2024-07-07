@@ -1,5 +1,10 @@
 import { CompletionList } from "@gxwf/server-common/src/languageTypes";
-import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
+import {
+  FAKE_TOOLS,
+  FAKE_TOOLSHED_SERVICE,
+  getCompletionItemsLabels,
+  parseTemplate,
+} from "@gxwf/server-common/tests/testHelpers";
 
 import "reflect-metadata";
 import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
@@ -10,7 +15,7 @@ describe("Format2 Workflow Completion Service", () => {
   let service: GxFormat2CompletionService;
   beforeAll(() => {
     const schemaNodeResolver = new GalaxyWorkflowFormat2SchemaLoader().nodeResolver;
-    service = new GxFormat2CompletionService(schemaNodeResolver);
+    service = new GxFormat2CompletionService(schemaNodeResolver, FAKE_TOOLSHED_SERVICE);
   });
 
   async function getCompletions(
@@ -374,6 +379,34 @@ inputs:
   My input:
       $`; // Incorrect indent
 
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
+  });
+
+  it("should suggest toolshed tools when the cursor is inside the `tool_id` property and there is at least one character", async () => {
+    const template = `
+class: GalaxyWorkflow
+steps:
+  my_step:
+    tool_id: t$`;
+    const EXPECTED_COMPLETION_LABELS = FAKE_TOOLS.map((tool) => tool.id);
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    const completionLabels = getCompletionItemsLabels(completions);
+    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
+  });
+
+  it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and there is no character", async () => {
+    const template = `
+class: GalaxyWorkflow
+steps:
+  my_step:
+    tool_id: $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
