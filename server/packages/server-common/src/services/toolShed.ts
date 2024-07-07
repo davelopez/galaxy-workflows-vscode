@@ -27,9 +27,10 @@ interface ToolShedResponse {
 
 @injectable()
 export class ToolshedServiceImpl implements ToolshedService {
+  private readonly limit = 5;
   public async searchTools(query: string): Promise<ToolInfo[]> {
     try {
-      const response = await fetch(`${TOOLSHED_URL}/api/tools?q=${query}&page_size=5`);
+      const response = await fetch(`${toolshedUrl}/api/tools?q=${query}&page_size=${this.limit}`);
       const json = (await response.json()) as ToolShedResponse;
       const hits = json.hits;
       return hits.map((hit) => {
