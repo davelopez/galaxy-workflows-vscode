@@ -1,5 +1,13 @@
 import { ASTNode } from "@gxwf/server-common/src/ast/types";
-import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
+import {
+  CompletionItem,
+  CompletionItemKind,
+  CompletionList,
+  Position,
+  Range,
+  ToolInfo,
+  ToolshedService,
+} from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
@@ -12,9 +20,12 @@ export class GxFormat2CompletionService {
    */
   private readonly ignoredSchemaRefs = new Set(["InputParameter", "OutputParameter", "WorkflowStep"]);
 
-  constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
+  constructor(
+    protected readonly schemaNodeResolver: SchemaNodeResolver,
+    protected readonly toolshedService: ToolshedService
+  ) {}
 
-  public doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
+  public async doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
     const textDocument = documentContext.textDocument;
     const nodeManager = documentContext.nodeManager;
     const result: CompletionList = {
@@ -42,17 +53,17 @@ export class GxFormat2CompletionService {
     }
     if (schemaNode) {
       const existing = nodeManager.getDeclaredPropertyNames(node);
-      result.items = this.getProposedItems(schemaNode, textBuffer, existing, offset);
+      result.items = await this.getProposedItems(schemaNode, textBuffer, existing, offset);
     }
     return Promise.resolve(result);
   }
 
-  private getProposedItems(
+  private async getProposedItems(
     schemaNode: SchemaNode,
     textBuffer: TextBuffer,
     exclude: Set<string>,
     offset: number
-  ): CompletionItem[] {
+  ): Promise<CompletionItem[]> {
     const result: CompletionItem[] = [];
     const currentWord = textBuffer.getCurrentWord(offset);
     const overwriteRange = textBuffer.getCurrentWordRange(offset);
@@ -116,11 +127,20 @@ export class GxFormat2CompletionService {
           result.push(item);
           return result;
         }
+        if (schemaNode.name === "tool_id") {
+          if (currentWord) {
+            const tools = await this.toolshedService.searchTools(currentWord);
+            for (const tool of tools) {
+              const item: CompletionItem = this.buildCompletionItemFromTool(tool, overwriteRange);
+              result.push(item);
+            }
+          }
+        }
       } else if (schemaNode.isUnionType) {
         for (const typeRef of schemaNode.typeRefs) {
           const typeNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(typeRef);
           if (typeNode === undefined) continue;
-          result.push(...this.getProposedItems(typeNode, textBuffer, exclude, offset));
+          result.push(...(await this.getProposedItems(typeNode, textBuffer, exclude, offset)));
         }
         return result;
       }
@@ -135,6 +155,21 @@ export class GxFormat2CompletionService {
       }
     }
     return result;
+  }
+
+  private buildCompletionItemFromTool(tool: ToolInfo, overwriteRange: Range): CompletionItem {
+    const toolEntry = tool.url.replace("https://", "");
+    const item: CompletionItem = {
+      label: tool.id,
+      kind: CompletionItemKind.Value,
+      documentation: tool.description,
+      insertText: toolEntry,
+      textEdit: {
+        range: overwriteRange,
+        newText: toolEntry,
+      },
+    };
+    return item;
   }
 }
 
