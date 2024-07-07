@@ -2,6 +2,8 @@ import { ASTNode, PropertyASTNode } from "../src/ast/types";
 import {
   CompletionItem,
   CompletionList,
+  ToolInfo,
+  ToolshedService,
   WorkflowDataProvider,
   WorkflowInput,
   WorkflowOutput,
@@ -125,5 +127,34 @@ export const FAKE_WORKFLOW_DATA_PROVIDER: WorkflowDataProvider = {
     return {
       outputs: EXPECTED_WORKFLOW_OUTPUTS,
     };
+  },
+};
+
+export function createFakeToolInfo(
+  id: string,
+  name?: string,
+  description?: string,
+  owner: string = "fakeowner",
+  repo: string = "fakerepo"
+): ToolInfo {
+  return {
+    id,
+    name: name ?? `Tool ${id}`,
+    description: description ?? `This is a tool description for tool ${id}.`,
+    owner,
+    repository: repo,
+    url: `https://toolshed.testing.fake/repos/${owner}/${repo}/${id}`,
+  };
+}
+
+export const FAKE_TOOLS: ToolInfo[] = [];
+for (let i = 1; i < 3; i++) {
+  const num = `${i}`.padStart(3, "0");
+  FAKE_TOOLS.push(createFakeToolInfo(`tool${num}`));
+}
+
+export const FAKE_TOOLSHED_SERVICE: ToolshedService = {
+  async searchTools(_query: string) {
+    return FAKE_TOOLS;
   },
 };

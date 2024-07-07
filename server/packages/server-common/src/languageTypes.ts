@@ -298,6 +298,19 @@ export interface WorkflowDataProvider {
   getWorkflowOutputs(workflowDocumentUri: string): Promise<GetWorkflowOutputsResult>;
 }
 
+export interface ToolInfo {
+  id: string;
+  name: string;
+  description: string;
+  owner: string;
+  repository: string;
+  url: string;
+}
+
+export interface ToolshedService {
+  searchTools(query: string): Promise<ToolInfo[]>;
+}
+
 const TYPES = {
   DocumentsCache: Symbol.for("DocumentsCache"),
   ConfigService: Symbol.for("ConfigService"),
@@ -307,6 +320,7 @@ const TYPES = {
   GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
   WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
   SymbolsProvider: Symbol.for("SymbolsProvider"),
+  ToolshedService: Symbol.for("ToolshedService"),
 };
 
 export { TYPES };
