@@ -413,4 +413,17 @@ steps:
 
     expect(completions?.items).toHaveLength(0);
   });
+
+  it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and the current word contains slashes", async () => {
+    const template = `
+class: GalaxyWorkflow
+steps:
+  my_step:
+    tool_id: toolshed/owner/repo/tool$`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+
+    expect(completions?.items).toHaveLength(0);
+  });
 });
