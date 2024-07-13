@@ -124,6 +124,12 @@
               "Stricter validation to comply with the `Intergalactic Workflow Commission` best practices."
             ],
             "default": "basic"
+          },
+          "galaxyWorkflows.toolshed.url": {
+            "markdownDescription": "The URL of the Galaxy Toolshed to use for tool resolution.",
+            "scope": "resource",
+            "type": "string",
+            "default": "https://toolshed.g2.bx.psu.edu"
           }
         }
       }

@@ -11,6 +11,7 @@ import { TYPES } from "./languageTypes";
 interface ExtensionSettings {
   cleaning: CleaningSettings;
   validation: ValidationSettings;
+  toolshed: Toolshed;
 }
 
 /** Contains settings for workflow cleaning. */
@@ -29,12 +30,21 @@ interface ValidationSettings {
   profile: "basic" | "iwc";
 }
 
+/** Contains settings for the Toolshed service. */
+interface Toolshed {
+  /** The URL of the Toolshed to fetch information about tools. */
+  url: string;
+}
+
 const defaultSettings: ExtensionSettings = {
   cleaning: {
     cleanableProperties: ["position", "uuid", "errors", "version"],
   },
   validation: {
     profile: "basic",
+  },
+  toolshed: {
+    url: "https://toolshed.g2.bx.psu.edu",
   },
 };
 
