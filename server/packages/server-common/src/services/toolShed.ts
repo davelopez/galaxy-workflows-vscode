@@ -1,7 +1,7 @@
-import { injectable } from "inversify";
-import { ToolInfo, ToolshedService } from "../languageTypes";
-
-const TOOLSHED_URL = "https://toolshed.g2.bx.psu.edu";
+import { inject, injectable } from "inversify";
+import { ConfigService } from "../configService";
+import { TYPES, ToolInfo, ToolshedService } from "../languageTypes";
+import { getResponseErrorMessage } from "../utils";
 
 interface ToolShedResponse {
   total_results: string;
@@ -27,12 +27,25 @@ interface ToolShedResponse {
 
 @injectable()
 export class ToolshedServiceImpl implements ToolshedService {
-  private readonly limit = 5;
-  public async searchTools(query: string): Promise<ToolInfo[]> {
+  constructor(@inject(TYPES.ConfigService) public readonly configService: ConfigService) {}
+
+  public async searchTools(query: string, limit = 5): Promise<ToolInfo[]> {
+    const settings = await this.configService.getDocumentSettings();
+    const toolshedUrl = settings.toolshed.url;
+
     try {
-      const response = await fetch(`${toolshedUrl}/api/tools?q=${query}&page_size=${this.limit}`);
+      const whooshQueryById = `id:${query}`;
+      const response = await fetch(`${toolshedUrl}/api/tools?q=${whooshQueryById}&page_size=${limit}`);
+
+      if (!response.ok) {
+        const error = await getResponseErrorMessage(response);
+        console.error(`Error fetching tools from the toolshed at '${toolshedUrl}'`, error);
+        return [];
+      }
+
       const json = (await response.json()) as ToolShedResponse;
       const hits = json.hits;
+
       return hits.map((hit) => {
         const tool = hit.tool;
         return {
@@ -41,11 +54,11 @@ export class ToolshedServiceImpl implements ToolshedService {
           description: tool.description,
           owner: tool.repo_owner_username,
           repository: tool.repo_name,
-          url: `${TOOLSHED_URL}/repos/${tool.repo_owner_username}/${tool.repo_name}/${tool.id}`,
+          url: `${toolshedUrl}/repos/${tool.repo_owner_username}/${tool.repo_name}/${tool.id}`,
         };
       });
     } catch (error) {
-      console.error("Error fetching tools from the toolshed", error);
+      console.error(`Error fetching tools from the toolshed at '${toolshedUrl}'`, error);
       return [];
     }
   }

@@ -57,3 +57,18 @@ export function isSimpleType(type?: string): boolean {
   }
   return SIMPLE_TYPES.includes(type);
 }
+
+/**
+ * Extract the error message from a fetch response.
+ * @param response The fetch response.
+ * @returns The error message.
+ */
+export async function getResponseErrorMessage(response: Response): Promise<string> {
+  const contentType = response.headers.get("content-type");
+  if (contentType && contentType.includes("application/json")) {
+    const json = await response.json();
+    return JSON.stringify(json) || response.statusText;
+  }
+  const text = await response.text();
+  return text || response.statusText;
+}
