@@ -86,8 +86,10 @@ export class ToolshedServiceImpl implements ToolshedService {
     let validatedUrl: URL;
     try {
       validatedUrl = new URL(settings.toolshed.url);
-    } catch (error) {
-      throw new Error(`Invalid Toolshed URL in settings: '${settings.toolshed.url}' - ${error}`);
+    } catch {
+      throw new Error(
+        `Invalid Toolshed URL: '${settings.toolshed.url}'. Please provide a valid URL for the setting 'galaxyWorkflows.toolshed.url'.`
+      );
     }
     return validatedUrl;
   }
