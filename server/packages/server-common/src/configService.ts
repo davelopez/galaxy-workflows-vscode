@@ -46,9 +46,11 @@ const documentSettingsCache: Map<string, ExtensionSettings> = new Map();
 export interface ConfigService {
   readonly connection: Connection;
   initialize(capabilities: ClientCapabilities, onConfigurationChanged: () => void): void;
-  getDocumentSettings(uri: string): Promise<ExtensionSettings>;
+  getDocumentSettings(uri?: string): Promise<ExtensionSettings>;
   onDocumentClose(uri: string): void;
 }
+
+const sectionName = "galaxyWorkflows";
 
 @injectable()
 export class ConfigServiceImpl implements ConfigService {
@@ -67,15 +69,20 @@ export class ConfigServiceImpl implements ConfigService {
     this.hasConfigurationCapability = !!(capabilities.workspace && !!capabilities.workspace.configuration);
   }
 
-  public async getDocumentSettings(uri: string): Promise<ExtensionSettings> {
+  public async getDocumentSettings(uri?: string): Promise<ExtensionSettings> {
     if (!this.hasConfigurationCapability) {
       return Promise.resolve(globalSettings);
     }
+
+    if (!uri) {
+      return await this.connection.workspace.getConfiguration(sectionName);
+    }
+
     let result = documentSettingsCache.get(uri);
     if (!result) {
       result = await this.connection.workspace.getConfiguration({
         scopeUri: uri,
-        section: "galaxyWorkflows",
+        section: sectionName,
       });
       result = result || globalSettings;
       this.addToDocumentConfigCache(uri, result);
