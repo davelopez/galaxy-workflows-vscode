@@ -307,8 +307,17 @@ export interface ToolInfo {
   url: string;
 }
 
+/**
+ * Interface for a service that can provide information about tools from the Toolshed.
+ */
 export interface ToolshedService {
-  searchTools(query: string): Promise<ToolInfo[]>;
+  /**
+   * Searches for tools by their approximate ID.
+   * @param toolId The ID of the tool to search for. Doesn't have to be an exact match.
+   * @param limit The maximum number of tools to return.
+   * @returns A list of tools that match the search criteria.
+   */
+  searchToolsById(toolId: string): Promise<ToolInfo[]>;
 }
 
 const TYPES = {

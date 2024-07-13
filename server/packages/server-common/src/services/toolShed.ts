@@ -25,17 +25,20 @@ interface ToolShedResponse {
   hostname: string;
 }
 
+interface BuildRequestResult {
+  request: Request;
+  baseUrl: URL;
+}
+
 @injectable()
 export class ToolshedServiceImpl implements ToolshedService {
   constructor(@inject(TYPES.ConfigService) public readonly configService: ConfigService) {}
 
-  public async searchTools(query: string, limit = 5): Promise<ToolInfo[]> {
-    const settings = await this.configService.getDocumentSettings();
-    const toolshedUrl = settings.toolshed.url;
-
+  public async searchToolsById(toolId: string, limit = 5): Promise<ToolInfo[]> {
+    const { request, baseUrl } = await this.buildToolSearchRequest(toolId, limit);
+    const toolshedUrl = baseUrl.origin;
     try {
-      const whooshQueryById = `id:${query}`;
-      const response = await fetch(`${toolshedUrl}/api/tools?q=${whooshQueryById}&page_size=${limit}`);
+      const response = await fetch(request);
 
       if (!response.ok) {
         const error = await getResponseErrorMessage(response);
@@ -43,8 +46,9 @@ export class ToolshedServiceImpl implements ToolshedService {
         return [];
       }
 
-      const json = (await response.json()) as ToolShedResponse;
-      const hits = json.hits;
+      const json = await response.json();
+      const toolshedResponse = json as ToolShedResponse;
+      const hits = toolshedResponse.hits;
 
       return hits.map((hit) => {
         const tool = hit.tool;
@@ -61,5 +65,30 @@ export class ToolshedServiceImpl implements ToolshedService {
       console.error(`Error fetching tools from the toolshed at '${toolshedUrl}'`, error);
       return [];
     }
+  }
+
+  private async buildToolSearchRequest(toolId: string, limit: number): Promise<BuildRequestResult> {
+    const toolshedUrl = await this.validateToolshedUrl();
+    const toolsApiUrl = `${toolshedUrl}/api/tools`;
+    const queryParams = new URLSearchParams({
+      q: `id:${toolId}`,
+      page_size: limit.toString(),
+    });
+
+    return {
+      request: new Request(`${toolsApiUrl}?${queryParams}`),
+      baseUrl: toolshedUrl,
+    };
+  }
+
+  private async validateToolshedUrl(): Promise<URL> {
+    const settings = await this.configService.getDocumentSettings();
+    let validatedUrl: URL;
+    try {
+      validatedUrl = new URL(settings.toolshed.url);
+    } catch (error) {
+      throw new Error(`Invalid Toolshed URL in settings: '${settings.toolshed.url}' - ${error}`);
+    }
+    return validatedUrl;
   }
 }

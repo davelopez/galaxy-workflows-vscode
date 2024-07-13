@@ -154,7 +154,7 @@ for (let i = 1; i < 3; i++) {
 }
 
 export const FAKE_TOOLSHED_SERVICE: ToolshedService = {
-  async searchTools(_query: string) {
+  async searchToolsById(_query: string) {
     return FAKE_TOOLS;
   },
 };

@@ -129,7 +129,7 @@ export class GxFormat2CompletionService {
         }
         if (schemaNode.name === "tool_id") {
           if (currentWord) {
-            const tools = await this.toolshedService.searchTools(currentWord);
+            const tools = await this.toolshedService.searchToolsById(currentWord);
             for (const tool of tools) {
               const item: CompletionItem = this.buildCompletionItemFromTool(tool, overwriteRange);
               result.push(item);
