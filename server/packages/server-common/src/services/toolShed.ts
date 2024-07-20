@@ -71,7 +71,7 @@ export class ToolshedServiceImpl implements ToolshedService {
     const toolshedUrl = await this.validateToolshedUrl();
     const toolsApiUrl = `${toolshedUrl}/api/tools`;
     const queryParams = new URLSearchParams({
-      q: `id:${toolId}`,
+      q: toolId,
       page_size: limit.toString(),
     });
 
