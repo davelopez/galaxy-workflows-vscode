@@ -388,6 +388,11 @@ inputs:
   });
 
   describe("Toolshed tool suggestions", () => {
+    beforeEach(() => {
+      searchToolsByIdMock.mockReset();
+      searchToolsByIdMock.mockResolvedValue([]);
+    });
+
     it("should suggest toolshed tools when the cursor is inside the `tool_id` property and there is at least one character", async () => {
       const expectedTools = buildFakeToolInfoList([{ id: "tool1" }, { id: "tool2" }, { id: "tool3" }]);
       searchToolsByIdMock.mockResolvedValue(expectedTools);
@@ -407,11 +412,21 @@ steps:
       const completionLabels = getCompletionItemsLabels(completions);
       expect(completionLabels).toEqual(expectedLabels);
     });
-    const completionLabels = getCompletionItemsLabels(completions);
-    expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
-  });
 
-    it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and there is no character", async () => {
+    it("should try to search for tools using the full value of `tool_id`", async () => {
+      const template = `
+class: GalaxyWorkflow
+steps:
+  my_step:
+    tool_id: search for this$`;
+      const { contents, position } = parseTemplate(template);
+
+      await getCompletions(contents, position);
+
+      expect(searchToolsByIdMock).toHaveBeenCalledWith("search for this");
+    });
+
+    it("should not try to search tools when the value in `tool_id` is empty", async () => {
       const template = `
 class: GalaxyWorkflow
 steps:
@@ -419,12 +434,12 @@ steps:
     tool_id: $`;
       const { contents, position } = parseTemplate(template);
 
-      const completions = await getCompletions(contents, position);
+      await getCompletions(contents, position);
 
-      expect(completions?.items).toHaveLength(0);
+      expect(searchToolsByIdMock).not.toHaveBeenCalled();
     });
 
-    it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and the current word contains slashes", async () => {
+    it("should not try to search tools when the value in `tool_id` contains slashes", async () => {
       const template = `
 class: GalaxyWorkflow
 steps:
@@ -432,9 +447,9 @@ steps:
     tool_id: toolshed/owner/repo/tool$`;
       const { contents, position } = parseTemplate(template);
 
-      const completions = await getCompletions(contents, position);
+      await getCompletions(contents, position);
 
-      expect(completions?.items).toHaveLength(0);
+      expect(searchToolsByIdMock).not.toHaveBeenCalled();
     });
   });
 });

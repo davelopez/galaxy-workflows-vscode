@@ -1,3 +1,4 @@
+import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { ASTNode } from "@gxwf/server-common/src/ast/types";
 import {
   CompletionItem,
@@ -53,7 +54,7 @@ export class GxFormat2CompletionService {
     }
     if (schemaNode) {
       const existing = nodeManager.getDeclaredPropertyNames(node);
-      result.items = await this.getProposedItems(schemaNode, textBuffer, existing, offset);
+      result.items = await this.getProposedItems(schemaNode, textBuffer, existing, offset, nodeManager, node);
     }
     return Promise.resolve(result);
   }
@@ -62,11 +63,13 @@ export class GxFormat2CompletionService {
     schemaNode: SchemaNode,
     textBuffer: TextBuffer,
     exclude: Set<string>,
-    offset: number
+    offset: number,
+    nodeManager: ASTNodeManager,
+    node?: ASTNode
   ): Promise<CompletionItem[]> {
     const result: CompletionItem[] = [];
     const currentWord = textBuffer.getCurrentWord(offset);
-    const overwriteRange = textBuffer.getCurrentWordRange(offset);
+    let overwriteRange = textBuffer.getCurrentWordRange(offset);
     const position = textBuffer.getPosition(offset);
     const isPositionAfterColon = textBuffer.isPositionAfterToken(position, ":");
     if (schemaNode instanceof EnumSchemaNode) {
@@ -127,9 +130,17 @@ export class GxFormat2CompletionService {
           result.push(item);
           return result;
         }
-        if (schemaNode.name === "tool_id") {
-          if (currentWord && !currentWord.includes("/")) {
-            const tools = await this.toolshedService.searchToolsById(currentWord);
+        if (
+          schemaNode.name === "tool_id" &&
+          node &&
+          node.type === "property" &&
+          node.valueNode &&
+          node.valueNode.type === "string"
+        ) {
+          const searchTerm = node.valueNode.value;
+          overwriteRange = nodeManager.getNodeRange(node.valueNode);
+          if (searchTerm && !searchTerm.includes("/")) {
+            const tools = await this.toolshedService.searchToolsById(searchTerm);
             for (const tool of tools) {
               const item: CompletionItem = this.buildCompletionItemFromTool(tool, overwriteRange);
               result.push(item);
@@ -140,7 +151,7 @@ export class GxFormat2CompletionService {
         for (const typeRef of schemaNode.typeRefs) {
           const typeNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(typeRef);
           if (typeNode === undefined) continue;
-          result.push(...(await this.getProposedItems(typeNode, textBuffer, exclude, offset)));
+          result.push(...(await this.getProposedItems(typeNode, textBuffer, exclude, offset, nodeManager, node)));
         }
         return result;
       }
@@ -151,7 +162,7 @@ export class GxFormat2CompletionService {
 
       const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
       if (schemaRecord) {
-        return this.getProposedItems(schemaRecord, textBuffer, exclude, offset);
+        return this.getProposedItems(schemaRecord, textBuffer, exclude, offset, nodeManager, node);
       }
     }
     return result;
