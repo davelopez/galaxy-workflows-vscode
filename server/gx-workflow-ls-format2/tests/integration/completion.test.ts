@@ -1,21 +1,22 @@
-import { CompletionList } from "@gxwf/server-common/src/languageTypes";
-import {
-  FAKE_TOOLS,
-  FAKE_TOOLSHED_SERVICE,
-  getCompletionItemsLabels,
-  parseTemplate,
-} from "@gxwf/server-common/tests/testHelpers";
+import { CompletionList, ToolshedService } from "@gxwf/server-common/src/languageTypes";
+import { buildFakeToolInfoList, getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 
 import "reflect-metadata";
 import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
 import { GxFormat2CompletionService } from "../../src/services/completionService";
 import { createFormat2WorkflowDocument } from "../testHelpers";
 
+const searchToolsByIdMock = jest.fn();
+
+const ToolshedServiceMock: ToolshedService = {
+  searchToolsById: searchToolsByIdMock,
+};
+
 describe("Format2 Workflow Completion Service", () => {
   let service: GxFormat2CompletionService;
   beforeAll(() => {
     const schemaNodeResolver = new GalaxyWorkflowFormat2SchemaLoader().nodeResolver;
-    service = new GxFormat2CompletionService(schemaNodeResolver, FAKE_TOOLSHED_SERVICE);
+    service = new GxFormat2CompletionService(schemaNodeResolver, ToolshedServiceMock);
   });
 
   async function getCompletions(
@@ -386,44 +387,54 @@ inputs:
     expect(completions?.items).toHaveLength(0);
   });
 
-  it("should suggest toolshed tools when the cursor is inside the `tool_id` property and there is at least one character", async () => {
-    const template = `
+  describe("Toolshed tool suggestions", () => {
+    it("should suggest toolshed tools when the cursor is inside the `tool_id` property and there is at least one character", async () => {
+      const expectedTools = buildFakeToolInfoList([{ id: "tool1" }, { id: "tool2" }, { id: "tool3" }]);
+      searchToolsByIdMock.mockResolvedValue(expectedTools);
+
+      const template = `
 class: GalaxyWorkflow
 steps:
   my_step:
     tool_id: t$`;
-    const EXPECTED_COMPLETION_LABELS = FAKE_TOOLS.map((tool) => tool.id);
-    const { contents, position } = parseTemplate(template);
+      const expectedLabels = expectedTools.map((tool) => tool.id);
+      const { contents, position } = parseTemplate(template);
 
-    const completions = await getCompletions(contents, position);
+      const completions = await getCompletions(contents, position);
 
+      expect(searchToolsByIdMock).toHaveBeenCalledWith("t");
+
+      const completionLabels = getCompletionItemsLabels(completions);
+      expect(completionLabels).toEqual(expectedLabels);
+    });
     const completionLabels = getCompletionItemsLabels(completions);
     expect(completionLabels).toEqual(EXPECTED_COMPLETION_LABELS);
   });
 
-  it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and there is no character", async () => {
-    const template = `
+    it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and there is no character", async () => {
+      const template = `
 class: GalaxyWorkflow
 steps:
   my_step:
     tool_id: $`;
-    const { contents, position } = parseTemplate(template);
+      const { contents, position } = parseTemplate(template);
 
-    const completions = await getCompletions(contents, position);
+      const completions = await getCompletions(contents, position);
 
-    expect(completions?.items).toHaveLength(0);
-  });
+      expect(completions?.items).toHaveLength(0);
+    });
 
-  it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and the current word contains slashes", async () => {
-    const template = `
+    it("should not suggest toolshed tools when the cursor is inside the `tool_id` property and the current word contains slashes", async () => {
+      const template = `
 class: GalaxyWorkflow
 steps:
   my_step:
     tool_id: toolshed/owner/repo/tool$`;
-    const { contents, position } = parseTemplate(template);
+      const { contents, position } = parseTemplate(template);
 
-    const completions = await getCompletions(contents, position);
+      const completions = await getCompletions(contents, position);
 
-    expect(completions?.items).toHaveLength(0);
+      expect(completions?.items).toHaveLength(0);
+    });
   });
 });

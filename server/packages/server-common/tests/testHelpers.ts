@@ -3,7 +3,6 @@ import {
   CompletionItem,
   CompletionList,
   ToolInfo,
-  ToolshedService,
   WorkflowDataProvider,
   WorkflowInput,
   WorkflowOutput,
@@ -130,31 +129,23 @@ export const FAKE_WORKFLOW_DATA_PROVIDER: WorkflowDataProvider = {
   },
 };
 
-export function createFakeToolInfo(
-  id: string,
-  name?: string,
-  description?: string,
-  owner: string = "fakeowner",
-  repo: string = "fakerepo"
-): ToolInfo {
+interface PartialToolInfo extends Partial<ToolInfo> {
+  id: string; // Only the id is required
+}
+
+export function buildFakeToolInfo(tool: PartialToolInfo): ToolInfo {
+  const owner = tool.owner ?? "fakeowner";
+  const repository = tool.repository ?? "fakerepo";
   return {
-    id,
-    name: name ?? `Tool ${id}`,
-    description: description ?? `This is a tool description for tool ${id}.`,
-    owner,
-    repository: repo,
-    url: `https://toolshed.testing.fake/repos/${owner}/${repo}/${id}`,
+    id: tool.id,
+    name: tool.name ?? `Tool ${tool.id}`,
+    description: tool.description ?? `This is a tool description for tool ${tool.id}.`,
+    owner: owner,
+    repository: repository,
+    url: `https://toolshed.testing.fake/repos/${owner}/${repository}/${tool.id}`,
   };
 }
 
-export const FAKE_TOOLS: ToolInfo[] = [];
-for (let i = 1; i < 3; i++) {
-  const num = `${i}`.padStart(3, "0");
-  FAKE_TOOLS.push(createFakeToolInfo(`tool${num}`));
+export function buildFakeToolInfoList(tools: PartialToolInfo[]): ToolInfo[] {
+  return tools.map((tool) => buildFakeToolInfo(tool));
 }
-
-export const FAKE_TOOLSHED_SERVICE: ToolshedService = {
-  async searchToolsById(_query: string) {
-    return FAKE_TOOLS;
-  },
-};
