@@ -2,7 +2,8 @@
   "compilerOptions": {
     "target": "es2019",
     "lib": ["ES2019", "WebWorker"],
-    "module": "commonjs",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "sourceMap": true,
     "strict": true,
     "baseUrl": ".",

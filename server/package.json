@@ -7,11 +7,11 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf ./gx-workflow-ls-native/dist && rimraf ./gx-workflow-ls-format2/dist",
-    "compile-native-server": "webpack --config ./gx-workflow-ls-native/webpack.config.js",
-    "compile-format2-server": "webpack --config ./gx-workflow-ls-format2/webpack.config.js",
+    "compile-native-server": "cd gx-workflow-ls-native && tsup",
+    "compile-format2-server": "cd gx-workflow-ls-format2 && tsup",
     "compile": "npm run compile-native-server && npm run compile-format2-server",
-    "watch-native-server": "webpack --watch --progress --config ./gx-workflow-ls-native/webpack.config.js",
-    "watch-format2-server": "webpack --watch --progress --config ./gx-workflow-ls-format2/webpack.config.js",
+    "watch-native-server": "cd gx-workflow-ls-native && tsup --watch",
+    "watch-format2-server": "cd gx-workflow-ls-format2 && tsup --watch",
     "watch": "concurrently --kill-others \"npm run watch-format2-server\" \"npm run watch-native-server\"",
     "test": "jest"
   },

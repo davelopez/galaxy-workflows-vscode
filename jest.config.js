@@ -18,7 +18,7 @@ module.exports = {
     "^.+.tsx?$": [
       "ts-jest",
       {
-        tsconfig: compilerOptions,
+        tsconfig: { ...compilerOptions, module: "commonjs", moduleResolution: "node" },
       },
     ],
   },

@@ -20,11 +20,7 @@
     "vscode-uri": "^3.0.8"
   },
   "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack --watch --progress",
     "test": "jest"
   },
-  "devDependencies": {
-    "@types/glob": "^8.1.0"
-  }
+  "devDependencies": {}
 }

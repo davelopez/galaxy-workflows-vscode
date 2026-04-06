@@ -7,7 +7,7 @@ import { SchemaDocument } from "./definitions";
 /**
  * All gxformat2 version 19_09 schema documents.
  *
- * These documents are raw yaml documents loaded by webpack.
+ * These documents are raw yaml documents loaded by tsup.
  *  */
 export const SCHEMA_DOCS_v19_09_MAP = new Map<string, SchemaDocument>(
   [

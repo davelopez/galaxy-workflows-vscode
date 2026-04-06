@@ -17,8 +17,6 @@
     "vscode-uri": "^3.0.7"
   },
   "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack --watch --progress",
     "test-unit": "jest"
   },
   "devDependencies": {
