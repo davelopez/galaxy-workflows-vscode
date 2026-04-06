@@ -8,4 +8,4 @@ The schemas contained in this directory (and used by the extension) **are not th
 
 > The official Galaxy Workflow format `Format 2` schema can be found in https://github.com/galaxyproject/gxformat2
 
-In particular, the `Native Workflow format (.ga)` defined in [native.schema.json](/workflow-languages/schemas/native.schema.json) is considered an internal Galaxy format and is not meant for manual editing. However, the extension tries to provide assistance for experts needing to temporarily maintain this legacy format before migrating to the new `Format 2`.
+In particular, the `Native Workflow format (.ga)` is considered an internal Galaxy format and is not meant for manual editing. However, the extension tries to provide assistance for experts needing to temporarily maintain this legacy format before migrating to the new `Format 2`. The schema for this format is generated dynamically from the `@galaxy-tool-util/schema` package.
