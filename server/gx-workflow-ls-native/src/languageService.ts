@@ -23,9 +23,9 @@ import {
   SchemaConfiguration,
   getLanguageService,
 } from "vscode-json-languageservice";
-import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 import { NativeBasicValidationProfile, NativeIWCValidationProfile } from "./profiles";
+import { JsonSchemaNativeWorkflowLoader } from "./schema/jsonSchemaLoader";
 
 const LANGUAGE_ID = "galaxyworkflow";
 
@@ -42,6 +42,7 @@ export class NativeWorkflowLanguageServiceImpl
 {
   private _jsonLanguageService: JSONLanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
+  private _schemaLoader = new JsonSchemaNativeWorkflowLoader();
 
   constructor(@inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider) {
     super(LANGUAGE_ID);
@@ -52,7 +53,7 @@ export class NativeWorkflowLanguageServiceImpl
   }
 
   public get schema(): JSONSchema {
-    return NativeWorkflowSchema;
+    return this._schemaLoader.jsonSchema;
   }
 
   public override parseDocument(document: TextDocument): NativeWorkflowDocument {

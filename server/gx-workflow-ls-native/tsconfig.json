@@ -11,8 +11,5 @@
     "esModuleInterop": true,
     "sourceMap": true,
     "strict": true,
-    "paths": {
-      "@schemas/*": ["../../workflow-languages/schemas/*"]
-    }
   }
 }
