@@ -321,6 +321,8 @@ export interface ToolRegistryService {
   }>;
   populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateToolCacheResult>;
   configure(settings: { cacheDir: string; toolShedUrl: string }): void;
+  /** Returns cached tool inputs (parameter list) without hitting the network. Returns null if not cached. */
+  getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null>;
   readonly cacheSize: number;
 }
 

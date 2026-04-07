@@ -1,19 +1,16 @@
+import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
 import { Diagnostic, ValidationRule } from "@gxwf/server-common/src/languageTypes";
 import {
   ChildrenRequiredPropertyValidationRule,
   StepExportErrorValidationRule,
 } from "@gxwf/server-common/src/providers/validation/rules";
-import { execSync } from "child_process";
+import { JSONSchema } from "effect";
 import { JsonSchemaGalaxyWorkflowLoader } from "../../src/schema/jsonSchemaLoader";
 import { GxFormat2SchemaValidationService } from "../../src/services/schemaValidationService";
 import { InputTypeValidationRule } from "../../src/validation/rules/InputTypeValidationRule";
 import { createFormat2WorkflowDocument } from "../testHelpers";
 
-const galaxyWorkflowJsonSchema = JSON.parse(
-  execSync(
-    `node --input-type=module --eval "import { GalaxyWorkflowSchema } from '@galaxy-tool-util/schema'; import { JSONSchema } from 'effect'; process.stdout.write(JSON.stringify(JSONSchema.make(GalaxyWorkflowSchema)));"`
-  ).toString()
-);
+const galaxyWorkflowJsonSchema = JSONSchema.make(GalaxyWorkflowSchema) as Record<string, unknown>;
 
 describe("Schema validation", () => {
   let validator: GxFormat2SchemaValidationService;

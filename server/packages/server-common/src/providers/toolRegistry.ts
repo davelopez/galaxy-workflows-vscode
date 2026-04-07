@@ -34,6 +34,14 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
     return this.toolInfo.cache.listCached().length;
   }
 
+  async getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null> {
+    if (!this.hasCached(toolId, toolVersion)) {
+      return null;
+    }
+    const tool = await this.toolInfo.getToolInfo(toolId, toolVersion ?? null);
+    return tool?.inputs ?? null;
+  }
+
   async populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateToolCacheResult> {
     const result: PopulateToolCacheResult = { fetched: 0, alreadyCached: 0, failed: [] };
 

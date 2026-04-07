@@ -1,17 +1,13 @@
+import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
 import { CompletionList } from "@gxwf/server-common/src/languageTypes";
 import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
-
-import { execSync } from "child_process";
+import { JSONSchema } from "effect";
 import "reflect-metadata";
 import { JsonSchemaGalaxyWorkflowLoader } from "../../src/schema/jsonSchemaLoader";
 import { GxFormat2CompletionService } from "../../src/services/completionService";
 import { createFormat2WorkflowDocument } from "../testHelpers";
 
-const galaxyWorkflowJsonSchema = JSON.parse(
-  execSync(
-    `node --input-type=module --eval "import { GalaxyWorkflowSchema } from '@galaxy-tool-util/schema'; import { JSONSchema } from 'effect'; process.stdout.write(JSON.stringify(JSONSchema.make(GalaxyWorkflowSchema)));"`
-  ).toString()
-);
+const galaxyWorkflowJsonSchema = JSONSchema.make(GalaxyWorkflowSchema) as Record<string, unknown>;
 
 describe("Format2 Workflow Completion Service", () => {
   let service: GxFormat2CompletionService;

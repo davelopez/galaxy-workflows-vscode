@@ -12,6 +12,7 @@ import {
   TYPES,
   TextDocument,
   TextEdit,
+  ToolRegistryService,
 } from "@gxwf/server-common/src/languageTypes";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
@@ -44,13 +45,14 @@ export class GxFormat2WorkflowLanguageServiceImpl
 
   constructor(
     @inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService,
-    @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider
+    @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider,
+    @inject(TYPES.ToolRegistryService) toolRegistryService: ToolRegistryService
   ) {
     super(LANGUAGE_ID);
     this._schemaLoader = new JsonSchemaGalaxyWorkflowLoader();
     this._yamlLanguageService = yamlLanguageService;
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
-    this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver);
+    this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver, toolRegistryService);
     this._schemaValidationService = new GxFormat2SchemaValidationService(this._schemaLoader.nodeResolver);
   }
 
