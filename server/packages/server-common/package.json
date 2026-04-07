@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
+    "@galaxy-tool-util/core": "*",
     "@types/node": "^20.5.7",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.1.13",
