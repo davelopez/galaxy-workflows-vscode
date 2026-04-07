@@ -4,6 +4,7 @@ import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
 import { EnumSchemaNode } from "../schema/definitions";
 import { ToolStateCompletionService, findStateInPath } from "./toolStateCompletionService";
+import { SourceInPath, findSourceInPath, getAvailableSources } from "./workflowConnectionService";
 
 export class GxFormat2CompletionService {
   /**
@@ -41,6 +42,31 @@ export class GxFormat2CompletionService {
     }
 
     const nodePath = nodeManager.getPathFromNode(node);
+
+    // Check if cursor is inside a step's in: source field
+    const sourceInfo: SourceInPath | undefined = findSourceInPath(nodePath);
+    if (sourceInfo) {
+      const position = textBuffer.getPosition(offset);
+      const afterColon = textBuffer.isPositionAfterToken(position, ":");
+      // For the map shorthand form, path[n-1] is the input name, not "source".
+      // Only offer source completions when cursor is after the colon (value position).
+      const pathEndsWithSource = nodePath[nodePath.length - 1] === "source";
+      if (pathEndsWithSource || afterColon) {
+        const currentWord = textBuffer.getCurrentWord(offset);
+        const overwriteRange = textBuffer.getCurrentWordRange(offset);
+        const sources = getAvailableSources(documentContext, sourceInfo.stepName);
+        result.items = sources
+          .filter((s) => s.startsWith(currentWord))
+          .map((s) => ({
+            label: s,
+            kind: CompletionItemKind.Reference,
+            sortText: `_${s}`,
+            insertText: s,
+            textEdit: { range: overwriteRange, newText: s },
+          }));
+        return result;
+      }
+    }
 
     // Check if cursor is inside a step's state/tool_state block
     const stateInfo = findStateInPath(nodePath);
