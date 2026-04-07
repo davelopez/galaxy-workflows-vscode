@@ -1,87 +1,52 @@
 /**
- * Minimal type definitions mirroring @galaxy-tool-util/schema bundle-types.
- * Used by tool-state completion, validation, and hover services.
+ * Re-exports of @galaxy-tool-util/schema types and guards for tool-state services,
+ * plus local aliases (for backward compat) and AST helpers that must live here.
  */
 
 import { ASTNode, NodePath, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
 
-export interface SelectOption {
-  label: string;
-  value: string;
-}
+export type {
+  BooleanParameterModel as BooleanParam,
+  ConditionalParameterModel as ConditionalParam,
+  ConditionalWhen,
+  LabelValue as SelectOption,
+  RepeatParameterModel as RepeatParam,
+  SectionParameterModel as SectionParam,
+  SelectParameterModel,
+  GenomeBuildParameterModel,
+  ToolParameterModel as ToolParam,
+} from "@galaxy-tool-util/schema";
 
-export interface ToolParamBase {
-  name: string;
-  parameter_type: string;
-  label?: string | null;
-  help?: string | null;
-  hidden?: boolean;
-}
-
-export interface SelectParam extends ToolParamBase {
-  parameter_type: "gx_select" | "gx_genomebuild" | "gx_drill_down";
-  options: SelectOption[] | null;
-}
-
-export interface BooleanParam extends ToolParamBase {
-  parameter_type: "gx_boolean";
-}
-
-export interface SectionParam extends ToolParamBase {
-  parameter_type: "gx_section";
-  parameters: ToolParam[];
-}
-
-export interface RepeatParam extends ToolParamBase {
-  parameter_type: "gx_repeat";
-  parameters: ToolParam[];
-}
-
-export interface ConditionalParam extends ToolParamBase {
-  parameter_type: "gx_conditional";
-  test_parameter: ToolParam;
-  whens: Array<{ parameters: ToolParam[] }>;
-}
-
-export type ToolParam =
-  | ToolParamBase
-  | SelectParam
-  | BooleanParam
-  | SectionParam
-  | RepeatParam
-  | ConditionalParam;
+export {
+  isBooleanParam,
+  isConditionalParam,
+  isRepeatParam,
+  isSectionParam,
+} from "@galaxy-tool-util/schema";
 
 // ---------------------------------------------------------------------------
-// Type guards
+// Local aliases / overrides
 // ---------------------------------------------------------------------------
 
-export function isSelectParam(p: ToolParam): p is SelectParam {
-  const pt = p.parameter_type;
-  return pt === "gx_select" || pt === "gx_genomebuild" || pt === "gx_drill_down";
+import type {
+  GenomeBuildParameterModel,
+  SelectParameterModel,
+  ToolParameterModel,
+} from "@galaxy-tool-util/schema";
+
+/** Select-like params: gx_select and gx_genomebuild (both have flat LabelValue options). */
+export type SelectParam = SelectParameterModel | GenomeBuildParameterModel;
+
+export function isSelectParam(p: ToolParameterModel): p is SelectParam {
+  return p.parameter_type === "gx_select" || p.parameter_type === "gx_genomebuild";
 }
 
-export function isBooleanParam(p: ToolParam): p is BooleanParam {
-  return p.parameter_type === "gx_boolean";
-}
-
-export function isSectionParam(p: ToolParam): p is SectionParam {
-  return p.parameter_type === "gx_section";
-}
-
-export function isRepeatParam(p: ToolParam): p is RepeatParam {
-  return p.parameter_type === "gx_repeat";
-}
-
-export function isConditionalParam(p: ToolParam): p is ConditionalParam {
-  return p.parameter_type === "gx_conditional";
-}
-
-export function isHidden(p: ToolParam): boolean {
-  return !!(p as ToolParamBase).hidden;
+export function isHidden(p: ToolParameterModel): boolean {
+  return "hidden" in p && !!(p as { hidden: boolean }).hidden;
 }
 
 // ---------------------------------------------------------------------------
-// AST helpers
+// AST helpers (extension-specific, not upstreamable)
 // ---------------------------------------------------------------------------
 
 /**
