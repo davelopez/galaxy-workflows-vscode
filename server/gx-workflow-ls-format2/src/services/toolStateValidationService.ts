@@ -1,5 +1,5 @@
 import { validateFormat2StepStateStrict } from "@galaxy-tool-util/schema";
-import { ObjectASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNode, ArrayASTNode, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { Diagnostic, DiagnosticSeverity, Range } from "vscode-languageserver-types";
@@ -24,18 +24,37 @@ function dotPathToYamlRange(
 ): Range {
   if (!dotPath) return nodeManager.getNodeRange(stateNode);
   const segments = dotPath.split(".");
-  let current: ObjectASTNode = stateNode;
+  let current: ASTNode = stateNode;
 
   for (let i = 0; i < segments.length - 1; i++) {
-    const prop = current.properties.find((p) => String(p.keyNode.value) === segments[i]);
-    if (!prop?.valueNode || prop.valueNode.type !== "object") {
-      return nodeManager.getNodeRange(stateNode);
+    const seg = segments[i];
+    const idx = Number(seg);
+    if (!isNaN(idx) && String(idx) === seg && current.type === "array") {
+      // Numeric index into a repeat array
+      const item = (current as ArrayASTNode).items[idx];
+      if (!item) return nodeManager.getNodeRange(stateNode);
+      current = item;
+    } else {
+      if (current.type !== "object") return nodeManager.getNodeRange(stateNode);
+      const prop = (current as ObjectASTNode).properties.find(
+        (p) => String(p.keyNode.value) === seg
+      );
+      if (!prop?.valueNode) return nodeManager.getNodeRange(stateNode);
+      current = prop.valueNode;
     }
-    current = prop.valueNode as ObjectASTNode;
   }
 
   const lastSeg = segments[segments.length - 1];
-  const prop = current.properties.find((p) => String(p.keyNode.value) === lastSeg);
+  const lastIdx = Number(lastSeg);
+  if (!isNaN(lastIdx) && String(lastIdx) === lastSeg && current.type === "array") {
+    const item = (current as ArrayASTNode).items[lastIdx];
+    return item ? nodeManager.getNodeRange(item) : nodeManager.getNodeRange(stateNode);
+  }
+
+  if (current.type !== "object") return nodeManager.getNodeRange(stateNode);
+  const prop = (current as ObjectASTNode).properties.find(
+    (p) => String(p.keyNode.value) === lastSeg
+  );
   if (!prop) return nodeManager.getNodeRange(stateNode);
 
   const node = target === "value" && prop.valueNode ? prop.valueNode : prop.keyNode;

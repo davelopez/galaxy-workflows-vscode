@@ -80,6 +80,34 @@ const TOOL_PARAMS = [
       },
     ],
   },
+  {
+    name: "iterations",
+    parameter_type: "gx_repeat",
+    label: "Iterations",
+    help: null,
+    hidden: false,
+    argument: null,
+    is_dynamic: false,
+    min: null,
+    max: null,
+    parameters: [
+      {
+        name: "seed",
+        parameter_type: "gx_integer",
+        type: "integer",
+        label: "Seed",
+        help: null,
+        hidden: false,
+        optional: true,
+        value: 42,
+        min: null,
+        max: null,
+        is_dynamic: false,
+        argument: null,
+        validators: [],
+      },
+    ],
+  },
 ];
 
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
@@ -279,6 +307,27 @@ describe("ToolStateValidationService", () => {
 
     expect(diagnostics.some((d) => d.message.includes("'unknown1'"))).toBe(true);
     expect(diagnostics.some((d) => d.message.includes("'unknown2'"))).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Repeat block validation
+  // ---------------------------------------------------------------------------
+
+  it("warns on unknown parameter inside a repeat block", async () => {
+    const doc = createFormat2WorkflowDocument(
+      STEP_PREFIX + "      iterations:\n        - unknown_repeat_param: value\n"
+    );
+    const diagnostics = await service.doValidation(doc);
+
+    expect(diagnostics.some((d) => d.message.includes("Unknown tool parameter 'unknown_repeat_param'"))).toBe(true);
+  });
+
+  it("emits no diagnostics for valid parameter inside a repeat block", async () => {
+    const doc = createFormat2WorkflowDocument(
+      STEP_PREFIX + "      iterations:\n        - seed: 42\n"
+    );
+    const diagnostics = await service.doValidation(doc);
+    expect(diagnostics).toHaveLength(0);
   });
 
   // ---------------------------------------------------------------------------

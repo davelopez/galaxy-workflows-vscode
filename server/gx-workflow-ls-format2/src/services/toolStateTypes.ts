@@ -3,7 +3,7 @@
  * plus local aliases (for backward compat) and AST helpers that must live here.
  */
 
-import { ASTNode, NodePath, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNode, ArrayASTNode, NodePath, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
 
 export type {
   BooleanParameterModel as BooleanParam,
@@ -113,7 +113,13 @@ export function yamlObjectNodeToRecord(node: ObjectASTNode): Record<string, unkn
     if (val.type === "boolean") dict[key] = Boolean(val.value);
     if (val.type === "number") dict[key] = Number(val.value);
     if (val.type === "object") dict[key] = yamlObjectNodeToRecord(val as ObjectASTNode);
-    // arrays (repeats) omitted — selectWhichWhen only needs scalar values
+    if (val.type === "array") {
+      // Repeat arrays: include object items for validation. selectWhichWhen only uses
+      // scalars so the extra array data is ignored during param navigation.
+      dict[key] = (val as ArrayASTNode).items
+        .filter((item) => item.type === "object")
+        .map((item) => yamlObjectNodeToRecord(item as ObjectASTNode));
+    }
   }
   return dict;
 }
