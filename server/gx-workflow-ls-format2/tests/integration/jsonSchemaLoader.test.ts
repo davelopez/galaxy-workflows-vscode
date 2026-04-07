@@ -1,6 +1,7 @@
+import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { JSONSchema } from "effect";
 import { CompletionList } from "@gxwf/server-common/src/languageTypes";
 import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
-import { execSync } from "child_process";
 
 import "reflect-metadata";
 import { RecordSchemaNode, SchemaNodeResolver } from "../../src/schema";
@@ -8,14 +9,7 @@ import { JsonSchemaGalaxyWorkflowLoader } from "../../src/schema/jsonSchemaLoade
 import { GxFormat2CompletionService } from "../../src/services/completionService";
 import { createFormat2WorkflowDocument } from "../testHelpers";
 
-// @galaxy-tool-util/schema is ESM-only; Jest runs in CJS mode (emitDecoratorMetadata
-// requires it). Spawn a fresh ESM Node process to generate the schema at test time
-// rather than committing a static fixture.
-const galaxyWorkflowJsonSchema = JSON.parse(
-  execSync(
-    `node --input-type=module --eval "import { GalaxyWorkflowSchema } from '@galaxy-tool-util/schema'; import { JSONSchema } from 'effect'; process.stdout.write(JSON.stringify(JSONSchema.make(GalaxyWorkflowSchema)));"`
-  ).toString()
-);
+const galaxyWorkflowJsonSchema = JSONSchema.make(GalaxyWorkflowSchema) as Record<string, unknown>;
 
 describe("JsonSchemaGalaxyWorkflowLoader", () => {
   let loader: JsonSchemaGalaxyWorkflowLoader;

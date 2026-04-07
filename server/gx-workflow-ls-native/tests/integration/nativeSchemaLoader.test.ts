@@ -1,11 +1,8 @@
-import { execSync } from "child_process";
+import { NativeGalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { JSONSchema } from "effect";
 import { JsonSchemaNativeWorkflowLoader } from "../../src/schema/jsonSchemaLoader";
 
-const nativeWorkflowJsonSchema = JSON.parse(
-  execSync(
-    `node --input-type=module --eval "import { NativeGalaxyWorkflowSchema } from '@galaxy-tool-util/schema'; import { JSONSchema } from 'effect'; process.stdout.write(JSON.stringify(JSONSchema.make(NativeGalaxyWorkflowSchema)));"`
-  ).toString()
-);
+const nativeWorkflowJsonSchema = JSONSchema.make(NativeGalaxyWorkflowSchema) as Record<string, unknown>;
 
 describe("JsonSchemaNativeWorkflowLoader", () => {
   let loader: JsonSchemaNativeWorkflowLoader;
