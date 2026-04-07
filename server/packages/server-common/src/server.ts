@@ -11,6 +11,7 @@ import {
   DocumentsCache,
   GalaxyWorkflowLanguageServer,
   LanguageService,
+  ToolRegistryService,
   TYPES,
   TextDocument,
   WorkflowDataProvider,
@@ -21,6 +22,7 @@ import { FormattingHandler } from "./providers/formattingHandler";
 import { HoverHandler } from "./providers/hover/hoverHandler";
 import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
+import { ToolCacheService } from "./services/toolCacheService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
 import { ConfigService } from "./configService";
@@ -40,7 +42,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     @inject(TYPES.ConfigService) public readonly configService: ConfigService,
     @inject(TYPES.WorkflowDataProvider) public readonly workflowDataProvider: WorkflowDataProvider,
     @inject(TYPES.WorkflowLanguageService) public readonly workflowLanguageService: WorkflowLanguageService,
-    @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService
+    @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService,
+    @inject(TYPES.ToolRegistryService) public readonly toolRegistryService: ToolRegistryService
   ) {
     this.languageServiceMapper.set(workflowLanguageService.languageId, workflowLanguageService);
     this.languageServiceMapper.set(workflowTestsLanguageService.languageId, workflowTestsLanguageService);
@@ -75,6 +78,12 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     this.configService.initialize(params.capabilities, () => this.onConfigurationChanged());
     this.workspaceFolders = params.workspaceFolders;
 
+    const settings = await this.configService.getDocumentSettings("");
+    this.toolRegistryService.configure({
+      cacheDir: settings.toolCache.directory,
+      toolShedUrl: settings.toolShed.url,
+    });
+
     const capabilities: ServerCapabilities = {
       documentFormattingProvider: true,
       hoverProvider: true,
@@ -103,6 +112,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private registerServices(): void {
     CleanWorkflowService.register(this);
+    ToolCacheService.register(this);
   }
 
   private trackDocumentChanges(connection: Connection): void {
@@ -128,6 +138,12 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   }
 
   private onConfigurationChanged(): void {
+    this.configService.getDocumentSettings("").then((settings) => {
+      this.toolRegistryService.configure({
+        cacheDir: settings.toolCache.directory,
+        toolShedUrl: settings.toolShed.url,
+      });
+    });
     this.documentsCache.all().forEach((documentContext) => {
       this.validateDocument(documentContext);
     });

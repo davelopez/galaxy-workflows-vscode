@@ -3,10 +3,15 @@ import {
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
+  GetToolCacheStatusResult,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
+  GetWorkflowToolIdsResult,
   LSRequestIdentifiers,
+  PopulateToolCacheParams,
+  PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
+  ToolRef,
 } from "../../shared/src/requestsDefinitions";
 
 export {
@@ -14,8 +19,13 @@ export {
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
+  GetToolCacheStatusResult,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
+  GetWorkflowToolIdsResult,
   LSRequestIdentifiers,
+  PopulateToolCacheParams,
+  PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
+  ToolRef,
 };

@@ -124,6 +124,18 @@
               "Stricter validation to comply with the `Intergalactic Workflow Commission` best practices."
             ],
             "default": "basic"
+          },
+          "galaxyWorkflows.toolCache.directory": {
+            "markdownDescription": "Directory containing cached tool definitions (shared with `galaxy-tool-cache` CLI).",
+            "scope": "machine",
+            "type": "string",
+            "default": "~/.galaxy/tool_info_cache"
+          },
+          "galaxyWorkflows.toolShed.url": {
+            "markdownDescription": "ToolShed URL used to fetch tool definitions on cache miss.",
+            "scope": "machine",
+            "type": "string",
+            "default": "https://toolshed.g2.bx.psu.edu"
           }
         }
       }
@@ -155,6 +167,11 @@
         "title": "Compare with this workflow (clean)",
         "enablement": "resourceLangId == galaxyworkflow",
         "icon": "$(diff)",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.populateToolCache",
+        "title": "Populate Tool Cache",
         "category": "Galaxy Workflows"
       }
     ],

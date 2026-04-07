@@ -6,6 +6,7 @@ import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
 import { GitProvider } from "../providers/git";
 import { BuiltinGitProvider } from "../providers/git/gitProvider";
 import { setupRequests } from "../requests/gxworkflows";
+import { ToolCacheStatusBar } from "../statusBar";
 
 export function buildBasicLanguageClientOptions(documentSelector: DocumentSelector): LanguageClientOptions {
   // Options to control the language client
@@ -33,6 +34,11 @@ export function initExtension(
   startLanguageClient(context, gxFormat2Client);
 
   setupRequests(context, nativeClient, gxFormat2Client);
+
+  // Tool cache status bar
+  const toolCacheStatusBar = new ToolCacheStatusBar(nativeClient);
+  toolCacheStatusBar.startPolling();
+  context.subscriptions.push(toolCacheStatusBar);
 }
 
 function initGitProvider(context: ExtensionContext): BuiltinGitProvider {

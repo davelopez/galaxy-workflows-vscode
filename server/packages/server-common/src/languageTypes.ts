@@ -55,10 +55,15 @@ import {
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
+  GetToolCacheStatusResult,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
+  GetWorkflowToolIdsResult,
   LSRequestIdentifiers,
+  PopulateToolCacheParams,
+  PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
+  ToolRef,
   WorkflowDataType,
   WorkflowInput,
   WorkflowOutput,
@@ -118,6 +123,11 @@ export {
   TextDocumentEdit,
   TextEdit,
   VersionedTextDocumentIdentifier,
+  GetToolCacheStatusResult,
+  GetWorkflowToolIdsResult,
+  PopulateToolCacheParams,
+  PopulateToolCacheResult,
+  ToolRef,
   WorkflowDataType,
   WorkflowDocument,
   WorkflowInput,
@@ -279,6 +289,7 @@ export interface GalaxyWorkflowLanguageServer {
   documentsCache: DocumentsCache;
   configService: ConfigService;
   workflowDataProvider: WorkflowDataProvider;
+  toolRegistryService: ToolRegistryService;
   start(): void;
   getLanguageServiceById(languageId: string): LanguageService<DocumentContext>;
 }
@@ -298,6 +309,64 @@ export interface WorkflowDataProvider {
   getWorkflowOutputs(workflowDocumentUri: string): Promise<GetWorkflowOutputsResult>;
 }
 
+/** Lightweight representation of a tool parameter — no Effect dependency. */
+export interface ToolParameterJson {
+  name: string;
+  argument: string | null;
+  type: string;
+  label: string;
+  help: string | null;
+  optional: boolean;
+  value: unknown;
+  [key: string]: unknown;
+}
+
+export interface ToolOutputJson {
+  name: string;
+  [key: string]: unknown;
+}
+
+/** Lightweight representation of ParsedTool read from the filesystem cache. */
+export interface ParsedToolJson {
+  id: string;
+  version: string;
+  name: string;
+  description: string | null;
+  inputs: ToolParameterJson[];
+  outputs: ToolOutputJson[];
+  [key: string]: unknown;
+}
+
+export interface CachedToolEntry {
+  cacheKey: string;
+  toolId: string;
+  toolVersion: string;
+  source: string;
+  cachedAt: string;
+}
+
+export interface CachedToolInfo {
+  toolId: string;
+  toolVersion: string;
+  parsedTool: ParsedToolJson;
+  source: "cache" | "fetched";
+}
+
+export interface PopulateCacheResult {
+  fetched: number;
+  alreadyCached: number;
+  failed: Array<{ toolId: string; error: string }>;
+}
+
+export interface ToolRegistryService {
+  getToolInfo(toolId: string, toolVersion?: string): Promise<CachedToolInfo | null>;
+  hasCached(toolId: string, toolVersion?: string): boolean;
+  listCached(): CachedToolEntry[];
+  populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateCacheResult>;
+  configure(settings: { cacheDir: string; toolShedUrl: string }): void;
+  readonly cacheSize: number;
+}
+
 const TYPES = {
   DocumentsCache: Symbol.for("DocumentsCache"),
   ConfigService: Symbol.for("ConfigService"),
@@ -307,6 +376,7 @@ const TYPES = {
   GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
   WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
   SymbolsProvider: Symbol.for("SymbolsProvider"),
+  ToolRegistryService: Symbol.for("ToolRegistryService"),
 };
 
 export { TYPES };

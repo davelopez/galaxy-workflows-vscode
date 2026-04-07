@@ -4,6 +4,7 @@ import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
 import { GitProvider } from "../providers/git";
 import { CleanWorkflowCommand } from "./cleanWorkflow";
 import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
+import { PopulateToolCacheCommand } from "./populateToolCache";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
 
@@ -15,6 +16,7 @@ import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
 export function setupCommands(context: ExtensionContext, client: BaseLanguageClient, gitProvider: GitProvider): void {
   context.subscriptions.push(new PreviewCleanWorkflowCommand(client).register());
   context.subscriptions.push(new CleanWorkflowCommand(client).register());
+  context.subscriptions.push(new PopulateToolCacheCommand(client).register());
   const selectForCompareProvider = new SelectForCleanCompareCommand(client);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(

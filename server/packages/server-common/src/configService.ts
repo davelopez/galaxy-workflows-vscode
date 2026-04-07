@@ -11,12 +11,24 @@ import { TYPES } from "./languageTypes";
 interface ExtensionSettings {
   cleaning: CleaningSettings;
   validation: ValidationSettings;
+  toolCache: ToolCacheSettings;
+  toolShed: ToolShedSettings;
 }
 
 /** Contains settings for workflow cleaning. */
 interface CleaningSettings {
   /** A list of property names that will be removed from the workflow document when cleaning. */
   cleanableProperties: string[];
+}
+
+/** Contains settings for the tool cache. */
+interface ToolCacheSettings {
+  directory: string;
+}
+
+/** Contains settings for the ToolShed. */
+interface ToolShedSettings {
+  url: string;
 }
 
 /** Contains settings for validating workflows. */
@@ -35,6 +47,12 @@ const defaultSettings: ExtensionSettings = {
   },
   validation: {
     profile: "basic",
+  },
+  toolCache: {
+    directory: "~/.galaxy/tool_info_cache",
+  },
+  toolShed: {
+    url: "https://toolshed.g2.bx.psu.edu",
   },
 };
 
