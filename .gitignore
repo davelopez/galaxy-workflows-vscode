@@ -7,3 +7,9 @@ node_modules
 
 # Local settings for Visual Studio Code
 .vscode/settings.json
+
+# pnpm lockfile (repo uses npm; pnpm may be used locally to work around npm arborist bugs)
+pnpm-lock.yaml
+
+# TypeScript incremental build info
+server/tsconfig.tsbuildinfo

@@ -3,7 +3,7 @@
     "target": "es2019",
     "lib": ["ES2019", "WebWorker"],
     "module": "ESNext",
-    "types": ["reflect-metadata", "jest", "node"],
+    "types": ["reflect-metadata", "vitest/globals", "node"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "bundler",

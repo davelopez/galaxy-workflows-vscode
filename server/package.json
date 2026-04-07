@@ -13,11 +13,14 @@
     "watch-native-server": "cd gx-workflow-ls-native && tsup --watch",
     "watch-format2-server": "cd gx-workflow-ls-format2 && tsup --watch",
     "watch": "concurrently --kill-others \"npm run watch-format2-server\" \"npm run watch-native-server\"",
-    "test": "jest"
+    "test": "vitest run"
   },
   "workspaces": [
     "gx-workflow-ls-format2",
     "gx-workflow-ls-native",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "@modyfi/vite-plugin-yaml": "^1.1.1"
+  }
 }

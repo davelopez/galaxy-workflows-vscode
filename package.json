@@ -236,6 +236,7 @@
     "test-browser": "vscode-test-web --extensionDevelopmentPath=. ./test-data"
   },
   "devDependencies": {
+    "@swc/core": "^1.4.0",
     "@types/jest": "^29.5.8",
     "@types/mocha": "^10.0.1",
     "@types/vscode": "^1.81.0",
@@ -254,9 +255,10 @@
     "prettier": "3.0.3",
     "rimraf": "^5.0.1",
     "ts-jest": "^29.1.1",
-    "@swc/core": "^1.4.0",
     "tsup": "^8.0.0",
     "typescript": "^5.2.2",
+    "unplugin-swc": "^1.5.9",
+    "vitest": "^4.1.2",
     "yaml": "^2.3.2"
   },
   "__metadata": {
