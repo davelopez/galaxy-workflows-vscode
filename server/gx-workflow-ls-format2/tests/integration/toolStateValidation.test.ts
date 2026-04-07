@@ -93,6 +93,79 @@ function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryServic
   };
 }
 
+const CONDITIONAL_PARAMS = [
+  {
+    name: "mode_cond",
+    parameter_type: "gx_conditional",
+    label: "Mode",
+    help: null,
+    hidden: false,
+    argument: null,
+    is_dynamic: false,
+    test_parameter: {
+      name: "mode_select",
+      parameter_type: "gx_select",
+      type: "select",
+      label: "Mode selector",
+      help: null,
+      hidden: false,
+      optional: false,
+      multiple: false,
+      is_dynamic: false,
+      argument: null,
+      validators: [],
+      options: [
+        { label: "Fast", value: "fast", selected: true },
+        { label: "Sensitive", value: "sensitive", selected: false },
+      ],
+    },
+    whens: [
+      {
+        discriminator: "fast",
+        is_default_when: true,
+        parameters: [
+          {
+            name: "fast_param",
+            parameter_type: "gx_integer",
+            type: "integer",
+            label: "Fast parameter",
+            help: null,
+            hidden: false,
+            optional: true,
+            value: 5,
+            min: null,
+            max: null,
+            is_dynamic: false,
+            argument: null,
+            validators: [],
+          },
+        ],
+      },
+      {
+        discriminator: "sensitive",
+        is_default_when: false,
+        parameters: [
+          {
+            name: "sensitive_param",
+            parameter_type: "gx_integer",
+            type: "integer",
+            label: "Sensitive parameter",
+            help: null,
+            hidden: false,
+            optional: true,
+            value: 10,
+            min: null,
+            max: null,
+            is_dynamic: false,
+            argument: null,
+            validators: [],
+          },
+        ],
+      },
+    ],
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Test setup
 // ---------------------------------------------------------------------------
@@ -146,7 +219,9 @@ describe("ToolStateValidationService", () => {
   });
 
   it("emits no diagnostics for valid parameter name", async () => {
-    const doc = createFormat2WorkflowDocument(STEP_PREFIX + "      read1: my_dataset\n");
+    // Use a non-data param: data params (gx_data) have no valid value in format2 state
+    // (they belong in `in:` connections). alignment_type with a valid option is always valid.
+    const doc = createFormat2WorkflowDocument(STEP_PREFIX + "      alignment_type: end_to_end\n");
     const diagnostics = await service.doValidation(doc);
     expect(diagnostics).toHaveLength(0);
   });
@@ -204,5 +279,40 @@ describe("ToolStateValidationService", () => {
 
     expect(diagnostics.some((d) => d.message.includes("'unknown1'"))).toBe(true);
     expect(diagnostics.some((d) => d.message.includes("'unknown2'"))).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Conditional branch filtering (A5)
+  // ---------------------------------------------------------------------------
+
+  describe("conditional branch filtering", () => {
+    let condService: ToolStateValidationService;
+
+    beforeAll(() => {
+      condService = new ToolStateValidationService(makeMockRegistry(TOOL_ID, CONDITIONAL_PARAMS));
+    });
+
+    const COND_PREFIX =
+      "class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n" +
+      `  step1:\n    tool_id: ${TOOL_ID}\n    state:\n      mode_cond:\n`;
+
+    it("warns on stale branch parameter (sensitive_param set when mode_select is fast)", async () => {
+      const doc = createFormat2WorkflowDocument(
+        COND_PREFIX + "        mode_select: fast\n        sensitive_param: 10\n"
+      );
+      const diagnostics = await condService.doValidation(doc);
+
+      expect(diagnostics.some((d) => d.message.includes("sensitive_param"))).toBe(true);
+      expect(diagnostics.some((d) => d.severity === 2 /* Warning */)).toBe(true);
+    });
+
+    it("emits no diagnostics when active branch params are clean", async () => {
+      const doc = createFormat2WorkflowDocument(
+        COND_PREFIX + "        mode_select: fast\n        fast_param: 5\n"
+      );
+      const diagnostics = await condService.doValidation(doc);
+
+      expect(diagnostics).toHaveLength(0);
+    });
   });
 });
