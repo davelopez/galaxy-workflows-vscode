@@ -1,4 +1,3 @@
-import { ASTNode } from "@gxwf/server-common/src/ast/types";
 import { CompletionItem, CompletionItemKind, CompletionList, Position, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
@@ -161,20 +160,5 @@ export class GxFormat2CompletionService {
       }
     }
     return result;
-  }
-}
-
-function _DEBUG_printNodeName(node: ASTNode): void {
-  let nodeName = "_root_";
-  if (node?.type === "property") {
-    nodeName = node.keyNode.value;
-    console.debug("COMPLETION NODE PROPERTY", nodeName);
-  } else if (node?.type === "object") {
-    console.debug(`COMPLETION NODE OBJECT:`);
-    node.properties.forEach((p) => {
-      console.debug(`  ${p.keyNode.value}`);
-    });
-  } else {
-    console.debug("UNKNOWN");
   }
 }

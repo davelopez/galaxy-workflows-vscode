@@ -187,11 +187,18 @@ function navigateParams(params: ToolParam[], innerPath: Segment[], afterColon: b
 // Completion item builders
 // ---------------------------------------------------------------------------
 
+/** Convert gx_integer → "integer", gx_select → "select", etc. */
+function paramTypeDetail(param: ToolParam): string {
+  const pt = param.parameter_type;
+  return pt.startsWith("gx_") ? pt.slice(3) : pt;
+}
+
 function nameCompletionItem(param: ToolParam, overwriteRange: { start: { line: number; character: number }; end: { line: number; character: number } }): CompletionItem {
   const label = param.name;
   const doc = (param as ToolParamBase).help ?? (param as ToolParamBase).label ?? undefined;
   return {
     label,
+    detail: paramTypeDetail(param),
     kind: CompletionItemKind.Field,
     documentation: doc ?? undefined,
     sortText: `_${label}`,

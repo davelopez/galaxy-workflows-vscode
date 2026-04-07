@@ -114,6 +114,104 @@ const FAKE_TOOL_PARAMS = [
     argument: null,
     validators: [],
   },
+  {
+    name: "iterations",
+    parameter_type: "gx_repeat",
+    label: "Iterations",
+    help: "Repeat iterations",
+    hidden: false,
+    argument: null,
+    is_dynamic: false,
+    min: null,
+    max: null,
+    parameters: [
+      {
+        name: "seed",
+        parameter_type: "gx_integer",
+        type: "integer",
+        label: "Seed",
+        help: "Random seed",
+        hidden: false,
+        optional: true,
+        value: 42,
+        min: null,
+        max: null,
+        is_dynamic: false,
+        argument: null,
+        validators: [],
+      },
+    ],
+  },
+  {
+    name: "mode_cond",
+    parameter_type: "gx_conditional",
+    label: "Mode",
+    help: null,
+    hidden: false,
+    argument: null,
+    is_dynamic: false,
+    test_parameter: {
+      name: "mode_select",
+      parameter_type: "gx_select",
+      type: "select",
+      label: "Mode",
+      help: null,
+      hidden: false,
+      optional: false,
+      multiple: false,
+      is_dynamic: false,
+      argument: null,
+      validators: [],
+      options: [
+        { label: "Fast", value: "fast", selected: true },
+        { label: "Sensitive", value: "sensitive", selected: false },
+      ],
+    },
+    whens: [
+      {
+        discriminator: "fast",
+        is_default_when: true,
+        parameters: [
+          {
+            name: "fast_param",
+            parameter_type: "gx_integer",
+            type: "integer",
+            label: "Fast param",
+            help: null,
+            hidden: false,
+            optional: true,
+            value: 5,
+            min: null,
+            max: null,
+            is_dynamic: false,
+            argument: null,
+            validators: [],
+          },
+        ],
+      },
+      {
+        discriminator: "sensitive",
+        is_default_when: false,
+        parameters: [
+          {
+            name: "sensitive_param",
+            parameter_type: "gx_text",
+            type: "text",
+            label: "Sensitive param",
+            help: null,
+            hidden: false,
+            optional: true,
+            value: null,
+            area: false,
+            default_options: [],
+            is_dynamic: false,
+            argument: null,
+            validators: [],
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 /** Minimal stub of ToolRegistryService that returns fake params for one tool. */
@@ -292,5 +390,72 @@ steps:
 
     expect(readItem).toBeDefined();
     expect(readItem?.insertText).toBe("read1: ");
+  });
+
+  it("includes parameter type as detail field", async () => {
+    const template = WORKFLOW_PREFIX + `      $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+    const items = completions.items;
+
+    expect(items.find((i) => i.label === "num_threads")?.detail).toBe("integer");
+    expect(items.find((i) => i.label === "alignment_type")?.detail).toBe("select");
+    expect(items.find((i) => i.label === "paired_end")?.detail).toBe("boolean");
+    expect(items.find((i) => i.label === "advanced")?.detail).toBe("section");
+  });
+
+  // ---------------------------------------------------------------------------
+  // tool_state key (alternate to state)
+  // ---------------------------------------------------------------------------
+
+  it("offers completions inside tool_state block (not just state)", async () => {
+    const workflow =
+      `class: GalaxyWorkflow\n` +
+      `inputs: {}\noutputs: {}\nsteps:\n` +
+      `  step1:\n` +
+      `    tool_id: ${TOOL_ID}\n` +
+      `    tool_state:\n` +
+      `      $`;
+    const { contents, position } = parseTemplate(workflow);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("read1");
+    expect(labels).toContain("num_threads");
+  });
+
+  // ---------------------------------------------------------------------------
+  // Repeat navigation
+  // ---------------------------------------------------------------------------
+
+  it("suggests parameters inside a repeat block", async () => {
+    const template = WORKFLOW_PREFIX + `      iterations:\n        - $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("seed");
+    expect(labels).not.toContain("read1");
+  });
+
+  // ---------------------------------------------------------------------------
+  // Conditional parameter navigation
+  // ---------------------------------------------------------------------------
+
+  it("suggests test_parameter and all branch params inside a conditional", async () => {
+    const template = WORKFLOW_PREFIX + `      mode_cond:\n        $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    // Test parameter should be offered
+    expect(labels).toContain("mode_select");
+    // All branch parameters should be offered (unfiltered in Phase 3)
+    expect(labels).toContain("fast_param");
+    expect(labels).toContain("sensitive_param");
   });
 });
