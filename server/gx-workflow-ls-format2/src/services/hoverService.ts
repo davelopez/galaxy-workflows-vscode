@@ -1,4 +1,5 @@
-import { ASTNode, NodePath, Segment } from "@gxwf/server-common/src/ast/types";
+import { findParamAtPath } from "@galaxy-tool-util/schema";
+import { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
 import { Hover, MarkupContent, MarkupKind, Position, Range, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
@@ -6,12 +7,11 @@ import { findStateInPath } from "./toolStateCompletionService";
 import {
   ToolParam,
   ToolParamBase,
+  getObjectNodeFromStep,
   getStringPropertyFromStep,
   isBooleanParam,
-  isConditionalParam,
-  isRepeatParam,
   isSelectParam,
-  isSectionParam,
+  yamlObjectNodeToRecord,
 } from "./toolStateTypes";
 
 export class GxFormat2HoverService {
@@ -66,7 +66,7 @@ export class GxFormat2HoverService {
   private async getToolStateHover(
     documentContext: GxFormat2WorkflowDocument,
     location: NodePath,
-    stateInfo: { stateIndex: number },
+    stateInfo: { stateIndex: number; stateKey: string },
     hoverRange: Range
   ): Promise<Hover | null> {
     const root = documentContext.nodeManager.root;
@@ -82,10 +82,14 @@ export class GxFormat2HoverService {
     const rawParams = await this.toolRegistryService!.getToolParameters(toolId, toolVersion);
     if (!rawParams) return null;
 
-    const param = findParamAtPath(rawParams as ToolParam[], innerPath);
-    if (!param) return null;
+    // Build state dict for conditional branch filtering
+    const stateNode = getObjectNodeFromStep(root, stepPath, stateInfo.stateKey);
+    const stateDict = stateNode ? yamlObjectNodeToRecord(stateNode) : undefined;
 
-    const contents = buildParamHoverMarkdown(param);
+    const result = findParamAtPath(rawParams as ToolParam[], innerPath, stateDict);
+    if (!result.param) return null;
+
+    const contents = buildParamHoverMarkdown(result.param);
     return this.createHover(contents, hoverRange);
   }
 
@@ -114,28 +118,8 @@ export class GxFormat2HoverService {
 }
 
 // ---------------------------------------------------------------------------
-// Parameter lookup and hover markdown
+// Hover markdown builder
 // ---------------------------------------------------------------------------
-
-function findParamAtPath(params: ToolParam[], innerPath: Segment[]): ToolParam | undefined {
-  if (innerPath.length === 0) return undefined;
-  const head = innerPath[0];
-  const tail = innerPath.slice(1);
-
-  if (typeof head === "number") return findParamAtPath(params, tail);
-
-  const match = params.find((p) => p.name === head);
-  if (!match) return undefined;
-  if (tail.length === 0) return match;
-
-  if (isSectionParam(match)) return findParamAtPath(match.parameters, tail);
-  if (isRepeatParam(match)) return findParamAtPath(match.parameters, tail);
-  if (isConditionalParam(match)) {
-    const allParams: ToolParam[] = [match.test_parameter, ...match.whens.flatMap((w) => w.parameters)];
-    return findParamAtPath(allParams, tail);
-  }
-  return undefined;
-}
 
 function buildParamHoverMarkdown(param: ToolParam): string {
   const base = param as ToolParamBase;

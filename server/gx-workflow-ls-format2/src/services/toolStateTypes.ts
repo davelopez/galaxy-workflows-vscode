@@ -49,6 +49,13 @@ export function isHidden(p: ToolParameterModel): boolean {
 // AST helpers (extension-specific, not upstreamable)
 // ---------------------------------------------------------------------------
 
+/** Minimal common fields shared by all ToolParam variants (for display purposes). */
+export interface ToolParamBase {
+  name: string;
+  label: string | null;
+  help: string | null;
+}
+
 /**
  * Navigate the AST from root along `stepPath` segments and return the string
  * value of `propertyName` on the resulting step object, or undefined.
@@ -69,4 +76,44 @@ export function getStringPropertyFromStep(
   const val = prop?.valueNode;
   if (val?.type === "string") return val.value;
   return undefined;
+}
+
+/**
+ * Navigate the AST from root along `stepPath` segments and return the object
+ * value node of `propertyName` on the resulting step object, or undefined.
+ */
+export function getObjectNodeFromStep(
+  root: ASTNode | undefined,
+  stepPath: NodePath,
+  propertyName: string
+): ObjectASTNode | undefined {
+  let current: ASTNode | undefined = root;
+  for (const seg of stepPath) {
+    if (!current || current.type !== "object") return undefined;
+    const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
+    current = prop?.valueNode;
+  }
+  if (!current || current.type !== "object") return undefined;
+  const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
+  const val = prop?.valueNode;
+  return val?.type === "object" ? (val as ObjectASTNode) : undefined;
+}
+
+/**
+ * Convert a YAML ObjectASTNode to a nested plain dict for upstream param navigation.
+ * Preserves native boolean values so selectWhichWhen can match boolean discriminators.
+ */
+export function yamlObjectNodeToRecord(node: ObjectASTNode): Record<string, unknown> {
+  const dict: Record<string, unknown> = {};
+  for (const prop of node.properties) {
+    const key = String(prop.keyNode.value);
+    const val = prop.valueNode;
+    if (!val) continue;
+    if (val.type === "string") dict[key] = String(val.value);
+    if (val.type === "boolean") dict[key] = Boolean(val.value);
+    if (val.type === "number") dict[key] = Number(val.value);
+    if (val.type === "object") dict[key] = yamlObjectNodeToRecord(val as ObjectASTNode);
+    // arrays (repeats) omitted — selectWhichWhen only needs scalar values
+  }
+  return dict;
 }

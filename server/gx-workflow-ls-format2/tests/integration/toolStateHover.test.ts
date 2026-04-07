@@ -13,6 +13,79 @@ import { createFormat2WorkflowDocument } from "../testHelpers";
 
 const TOOL_ID = "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.4.4";
 
+const CONDITIONAL_PARAMS = [
+  {
+    name: "mode_cond",
+    parameter_type: "gx_conditional",
+    label: "Mode",
+    help: null,
+    hidden: false,
+    argument: null,
+    is_dynamic: false,
+    test_parameter: {
+      name: "mode_select",
+      parameter_type: "gx_select",
+      type: "select",
+      label: "Mode selector",
+      help: null,
+      hidden: false,
+      optional: false,
+      multiple: false,
+      is_dynamic: false,
+      argument: null,
+      validators: [],
+      options: [
+        { label: "Fast", value: "fast", selected: true },
+        { label: "Sensitive", value: "sensitive", selected: false },
+      ],
+    },
+    whens: [
+      {
+        discriminator: "fast",
+        is_default_when: true,
+        parameters: [
+          {
+            name: "fast_param",
+            parameter_type: "gx_integer",
+            type: "integer",
+            label: "Fast parameter",
+            help: "Fast mode only",
+            hidden: false,
+            optional: true,
+            value: 5,
+            min: null,
+            max: null,
+            is_dynamic: false,
+            argument: null,
+            validators: [],
+          },
+        ],
+      },
+      {
+        discriminator: "sensitive",
+        is_default_when: false,
+        parameters: [
+          {
+            name: "sensitive_param",
+            parameter_type: "gx_integer",
+            type: "integer",
+            label: "Sensitive parameter",
+            help: "Sensitive mode only",
+            hidden: false,
+            optional: true,
+            value: 10,
+            min: null,
+            max: null,
+            is_dynamic: false,
+            argument: null,
+            validators: [],
+          },
+        ],
+      },
+    ],
+  },
+];
+
 const TOOL_PARAMS = [
   {
     name: "read1",
@@ -142,6 +215,49 @@ describe("Tool State Hover Service", () => {
 
     const text = typeof hover?.contents === "string" ? hover.contents : (hover?.contents as { value: string }).value;
     expect(text).toContain("First read file");
+  });
+
+  // ---------------------------------------------------------------------------
+  // Conditional branch-aware hover
+  // ---------------------------------------------------------------------------
+
+  describe("conditional branch hover", () => {
+    let condService: GxFormat2HoverService;
+
+    beforeAll(() => {
+      const schemaNodeResolver = new JsonSchemaGalaxyWorkflowLoader(galaxyWorkflowJsonSchema).nodeResolver;
+      condService = new GxFormat2HoverService(schemaNodeResolver, makeMockRegistry(TOOL_ID, CONDITIONAL_PARAMS));
+    });
+
+    const COND_PREFIX =
+      `class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n` +
+      `  step1:\n    tool_id: ${TOOL_ID}\n    state:\n      mode_cond:\n`;
+
+    it("shows fast_param hover when mode_select is fast", async () => {
+      const template = COND_PREFIX + `        mode_select: fast\n        fast$_param: 5`;
+      const { contents, position } = parseTemplate(template);
+
+      const hover = await condService.doHover(createFormat2WorkflowDocument(contents), position);
+
+      expect(hover).not.toBeNull();
+      const text = typeof hover?.contents === "string" ? hover.contents : (hover?.contents as { value: string }).value;
+      expect(text).toContain("fast_param");
+      expect(text).toContain("Fast parameter");
+    });
+
+    it("returns null for sensitive_param when mode_select is fast (inactive branch)", async () => {
+      const template = COND_PREFIX + `        mode_select: fast\n        sensitive$_param: 10`;
+      const { contents, position } = parseTemplate(template);
+
+      const hover = await condService.doHover(createFormat2WorkflowDocument(contents), position);
+
+      // sensitive_param is not in the active branch — hover should not resolve tool-state doc
+      // (falls through to schema hover or null)
+      const text = hover == null
+        ? ""
+        : (typeof hover.contents === "string" ? hover.contents : (hover.contents as { value: string }).value);
+      expect(text).not.toContain("Sensitive parameter");
+    });
   });
 
   // ---------------------------------------------------------------------------

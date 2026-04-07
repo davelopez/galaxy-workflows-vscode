@@ -445,7 +445,8 @@ steps:
   // Conditional parameter navigation
   // ---------------------------------------------------------------------------
 
-  it("suggests test_parameter and all branch params inside a conditional", async () => {
+  it("suggests all branch params inside a conditional when discriminator not yet set", async () => {
+    // mode_cond object exists but mode_select has not been written yet
     const template = WORKFLOW_PREFIX + `      mode_cond:\n        $`;
     const { contents, position } = parseTemplate(template);
 
@@ -454,8 +455,34 @@ steps:
 
     // Test parameter should be offered
     expect(labels).toContain("mode_select");
-    // All branch parameters should be offered (unfiltered in Phase 3)
+    // All branch parameters offered when discriminator is not set
     expect(labels).toContain("fast_param");
     expect(labels).toContain("sensitive_param");
+  });
+
+  it("filters to fast branch params when mode_select is 'fast'", async () => {
+    const template =
+      WORKFLOW_PREFIX +
+      `      mode_cond:\n        mode_select: fast\n        $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("fast_param");
+    expect(labels).not.toContain("sensitive_param");
+  });
+
+  it("filters to sensitive branch params when mode_select is 'sensitive'", async () => {
+    const template =
+      WORKFLOW_PREFIX +
+      `      mode_cond:\n        mode_select: sensitive\n        $`;
+    const { contents, position } = parseTemplate(template);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("sensitive_param");
+    expect(labels).not.toContain("fast_param");
   });
 });

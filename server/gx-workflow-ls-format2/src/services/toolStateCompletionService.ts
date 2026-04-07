@@ -1,9 +1,11 @@
-import { ASTNode, NodePath, Segment } from "@gxwf/server-common/src/ast/types";
+import { findParamAtPath } from "@galaxy-tool-util/schema";
+import { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
 import { CompletionItem, CompletionItemKind, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import {
   ToolParam,
   ToolParamBase,
+  getObjectNodeFromStep,
   getStringPropertyFromStep,
   isBooleanParam,
   isConditionalParam,
@@ -11,6 +13,7 @@ import {
   isRepeatParam,
   isSelectParam,
   isSectionParam,
+  yamlObjectNodeToRecord,
 } from "./toolStateTypes";
 
 // ---------------------------------------------------------------------------
@@ -35,67 +38,6 @@ export function findStateInPath(path: NodePath): StateInPath | undefined {
     }
   }
   return undefined;
-}
-
-// ---------------------------------------------------------------------------
-// Parameter tree navigation
-// ---------------------------------------------------------------------------
-
-interface NavResult {
-  params: ToolParam[];
-  mode: "names" | "value";
-  targetParam?: ToolParam;
-}
-
-/**
- * Navigate the parameter tree along `innerPath` to determine the completion context.
- * Returns the list of parameters available at the current level and whether we're
- * completing a property name or a value.
- */
-function navigateParams(params: ToolParam[], innerPath: Segment[], afterColon: boolean): NavResult {
-  if (innerPath.length === 0) {
-    return { params, mode: "names" };
-  }
-
-  const head = innerPath[0];
-  const tail = innerPath.slice(1);
-
-  // Skip numeric segments (array indices from repeat instances)
-  if (typeof head === "number") {
-    return navigateParams(params, tail, afterColon);
-  }
-
-  const match = params.find((p) => p.name === head);
-
-  if (!match) {
-    // Unknown segment — still offer names at this level
-    return { params, mode: "names" };
-  }
-
-  if (tail.length === 0) {
-    // We're AT this parameter
-    if (afterColon) {
-      return { params, mode: "value", targetParam: match };
-    }
-    // Not after colon — still completing at this level
-    if (isSectionParam(match)) return { params: match.parameters, mode: "names" };
-    if (isRepeatParam(match)) return { params: match.parameters, mode: "names" };
-    if (isConditionalParam(match)) {
-      const allParams = [match.test_parameter, ...match.whens.flatMap((w) => w.parameters)];
-      return { params: allParams, mode: "names" };
-    }
-    return { params, mode: "names" };
-  }
-
-  // Navigate deeper
-  if (isSectionParam(match)) return navigateParams(match.parameters, tail, afterColon);
-  if (isRepeatParam(match)) return navigateParams(match.parameters, tail, afterColon);
-  if (isConditionalParam(match)) {
-    const allParams = [match.test_parameter, ...match.whens.flatMap((w) => w.parameters)];
-    return navigateParams(allParams, tail, afterColon);
-  }
-
-  return { params, mode: "names" };
 }
 
 // ---------------------------------------------------------------------------
@@ -176,13 +118,37 @@ export class ToolStateCompletionService {
     const overwriteRange = textBuffer.getCurrentWordRange(offset);
     const currentWord = textBuffer.getCurrentWord(offset);
 
-    const { params: contextParams, mode, targetParam } = navigateParams(params, innerPath, afterColon);
+    // Build state dict for conditional branch filtering
+    const stateNode = getObjectNodeFromStep(root, stepPath, stateInfo.stateKey);
+    const stateDict = stateNode ? yamlObjectNodeToRecord(stateNode) : undefined;
 
-    if (mode === "value" && targetParam) {
-      return this.valueItems(targetParam, currentWord, overwriteRange);
+    const result = findParamAtPath(params, innerPath, stateDict);
+
+    // Value completion: cursor is after ":" on a leaf param
+    if (result.param && afterColon) {
+      return this.valueItems(result.param, currentWord, overwriteRange);
     }
 
-    // Complete property names
+    // Name completion: determine which params are available at the cursor level
+    let contextParams: ToolParam[];
+    if (result.param && !afterColon) {
+      // Cursor is positioned AT a container param key — show its children
+      if (isSectionParam(result.param) || isRepeatParam(result.param)) {
+        contextParams = result.param.parameters as ToolParam[];
+      } else if (isConditionalParam(result.param)) {
+        // Navigate into the conditional to get branch-filtered children;
+        // using an empty-string sentinel causes findParamAtPath to resolve
+        // the branch and return its children as availableParams.
+        const inner = findParamAtPath(params, [...innerPath, ""], stateDict);
+        contextParams = inner.availableParams as ToolParam[];
+      } else {
+        // Leaf param at cursor (no afterColon) — show siblings
+        contextParams = result.availableParams as ToolParam[];
+      }
+    } else {
+      contextParams = result.availableParams as ToolParam[];
+    }
+
     return contextParams
       .filter((p) => !isHidden(p))
       .filter((p) => p.name.startsWith(currentWord))
