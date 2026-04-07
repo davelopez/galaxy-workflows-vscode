@@ -40,8 +40,18 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
   ): void {
     const range = this.getRange(nodeManager, node);
     const schemaRecord = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaNode.typeRef);
-    if (schemaRecord instanceof EnumSchemaNode && node.type === "string") {
-      this.validateEnumValue(node, schemaRecord, range, diagnostics);
+    if (schemaRecord instanceof EnumSchemaNode) {
+      if (node.type === "string") {
+        this.validateEnumValue(node, schemaRecord, range, diagnostics);
+      } else if (node.type !== "null") {
+        diagnostics.push(
+          Diagnostic.create(
+            range,
+            `Type mismatch. Expected '${schemaRecord.name}' but found '${node.type}'.`,
+            DiagnosticSeverity.Error
+          )
+        );
+      }
     }
     if (schemaNode instanceof RecordSchemaNode) {
       switch (node.type) {
@@ -90,6 +100,17 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
           Diagnostic.create(range, `The '${schemaFieldNode.name}' field is required.`, DiagnosticSeverity.Error)
         );
       }
+      if (schemaFieldNode.canBeAny) return;
+      if (nodeFound && propertyNode?.valueNode?.type === "null" && schemaFieldNode.isRequired && !schemaFieldNode.canBeArray) {
+        diagnostics.push(
+          Diagnostic.create(
+            range,
+            `Type mismatch for field '${schemaFieldNode.name}'. Expected '${schemaFieldNode.typeRef}' but found 'null'.`,
+            DiagnosticSeverity.Error
+          )
+        );
+        return;
+      }
       if (nodeFound && propertyNode?.valueNode?.type) {
         const isPropertyTypeSimple = isSimpleType(propertyNode.valueNode.type);
         // Primitive type validation
@@ -128,11 +149,21 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
         const childSchemaNode = this.schemaNodeResolver.getSchemaNodeByTypeRef(schemaFieldNode.typeRef);
         if (childSchemaNode) {
           if (schemaFieldNode.canBeArray) {
-            propertyNode.valueNode.children?.forEach((item) => {
-              if (item.type === "property" && item.valueNode) {
-                this.collectDiagnostics(nodeManager, item.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
-              }
-            });
+            const valueType = propertyNode.valueNode.type;
+            if (valueType === "object" && !schemaFieldNode.mapSubject) {
+              // Object shorthand with no id-mapping: treat as a single record instance
+              this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
+            } else if (valueType === "object" || valueType === "array") {
+              // Map or array form: validate each item
+              propertyNode.valueNode.children?.forEach((item) => {
+                if (item.type === "property" && item.valueNode) {
+                  this.collectDiagnostics(nodeManager, item.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
+                }
+              });
+            } else if (!schemaFieldNode.matchesType(propertyNode.valueNode.type)) {
+              // Simple scalar not directly accepted by this field: validate against item type
+              this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
+            }
           } else {
             this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
           }

@@ -7,8 +7,12 @@ import {
   SchemaField,
   SchemaRecord,
 } from "./definitions";
-import { GalaxyWorkflowSchemaLoader } from "./schemaLoader";
 import { SchemaNodeResolver, SchemaNodeResolverImpl } from "./schemaNodeResolver";
+
+export interface GalaxyWorkflowSchemaLoader {
+  readonly definitions: SchemaDefinitions;
+  readonly nodeResolver: SchemaNodeResolver;
+}
 
 /** Minimal JSON Schema shape as produced by Effect's JSONSchema.make */
 type JSchema = Record<string, unknown>;
@@ -114,11 +118,12 @@ function buildGalaxyWorkflowRecord(): SchemaRecord {
   const fields: SchemaField[] = [
     // Required discriminator — type is the GalaxyWorkflowClass enum
     { name: "class", type: "GalaxyWorkflowClass", doc: "Must be 'GalaxyWorkflow'.", default: "GalaxyWorkflow" },
-    // inputs/outputs use abstract names so ignoredSchemaRefs in CompletionService suppresses
-    // completions at the key-definition level (e.g. `inputs:\n  $`).
-    namedArrayField("inputs", "InputParameter", "Workflow input parameters."),
-    namedArrayField("outputs", "OutputParameter", "Workflow output parameters."),
-    namedArrayField("steps", "WorkflowStep", "The individual steps that make up the workflow."),
+    // inputs/outputs/steps use abstract names so ignoredSchemaRefs in CompletionService
+    // suppresses completions at the key-definition level (e.g. `inputs:\n  $`).
+    // jsonldPredicate tells the validator these are id-maps (key = entry id).
+    { name: "inputs", type: [{ type: "array", items: "InputParameter" }], doc: "Workflow input parameters.", jsonldPredicate: { mapSubject: "id" } },
+    { name: "outputs", type: [{ type: "array", items: "OutputParameter" }], doc: "Workflow output parameters.", jsonldPredicate: { mapSubject: "id" } },
+    { name: "steps", type: [{ type: "array", items: "WorkflowStep" }], doc: "The individual steps that make up the workflow.", jsonldPredicate: { mapSubject: "id" } },
     optNamedField("report", "Report", "Workflow invocation report template."),
     optStringArrayField("tags", "Tags for the workflow."),
     { name: "creator", type: "Any?", doc: "Workflow creators (Person or Organization)." },
@@ -195,8 +200,13 @@ function buildWorkflowStepRecord(): SchemaRecord {
     optStringField("errors", "Error description from Galaxy export."),
     // HasUUID
     optStringField("uuid", "UUID uniquely representing this element."),
-    // in: optional array of WorkflowStepInput
-    optNamedArrayField("in", "WorkflowStepInput", "Workflow step input connections."),
+    // in: optional array/map of WorkflowStepInput; gxformat2 uses "id: source" shorthand
+    {
+      name: "in",
+      type: ["null", { type: "array", items: "WorkflowStepInput" }],
+      doc: "Workflow step input connections.",
+      jsonldPredicate: { mapSubject: "id", mapPredicate: "source" },
+    },
     // out: optional array that can be WorkflowStepOutput or string
     { name: "out", type: ["null", { type: "array", items: "WorkflowStepOutput" }, { type: "array", items: "string" }], doc: "Workflow step outputs." },
     // state / tool_state → Any
@@ -257,8 +267,8 @@ function buildWorkflowStepOutputRecord(): SchemaRecord {
 
 function buildStepPositionRecord(): SchemaRecord {
   const fields: SchemaField[] = [
-    { name: "top", type: "int", doc: "Relative vertical position." },
-    { name: "left", type: "int", doc: "Relative horizontal position." },
+    { name: "top", type: "float", doc: "Relative vertical position." },
+    { name: "left", type: "float", doc: "Relative horizontal position." },
   ];
   return {
     name: "StepPosition",

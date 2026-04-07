@@ -18,7 +18,6 @@ import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguag
 import { inject, injectable } from "inversify";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GxFormat2BasicValidationProfile, GxFormat2IWCValidationProfile } from "./profiles";
-import { GalaxyWorkflowFormat2SchemaLoader } from "./schema";
 import { JsonSchemaGalaxyWorkflowLoader } from "./schema/jsonSchemaLoader";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
@@ -38,7 +37,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
   implements GxFormat2WorkflowLanguageService
 {
   private _yamlLanguageService: YAMLLanguageService;
-  private _schemaLoader: GalaxyWorkflowFormat2SchemaLoader | JsonSchemaGalaxyWorkflowLoader;
+  private _schemaLoader: JsonSchemaGalaxyWorkflowLoader;
   private _hoverService: GxFormat2HoverService;
   private _completionService: GxFormat2CompletionService;
   private _schemaValidationService: GxFormat2SchemaValidationService;
@@ -48,9 +47,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
     @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider
   ) {
     super(LANGUAGE_ID);
-    this._schemaLoader = process.env["GXWF_USE_JSON_SCHEMA"] === "1"
-      ? new JsonSchemaGalaxyWorkflowLoader()
-      : new GalaxyWorkflowFormat2SchemaLoader();
+    this._schemaLoader = new JsonSchemaGalaxyWorkflowLoader();
     this._yamlLanguageService = yamlLanguageService;
     this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
     this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver);

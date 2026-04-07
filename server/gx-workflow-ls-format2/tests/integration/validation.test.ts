@@ -3,10 +3,17 @@ import {
   ChildrenRequiredPropertyValidationRule,
   StepExportErrorValidationRule,
 } from "@gxwf/server-common/src/providers/validation/rules";
-import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
+import { execSync } from "child_process";
+import { JsonSchemaGalaxyWorkflowLoader } from "../../src/schema/jsonSchemaLoader";
 import { GxFormat2SchemaValidationService } from "../../src/services/schemaValidationService";
 import { InputTypeValidationRule } from "../../src/validation/rules/InputTypeValidationRule";
 import { createFormat2WorkflowDocument } from "../testHelpers";
+
+const galaxyWorkflowJsonSchema = JSON.parse(
+  execSync(
+    `node --input-type=module --eval "import { GalaxyWorkflowSchema } from '@galaxy-tool-util/schema'; import { JSONSchema } from 'effect'; process.stdout.write(JSON.stringify(JSONSchema.make(GalaxyWorkflowSchema)));"`
+  ).toString()
+);
 
 describe("Schema validation", () => {
   let validator: GxFormat2SchemaValidationService;
@@ -17,7 +24,7 @@ describe("Schema validation", () => {
   }
 
   beforeAll(() => {
-    const schemaNodeResolver = new GalaxyWorkflowFormat2SchemaLoader().nodeResolver;
+    const schemaNodeResolver = new JsonSchemaGalaxyWorkflowLoader(galaxyWorkflowJsonSchema).nodeResolver;
     validator = new GxFormat2SchemaValidationService(schemaNodeResolver);
   });
 
@@ -53,7 +60,7 @@ steps:
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
-    expect(diagnostics[0].message).toBe("Type mismatch for field 'class'. Expected 'string' but found 'null'.");
+    expect(diagnostics[0].message).toBe("Type mismatch for field 'class'. Expected 'GalaxyWorkflowClass' but found 'null'.");
   });
 
   it("should report error for missing required properties", async () => {
@@ -62,9 +69,9 @@ class: GalaxyWorkflow
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(3);
-    expect(diagnostics[0].message).toBe("The 'steps' field is required.");
-    expect(diagnostics[1].message).toBe("The 'inputs' field is required.");
-    expect(diagnostics[2].message).toBe("The 'outputs' field is required.");
+    expect(diagnostics[0].message).toBe("The 'inputs' field is required.");
+    expect(diagnostics[1].message).toBe("The 'outputs' field is required.");
+    expect(diagnostics[2].message).toBe("The 'steps' field is required.");
   });
 
   it("should report error for invalid input type value", async () => {
@@ -78,9 +85,7 @@ steps:
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
-    expect(diagnostics[0].message).toBe(
-      "Type mismatch for field 'type'. Expected 'GalaxyType | string' but found 'number'."
-    );
+    expect(diagnostics[0].message).toBe("Type mismatch. Expected 'GalaxyType' but found 'number'.");
   });
 
   it("should report error for invalid enum value", async () => {
@@ -95,7 +100,7 @@ steps:
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toBe(
-      "The value is not a valid 'WorkflowStepType'. Allowed values are: tool, subworkflow, pause."
+      "The value is not a valid 'WorkflowStepType'. Allowed values are: tool, subworkflow, pause, pick_value."
     );
   });
 
@@ -141,7 +146,7 @@ steps:
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toContain(
-      "Type mismatch for field 'top'. Expected 'float | int' but found 'string'."
+      "Type mismatch for field 'top'. Expected 'float' but found 'string'."
     );
   });
 

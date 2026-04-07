@@ -1,15 +1,22 @@
 import { CompletionList } from "@gxwf/server-common/src/languageTypes";
 import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 
+import { execSync } from "child_process";
 import "reflect-metadata";
-import { GalaxyWorkflowFormat2SchemaLoader } from "../../src/schema";
+import { JsonSchemaGalaxyWorkflowLoader } from "../../src/schema/jsonSchemaLoader";
 import { GxFormat2CompletionService } from "../../src/services/completionService";
 import { createFormat2WorkflowDocument } from "../testHelpers";
+
+const galaxyWorkflowJsonSchema = JSON.parse(
+  execSync(
+    `node --input-type=module --eval "import { GalaxyWorkflowSchema } from '@galaxy-tool-util/schema'; import { JSONSchema } from 'effect'; process.stdout.write(JSON.stringify(JSONSchema.make(GalaxyWorkflowSchema)));"`
+  ).toString()
+);
 
 describe("Format2 Workflow Completion Service", () => {
   let service: GxFormat2CompletionService;
   beforeAll(() => {
-    const schemaNodeResolver = new GalaxyWorkflowFormat2SchemaLoader().nodeResolver;
+    const schemaNodeResolver = new JsonSchemaGalaxyWorkflowLoader(galaxyWorkflowJsonSchema).nodeResolver;
     service = new GxFormat2CompletionService(schemaNodeResolver);
   });
 
@@ -27,18 +34,19 @@ describe("Format2 Workflow Completion Service", () => {
 $`;
     const EXPECTED_COMPLETION_LABELS = [
       "class",
+      "inputs",
+      "outputs",
       "steps",
       "report",
       "tags",
       "creator",
       "license",
       "release",
-      "inputs",
-      "outputs",
       "id",
       "label",
       "doc",
       "uuid",
+      "comments",
     ];
     const { contents, position } = parseTemplate(template);
 
@@ -78,16 +86,17 @@ id: my_workflow
 doc: This is a simple workflow
 $`;
     const EXPECTED_COMPLETION_LABELS = [
+      "inputs",
+      "outputs",
       "steps",
       "report",
       "tags",
       "creator",
       "license",
       "release",
-      "inputs",
-      "outputs",
       "label",
       "uuid",
+      "comments",
     ];
     const { contents, position } = parseTemplate(template);
 
@@ -207,11 +216,6 @@ inputs:
     My input:
       type: $`;
     const EXPECTED_COMPLETION_LABELS = [
-      "integer",
-      "text",
-      "File",
-      "data",
-      "collection",
       "null",
       "boolean",
       "int",
@@ -219,6 +223,11 @@ inputs:
       "float",
       "double",
       "string",
+      "integer",
+      "text",
+      "File",
+      "data",
+      "collection",
     ];
     const { contents, position } = parseTemplate(template);
 
@@ -332,7 +341,7 @@ steps:
     tool: my_tool
     type: $
 outputs:`;
-    const EXPECTED_COMPLETION_LABELS = ["tool", "subworkflow", "pause"];
+    const EXPECTED_COMPLETION_LABELS = ["tool", "subworkflow", "pause", "pick_value"];
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
