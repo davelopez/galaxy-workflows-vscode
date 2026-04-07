@@ -23,6 +23,7 @@ import { JsonSchemaGalaxyWorkflowLoader } from "./schema/jsonSchemaLoader";
 import { GxFormat2CompletionService } from "./services/completionService";
 import { GxFormat2HoverService } from "./services/hoverService";
 import { GxFormat2SchemaValidationService } from "./services/schemaValidationService";
+import { ToolStateValidationService } from "./services/toolStateValidationService";
 
 const LANGUAGE_ID = "gxformat2";
 
@@ -42,6 +43,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
   private _hoverService: GxFormat2HoverService;
   private _completionService: GxFormat2CompletionService;
   private _schemaValidationService: GxFormat2SchemaValidationService;
+  private _toolStateValidationService: ToolStateValidationService;
 
   constructor(
     @inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService,
@@ -51,9 +53,10 @@ export class GxFormat2WorkflowLanguageServiceImpl
     super(LANGUAGE_ID);
     this._schemaLoader = new JsonSchemaGalaxyWorkflowLoader();
     this._yamlLanguageService = yamlLanguageService;
-    this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver);
+    this._hoverService = new GxFormat2HoverService(this._schemaLoader.nodeResolver, toolRegistryService);
     this._completionService = new GxFormat2CompletionService(this._schemaLoader.nodeResolver, toolRegistryService);
     this._schemaValidationService = new GxFormat2SchemaValidationService(this._schemaLoader.nodeResolver);
+    this._toolStateValidationService = new ToolStateValidationService(toolRegistryService);
   }
 
   public override parseDocument(document: TextDocument): GxFormat2WorkflowDocument {
@@ -91,7 +94,11 @@ export class GxFormat2WorkflowLanguageServiceImpl
     schemaDiagnostics.forEach((diagnostic) => {
       diagnostic.source = "Format2 Schema";
     });
-    return syntaxDiagnostics.concat(schemaDiagnostics);
+    const toolStateDiagnostics = await this._toolStateValidationService.doValidation(documentContext);
+    toolStateDiagnostics.forEach((diagnostic) => {
+      diagnostic.source = "Tool State";
+    });
+    return syntaxDiagnostics.concat(schemaDiagnostics, toolStateDiagnostics);
   }
 
   public override getSymbols(documentContext: GxFormat2WorkflowDocument): DocumentSymbol[] {

@@ -1,55 +1,17 @@
-import { ASTNode, NodePath, ObjectASTNode, Segment } from "@gxwf/server-common/src/ast/types";
+import { ASTNode, NodePath, Segment } from "@gxwf/server-common/src/ast/types";
 import { CompletionItem, CompletionItemKind, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
-
-// Minimal type definitions mirroring @galaxy-tool-util/schema bundle-types.
-// These are the shapes we care about for completion purposes.
-
-interface SelectOption {
-  label: string;
-  value: string;
-}
-
-interface ToolParamBase {
-  name: string;
-  parameter_type: string;
-  label?: string | null;
-  help?: string | null;
-  hidden?: boolean;
-}
-
-interface SelectParam extends ToolParamBase {
-  parameter_type: "gx_select" | "gx_genomebuild" | "gx_drill_down";
-  options: SelectOption[] | null;
-}
-
-interface BooleanParam extends ToolParamBase {
-  parameter_type: "gx_boolean";
-}
-
-interface SectionParam extends ToolParamBase {
-  parameter_type: "gx_section";
-  parameters: ToolParam[];
-}
-
-interface RepeatParam extends ToolParamBase {
-  parameter_type: "gx_repeat";
-  parameters: ToolParam[];
-}
-
-interface ConditionalParam extends ToolParamBase {
-  parameter_type: "gx_conditional";
-  test_parameter: ToolParam;
-  whens: Array<{ parameters: ToolParam[] }>;
-}
-
-type ToolParam =
-  | ToolParamBase
-  | SelectParam
-  | BooleanParam
-  | SectionParam
-  | RepeatParam
-  | ConditionalParam;
+import {
+  ToolParam,
+  ToolParamBase,
+  getStringPropertyFromStep,
+  isBooleanParam,
+  isConditionalParam,
+  isHidden,
+  isRepeatParam,
+  isSelectParam,
+  isSectionParam,
+} from "./toolStateTypes";
 
 // ---------------------------------------------------------------------------
 // Path helpers
@@ -75,56 +37,9 @@ export function findStateInPath(path: NodePath): StateInPath | undefined {
   return undefined;
 }
 
-/**
- * Navigate the AST from root using `stepPath` segments and return the string value
- * of `propertyName` on the resulting object node, or undefined.
- */
-function getStringPropertyFromStep(
-  root: ASTNode | undefined,
-  stepPath: NodePath,
-  propertyName: string
-): string | undefined {
-  let current: ASTNode | undefined = root;
-  for (const seg of stepPath) {
-    if (!current || current.type !== "object") return undefined;
-    const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
-    current = prop?.valueNode;
-  }
-  if (!current || current.type !== "object") return undefined;
-  const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
-  const val = prop?.valueNode;
-  if (val?.type === "string") return val.value;
-  return undefined;
-}
-
 // ---------------------------------------------------------------------------
 // Parameter tree navigation
 // ---------------------------------------------------------------------------
-
-function isSelectParam(p: ToolParam): p is SelectParam {
-  const pt = p.parameter_type;
-  return pt === "gx_select" || pt === "gx_genomebuild" || pt === "gx_drill_down";
-}
-
-function isBooleanParam(p: ToolParam): p is BooleanParam {
-  return p.parameter_type === "gx_boolean";
-}
-
-function isSectionParam(p: ToolParam): p is SectionParam {
-  return p.parameter_type === "gx_section";
-}
-
-function isRepeatParam(p: ToolParam): p is RepeatParam {
-  return p.parameter_type === "gx_repeat";
-}
-
-function isConditionalParam(p: ToolParam): p is ConditionalParam {
-  return p.parameter_type === "gx_conditional";
-}
-
-function isHidden(p: ToolParam): boolean {
-  return !!(p as ToolParamBase).hidden;
-}
 
 interface NavResult {
   params: ToolParam[];
