@@ -1,5 +1,5 @@
-import { PropertyASTNode } from "@gxwf/server-common/src/ast/types";
-import { ValidationRule, WorkflowInput, WorkflowTestsDocument } from "@gxwf/server-common/src/languageTypes";
+import type { PropertyASTNode } from "@gxwf/server-common/src/ast/types";
+import type { ValidationRule, WorkflowInput, WorkflowTestsDocument } from "@gxwf/server-common/src/languageTypes";
 import { isCompatibleType } from "@gxwf/server-common/src/utils";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 

@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ParsedDocument } from "@gxwf/server-common/src/ast/types";
+import type { ParsedDocument } from "@gxwf/server-common/src/ast/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Diagnostic, DiagnosticSeverity, Position } from "vscode-languageserver-types";
 import { Document, LineCounter, Node, Pair, YAMLError, YAMLWarning, isNode, isPair, isScalar, visit } from "yaml";
@@ -11,7 +11,8 @@ import { getIndentation, getParent } from "../utils";
 import { guessIndentation } from "../utils/indentationGuesser";
 import { TextBuffer } from "../utils/textBuffer";
 import { convertAST } from "./astConverter";
-import { ASTNode, ObjectASTNodeImpl, YamlNode } from "./astTypes";
+import { ObjectASTNodeImpl } from "./astTypes";
+import type { ASTNode, YamlNode } from "./astTypes";
 
 const FULL_LINE_ERROR = true;
 const YAML_SOURCE = "YAML";

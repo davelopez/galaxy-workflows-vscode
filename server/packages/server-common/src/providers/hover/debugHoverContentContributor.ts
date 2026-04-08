@@ -1,5 +1,5 @@
 import { WorkflowDocument, Position, HoverContentContributor } from "../../languageTypes";
-import { ASTNode, PropertyASTNode } from "../../ast/types";
+import type { ASTNode, PropertyASTNode } from "../../ast/types";
 import { ArrayASTNode, BooleanASTNode, NullASTNode, NumberASTNode, StringASTNode } from "vscode-json-languageservice";
 
 /**

@@ -69,7 +69,7 @@ import type {
   WorkflowOutput,
 } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
-import { ConfigService } from "./configService";
+import type { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
 import { NoOpValidationProfile } from "./providers/validation/profiles";

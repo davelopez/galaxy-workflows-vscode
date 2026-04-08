@@ -1,6 +1,7 @@
 import { findParamAtPath } from "@galaxy-tool-util/schema";
-import { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
-import { CompletionItem, CompletionItemKind, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import type { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
+import { CompletionItem, CompletionItemKind } from "@gxwf/server-common/src/languageTypes";
+import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import {
   ToolParam,

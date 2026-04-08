@@ -11,11 +11,10 @@ import {
   TYPES,
   TextDocument,
   TextEdit,
-  ToolRegistryService,
 } from "@gxwf/server-common/src/languageTypes";
-import type { SymbolsProvider } from "@gxwf/server-common/src/languageTypes";
+import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
-import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
+import type { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { inject, injectable } from "inversify";
 import { GxFormat2WorkflowDocument } from "./gxFormat2WorkflowDocument";
 import { GxFormat2BasicValidationProfile, GxFormat2IWCValidationProfile } from "./profiles";

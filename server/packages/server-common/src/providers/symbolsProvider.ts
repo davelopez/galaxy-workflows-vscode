@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
-import { ASTNode, ObjectASTNode, PropertyASTNode } from "../ast/types";
-import { DocumentContext, DocumentSymbol, SymbolKind, SymbolsProvider } from "../languageTypes";
+import type { ASTNode, ObjectASTNode, PropertyASTNode } from "../ast/types";
+import { DocumentSymbol, SymbolKind } from "../languageTypes";
+import type { DocumentContext, SymbolsProvider } from "../languageTypes";
 
 @injectable()
 export class SymbolsProviderBase implements SymbolsProvider {

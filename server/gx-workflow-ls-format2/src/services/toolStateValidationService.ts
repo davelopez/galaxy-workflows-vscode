@@ -1,7 +1,7 @@
 import { validateFormat2StepStateStrict } from "@galaxy-tool-util/schema";
-import { ASTNode, ArrayASTNode, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
+import type { ASTNode, ArrayASTNode, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { Diagnostic, DiagnosticSeverity, Range } from "vscode-languageserver-types";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { ToolParam, collectStepsWithState, dotPathToYamlProperty, yamlObjectNodeToRecord } from "./toolStateTypes";

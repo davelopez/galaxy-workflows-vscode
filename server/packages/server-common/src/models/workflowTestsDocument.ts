@@ -1,4 +1,4 @@
-import { WorkflowDataProvider, WorkflowInput, WorkflowOutput } from "../languageTypes";
+import type { WorkflowDataProvider, WorkflowInput, WorkflowOutput } from "../languageTypes";
 import { DocumentBase } from "./document";
 
 /**

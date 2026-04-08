@@ -1,4 +1,5 @@
-import { CompletionItem, CompletionItemKind, CompletionList, Position, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
+import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";

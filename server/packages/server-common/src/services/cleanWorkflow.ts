@@ -2,7 +2,7 @@ import { ApplyWorkspaceEditParams, Range, TextDocumentEdit, TextEdit } from "vsc
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ServiceBase } from ".";
 
-import { ASTNode, PropertyASTNode } from "../ast/types";
+import type { ASTNode, PropertyASTNode } from "../ast/types";
 import {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,

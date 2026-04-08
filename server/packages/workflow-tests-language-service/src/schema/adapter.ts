@@ -9,7 +9,7 @@
  * modifications to fit our needs.
  */
 
-import {
+import type {
   ASTNode,
   ArrayASTNode,
   NumberASTNode,

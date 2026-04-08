@@ -6,14 +6,13 @@ import {
   TextDocuments,
   WorkspaceFolder,
 } from "vscode-languageserver";
-import {
+import { TYPES, TextDocument } from "./languageTypes";
+import type {
   DocumentContext,
   DocumentsCache,
   GalaxyWorkflowLanguageServer,
   LanguageService,
   ToolRegistryService,
-  TYPES,
-  TextDocument,
   WorkflowDataProvider,
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
@@ -25,7 +24,7 @@ import { CleanWorkflowService } from "./services/cleanWorkflow";
 import { ToolCacheService } from "./services/toolCacheService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
-import { ConfigService } from "./configService";
+import type { ConfigService } from "./configService";
 import { CompletionHandler } from "./providers/completionHandler";
 import { ServerEventHandler } from "./providers/handler";
 

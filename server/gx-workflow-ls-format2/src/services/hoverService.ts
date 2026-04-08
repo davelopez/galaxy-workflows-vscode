@@ -1,6 +1,7 @@
 import { findParamAtPath } from "@galaxy-tool-util/schema";
-import { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
-import { Hover, MarkupContent, MarkupKind, Position, Range, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import type { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
+import { Hover, MarkupContent, MarkupKind, Position, Range } from "@gxwf/server-common/src/languageTypes";
+import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
 import { findStateInPath } from "./toolStateCompletionService";

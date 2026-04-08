@@ -1,4 +1,4 @@
-import { ASTNode } from "@gxwf/server-common/src/ast/types";
+import type { ASTNode } from "@gxwf/server-common/src/ast/types";
 import {
   DocumentContext,
   Hover,

@@ -1,5 +1,6 @@
 import { container } from "@gxwf/server-common/src/inversify.config";
-import { GalaxyWorkflowLanguageServer, TYPES, WorkflowLanguageService } from "@gxwf/server-common/src/languageTypes";
+import { TYPES } from "@gxwf/server-common/src/languageTypes";
+import type { GalaxyWorkflowLanguageServer, WorkflowLanguageService } from "@gxwf/server-common/src/languageTypes";
 import { GalaxyWorkflowLanguageServerImpl } from "@gxwf/server-common/src/server";
 import { WorkflowTestsLanguageServiceContainerModule } from "@gxwf/workflow-tests-language-service/src/inversify.config";
 import { YAMLLanguageServiceContainerModule } from "@gxwf/yaml-language-service/src/inversify.config";
