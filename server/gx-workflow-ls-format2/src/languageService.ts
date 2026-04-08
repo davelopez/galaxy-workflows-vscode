@@ -8,12 +8,12 @@ import {
   LanguageServiceBase,
   Position,
   Range,
-  SymbolsProvider,
   TYPES,
   TextDocument,
   TextEdit,
   ToolRegistryService,
 } from "@gxwf/server-common/src/languageTypes";
+import type { SymbolsProvider } from "@gxwf/server-common/src/languageTypes";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { inject, injectable } from "inversify";

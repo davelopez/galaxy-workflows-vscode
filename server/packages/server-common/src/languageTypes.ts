@@ -50,7 +50,8 @@ import {
   HoverParams,
 } from "vscode-languageserver/browser";
 import { URI } from "vscode-uri";
-import {
+import { LSRequestIdentifiers } from "../../../../shared/src/requestsDefinitions";
+import type {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
@@ -59,7 +60,6 @@ import {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
   GetWorkflowToolIdsResult,
-  LSRequestIdentifiers,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
@@ -75,10 +75,6 @@ import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
 import { NoOpValidationProfile } from "./providers/validation/profiles";
 
 export {
-  CleanWorkflowContentsParams,
-  CleanWorkflowContentsResult,
-  CleanWorkflowDocumentParams,
-  CleanWorkflowDocumentResult,
   CodeAction,
   CodeActionContext,
   CodeActionKind,
@@ -103,8 +99,6 @@ export {
   DocumentUri,
   FoldingRange,
   FoldingRangeKind,
-  GetWorkflowInputsResult,
-  GetWorkflowOutputsResult,
   Hover,
   HoverParams,
   InsertTextFormat,
@@ -118,22 +112,31 @@ export {
   SelectionRange,
   SymbolInformation,
   SymbolKind,
-  TargetWorkflowDocumentParams,
   TextDocument,
   TextDocumentEdit,
   TextEdit,
   VersionedTextDocumentIdentifier,
+  WorkflowDocument,
+  WorkflowTestsDocument,
+  WorkspaceEdit,
+};
+
+export type {
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsResult,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
   GetToolCacheStatusResult,
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
   GetWorkflowToolIdsResult,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
+  TargetWorkflowDocumentParams,
   ToolRef,
   WorkflowDataType,
-  WorkflowDocument,
   WorkflowInput,
   WorkflowOutput,
-  WorkflowTestsDocument,
-  WorkspaceEdit,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {

@@ -11,7 +11,7 @@ import {
 import { inject, injectable } from "inversify";
 import { isAllSchemasMatched, isBoolean } from "../schema/adapter";
 import { JSONSchemaRef } from "../schema/jsonSchema";
-import { WorkflowTestsSchemaService } from "../schema/service";
+import type { WorkflowTestsSchemaService } from "../schema/service";
 import { TYPES } from "../types";
 
 export interface WorkflowTestsHoverService {

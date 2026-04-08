@@ -8,11 +8,11 @@ import {
   LanguageServiceBase,
   Position,
   Range,
-  SymbolsProvider,
   TYPES,
   TextDocument,
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
+import type { SymbolsProvider } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
 import {
   DocumentLanguageSettings,

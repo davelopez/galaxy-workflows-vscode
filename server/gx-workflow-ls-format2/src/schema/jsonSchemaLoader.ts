@@ -8,6 +8,8 @@ import {
   SchemaRecord,
 } from "./definitions";
 import { SchemaNodeResolver, SchemaNodeResolverImpl } from "./schemaNodeResolver";
+import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { JSONSchema as EffectJSONSchema } from "effect";
 
 export interface GalaxyWorkflowSchemaLoader {
   readonly definitions: SchemaDefinitions;
@@ -416,23 +418,9 @@ function buildDefinitions(rootJsonSchema: JSchema): {
 
 let cachedJsonSchema: JSchema | null = null;
 
-/**
- * Loads @galaxy-tool-util/schema and effect lazily (via require) so this
- * module can be imported without triggering ESM resolution at module load time.
- * Webpack bundles these correctly at build time; Jest tests that never
- * instantiate JsonSchemaGalaxyWorkflowLoader are unaffected.
- */
 function getGalaxyWorkflowJsonSchema(): JSchema {
   if (!cachedJsonSchema) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const schemaModule = require("@galaxy-tool-util/schema") as {
-      GalaxyWorkflowSchema: unknown;
-    };
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const effectModule = require("effect") as {
-      JSONSchema: { make: (schema: unknown) => unknown };
-    };
-    cachedJsonSchema = effectModule.JSONSchema.make(schemaModule.GalaxyWorkflowSchema) as JSchema;
+    cachedJsonSchema = EffectJSONSchema.make(GalaxyWorkflowSchema) as JSchema;
   }
   return cachedJsonSchema;
 }

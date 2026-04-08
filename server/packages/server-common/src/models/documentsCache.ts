@@ -1,5 +1,5 @@
 import { injectable } from "inversify";
-import { DocumentContext, DocumentsCache } from "../languageTypes";
+import type { DocumentContext, DocumentsCache } from "../languageTypes";
 
 @injectable()
 export class DocumentsCacheImpl implements DocumentsCache {

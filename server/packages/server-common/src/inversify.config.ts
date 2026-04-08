@@ -1,6 +1,7 @@
 import { Container } from "inversify";
 import { ConfigService, ConfigServiceImpl } from "./configService";
-import { DocumentsCache, ToolRegistryService, TYPES, WorkflowDataProvider } from "./languageTypes";
+import { TYPES } from "./languageTypes";
+import type { DocumentsCache, ToolRegistryService, WorkflowDataProvider } from "./languageTypes";
 import { DocumentsCacheImpl } from "./models/documentsCache";
 import { ToolRegistryServiceImpl } from "./providers/toolRegistry";
 import { WorkflowDataProviderImpl } from "./providers/workflowDataProvider";

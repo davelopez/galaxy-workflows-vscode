@@ -1,22 +1,14 @@
 import { JSONSchema } from "vscode-json-languageservice";
+import { NativeGalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { JSONSchema as EffectJSONSchema } from "effect";
 
 const SCHEMA_ID = "https://github.com/davelopez/galaxy-workflows-vscode/workflow-languages/schemas/native";
 
 let cachedNativeSchema: JSONSchema | null = null;
 
-/**
- * Loads @galaxy-tool-util/schema and effect lazily (via require) so this
- * module can be imported without triggering ESM resolution at module load time.
- * Webpack bundles these correctly at build time; Jest tests that never
- * instantiate JsonSchemaNativeWorkflowLoader are unaffected.
- */
 function getNativeWorkflowJsonSchema(): JSONSchema {
   if (!cachedNativeSchema) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const schemaModule = require("@galaxy-tool-util/schema") as { NativeGalaxyWorkflowSchema: unknown };
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const effectModule = require("effect") as { JSONSchema: { make: (schema: unknown) => unknown } };
-    const raw = effectModule.JSONSchema.make(schemaModule.NativeGalaxyWorkflowSchema) as JSONSchema & {
+    const raw = EffectJSONSchema.make(NativeGalaxyWorkflowSchema) as JSONSchema & {
       required?: string[];
     };
     // "class" is a format2 artifact; native .ga files don't have it
