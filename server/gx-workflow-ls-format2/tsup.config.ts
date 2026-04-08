@@ -22,9 +22,11 @@ const yamlPlugin = {
 
 const baseEsbuildOptions = (options: { alias?: Record<string, string>; mainFields?: string[]; conditions?: string[] }) => {
   options.alias = { "@schemas": schemasDir };
-  // Use CJS ("main") first to avoid ESM-only exports in packages that ship both CJS and ESM.
-  // "import" is added to handle @galaxy-tool-util/* which only expose an "import" export condition.
-  options.mainFields = ["main", "module"];
+  // Use ESM ("module") first so bundled packages like vscode-json-languageservice use their
+  // static-import ESM build instead of the UMD build (which uses dynamic require() calls
+  // that esbuild cannot resolve at bundle time).
+  // @galaxy-tool-util/* uses the "exports"/"import" condition and is unaffected by mainFields.
+  options.mainFields = ["module", "main"];
   options.conditions = ["require", "import", "node", "default"];
 };
 
