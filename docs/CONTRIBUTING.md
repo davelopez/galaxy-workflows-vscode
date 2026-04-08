@@ -62,6 +62,26 @@ npm run format
 
 If you have installed the recommended extensions in [extensions.json](../.vscode/extensions.json) the code style will be automatically enforced every time you save a file, so you probably won't need to run `npm run format`.
 
+### Install the extension locally
+
+To install the extension into VS Code as a regular (non-debug) extension:
+
+1. Install the packaging tool (once):
+   ```sh
+   npm install -g @vscode/vsce
+   ```
+
+2. Build the `.vsix` package:
+   ```sh
+   vsce package
+   ```
+
+3. Install it:
+   ```sh
+   code --install-extension galaxy-workflows-*.vsix
+   ```
+   Or via the Extensions panel: click `...` → _Install from VSIX..._ and select the generated file.
+
 ### Launch/Debug the extension locally
 
 Run the `Debug Extension + Server` configuration from the `Run and Debug` action bar (or press F5).
