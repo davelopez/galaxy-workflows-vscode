@@ -103,7 +103,6 @@ export async function updateSettings(setting: string, value: unknown): Promise<v
 
 export async function resetSettings(): Promise<void> {
   const configuration = vscode.workspace.getConfiguration("galaxyWorkflows");
-  await configuration.update("cleaning.cleanableProperties", undefined, true);
   await configuration.update("validation.profile", undefined, true);
   return sleep(500); // Wait for settings to be applied
 }

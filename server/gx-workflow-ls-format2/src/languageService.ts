@@ -13,6 +13,8 @@ import {
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
 import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { cleanWorkflow, type ToolInputsResolver } from "@galaxy-tool-util/schema";
+import * as YAML from "yaml";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import type { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { inject, injectable } from "inversify";
@@ -47,7 +49,7 @@ export class GxFormat2WorkflowLanguageServiceImpl
   constructor(
     @inject(YAML_TYPES.YAMLLanguageService) yamlLanguageService: YAMLLanguageService,
     @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider,
-    @inject(TYPES.ToolRegistryService) toolRegistryService: ToolRegistryService
+    @inject(TYPES.ToolRegistryService) private toolRegistryService: ToolRegistryService
   ) {
     super(LANGUAGE_ID);
     this._schemaLoader = new JsonSchemaGalaxyWorkflowLoader();
@@ -102,5 +104,43 @@ export class GxFormat2WorkflowLanguageServiceImpl
 
   public override getSymbols(documentContext: GxFormat2WorkflowDocument): DocumentSymbol[] {
     return this.symbolsProvider.getSymbols(documentContext);
+  }
+
+  public override async cleanWorkflowText(text: string): Promise<string> {
+    const dict = YAML.parse(text) as Record<string, unknown>;
+    const toolInputsResolver = await this.buildToolInputsResolver(dict);
+    const { workflow } = await cleanWorkflow(dict, { toolInputsResolver });
+    return YAML.stringify(workflow, { lineWidth: 0 });
+  }
+
+  /**
+   * Pre-fetches tool inputs for all steps in the workflow dict and returns a
+   * synchronous resolver suitable for cleanWorkflow(). Returns undefined when
+   * no tools are cached (cleanWorkflow skips tool-aware cleaning gracefully).
+   */
+  private async buildToolInputsResolver(
+    workflowDict: Record<string, unknown>
+  ): Promise<ToolInputsResolver | undefined> {
+    const steps = workflowDict.steps;
+    if (!steps || typeof steps !== "object" || Array.isArray(steps)) return undefined;
+
+    const stepsObj = steps as Record<string, unknown>;
+    const prefetched = new Map<string, unknown[]>();
+
+    for (const step of Object.values(stepsObj)) {
+      if (!step || typeof step !== "object" || Array.isArray(step)) continue;
+      const stepObj = step as Record<string, unknown>;
+      const toolId = typeof stepObj.tool_id === "string" ? stepObj.tool_id : null;
+      const toolVersion = typeof stepObj.tool_version === "string" ? stepObj.tool_version : null;
+      if (!toolId) continue;
+      const params = await this.toolRegistryService.getToolParameters(toolId, toolVersion ?? undefined);
+      if (params) {
+        prefetched.set(`${toolId}|${toolVersion ?? ""}`, params);
+      }
+    }
+
+    if (prefetched.size === 0) return undefined;
+    return (toolId, toolVersion) =>
+      prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
   }
 }

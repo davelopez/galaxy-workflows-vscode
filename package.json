@@ -97,20 +97,6 @@
       {
         "title": "Galaxy Workflows",
         "properties": {
-          "galaxyWorkflows.cleaning.cleanableProperties": {
-            "markdownDescription": "These properties will be removed from the workflow document when *cleaning* (or *clean comparing*) workflows.",
-            "scope": "resource",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "default": [
-              "position",
-              "uuid",
-              "errors",
-              "version"
-            ]
-          },
           "galaxyWorkflows.validation.profile": {
             "markdownDescription": "The set of rules that will be used to validate workflow documents.",
             "scope": "resource",

@@ -11,7 +11,6 @@ import {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
-  DefinitionLink,
   Diagnostic,
   DiagnosticSeverity,
   DocumentHighlight,
@@ -38,6 +37,7 @@ import {
   VersionedTextDocumentIdentifier,
   WorkspaceEdit,
 } from "vscode-languageserver-types";
+import type { DefinitionLink } from "vscode-languageserver-types";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 
@@ -86,7 +86,6 @@ export {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
-  DefinitionLink,
   Diagnostic,
   DiagnosticSeverity,
   DocumentFormattingParams,
@@ -122,6 +121,7 @@ export {
 };
 
 export type {
+  DefinitionLink,
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
@@ -217,6 +217,12 @@ export interface LanguageService<T extends DocumentContext> {
   getValidationProfile(profileId: ValidationProfileIdentifier): ValidationProfile;
 
   setServer(server: GalaxyWorkflowLanguageServer): void;
+
+  /**
+   * Returns the cleaned text for the given workflow document text.
+   * Delegates to the galaxy-tool-util cleanWorkflow() implementation.
+   */
+  cleanWorkflowText(text: string): Promise<string>;
 }
 
 /**
@@ -281,6 +287,10 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
 
   public setServer(server: GalaxyWorkflowLanguageServer): void {
     this.server = server;
+  }
+
+  public async cleanWorkflowText(text: string): Promise<string> {
+    return text;
   }
 }
 

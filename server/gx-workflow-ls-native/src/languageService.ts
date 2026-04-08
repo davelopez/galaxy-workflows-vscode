@@ -12,6 +12,7 @@ import {
   TextDocument,
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
+import { cleanWorkflow } from "@galaxy-tool-util/schema";
 import type { SymbolsProvider } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
 import {
@@ -110,6 +111,12 @@ export class NativeWorkflowLanguageServiceImpl
 
   public override getSymbols(documentContext: NativeWorkflowDocument): DocumentSymbol[] {
     return this.symbolsProvider.getSymbols(documentContext);
+  }
+
+  public override async cleanWorkflowText(text: string): Promise<string> {
+    const dict = JSON.parse(text) as Record<string, unknown>;
+    const { workflow } = await cleanWorkflow(dict);
+    return JSON.stringify(workflow, null, 4) + "\n";
   }
 
   private getLanguageSettings(): LanguageSettings {
