@@ -3,7 +3,8 @@
  * plus local aliases (for backward compat) and AST helpers that must live here.
  */
 
-import { ASTNode, ArrayASTNode, NodePath, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNode, ArrayASTNode, NodePath, ObjectASTNode, PropertyASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 
 export type {
   BooleanParameterModel as BooleanParam,
@@ -97,6 +98,99 @@ export function getObjectNodeFromStep(
   const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
   const val = prop?.valueNode;
   return val?.type === "object" ? (val as ObjectASTNode) : undefined;
+}
+
+// ---------------------------------------------------------------------------
+// Step-iteration helper (shared by validation and cleaning)
+// ---------------------------------------------------------------------------
+
+export interface StepStateContext {
+  toolId: string;
+  toolVersion?: string;
+  /** The tool_id value node — used to attach "not cached" diagnostics. */
+  toolIdNode: ASTNode;
+  stateKey: "state" | "tool_state";
+  stateValueNode: ObjectASTNode;
+  stepNode: ObjectASTNode;
+}
+
+/**
+ * Iterate all workflow steps that have both a `tool_id` and a structured
+ * (object-valued) `state` or `tool_state` block.
+ * JSON-string `tool_state` values are skipped.
+ */
+export function collectStepsWithState(nodeManager: ASTNodeManager): StepStateContext[] {
+  const result: StepStateContext[] = [];
+  for (const stepNode of nodeManager.getStepNodes()) {
+    const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
+    const toolId =
+      toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
+    if (!toolId || !toolIdProp?.valueNode) continue;
+
+    const toolVersionProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
+    const toolVersion =
+      toolVersionProp?.valueNode?.type === "string"
+        ? String(toolVersionProp.valueNode.value)
+        : undefined;
+
+    const stateProp =
+      stepNode.properties.find((p) => p.keyNode.value === "state") ??
+      stepNode.properties.find((p) => p.keyNode.value === "tool_state");
+    if (!stateProp?.valueNode || stateProp.valueNode.type !== "object") continue;
+
+    result.push({
+      toolId,
+      toolVersion,
+      toolIdNode: toolIdProp.valueNode,
+      stateKey: stateProp.keyNode.value as "state" | "tool_state",
+      stateValueNode: stateProp.valueNode as ObjectASTNode,
+      stepNode,
+    });
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Dot-path YAML navigation (shared by validation and cleaning)
+// ---------------------------------------------------------------------------
+
+/**
+ * Walk a dot-separated path through a YAML ObjectASTNode tree and return the
+ * `PropertyASTNode` at the final segment, or null if navigation fails.
+ *
+ * Handles numeric array indices as intermediate segments (e.g. for repeat groups:
+ * `repeat_group.0.param_name`). The final segment must be an object property key.
+ */
+export function dotPathToYamlProperty(
+  stateNode: ObjectASTNode,
+  dotPath: string
+): PropertyASTNode | null {
+  if (!dotPath) return null;
+  const segments = dotPath.split(".");
+  let current: ASTNode = stateNode;
+
+  for (let i = 0; i < segments.length - 1; i++) {
+    const seg = segments[i];
+    const idx = Number(seg);
+    if (!isNaN(idx) && String(idx) === seg && current.type === "array") {
+      const item = (current as ArrayASTNode).items[idx];
+      if (!item) return null;
+      current = item;
+    } else {
+      if (current.type !== "object") return null;
+      const prop = (current as ObjectASTNode).properties.find(
+        (p) => String(p.keyNode.value) === seg
+      );
+      if (!prop?.valueNode) return null;
+      current = prop.valueNode;
+    }
+  }
+
+  if (current.type !== "object") return null;
+  const lastSeg = segments[segments.length - 1];
+  return (current as ObjectASTNode).properties.find(
+    (p) => String(p.keyNode.value) === lastSeg
+  ) ?? null;
 }
 
 /**

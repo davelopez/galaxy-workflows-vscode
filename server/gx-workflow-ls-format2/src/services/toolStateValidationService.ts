@@ -4,7 +4,7 @@ import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { Diagnostic, DiagnosticSeverity, Range } from "vscode-languageserver-types";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
-import { ToolParam, yamlObjectNodeToRecord } from "./toolStateTypes";
+import { ToolParam, collectStepsWithState, dotPathToYamlProperty, yamlObjectNodeToRecord } from "./toolStateTypes";
 
 // ---------------------------------------------------------------------------
 // Path → YAML range helper
@@ -15,6 +15,9 @@ import { ToolParam, yamlObjectNodeToRecord } from "./toolStateTypes";
  * the range of the final property's key (for unknown-key diagnostics) or
  * value node (for value-error diagnostics). Falls back to the state node
  * range when navigation fails.
+ *
+ * Handles numeric array indices as intermediate segments. For a numeric
+ * final segment (e.g. a bare repeat-item index) the item node range is returned.
  */
 function dotPathToYamlRange(
   stateNode: ObjectASTNode,
@@ -23,42 +26,40 @@ function dotPathToYamlRange(
   target: "key" | "value" = "key"
 ): Range {
   if (!dotPath) return nodeManager.getNodeRange(stateNode);
+
+  // Fast path for the common (non-array-index-at-end) case.
+  const prop = dotPathToYamlProperty(stateNode, dotPath);
+  if (prop) {
+    const node = target === "value" && prop.valueNode ? prop.valueNode : prop.keyNode;
+    return nodeManager.getNodeRange(node);
+  }
+
+  // Fallback: numeric last segment (bare repeat-item index).
   const segments = dotPath.split(".");
   let current: ASTNode = stateNode;
-
   for (let i = 0; i < segments.length - 1; i++) {
     const seg = segments[i];
     const idx = Number(seg);
     if (!isNaN(idx) && String(idx) === seg && current.type === "array") {
-      // Numeric index into a repeat array
       const item = (current as ArrayASTNode).items[idx];
       if (!item) return nodeManager.getNodeRange(stateNode);
       current = item;
     } else {
       if (current.type !== "object") return nodeManager.getNodeRange(stateNode);
-      const prop = (current as ObjectASTNode).properties.find(
-        (p) => String(p.keyNode.value) === seg
+      const found = (current as ObjectASTNode).properties.find(
+        (p) => String(p.keyNode.value) === segments[i]
       );
-      if (!prop?.valueNode) return nodeManager.getNodeRange(stateNode);
-      current = prop.valueNode;
+      if (!found?.valueNode) return nodeManager.getNodeRange(stateNode);
+      current = found.valueNode;
     }
   }
-
-  const lastSeg = segments[segments.length - 1];
-  const lastIdx = Number(lastSeg);
-  if (!isNaN(lastIdx) && String(lastIdx) === lastSeg && current.type === "array") {
+  const lastIdx = Number(segments[segments.length - 1]);
+  if (!isNaN(lastIdx) && current.type === "array") {
     const item = (current as ArrayASTNode).items[lastIdx];
     return item ? nodeManager.getNodeRange(item) : nodeManager.getNodeRange(stateNode);
   }
 
-  if (current.type !== "object") return nodeManager.getNodeRange(stateNode);
-  const prop = (current as ObjectASTNode).properties.find(
-    (p) => String(p.keyNode.value) === lastSeg
-  );
-  if (!prop) return nodeManager.getNodeRange(stateNode);
-
-  const node = target === "value" && prop.valueNode ? prop.valueNode : prop.keyNode;
-  return nodeManager.getNodeRange(node);
+  return nodeManager.getNodeRange(stateNode);
 }
 
 // ---------------------------------------------------------------------------
@@ -141,46 +142,23 @@ export class ToolStateValidationService {
   async doValidation(documentContext: GxFormat2WorkflowDocument): Promise<Diagnostic[]> {
     const result: Diagnostic[] = [];
     const nodeManager = documentContext.nodeManager;
-    const stepNodes = nodeManager.getStepNodes();
 
-    for (const stepNode of stepNodes) {
-      const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
-      const toolId =
-        toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
-      if (!toolId) continue;
-
-      const toolVersionProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
-      const toolVersion =
-        toolVersionProp?.valueNode?.type === "string"
-          ? String(toolVersionProp.valueNode.value)
-          : undefined;
-
-      const stateProperty =
-        stepNode.properties.find((p) => p.keyNode.value === "state") ??
-        stepNode.properties.find((p) => p.keyNode.value === "tool_state");
-
-      if (!stateProperty) continue;
-
+    for (const { toolId, toolVersion, toolIdNode, stateValueNode } of collectStepsWithState(nodeManager)) {
       if (!this.toolRegistryService.hasCached(toolId, toolVersion)) {
-        if (toolIdProp?.valueNode) {
-          result.push({
-            message: `Tool '${toolId}' is not in the local cache. Run 'Populate Tool Cache' to enable tool state validation.`,
-            range: nodeManager.getNodeRange(toolIdProp.valueNode),
-            severity: DiagnosticSeverity.Information,
-          });
-        }
+        result.push({
+          message: `Tool '${toolId}' is not in the local cache. Run 'Populate Tool Cache' to enable tool state validation.`,
+          range: nodeManager.getNodeRange(toolIdNode),
+          severity: DiagnosticSeverity.Information,
+        });
         continue;
       }
-
-      const stateValueNode = stateProperty.valueNode;
-      if (!stateValueNode || stateValueNode.type !== "object") continue;
 
       const rawParams = await this.toolRegistryService.getToolParameters(toolId, toolVersion);
       if (!rawParams) continue;
 
-      const stateDict = yamlObjectNodeToRecord(stateValueNode as ObjectASTNode);
+      const stateDict = yamlObjectNodeToRecord(stateValueNode);
       const rawDiags = validateFormat2StepStateStrict(rawParams as ToolParam[], stateDict);
-      result.push(...mapDiagnostics(rawDiags, stateValueNode as ObjectASTNode, nodeManager));
+      result.push(...mapDiagnostics(rawDiags, stateValueNode, nodeManager));
     }
 
     return result;
