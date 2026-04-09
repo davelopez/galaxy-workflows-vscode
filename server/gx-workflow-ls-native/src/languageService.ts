@@ -12,8 +12,9 @@ import {
   TextDocument,
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
-import { cleanWorkflow } from "@galaxy-tool-util/schema";
-import type { SymbolsProvider } from "@gxwf/server-common/src/languageTypes";
+import { cleanWorkflow, toFormat2Stateful, type ToolInputsResolver } from "@galaxy-tool-util/schema";
+import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import * as YAML from "yaml";
 import { inject, injectable } from "inversify";
 import {
   DocumentLanguageSettings,
@@ -45,7 +46,10 @@ export class NativeWorkflowLanguageServiceImpl
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
   private _schemaLoader = new JsonSchemaNativeWorkflowLoader();
 
-  constructor(@inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider) {
+  constructor(
+    @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider,
+    @inject(TYPES.ToolRegistryService) private toolRegistryService: ToolRegistryService
+  ) {
     super(LANGUAGE_ID);
     const params: LanguageServiceParams = {};
     const settings = this.getLanguageSettings();
@@ -117,6 +121,47 @@ export class NativeWorkflowLanguageServiceImpl
     const dict = JSON.parse(text) as Record<string, unknown>;
     const { workflow } = await cleanWorkflow(dict);
     return JSON.stringify(workflow, null, 4) + "\n";
+  }
+
+  public override async convertWorkflowText(text: string, targetFormat: "format2" | "native"): Promise<string> {
+    if (targetFormat !== "format2") {
+      throw new Error(`Native service only supports conversion to format2; got '${targetFormat}'.`);
+    }
+    const dict = JSON.parse(text) as Record<string, unknown>;
+    const toolInputsResolver = await this.buildToolInputsResolver(dict);
+    const noopResolver: ToolInputsResolver = (_toolId: string, _toolVersion: string | null) => undefined;
+    const { workflow } = toFormat2Stateful(dict, toolInputsResolver ?? noopResolver);
+    return YAML.stringify(workflow, { lineWidth: 0 });
+  }
+
+  private async buildToolInputsResolver(
+    workflowDict: Record<string, unknown>
+  ): Promise<ToolInputsResolver | undefined> {
+    const steps = workflowDict.steps;
+    // Native .ga steps can be an object keyed by step index or an array
+    const stepValues = Array.isArray(steps)
+      ? steps
+      : steps && typeof steps === "object"
+        ? Object.values(steps as Record<string, unknown>)
+        : [];
+
+    const prefetched = new Map<string, unknown[]>();
+
+    for (const step of stepValues) {
+      if (!step || typeof step !== "object" || Array.isArray(step)) continue;
+      const stepObj = step as Record<string, unknown>;
+      const toolId = typeof stepObj.tool_id === "string" ? stepObj.tool_id : null;
+      const toolVersion = typeof stepObj.tool_version === "string" ? stepObj.tool_version : null;
+      if (!toolId) continue;
+      const params = await this.toolRegistryService.getToolParameters(toolId, toolVersion ?? undefined);
+      if (params) {
+        prefetched.set(`${toolId}|${toolVersion ?? ""}`, params);
+      }
+    }
+
+    if (prefetched.size === 0) return undefined;
+    return (toolId, toolVersion) =>
+      prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
   }
 
   private getLanguageSettings(): LanguageSettings {

@@ -159,6 +159,18 @@
         "command": "galaxy-workflows.populateToolCache",
         "title": "Populate Tool Cache",
         "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.convertToFormat2",
+        "title": "Convert to Format2",
+        "enablement": "resourceLangId == galaxyworkflow",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.convertToNative",
+        "title": "Convert to Native (.ga)",
+        "enablement": "resourceLangId == gxformat2",
+        "category": "Galaxy Workflows"
       }
     ],
     "menus": {
@@ -178,6 +190,14 @@
         {
           "command": "galaxy-workflows.compareCleanWith",
           "when": "false"
+        },
+        {
+          "command": "galaxy-workflows.convertToFormat2",
+          "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.convertToNative",
+          "when": "resourceLangId == gxformat2"
         }
       ],
       "timeline/item/context": [
@@ -214,6 +234,16 @@
           "command": "galaxy-workflows.cleanWorkflow",
           "group": "galaxyworkflow@2",
           "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.convertToFormat2",
+          "group": "galaxyworkflow@3",
+          "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.convertToNative",
+          "group": "galaxyworkflow@3",
+          "when": "resourceLangId == gxformat2"
         }
       ]
     }

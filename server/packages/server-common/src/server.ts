@@ -21,6 +21,7 @@ import { FormattingHandler } from "./providers/formattingHandler";
 import { HoverHandler } from "./providers/hover/hoverHandler";
 import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
+import { ConvertWorkflowService } from "./services/convertWorkflow";
 import { ToolCacheService } from "./services/toolCacheService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
@@ -115,6 +116,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private registerServices(): void {
     CleanWorkflowService.register(this);
+    ConvertWorkflowService.register(this);
     this.toolCacheService = ToolCacheService.register(this);
   }
 

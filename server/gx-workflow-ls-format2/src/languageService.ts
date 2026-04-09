@@ -13,7 +13,7 @@ import {
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
 import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
-import { cleanWorkflow, type ToolInputsResolver } from "@galaxy-tool-util/schema";
+import { cleanWorkflow, toNativeStateful, type ToolInputsResolver } from "@galaxy-tool-util/schema";
 import * as YAML from "yaml";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import type { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
@@ -111,6 +111,17 @@ export class GxFormat2WorkflowLanguageServiceImpl
     const toolInputsResolver = await this.buildToolInputsResolver(dict);
     const { workflow } = await cleanWorkflow(dict, { toolInputsResolver });
     return YAML.stringify(workflow, { lineWidth: 0 });
+  }
+
+  public override async convertWorkflowText(text: string, targetFormat: "format2" | "native"): Promise<string> {
+    if (targetFormat !== "native") {
+      throw new Error(`Format2 service only supports conversion to native; got '${targetFormat}'.`);
+    }
+    const dict = YAML.parse(text) as Record<string, unknown>;
+    const toolInputsResolver = await this.buildToolInputsResolver(dict);
+    const noopResolver: ToolInputsResolver = (_toolId: string, _toolVersion: string | null) => undefined;
+    const { workflow } = toNativeStateful(dict, toolInputsResolver ?? noopResolver);
+    return JSON.stringify(workflow, null, 4) + "\n";
   }
 
   /**

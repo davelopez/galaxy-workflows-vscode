@@ -12,6 +12,7 @@ export namespace LSRequestIdentifiers {
   export const GET_WORKFLOW_TOOL_IDS = "galaxy-workflows-ls.getWorkflowToolIds";
   export const POPULATE_TOOL_CACHE = "galaxy-workflows-ls.populateToolCache";
   export const GET_TOOL_CACHE_STATUS = "galaxy-workflows-ls.getToolCacheStatus";
+  export const CONVERT_WORKFLOW_CONTENTS = "galaxy-workflows-ls.convertWorkflowContents";
 }
 
 export interface CleanWorkflowDocumentParams {
@@ -108,6 +109,16 @@ export interface PopulateToolCacheResult {
 
 export interface GetToolCacheStatusResult {
   cacheSize: number;
+}
+
+export interface ConvertWorkflowContentsParams {
+  contents: string;
+  targetFormat: "format2" | "native";
+}
+
+export interface ConvertWorkflowContentsResult {
+  contents: string;
+  error?: string;
 }
 
 export interface ToolResolutionFailedParams {

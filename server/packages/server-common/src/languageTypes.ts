@@ -56,6 +56,8 @@ import type {
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
+  ConvertWorkflowContentsParams,
+  ConvertWorkflowContentsResult,
   GetToolCacheStatusResult,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
@@ -127,6 +129,8 @@ export type {
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
+  ConvertWorkflowContentsParams,
+  ConvertWorkflowContentsResult,
   GetToolCacheStatusResult,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
@@ -224,6 +228,13 @@ export interface LanguageService<T extends DocumentContext> {
    * Delegates to the galaxy-tool-util cleanWorkflow() implementation.
    */
   cleanWorkflowText(text: string): Promise<string>;
+
+  /**
+   * Converts workflow text to the target format.
+   * Format2 service converts to native; native service converts to format2.
+   * Throws if the targetFormat is not supported by this language service.
+   */
+  convertWorkflowText(text: string, targetFormat: "format2" | "native"): Promise<string>;
 }
 
 /**
@@ -292,6 +303,10 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
 
   public async cleanWorkflowText(text: string): Promise<string> {
     return text;
+  }
+
+  public async convertWorkflowText(_text: string, targetFormat: "format2" | "native"): Promise<string> {
+    throw new Error(`Conversion to ${targetFormat} is not supported by this language service.`);
   }
 }
 
