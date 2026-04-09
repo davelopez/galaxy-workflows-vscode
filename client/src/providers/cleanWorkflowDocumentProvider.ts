@@ -4,8 +4,8 @@ import { CleanWorkflowProvider } from "./cleanWorkflowProvider";
 
 /**
  * Converts a regular document URI to a 'clean' workflow document URI.
- * @param uri The regular document URI.
- * @returns The URI with the scheme for clean workflows.
+ * Uses the same scheme-replacement logic as replaceUriScheme() in ../common/utils,
+ * but operates on vscode.Uri rather than vscode-uri.URI.
  */
 export function toCleanWorkflowUri(uri: Uri): Uri {
   return Uri.parse(uri.toString().replace(uri.scheme, Constants.CLEAN_WORKFLOW_DOCUMENT_SCHEME));

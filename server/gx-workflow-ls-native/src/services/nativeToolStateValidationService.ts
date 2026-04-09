@@ -1,0 +1,151 @@
+import type { ASTNode, ObjectASTNode, StringASTNode } from "@gxwf/server-common/src/ast/types";
+import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
+import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import {
+  buildCacheMissDiagnostic,
+  mapToolStateDiagnosticsToLSP,
+} from "@gxwf/server-common/src/providers/validation/toolStateDiagnostics";
+import {
+  astObjectNodeToRecord,
+  collectStepsWithObjectState,
+  dotPathToAstRange,
+} from "@gxwf/server-common/src/providers/validation/toolStateAstHelpers";
+import { Diagnostic } from "vscode-languageserver-types";
+import { NativeWorkflowDocument } from "../nativeWorkflowDocument";
+
+// ---------------------------------------------------------------------------
+// String-encoded tool_state helper (Pass B — legacy / pre-clean)
+// ---------------------------------------------------------------------------
+
+interface NativeStringStateContext {
+  toolId: string;
+  toolVersion?: string;
+  toolIdNode: ASTNode;
+  toolStateStringNode: StringASTNode;
+  toolStateParsed: Record<string, unknown>;
+  inputConnections?: Record<string, unknown>;
+}
+
+/**
+ * Collect steps where `tool_state` is a JSON-encoded string (pre-clean).
+ * Object-valued `tool_state` steps are handled by `collectStepsWithObjectState`.
+ */
+function collectNativeStepsWithStringState(nodeManager: ASTNodeManager): NativeStringStateContext[] {
+  const result: NativeStringStateContext[] = [];
+  for (const stepNode of nodeManager.getStepNodes()) {
+    const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
+    const toolId =
+      toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
+    if (!toolId || !toolIdProp?.valueNode) continue;
+
+    const toolVersionProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
+    const toolVersion =
+      toolVersionProp?.valueNode?.type === "string"
+        ? String(toolVersionProp.valueNode.value)
+        : undefined;
+
+    const stateProp = stepNode.properties.find((p) => p.keyNode.value === "tool_state");
+    if (!stateProp?.valueNode || stateProp.valueNode.type !== "string") continue;
+
+    const toolStateString = String((stateProp.valueNode as StringASTNode).value);
+    let toolStateParsed: Record<string, unknown>;
+    try {
+      toolStateParsed = JSON.parse(toolStateString) as Record<string, unknown>;
+    } catch {
+      continue; // silently skip malformed JSON
+    }
+
+    const inputConnectionsProp = stepNode.properties.find((p) => p.keyNode.value === "input_connections");
+    const inputConnections =
+      inputConnectionsProp?.valueNode?.type === "object"
+        ? astObjectNodeToRecord(inputConnectionsProp.valueNode as ObjectASTNode)
+        : undefined;
+
+    result.push({
+      toolId,
+      toolVersion,
+      toolIdNode: toolIdProp.valueNode,
+      toolStateStringNode: stateProp.valueNode as StringASTNode,
+      toolStateParsed,
+      inputConnections,
+    });
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// NativeToolStateValidationService
+// ---------------------------------------------------------------------------
+
+export class NativeToolStateValidationService {
+  constructor(private readonly toolRegistryService: ToolRegistryService) {}
+
+  async doValidation(documentContext: NativeWorkflowDocument): Promise<Diagnostic[]> {
+    const result: Diagnostic[] = [];
+    const nodeManager = documentContext.nodeManager;
+
+    // Pass A — object-valued tool_state (post-clean)
+    for (const { toolId, toolVersion, toolIdNode, stateValueNode, stepNode } of collectStepsWithObjectState(nodeManager)) {
+      if (!this.toolRegistryService.hasCached(toolId, toolVersion)) {
+        result.push(
+          buildCacheMissDiagnostic(
+            toolId,
+            this.toolRegistryService.hasResolutionFailed(toolId, toolVersion),
+            nodeManager.getNodeRange(toolIdNode)
+          )
+        );
+        continue;
+      }
+
+      const toolState = astObjectNodeToRecord(stateValueNode);
+      const inputConnectionsProp = stepNode.properties.find((p) => p.keyNode.value === "input_connections");
+      const inputConnections =
+        inputConnectionsProp?.valueNode?.type === "object"
+          ? astObjectNodeToRecord(inputConnectionsProp.valueNode as ObjectASTNode)
+          : undefined;
+
+      const rawDiags = await this.toolRegistryService.validateNativeStep(
+        toolId,
+        toolVersion,
+        toolState,
+        inputConnections
+      );
+      const resolver = (path: string, target: "key" | "value") =>
+        dotPathToAstRange(stateValueNode, path, nodeManager, target);
+      result.push(...mapToolStateDiagnosticsToLSP(rawDiags, resolver));
+    }
+
+    // Pass B — string-valued tool_state (pre-clean / legacy)
+    for (const {
+      toolId,
+      toolVersion,
+      toolIdNode,
+      toolStateStringNode,
+      toolStateParsed,
+      inputConnections,
+    } of collectNativeStepsWithStringState(nodeManager)) {
+      if (!this.toolRegistryService.hasCached(toolId, toolVersion)) {
+        result.push(
+          buildCacheMissDiagnostic(
+            toolId,
+            this.toolRegistryService.hasResolutionFailed(toolId, toolVersion),
+            nodeManager.getNodeRange(toolIdNode)
+          )
+        );
+        continue;
+      }
+
+      const rawDiags = await this.toolRegistryService.validateNativeStep(
+        toolId,
+        toolVersion,
+        toolStateParsed,
+        inputConnections
+      );
+      // Flat resolver: all diagnostics for a string-encoded tool_state point at the whole string.
+      const stringRange = nodeManager.getNodeRange(toolStateStringNode);
+      result.push(...mapToolStateDiagnosticsToLSP(rawDiags, () => stringRange));
+    }
+
+    return result;
+  }
+}

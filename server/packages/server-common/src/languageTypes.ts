@@ -1,4 +1,6 @@
 import "reflect-metadata";
+import type { ToolStateDiagnostic } from "@galaxy-tool-util/schema";
+export type { ToolStateDiagnostic };
 import {
   CodeAction,
   CodeActionContext,
@@ -359,6 +361,13 @@ export interface ToolRegistryService {
   hasResolutionFailed(toolId: string, toolVersion?: string): boolean;
   /** Records that auto-resolution failed for this tool. */
   markResolutionFailed(toolId: string, toolVersion?: string): void;
+  /** Validate native step tool_state against cached tool schema. */
+  validateNativeStep(
+    toolId: string,
+    toolVersion: string | undefined,
+    toolState: Record<string, unknown>,
+    inputConnections?: Record<string, unknown>
+  ): Promise<ToolStateDiagnostic[]>;
 }
 
 const TYPES = {

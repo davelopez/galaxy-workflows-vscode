@@ -28,6 +28,7 @@ import {
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 import { NativeBasicValidationProfile, NativeIWCValidationProfile } from "./profiles";
 import { JsonSchemaNativeWorkflowLoader } from "./schema/jsonSchemaLoader";
+import { NativeToolStateValidationService } from "./services/nativeToolStateValidationService";
 
 const LANGUAGE_ID = "galaxyworkflow";
 
@@ -45,6 +46,7 @@ export class NativeWorkflowLanguageServiceImpl
   private _jsonLanguageService: JSONLanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
   private _schemaLoader = new JsonSchemaNativeWorkflowLoader();
+  private _toolStateValidationService: NativeToolStateValidationService;
 
   constructor(
     @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider,
@@ -55,6 +57,7 @@ export class NativeWorkflowLanguageServiceImpl
     const settings = this.getLanguageSettings();
     this._jsonLanguageService = getLanguageService(params);
     this._jsonLanguageService.configure(settings);
+    this._toolStateValidationService = new NativeToolStateValidationService(this.toolRegistryService);
   }
 
   public get schema(): JSONSchema {
@@ -110,7 +113,13 @@ export class NativeWorkflowLanguageServiceImpl
     schemaValidationResults.forEach((diagnostic) => {
       diagnostic.source = "Native Workflow Schema";
     });
-    return schemaValidationResults;
+
+    const toolStateDiagnostics = await this._toolStateValidationService.doValidation(nativeWorkflowDocument);
+    toolStateDiagnostics.forEach((diagnostic) => {
+      diagnostic.source = "Tool State";
+    });
+
+    return [...schemaValidationResults, ...toolStateDiagnostics];
   }
 
   public override getSymbols(documentContext: NativeWorkflowDocument): DocumentSymbol[] {

@@ -74,14 +74,4 @@ export class CleanWorkflowService extends ServiceBase {
     }
   }
 
-  /** Detect workflow language ID from raw content (JSON → native, otherwise → format2). */
-  private detectLanguageId(contents: string): string {
-    try {
-      const parsed = JSON.parse(contents);
-      if (parsed !== null && typeof parsed === "object") return "galaxyworkflow";
-    } catch {
-      // not JSON
-    }
-    return "gxformat2";
-  }
 }

@@ -3,6 +3,8 @@ import { Constants } from "../common/constants";
 
 /**
  * Converts a regular workflow document URI to a converted-workflow virtual URI.
+ * Uses the same scheme-replacement logic as replaceUriScheme() in ../common/utils,
+ * but operates on vscode.Uri rather than vscode-uri.URI.
  */
 export function toConvertedWorkflowUri(uri: Uri): Uri {
   return Uri.parse(uri.toString().replace(uri.scheme, Constants.CONVERTED_WORKFLOW_DOCUMENT_SCHEME));

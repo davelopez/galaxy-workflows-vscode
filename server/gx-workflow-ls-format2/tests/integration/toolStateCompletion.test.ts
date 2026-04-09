@@ -225,6 +225,9 @@ function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryServic
     async getToolParameters(id) {
       return id === toolId ? params : null;
     },
+    hasResolutionFailed() { return false; },
+    markResolutionFailed() { /* noop */ },
+    async validateNativeStep() { return []; },
   };
 }
 

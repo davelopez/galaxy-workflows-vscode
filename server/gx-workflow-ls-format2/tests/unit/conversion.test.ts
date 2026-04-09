@@ -48,6 +48,7 @@ function makeMockRegistry(toolId: string, params: unknown[] | null): ToolRegistr
     markResolutionFailed: () => {
       /* noop */
     },
+    validateNativeStep: async () => [],
   };
 }
 

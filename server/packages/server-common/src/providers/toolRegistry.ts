@@ -1,7 +1,8 @@
 import * as os from "node:os";
 import { injectable } from "inversify";
 import { ToolInfoService } from "@galaxy-tool-util/core";
-import type { ToolRegistryService } from "../languageTypes";
+import { ToolStateValidator } from "@galaxy-tool-util/schema";
+import type { ToolStateDiagnostic, ToolRegistryService } from "../languageTypes";
 import type { PopulateToolCacheResult } from "../../../../../shared/src/requestsDefinitions";
 
 const POPULATE_CONCURRENCY = 5;
@@ -9,10 +10,12 @@ const POPULATE_CONCURRENCY = 5;
 @injectable()
 export class ToolRegistryServiceImpl implements ToolRegistryService {
   private toolInfo: ToolInfoService;
+  private _validator: ToolStateValidator;
   private _resolutionFailed = new Set<string>();
 
   constructor() {
     this.toolInfo = new ToolInfoService();
+    this._validator = new ToolStateValidator(this.toolInfo);
   }
 
   private resolutionKey(toolId: string, toolVersion?: string): string {
@@ -33,6 +36,7 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
       cacheDir,
       defaultToolshedUrl: settings.toolShedUrl,
     });
+    this._validator = new ToolStateValidator(this.toolInfo);
   }
 
   hasCached(toolId: string, toolVersion?: string): boolean {
@@ -53,6 +57,15 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
     }
     const tool = await this.toolInfo.getToolInfo(toolId, toolVersion ?? null);
     return tool?.inputs ?? null;
+  }
+
+  async validateNativeStep(
+    toolId: string,
+    toolVersion: string | undefined,
+    toolState: Record<string, unknown>,
+    inputConnections?: Record<string, unknown>
+  ): Promise<ToolStateDiagnostic[]> {
+    return this._validator.validateNativeStep(toolId, toolVersion ?? null, toolState, inputConnections);
   }
 
   async populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateToolCacheResult> {
