@@ -31,9 +31,11 @@ import { ServerEventHandler } from "./providers/handler";
 @injectable()
 export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageServer {
   public readonly documents = new TextDocuments(TextDocument);
+  public autoResolutionEnabled = false;
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
   private languageServiceMapper: Map<string, LanguageService<DocumentContext>> = new Map();
   private serverEventHandlers: ServerEventHandler[] = [];
+  private toolCacheService: ToolCacheService | undefined;
 
   constructor(
     @inject(TYPES.Connection) public readonly connection: Connection,
@@ -76,6 +78,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   private async initialize(params: InitializeParams): Promise<InitializeResult> {
     this.configService.initialize(params.capabilities, () => this.onConfigurationChanged());
     this.workspaceFolders = params.workspaceFolders;
+    const initOpts = params.initializationOptions as Record<string, unknown> | undefined;
+    this.autoResolutionEnabled = !!initOpts?.toolAutoResolution;
 
     const settings = await this.configService.getDocumentSettings("");
     this.toolRegistryService.configure({
@@ -111,13 +115,25 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private registerServices(): void {
     CleanWorkflowService.register(this);
-    ToolCacheService.register(this);
+    this.toolCacheService = ToolCacheService.register(this);
   }
 
   private trackDocumentChanges(connection: Connection): void {
     this.documents.listen(connection);
     this.documents.onDidChangeContent((event) => this.onDidChangeContent(event.document));
     this.documents.onDidClose((event) => this.onDidClose(event.document));
+    // NOTE: onDidOpen fires after onDidChangeContent for the same open event
+    // (vscode-languageserver emits onDidChangeContent first, which populates
+    // documentsCache; onDidOpen follows in the same tick). Both are registered
+    // here in that order so documentsCache.get() is guaranteed to succeed.
+    // TODO: also trigger resolution when a new tool_id is added to an already-open
+    // document (requires diffing tool ID sets between validation runs).
+    this.documents.onDidOpen((event) => {
+      const docContext = this.documentsCache.get(event.document.uri);
+      if (docContext) {
+        this.toolCacheService?.scheduleResolution(docContext);
+      }
+    });
   }
 
   /**
@@ -166,5 +182,12 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private clearValidation(textDocument: TextDocument): void {
     this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [] });
+  }
+
+  public revalidateDocument(uri: string): void {
+    const docContext = this.documentsCache.get(uri);
+    if (docContext) {
+      this.validateDocument(docContext);
+    }
   }
 }

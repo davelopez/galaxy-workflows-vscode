@@ -50,7 +50,7 @@ import {
   HoverParams,
 } from "vscode-languageserver/browser";
 import { URI } from "vscode-uri";
-import { LSRequestIdentifiers } from "../../../../shared/src/requestsDefinitions";
+import { LSNotificationIdentifiers, LSRequestIdentifiers } from "../../../../shared/src/requestsDefinitions";
 import type {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,
@@ -101,6 +101,7 @@ export {
   Hover,
   HoverParams,
   InsertTextFormat,
+  LSNotificationIdentifiers,
   LSRequestIdentifiers,
   Location,
   MarkedString,
@@ -303,8 +304,10 @@ export interface GalaxyWorkflowLanguageServer {
   configService: ConfigService;
   workflowDataProvider: WorkflowDataProvider;
   toolRegistryService: ToolRegistryService;
+  autoResolutionEnabled: boolean;
   start(): void;
   getLanguageServiceById(languageId: string): LanguageService<DocumentContext>;
+  revalidateDocument(uri: string): void;
 }
 
 export interface DocumentsCache {
@@ -337,6 +340,10 @@ export interface ToolRegistryService {
   /** Returns cached tool inputs (parameter list) without hitting the network. Returns null if not cached. */
   getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null>;
   readonly cacheSize: number;
+  /** Returns true if a previous auto-resolution attempt for this tool failed. */
+  hasResolutionFailed(toolId: string, toolVersion?: string): boolean;
+  /** Records that auto-resolution failed for this tool. */
+  markResolutionFailed(toolId: string, toolVersion?: string): void;
 }
 
 const TYPES = {

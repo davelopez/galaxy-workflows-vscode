@@ -25,17 +25,17 @@ suite("Format2 (YAML) Workflows", () => {
       await waitForDiagnostics(docUri);
       await assertDiagnostics(docUri, [
         {
-          message: "The 'steps' field is required.",
-          range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 21)),
-          severity: vscode.DiagnosticSeverity.Error,
-        },
-        {
           message: "The 'inputs' field is required.",
           range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 21)),
           severity: vscode.DiagnosticSeverity.Error,
         },
         {
           message: "The 'outputs' field is required.",
+          range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 21)),
+          severity: vscode.DiagnosticSeverity.Error,
+        },
+        {
+          message: "The 'steps' field is required.",
           range: new vscode.Range(new vscode.Position(0, 0), new vscode.Position(0, 21)),
           severity: vscode.DiagnosticSeverity.Error,
         },

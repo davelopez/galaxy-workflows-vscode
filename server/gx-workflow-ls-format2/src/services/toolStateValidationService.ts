@@ -145,11 +145,19 @@ export class ToolStateValidationService {
 
     for (const { toolId, toolVersion, toolIdNode, stateValueNode } of collectStepsWithState(nodeManager)) {
       if (!this.toolRegistryService.hasCached(toolId, toolVersion)) {
-        result.push({
-          message: `Tool '${toolId}' is not in the local cache. Run 'Populate Tool Cache' to enable tool state validation.`,
-          range: nodeManager.getNodeRange(toolIdNode),
-          severity: DiagnosticSeverity.Information,
-        });
+        if (this.toolRegistryService.hasResolutionFailed(toolId, toolVersion)) {
+          result.push({
+            message: `Could not resolve tool '${toolId}' from ToolShed — see Output panel.`,
+            range: nodeManager.getNodeRange(toolIdNode),
+            severity: DiagnosticSeverity.Warning,
+          });
+        } else {
+          result.push({
+            message: `Tool '${toolId}' is not in the local cache. Run 'Populate Tool Cache' to enable tool state validation.`,
+            range: nodeManager.getNodeRange(toolIdNode),
+            severity: DiagnosticSeverity.Information,
+          });
+        }
         continue;
       }
 

@@ -9,9 +9,22 @@ const POPULATE_CONCURRENCY = 5;
 @injectable()
 export class ToolRegistryServiceImpl implements ToolRegistryService {
   private toolInfo: ToolInfoService;
+  private _resolutionFailed = new Set<string>();
 
   constructor() {
     this.toolInfo = new ToolInfoService();
+  }
+
+  private resolutionKey(toolId: string, toolVersion?: string): string {
+    return `${toolId}@${toolVersion ?? ""}`;
+  }
+
+  hasResolutionFailed(toolId: string, toolVersion?: string): boolean {
+    return this._resolutionFailed.has(this.resolutionKey(toolId, toolVersion));
+  }
+
+  markResolutionFailed(toolId: string, toolVersion?: string): void {
+    this._resolutionFailed.add(this.resolutionKey(toolId, toolVersion));
   }
 
   configure(settings: { cacheDir: string; toolShedUrl: string }): void {

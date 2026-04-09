@@ -7,11 +7,13 @@ import {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
   GetWorkflowToolIdsResult,
+  LSNotificationIdentifiers,
   LSRequestIdentifiers,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
   ToolRef,
+  ToolResolutionFailedParams,
 } from "../../shared/src/requestsDefinitions";
 
 export {
@@ -23,9 +25,11 @@ export {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
   GetWorkflowToolIdsResult,
+  LSNotificationIdentifiers,
   LSRequestIdentifiers,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
   ToolRef,
+  ToolResolutionFailedParams,
 };

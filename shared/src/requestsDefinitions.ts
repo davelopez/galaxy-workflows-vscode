@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+export namespace LSNotificationIdentifiers {
+  export const TOOL_RESOLUTION_FAILED = "galaxy-workflows-ls.toolResolutionFailed";
+}
+
 export namespace LSRequestIdentifiers {
   export const CLEAN_WORKFLOW_DOCUMENT = "galaxy-workflows-ls.cleanWorkflowDocument";
   export const CLEAN_WORKFLOW_CONTENTS = "galaxy-workflows-ls.cleanWorkflowContents";
@@ -104,4 +108,8 @@ export interface PopulateToolCacheResult {
 
 export interface GetToolCacheStatusResult {
   cacheSize: number;
+}
+
+export interface ToolResolutionFailedParams {
+  failures: Array<{ toolId: string; error: string }>;
 }
