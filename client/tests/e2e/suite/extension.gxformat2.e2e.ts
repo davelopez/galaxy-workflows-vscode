@@ -15,6 +15,20 @@ import {
 
 suite("Format2 (YAML) Workflows", () => {
   teardown(closeAllEditors);
+  suite("Tool State Validation Tests", () => {
+    test("uncached tool emits info diagnostic", async () => {
+      const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_smoke.gxwf.yml"));
+      await activateAndOpenInEditor(docUri);
+      await waitForDiagnostics(docUri);
+      const diags = vscode.languages.getDiagnostics(docUri);
+      const infoDiag = diags.find(
+        (d) =>
+          d.severity === vscode.DiagnosticSeverity.Information &&
+          d.message.includes("not in the local cache")
+      );
+      assert.ok(infoDiag, `Expected info diagnostic for uncached tool, got: ${JSON.stringify(diags)}`);
+    });
+  });
   suite("Validation Tests", () => {
     beforeEach(async () => {
       await resetSettings();
