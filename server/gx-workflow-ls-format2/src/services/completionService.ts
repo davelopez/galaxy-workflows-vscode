@@ -4,7 +4,7 @@ import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
 import { EnumSchemaNode } from "../schema/definitions";
-import { ToolStateCompletionService, findStateInPath } from "./toolStateCompletionService";
+import { ToolStateCompletionService, findStateInPath, getCompletionTextContext } from "./toolStateCompletionService";
 import { SourceInPath, findSourceInPath, getAvailableSources } from "./workflowConnectionService";
 
 export class GxFormat2CompletionService {
@@ -73,12 +73,12 @@ export class GxFormat2CompletionService {
     const stateInfo = findStateInPath(nodePath);
     if (stateInfo && this.toolStateService) {
       const existing = nodeManager.getDeclaredPropertyNames(node);
+      const textCtx = getCompletionTextContext(textDocument, offset);
       result.items = await this.toolStateService.doComplete(
         nodeManager.root,
         nodePath,
         stateInfo,
-        textBuffer,
-        offset,
+        textCtx,
         existing
       );
       return result;

@@ -29,6 +29,9 @@ import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 import { NativeBasicValidationProfile, NativeIWCValidationProfile } from "./profiles";
 import { JsonSchemaNativeWorkflowLoader } from "./schema/jsonSchemaLoader";
 import { NativeToolStateValidationService } from "./services/nativeToolStateValidationService";
+import { NativeHoverService } from "./services/nativeHoverService";
+import { NativeToolStateCompletionService } from "./services/nativeToolStateCompletionService";
+import { NativeWorkflowConnectionService } from "./services/nativeWorkflowConnectionService";
 
 const LANGUAGE_ID = "galaxyworkflow";
 
@@ -47,6 +50,9 @@ export class NativeWorkflowLanguageServiceImpl
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
   private _schemaLoader = new JsonSchemaNativeWorkflowLoader();
   private _toolStateValidationService: NativeToolStateValidationService;
+  private _hoverService: NativeHoverService;
+  private _toolStateCompletionService: NativeToolStateCompletionService;
+  private _connectionService: NativeWorkflowConnectionService;
 
   constructor(
     @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider,
@@ -58,6 +64,9 @@ export class NativeWorkflowLanguageServiceImpl
     this._jsonLanguageService = getLanguageService(params);
     this._jsonLanguageService.configure(settings);
     this._toolStateValidationService = new NativeToolStateValidationService(this.toolRegistryService);
+    this._hoverService = new NativeHoverService(this.toolRegistryService, this._jsonLanguageService);
+    this._toolStateCompletionService = new NativeToolStateCompletionService(this.toolRegistryService);
+    this._connectionService = new NativeWorkflowConnectionService(this.toolRegistryService);
   }
 
   public get schema(): JSONSchema {
@@ -74,26 +83,27 @@ export class NativeWorkflowLanguageServiceImpl
   }
 
   public override async doHover(workflowDocument: NativeWorkflowDocument, position: Position): Promise<Hover | null> {
-    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
-    const hover = await this._jsonLanguageService.doHover(
-      nativeWorkflowDocument.textDocument,
-      position,
-      nativeWorkflowDocument.jsonDocument
-    );
-    return hover;
+    return this._hoverService.doHover(workflowDocument, position);
   }
 
   public override async doComplete(
     workflowDocument: NativeWorkflowDocument,
     position: Position
   ): Promise<CompletionList | null> {
-    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
-    const completionResult = await this._jsonLanguageService.doComplete(
-      nativeWorkflowDocument.textDocument,
+    // Try tool_state parameter completions first
+    const toolStateResult = await this._toolStateCompletionService.doCompleteAt(workflowDocument, position);
+    if (toolStateResult) return toolStateResult;
+
+    // Try input_connections completions
+    const connResult = await this._connectionService.doCompleteAt(workflowDocument, position);
+    if (connResult) return connResult;
+
+    // Fallback: JSON schema completions
+    return this._jsonLanguageService.doComplete(
+      workflowDocument.textDocument,
       position,
-      nativeWorkflowDocument.jsonDocument
+      workflowDocument.jsonDocument
     );
-    return completionResult;
   }
 
   protected override initializeValidationProfiles(): void {

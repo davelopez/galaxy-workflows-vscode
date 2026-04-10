@@ -8,12 +8,15 @@
 import type {
   ASTNode,
   ArrayASTNode,
+  NodePath,
   ObjectASTNode,
   PropertyASTNode,
   StringASTNode,
 } from "../../ast/types";
 import { ASTNodeManager } from "../../ast/nodeManager";
 import { Range } from "vscode-languageserver-types";
+import type { GenomeBuildParameterModel, SelectParameterModel, ToolParameterModel } from "@galaxy-tool-util/schema";
+import { isBooleanParam } from "@galaxy-tool-util/schema";
 
 // ---------------------------------------------------------------------------
 // Step iteration
@@ -82,6 +85,7 @@ export function astObjectNodeToRecord(node: ObjectASTNode): Record<string, unkno
     if (val.type === "string") dict[key] = String(val.value);
     if (val.type === "boolean") dict[key] = Boolean(val.value);
     if (val.type === "number") dict[key] = Number(val.value);
+    if (val.type === "null") dict[key] = null;
     if (val.type === "object") dict[key] = astObjectNodeToRecord(val as ObjectASTNode);
     if (val.type === "array") {
       dict[key] = (val as ArrayASTNode).items
@@ -181,4 +185,95 @@ export function dotPathToAstRange(
   }
 
   return nodeManager.getNodeRange(stateNode);
+}
+
+// ---------------------------------------------------------------------------
+// Step navigation helpers (shared by hover, completion, and validation)
+// ---------------------------------------------------------------------------
+
+/**
+ * Navigate the AST from root along `stepPath` segments and return the string
+ * value of `propertyName` on the resulting step object, or undefined.
+ */
+export function getStringPropertyFromStep(
+  root: ASTNode | undefined,
+  stepPath: NodePath,
+  propertyName: string
+): string | undefined {
+  let current: ASTNode | undefined = root;
+  for (const seg of stepPath) {
+    if (!current || current.type !== "object") return undefined;
+    const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
+    current = prop?.valueNode;
+  }
+  if (!current || current.type !== "object") return undefined;
+  const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
+  const val = prop?.valueNode;
+  if (val?.type === "string") return String(val.value);
+  return undefined;
+}
+
+/**
+ * Navigate the AST from root along `stepPath` segments and return the object
+ * value node of `propertyName` on the resulting step object, or undefined.
+ */
+export function getObjectNodeFromStep(
+  root: ASTNode | undefined,
+  stepPath: NodePath,
+  propertyName: string
+): ObjectASTNode | undefined {
+  let current: ASTNode | undefined = root;
+  for (const seg of stepPath) {
+    if (!current || current.type !== "object") return undefined;
+    const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
+    current = prop?.valueNode;
+  }
+  if (!current || current.type !== "object") return undefined;
+  const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
+  const val = prop?.valueNode;
+  return val?.type === "object" ? (val as ObjectASTNode) : undefined;
+}
+
+// ---------------------------------------------------------------------------
+// Tool param display helpers (shared by hover and completion)
+// ---------------------------------------------------------------------------
+
+export type ToolParam = ToolParameterModel;
+export type SelectParam = SelectParameterModel | GenomeBuildParameterModel;
+
+/** Minimal common fields accessible on all ToolParameterModel galaxy variants. */
+export interface ToolParamBase {
+  name: string;
+  parameter_type: string;
+  label: string | null;
+  help: string | null;
+}
+
+export function isSelectParam(p: ToolParameterModel): p is SelectParam {
+  return p.parameter_type === "gx_select" || p.parameter_type === "gx_genomebuild";
+}
+
+export function isHidden(p: ToolParameterModel): boolean {
+  return "hidden" in p && !!(p as { hidden: boolean }).hidden;
+}
+
+export function buildParamHoverMarkdown(param: ToolParam): string {
+  const base = param as unknown as ToolParamBase;
+  const typeLabel = base.parameter_type.startsWith("gx_") ? base.parameter_type.slice(3) : base.parameter_type;
+  const lines: string[] = [];
+
+  lines.push(`**${base.name}** \`${typeLabel}\``);
+  if (base.label) lines.push(`_${base.label}_`);
+  if (base.help) lines.push(base.help);
+
+  if (isSelectParam(param) && param.options && param.options.length > 0) {
+    lines.push("**Options:**");
+    for (const opt of param.options) {
+      lines.push(`- \`${opt.value}\` — ${opt.label}`);
+    }
+  } else if (isBooleanParam(param)) {
+    lines.push("**Values:** `true` | `false`");
+  }
+
+  return lines.join("\n\n");
 }

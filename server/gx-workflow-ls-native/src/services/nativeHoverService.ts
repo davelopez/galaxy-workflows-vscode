@@ -1,5 +1,5 @@
 import { findParamAtPath } from "@galaxy-tool-util/schema";
-import type { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
+import type { NodePath } from "@gxwf/server-common/src/ast/types";
 import { Hover, MarkupContent, MarkupKind, Position, Range } from "@gxwf/server-common/src/languageTypes";
 import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import {
@@ -7,41 +7,45 @@ import {
   buildParamHoverMarkdown,
   getObjectNodeFromStep,
   getStringPropertyFromStep,
+  ToolParam,
 } from "@gxwf/server-common/src/providers/validation/toolStateAstHelpers";
-import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
-import { SchemaNode, SchemaNodeResolver } from "../schema";
-import { findStateInPath } from "./toolStateCompletionService";
-import { ToolParam } from "./toolStateTypes";
+import { findStateInPath, StateInPath } from "@gxwf/server-common/src/providers/toolStateCompletion";
+import {
+  LanguageService as JSONLanguageService,
+} from "vscode-json-languageservice";
+import { NativeWorkflowDocument } from "../nativeWorkflowDocument";
 
-export class GxFormat2HoverService {
+export class NativeHoverService {
   constructor(
-    protected readonly schemaNodeResolver: SchemaNodeResolver,
-    private readonly toolRegistryService?: ToolRegistryService
+    private readonly toolRegistryService: ToolRegistryService,
+    private readonly jsonLanguageService?: JSONLanguageService
   ) {}
 
-  //Based on https://github.com/microsoft/vscode-json-languageservice/blob/12275e448a91973777c94a2e5d92c961f281231a/src/services/jsonHover.ts#L23
-  public async doHover(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<Hover | null> {
-    const textDocument = documentContext.textDocument;
-    const nodeManager = documentContext.nodeManager;
+  public async doHover(doc: NativeWorkflowDocument, position: Position): Promise<Hover | null> {
+    const textDocument = doc.textDocument;
+    const nodeManager = doc.nodeManager;
     const offset = textDocument.offsetAt(position);
     let node = nodeManager.getNodeFromOffset(offset);
+
     if (
       !node ||
       ((node.type === "object" || node.type === "array") &&
         offset > node.offset + 1 &&
         offset < node.offset + node.length - 1)
     ) {
-      return Promise.resolve(null);
+      return this.jsonFallback(doc, position);
     }
+
     const hoverRangeNode = node;
 
-    // use the property description when hovering over an object key
+    // When hovering over a property key, navigate to the value node
+    // (same logic as format2 hoverService)
     if (node.type === "string") {
       const parent = node.parent;
       if (parent && parent.type === "property" && parent.keyNode === node) {
         node = parent.valueNode;
         if (!node) {
-          return Promise.resolve(null);
+          return this.jsonFallback(doc, position);
         }
       }
     }
@@ -49,26 +53,27 @@ export class GxFormat2HoverService {
     const hoverRange = nodeManager.getNodeRange(hoverRangeNode);
     const location = nodeManager.getPathFromNode(hoverRangeNode);
 
-    // Check if cursor is inside a step's state/tool_state block
+    // Check if cursor is inside a step's tool_state block (object-form only)
     const stateInfo = findStateInPath(location);
-    if (stateInfo && this.toolRegistryService) {
-      const stateHover = await this.getToolStateHover(documentContext, location, stateInfo, hoverRange);
-      if (stateHover) return stateHover;
+    if (stateInfo) {
+      const stepPath = location.slice(0, stateInfo.stateIndex);
+      const stateNode = getObjectNodeFromStep(nodeManager.root, stepPath, stateInfo.stateKey);
+      if (stateNode) {
+        const stateHover = await this.getToolStateHover(doc, location, stateInfo, hoverRange);
+        if (stateHover) return stateHover;
+      }
     }
 
-    const schemaNode = this.schemaNodeResolver.resolveSchemaContext(location);
-    const contents = this.getHoverMarkdownContentsForNode(schemaNode);
-    const hover = this.createHover(contents.join("\n\n"), hoverRange);
-    return Promise.resolve(hover);
+    return this.jsonFallback(doc, position);
   }
 
   private async getToolStateHover(
-    documentContext: GxFormat2WorkflowDocument,
+    doc: NativeWorkflowDocument,
     location: NodePath,
-    stateInfo: { stateIndex: number; stateKey: string },
+    stateInfo: StateInPath,
     hoverRange: Range
   ): Promise<Hover | null> {
-    const root = documentContext.nodeManager.root;
+    const root = doc.nodeManager.root;
     const stepPath = location.slice(0, stateInfo.stateIndex);
     const innerPath = location.slice(stateInfo.stateIndex + 1);
 
@@ -78,10 +83,9 @@ export class GxFormat2HoverService {
     if (!toolId) return null;
 
     const toolVersion = getStringPropertyFromStep(root, stepPath, "tool_version");
-    const rawParams = await this.toolRegistryService!.getToolParameters(toolId, toolVersion);
+    const rawParams = await this.toolRegistryService.getToolParameters(toolId, toolVersion);
     if (!rawParams) return null;
 
-    // Build state dict for conditional branch filtering
     const stateNode = getObjectNodeFromStep(root, stepPath, stateInfo.stateKey);
     const stateDict = stateNode ? astObjectNodeToRecord(stateNode) : undefined;
 
@@ -92,27 +96,18 @@ export class GxFormat2HoverService {
     return this.createHover(contents, hoverRange);
   }
 
-  private getHoverMarkdownContentsForNode(schemaNode?: SchemaNode): string[] {
-    const contents = [];
-    if (schemaNode) {
-      contents.push(`**${schemaNode?.name}**`);
-      contents.push(schemaNode?.documentation || "Doc not found");
-    } else {
-      contents.push("Schema node not found");
-    }
-    return contents;
-  }
-
   private createHover(contents: string, hoverRange: Range): Hover {
     const markupContent: MarkupContent = {
       kind: MarkupKind.Markdown,
       value: contents,
     };
-    const result: Hover = {
-      contents: markupContent,
-      range: hoverRange,
-    };
-    return result;
+    return { contents: markupContent, range: hoverRange };
+  }
+
+  private jsonFallback(doc: NativeWorkflowDocument, position: Position): Promise<Hover | null> {
+    if (this.jsonLanguageService) {
+      return this.jsonLanguageService.doHover(doc.textDocument, position, doc.jsonDocument);
+    }
+    return Promise.resolve(null);
   }
 }
-
