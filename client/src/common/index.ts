@@ -31,7 +31,7 @@ export function initExtension(
 
   // Setup native workflow language features
   setupProviders(context, nativeClient, gitProvider);
-  setupCommands(context, nativeClient, gitProvider);
+  setupCommands(context, nativeClient, gxFormat2Client, gitProvider);
   startLanguageClient(context, nativeClient);
 
   // Setup gxformat2 language features

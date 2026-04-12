@@ -13,35 +13,41 @@ import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
 
 /**
- * Registers all custom commands declared in package.json
- * @param context The extension context
- * @param client The language client
+ * Registers all custom commands declared in package.json.
+ * Conversion commands route to the server that owns the source format:
+ * toFormat2 → nativeClient (native .ga source), toNative → gxFormat2Client
+ * (format2 .gxwf.yml source).
  */
-export function setupCommands(context: ExtensionContext, client: BaseLanguageClient, gitProvider: GitProvider): void {
+export function setupCommands(
+  context: ExtensionContext,
+  nativeClient: BaseLanguageClient,
+  gxFormat2Client: BaseLanguageClient,
+  gitProvider: GitProvider
+): void {
   const convertedProvider = ConvertedWorkflowDocumentProvider.register(context);
 
   // Conversion: preview (diff view, no file written)
-  context.subscriptions.push(new PreviewConvertToFormat2Command(client, convertedProvider).register());
-  context.subscriptions.push(new PreviewConvertToNativeCommand(client, convertedProvider).register());
+  context.subscriptions.push(new PreviewConvertToFormat2Command(nativeClient, convertedProvider).register());
+  context.subscriptions.push(new PreviewConvertToNativeCommand(gxFormat2Client, convertedProvider).register());
 
   // Conversion: export (clean + convert, write new file alongside original)
-  context.subscriptions.push(new ExportToFormat2Command(client).register());
-  context.subscriptions.push(new ExportToNativeCommand(client).register());
+  context.subscriptions.push(new ExportToFormat2Command(nativeClient).register());
+  context.subscriptions.push(new ExportToNativeCommand(gxFormat2Client).register());
 
   // Conversion: convert file in-place (clean + convert, replace original)
-  context.subscriptions.push(new ConvertFileToFormat2Command(client).register());
-  context.subscriptions.push(new ConvertFileToNativeCommand(client).register());
+  context.subscriptions.push(new ConvertFileToFormat2Command(nativeClient).register());
+  context.subscriptions.push(new ConvertFileToNativeCommand(gxFormat2Client).register());
 
-  context.subscriptions.push(new PreviewCleanWorkflowCommand(client).register());
-  context.subscriptions.push(new CleanWorkflowCommand(client).register());
-  context.subscriptions.push(new PopulateToolCacheCommand(client).register());
-  const selectForCompareProvider = new SelectForCleanCompareCommand(client);
+  context.subscriptions.push(new PreviewCleanWorkflowCommand(nativeClient).register());
+  context.subscriptions.push(new CleanWorkflowCommand(nativeClient).register());
+  context.subscriptions.push(new PopulateToolCacheCommand(nativeClient).register());
+  const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(
     new CompareCleanWithWorkflowsCommand(
-      client,
+      nativeClient,
       selectForCompareProvider,
-      new CleanWorkflowProvider(client, gitProvider)
+      new CleanWorkflowProvider(nativeClient, gitProvider)
     ).register()
   );
 }
