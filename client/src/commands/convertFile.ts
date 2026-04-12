@@ -53,10 +53,13 @@ abstract class ConvertFileCommandBase extends CustomCommand {
     const edit = new WorkspaceEdit();
     edit.createFile(targetUri, { contents: Buffer.from(result.contents, "utf8") });
     edit.deleteFile(sourceUri);
-    await workspace.applyEdit(edit);
-
-    const doc = await workspace.openTextDocument(targetUri);
-    await window.showTextDocument(doc);
+    try {
+      await workspace.applyEdit(edit);
+      const doc = await workspace.openTextDocument(targetUri);
+      await window.showTextDocument(doc);
+    } catch (error) {
+      window.showErrorMessage(`Failed to convert file: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 }
 

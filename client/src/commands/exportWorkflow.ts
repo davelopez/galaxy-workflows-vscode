@@ -35,9 +35,13 @@ abstract class ExportWorkflowCommandBase extends CustomCommand {
       if (choice !== "Overwrite") return;
     }
 
-    await workspace.fs.writeFile(targetUri, Buffer.from(result.contents, "utf8"));
-    const doc = await workspace.openTextDocument(targetUri);
-    await window.showTextDocument(doc);
+    try {
+      await workspace.fs.writeFile(targetUri, Buffer.from(result.contents, "utf8"));
+      const doc = await workspace.openTextDocument(targetUri);
+      await window.showTextDocument(doc);
+    } catch (error) {
+      window.showErrorMessage(`Failed to write file: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 }
 

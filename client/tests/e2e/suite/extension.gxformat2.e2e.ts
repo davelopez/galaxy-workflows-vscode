@@ -42,8 +42,11 @@ suite("Format2 (YAML) Workflows", () => {
         // Original should still exist
         await vscode.workspace.fs.stat(sourceUri);
       } finally {
-        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone */ }
-        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* already gone */ }
+        // Swallow: convertFileToNative deletes source as part of the command,
+        // so stat/delete may throw on the source. Both files may be absent on
+        // early test failure too — either way cleanup should not mask the real error.
+        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone or never created */ }
+        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* deleted by convertFile command */ }
       }
     });
 
@@ -61,8 +64,11 @@ suite("Format2 (YAML) Workflows", () => {
         try { await vscode.workspace.fs.stat(sourceUri); } catch { sourceGone = true; }
         assert.ok(sourceGone, "Original .gxwf.yml should have been deleted after conversion");
       } finally {
-        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone */ }
-        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* already gone */ }
+        // Swallow: convertFileToNative deletes source as part of the command,
+        // so stat/delete may throw on the source. Both files may be absent on
+        // early test failure too — either way cleanup should not mask the real error.
+        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone or never created */ }
+        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* deleted by convertFile command */ }
       }
     });
   });
