@@ -138,7 +138,8 @@ export class NativeWorkflowLanguageServiceImpl
 
   public override async cleanWorkflowText(text: string): Promise<string> {
     const dict = JSON.parse(text) as Record<string, unknown>;
-    const { workflow } = await cleanWorkflow(dict);
+    const toolInputsResolver = await this.buildToolInputsResolver(dict);
+    const { workflow } = await cleanWorkflow(dict, { toolInputsResolver });
     return JSON.stringify(workflow, null, 4) + "\n";
   }
 
