@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { beforeEach } from "mocha";
+import { before, beforeEach } from "mocha";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
@@ -12,6 +12,7 @@ import {
   sleep,
   waitForDiagnostics,
 } from "./helpers";
+import { ensureSharedCache, useCacheDir, useEmptyCache } from "./cacheHelpers";
 
 suite("Format2 (YAML) Workflows", () => {
   teardown(closeAllEditors);
@@ -73,7 +74,10 @@ suite("Format2 (YAML) Workflows", () => {
     });
   });
 
-  suite("Tool State Validation Tests", () => {
+  suite("Tool State Validation Tests (empty cache)", () => {
+    beforeEach(async () => {
+      await useEmptyCache();
+    });
     test("uncached tool emits info diagnostic", async () => {
       const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_smoke.gxwf.yml"));
       await activateAndOpenInEditor(docUri);
@@ -85,6 +89,30 @@ suite("Format2 (YAML) Workflows", () => {
           d.message.includes("not in the local cache")
       );
       assert.ok(infoDiag, `Expected info diagnostic for uncached tool, got: ${JSON.stringify(diags)}`);
+    });
+  });
+
+  suite("Tool State Validation Tests (populated cache)", function () {
+    let cacheDir: string | undefined;
+    before(async function () {
+      const result = await ensureSharedCache();
+      if (!result.ok) {
+        console.warn(`Skipping populated-cache suite: ${result.reason}`);
+        this.skip();
+      }
+      cacheDir = result.cacheDir;
+    });
+    beforeEach(async function () {
+      if (!cacheDir) this.skip();
+      await useCacheDir(cacheDir!);
+    });
+    test("cached tool produces no cache-miss diagnostic", async () => {
+      const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_smoke_cached.gxwf.yml"));
+      await activateAndOpenInEditor(docUri);
+      await waitForDiagnostics(docUri);
+      const diags = vscode.languages.getDiagnostics(docUri);
+      const cacheMiss = diags.find((d) => d.message.includes("not in the local cache"));
+      assert.ok(!cacheMiss, `Cached tool should not produce cache-miss diagnostic, got: ${JSON.stringify(diags)}`);
     });
   });
   suite("Validation Tests", () => {

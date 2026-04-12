@@ -121,5 +121,6 @@ export async function copyToTemp(sourceUri: vscode.Uri): Promise<vscode.Uri> {
 export async function resetSettings(): Promise<void> {
   const configuration = vscode.workspace.getConfiguration("galaxyWorkflows");
   await configuration.update("validation.profile", undefined, true);
+  await configuration.update("toolCache.directory", undefined, true);
   return sleep(500); // Wait for settings to be applied
 }

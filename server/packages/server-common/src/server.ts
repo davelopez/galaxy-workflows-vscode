@@ -127,17 +127,18 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     this.documents.listen(connection);
     this.documents.onDidChangeContent((event) => this.onDidChangeContent(event.document));
     this.documents.onDidClose((event) => this.onDidClose(event.document));
-    // NOTE: onDidOpen fires after onDidChangeContent for the same open event
-    // (vscode-languageserver emits onDidChangeContent first, which populates
-    // documentsCache; onDidOpen follows in the same tick). Both are registered
-    // here in that order so documentsCache.get() is guaranteed to succeed.
+    // onDidOpen fires BEFORE onDidChangeContent in vscode-languageserver, so
+    // documentsCache hasn't been populated yet. Parse on demand.
     // TODO: also trigger resolution when a new tool_id is added to an already-open
     // document (requires diffing tool ID sets between validation runs).
     this.documents.onDidOpen((event) => {
-      const docContext = this.documentsCache.get(event.document.uri);
-      if (docContext) {
-        this.toolCacheService?.scheduleResolution(docContext);
+      let docContext = this.documentsCache.get(event.document.uri);
+      if (!docContext) {
+        const languageService = this.getLanguageServiceById(event.document.languageId);
+        docContext = languageService.parseDocument(event.document);
+        this.documentsCache.addOrReplaceDocument(docContext);
       }
+      this.toolCacheService?.scheduleResolution(docContext);
     });
   }
 

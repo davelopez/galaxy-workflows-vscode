@@ -4,6 +4,7 @@ node_modules
 .vscode-test/
 .vscode-test-web/
 *.vsix
+client/tests/e2e/.cache/
 
 # Local settings for Visual Studio Code
 .vscode/settings.json

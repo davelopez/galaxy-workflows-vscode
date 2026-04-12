@@ -43,4 +43,14 @@ export default defineConfig([
     sourcemap: true,
     bundle: true,
   },
+  {
+    entry: { populateTestCache: "scripts/populateTestCache.ts" },
+    outDir: "dist",
+    format: ["cjs"],
+    platform: "node",
+    noExternal: [/.*/],
+    esbuildOptions: baseEsbuildOptions,
+    sourcemap: true,
+    bundle: true,
+  },
 ]);
