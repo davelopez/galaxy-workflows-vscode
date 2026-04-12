@@ -1,6 +1,24 @@
 import type { ToolStateDiagnostic } from "@galaxy-tool-util/schema";
 import { Diagnostic, DiagnosticSeverity, Range } from "vscode-languageserver-types";
 
+/** Diagnostic code attached to all Pass B (string-encoded tool_state) diagnostics.
+ *  Used by CodeActionHandler to offer a "Clean workflow" quick fix. */
+export const LEGACY_TOOL_STATE_CODE = "legacy-tool-state";
+
+/**
+ * Hint diagnostic emitted for every step with string-encoded tool_state (Pass B).
+ * Surfaces the "Clean workflow" quick fix even when there are no param errors.
+ */
+export function buildLegacyToolStateHintDiagnostic(range: Range): Diagnostic {
+  return {
+    message:
+      "tool_state is JSON-encoded string. Clean workflow to enable completions, hover, and precise diagnostics.",
+    range,
+    severity: DiagnosticSeverity.Hint,
+    code: LEGACY_TOOL_STATE_CODE,
+  };
+}
+
 /**
  * Build a "not cached" or "resolution failed" diagnostic pointing at toolIdNode.
  */

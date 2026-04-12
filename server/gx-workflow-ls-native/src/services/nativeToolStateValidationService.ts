@@ -2,7 +2,9 @@ import type { ASTNode, ObjectASTNode, StringASTNode } from "@gxwf/server-common/
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
 import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import {
+  LEGACY_TOOL_STATE_CODE,
   buildCacheMissDiagnostic,
+  buildLegacyToolStateHintDiagnostic,
   mapToolStateDiagnosticsToLSP,
 } from "@gxwf/server-common/src/providers/validation/toolStateDiagnostics";
 import {
@@ -143,7 +145,14 @@ export class NativeToolStateValidationService {
       );
       // Flat resolver: all diagnostics for a string-encoded tool_state point at the whole string.
       const stringRange = nodeManager.getNodeRange(toolStateStringNode);
-      result.push(...mapToolStateDiagnosticsToLSP(rawDiags, () => stringRange));
+      const passBDiags = mapToolStateDiagnosticsToLSP(rawDiags, () => stringRange).map((d) => ({
+        ...d,
+        code: LEGACY_TOOL_STATE_CODE,
+      }));
+      result.push(...passBDiags);
+      // Always emit a hint so the "Clean workflow" quick fix is discoverable even when
+      // there are no param validation errors.
+      result.push(buildLegacyToolStateHintDiagnostic(stringRange));
     }
 
     return result;

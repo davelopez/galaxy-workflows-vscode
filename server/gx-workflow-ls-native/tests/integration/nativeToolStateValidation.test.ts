@@ -212,30 +212,37 @@ describe("NativeToolStateValidationService integration — string tool_state (Pa
     service = new NativeToolStateValidationService(makeMockRegistry());
   });
 
-  it("emits no diagnostics for valid alignment_type in string state", async () => {
+  it("emits a hint diagnostic for valid alignment_type in string state (clean workflow quick fix)", async () => {
     const doc = createNativeWorkflowDocument(nativeWorkflowWithStringState({ alignment_type: "local" }));
     const diags = await service.doValidation(doc);
-    expect(diags).toHaveLength(0);
+    // Always emits a hint so the "Clean workflow" quick fix is discoverable
+    expect(diags).toHaveLength(1);
+    expect(diags[0].severity).toBe(4); // DiagnosticSeverity.Hint
+    expect(diags[0].code).toBe("legacy-tool-state");
   });
 
   it("emits Error for invalid alignment_type in string state", async () => {
     const doc = createNativeWorkflowDocument(nativeWorkflowWithStringState({ alignment_type: "wrong" }));
     const diags = await service.doValidation(doc);
 
-    expect(diags).toHaveLength(1);
-    expect(diags[0].severity).toBe(1); // DiagnosticSeverity.Error
-    expect(diags[0].message).toMatch(/Invalid value 'wrong'/);
+    // Error diagnostic + hint diagnostic (for "Clean workflow" quick fix)
+    expect(diags).toHaveLength(2);
+    const errorDiag = diags.find((d) => d.severity === 1);
+    expect(errorDiag).toBeDefined();
+    expect(errorDiag!.message).toMatch(/Invalid value 'wrong'/);
   });
 
   it("all diagnostics in string-state pass share the same range (the whole string node)", async () => {
-    // Both error and warning should point at the same tool_state string node
+    // Errors, warnings, and hint all point at the same tool_state string node
     const doc = createNativeWorkflowDocument(
       nativeWorkflowWithStringState({ alignment_type: "wrong", unknown_key: "x" })
     );
     const diags = await service.doValidation(doc);
-    expect(diags).toHaveLength(2);
-    // Both diagnostics must have the exact same range
+    // 2 param errors + 1 hint
+    expect(diags).toHaveLength(3);
+    // All diagnostics must have the exact same range
     expect(diags[0].range).toEqual(diags[1].range);
+    expect(diags[1].range).toEqual(diags[2].range);
   });
 
   it("produces no diagnostics for malformed JSON string state", async () => {
@@ -292,7 +299,7 @@ describe("NativeToolStateValidationService integration — mixed document", () =
           input_connections: {},
           workflow_outputs: [],
           uuid: "00000000-0000-0000-0000-000000000002",
-          // Pass B: string state with invalid value → 1 diagnostic
+          // Pass B: string state with invalid value → error + hint
           tool_state: JSON.stringify({ alignment_type: "bad" }),
         },
       },
@@ -300,8 +307,10 @@ describe("NativeToolStateValidationService integration — mixed document", () =
     const doc = createNativeWorkflowDocument(wf);
     const diags = await service.doValidation(doc);
 
-    expect(diags).toHaveLength(1);
-    expect(diags[0].severity).toBe(1);
-    expect(diags[0].message).toContain("bad");
+    // Pass A step: no diags; Pass B step: 1 error + 1 hint
+    expect(diags).toHaveLength(2);
+    const errorDiag = diags.find((d) => d.severity === 1);
+    expect(errorDiag).toBeDefined();
+    expect(errorDiag!.message).toContain("bad");
   });
 });

@@ -201,13 +201,16 @@ describe("NativeToolStateValidationService", () => {
 
   // --- String state: valid / invalid / malformed ---
 
-  it("emits no diagnostics for string tool_state when validator returns empty", async () => {
+  it("emits a hint diagnostic for string tool_state even when validator returns empty", async () => {
     const service = new NativeToolStateValidationService(
       makeMockRegistry({ validateFn: async () => [] })
     );
     const doc = createNativeWorkflowDocument(makeWorkflowWithStringState({ alignment_type: "end_to_end" }));
     const diags = await service.doValidation(doc);
-    expect(diags).toHaveLength(0);
+    // Always emits a hint so the "Clean workflow" quick fix is discoverable
+    expect(diags).toHaveLength(1);
+    expect(diags[0].severity).toBe(4); // DiagnosticSeverity.Hint
+    expect(diags[0].code).toBe("legacy-tool-state");
   });
 
   it("emits Error diagnostic pointing at string node for invalid value in string tool_state", async () => {
@@ -221,10 +224,13 @@ describe("NativeToolStateValidationService", () => {
     const doc = createNativeWorkflowDocument(makeWorkflowWithStringState({ alignment_type: "bad" }));
     const diags = await service.doValidation(doc);
 
-    expect(diags).toHaveLength(1);
-    expect(diags[0].severity).toBe(1); // DiagnosticSeverity.Error
+    // Error diagnostic + hint diagnostic (for "Clean workflow" quick fix)
+    expect(diags).toHaveLength(2);
+    const errorDiag = diags.find((d) => d.severity === 1);
+    expect(errorDiag).toBeDefined();
+    expect(errorDiag!.message).toContain("bad");
     // All string-state diagnostics share the same range (the whole string node)
-    expect(diags[0].message).toContain("bad");
+    expect(diags[0].range).toEqual(diags[1].range);
   });
 
   it("silently skips steps with malformed JSON string tool_state", async () => {

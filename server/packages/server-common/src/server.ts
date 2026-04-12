@@ -17,6 +17,7 @@ import type {
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
 } from "./languageTypes";
+import { CodeActionHandler } from "./providers/codeActionHandler";
 import { FormattingHandler } from "./providers/formattingHandler";
 import { HoverHandler } from "./providers/hover/hoverHandler";
 import { SymbolsHandler } from "./providers/symbolsHandler";
@@ -96,6 +97,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
         triggerCharacters: ['"', ":"],
       },
       documentSymbolProvider: true,
+      codeActionProvider: true,
     };
 
     return {
@@ -112,6 +114,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     );
     this.serverEventHandlers.push(new SymbolsHandler(this));
     this.serverEventHandlers.push(new CompletionHandler(this));
+    this.serverEventHandlers.push(new CodeActionHandler(this));
   }
 
   private registerServices(): void {
