@@ -1,4 +1,4 @@
-import { NodePath, ObjectASTNode } from "@gxwf/server-common/src/ast/types";
+import { NodePath, ObjectASTNode, ArrayASTNode } from "@gxwf/server-common/src/ast/types";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 
 export interface SourceInPath {
@@ -44,7 +44,9 @@ export function findSourceInPath(path: NodePath): SourceInPath | undefined {
  *
  * YAML property order is the authoritative step order in gxformat2, so
  * iteration stops at the current step to prevent forward references.
- * Only the array form of `out:` is handled; object form is skipped.
+ *
+ * Handles all `out:` forms: array of strings, array of objects (with `id`),
+ * and object/mapping (keys are output names).
  */
 export function getAvailableSources(documentContext: GxFormat2WorkflowDocument, currentStepName: string): string[] {
   const sources: string[] = [];
@@ -73,13 +75,25 @@ export function getAvailableSources(documentContext: GxFormat2WorkflowDocument, 
 
     const outNode = outProp.valueNode;
     if (outNode.type === "array") {
-      for (const item of outNode.items) {
+      for (const item of (outNode as ArrayASTNode).items) {
         if (item.type === "string") {
           sources.push(`${stepLabel}/${String(item.value)}`);
+        } else if (item.type === "object") {
+          // Array-of-objects form: out: [{id: "out1", hide: true}]
+          const idProp = (item as ObjectASTNode).properties.find(
+            (p) => String(p.keyNode.value) === "id"
+          );
+          if (idProp?.valueNode?.type === "string") {
+            sources.push(`${stepLabel}/${String(idProp.valueNode.value)}`);
+          }
         }
       }
+    } else if (outNode.type === "object") {
+      // Object/mapping form: out: {out_file1: {hide: true}, out_file2: {}}
+      for (const prop of (outNode as ObjectASTNode).properties) {
+        sources.push(`${stepLabel}/${String(prop.keyNode.value)}`);
+      }
     }
-    // Object form of out: skipped (unresolved question #6 in plan)
   }
 
   return sources;

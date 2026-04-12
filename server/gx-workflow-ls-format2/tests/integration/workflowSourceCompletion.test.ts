@@ -205,6 +205,106 @@ steps:
   });
 
   // ---------------------------------------------------------------------------
+  // Object-form out:  (out: { name: { ... } })
+  // ---------------------------------------------------------------------------
+
+  it("suggests outputs from object-form out:", async () => {
+    const workflow = `\
+class: GalaxyWorkflow
+inputs:
+  input_data:
+    type: data
+steps:
+  first_step:
+    tool_id: cat1
+    in: {}
+    out:
+      out_file1:
+        hide: true
+      out_file2:
+        rename: "renamed"
+    state: {}
+  second_step:
+    tool_id: cat1
+    in:
+      - id: query
+        source: $
+    state: {}
+`;
+    const { contents, position } = parseTemplate(workflow);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("first_step/out_file1");
+    expect(labels).toContain("first_step/out_file2");
+    expect(labels).toContain("input_data");
+  });
+
+  it("suggests outputs from array-of-objects out:", async () => {
+    const workflow = `\
+class: GalaxyWorkflow
+inputs: {}
+steps:
+  first_step:
+    tool_id: cat1
+    in: {}
+    out:
+      - id: out_file1
+        hide: true
+      - id: out_file2
+    state: {}
+  second_step:
+    tool_id: cat1
+    in:
+      - id: query
+        source: $
+    state: {}
+`;
+    const { contents, position } = parseTemplate(workflow);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("first_step/out_file1");
+    expect(labels).toContain("first_step/out_file2");
+  });
+
+  it("suggests outputs when steps use mixed out: forms", async () => {
+    const workflow = `\
+class: GalaxyWorkflow
+inputs: {}
+steps:
+  array_step:
+    tool_id: cat1
+    in: {}
+    out:
+      - array_out
+    state: {}
+  object_step:
+    tool_id: cat1
+    in: {}
+    out:
+      object_out:
+        hide: true
+    state: {}
+  current_step:
+    tool_id: cat1
+    in:
+      - id: query
+        source: $
+    state: {}
+`;
+    const { contents, position } = parseTemplate(workflow);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("array_step/array_out");
+    expect(labels).toContain("object_step/object_out");
+  });
+
+  // ---------------------------------------------------------------------------
   // No upstream steps / no inputs
   // ---------------------------------------------------------------------------
 
