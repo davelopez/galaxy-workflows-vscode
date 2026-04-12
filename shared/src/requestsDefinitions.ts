@@ -114,6 +114,8 @@ export interface GetToolCacheStatusResult {
 export interface ConvertWorkflowContentsParams {
   contents: string;
   targetFormat: "format2" | "native";
+  /** When true, clean the workflow before converting. */
+  clean?: boolean;
 }
 
 export interface ConvertWorkflowContentsResult {

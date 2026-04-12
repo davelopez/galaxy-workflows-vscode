@@ -105,6 +105,44 @@ describe("ConvertWorkflowService", () => {
     });
   });
 
+  describe("clean flag", () => {
+    it("cleans before converting when clean=true", async () => {
+      const callOrder: string[] = [];
+
+      const server = {
+        connection: { onRequest: (_id: string, fn: unknown) => { (server as Record<string, unknown>)._handler = fn; } },
+        getLanguageServiceById: () => ({
+          cleanWorkflowText: async (text: string) => { callOrder.push("clean"); return text; },
+          convertWorkflowText: async (_text: string) => { callOrder.push("convert"); return "converted"; },
+        }),
+      } as unknown as GalaxyWorkflowLanguageServer;
+
+      ConvertWorkflowService.register(server);
+      const handler = (server as unknown as Record<string, (p: unknown) => Promise<unknown>>)._handler;
+      await handler({ contents: MINIMAL_FORMAT2_YAML, targetFormat: "native", clean: true });
+
+      expect(callOrder).toEqual(["clean", "convert"]);
+    });
+
+    it("skips clean when clean=false", async () => {
+      const callOrder: string[] = [];
+
+      const server = {
+        connection: { onRequest: (_id: string, fn: unknown) => { (server as Record<string, unknown>)._handler = fn; } },
+        getLanguageServiceById: () => ({
+          cleanWorkflowText: async (text: string) => { callOrder.push("clean"); return text; },
+          convertWorkflowText: async (_text: string) => { callOrder.push("convert"); return "converted"; },
+        }),
+      } as unknown as GalaxyWorkflowLanguageServer;
+
+      ConvertWorkflowService.register(server);
+      const handler = (server as unknown as Record<string, (p: unknown) => Promise<unknown>>)._handler;
+      await handler({ contents: MINIMAL_FORMAT2_YAML, targetFormat: "native" });
+
+      expect(callOrder).toEqual(["convert"]);
+    });
+  });
+
   describe("request identifier", () => {
     it("registers under CONVERT_WORKFLOW_CONTENTS identifier", () => {
       let registeredId = "";

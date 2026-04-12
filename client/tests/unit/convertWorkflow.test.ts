@@ -67,14 +67,14 @@ const mockProvider = {
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import { ConvertToFormat2Command, ConvertToNativeCommand } from "../../src/commands/convertWorkflow";
+import { PreviewConvertToFormat2Command, PreviewConvertToNativeCommand } from "../../src/commands/convertWorkflow";
 import { ConvertedWorkflowDocumentProvider } from "../../src/providers/convertedWorkflowDocumentProvider";
 
 // ---------------------------------------------------------------------------
 // Tests: ConvertToFormat2Command
 // ---------------------------------------------------------------------------
 
-describe("ConvertToFormat2Command", () => {
+describe("PreviewConvertToFormat2Command", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     activeTextEditorOverride = null; // reset to default editor
@@ -83,7 +83,7 @@ describe("ConvertToFormat2Command", () => {
 
   it("returns silently when there is no active text editor", async () => {
     activeTextEditorOverride = undefined;
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockSendRequest).not.toHaveBeenCalled();
     expect(mockShowErrorMessage).not.toHaveBeenCalled();
@@ -91,7 +91,7 @@ describe("ConvertToFormat2Command", () => {
 
   it("sends CONVERT_WORKFLOW_CONTENTS with targetFormat: format2", async () => {
     mockSendRequest.mockResolvedValue({ contents: "class: GalaxyWorkflow\n" });
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockSendRequest).toHaveBeenCalledWith(
       "galaxy-workflows-ls.convertWorkflowContents",
@@ -101,28 +101,28 @@ describe("ConvertToFormat2Command", () => {
 
   it("stores converted contents in provider", async () => {
     mockSendRequest.mockResolvedValue({ contents: "class: GalaxyWorkflow\n" });
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockSetContents).toHaveBeenCalled();
   });
 
   it("sets language to gxformat2 before diffing", async () => {
     mockSendRequest.mockResolvedValue({ contents: "class: GalaxyWorkflow\n" });
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockSetTextDocumentLanguage).toHaveBeenCalledWith(expect.anything(), "gxformat2");
   });
 
   it("opens vscode.diff after setting language", async () => {
     mockSendRequest.mockResolvedValue({ contents: "class: GalaxyWorkflow\n" });
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockExecuteCommand).toHaveBeenCalledWith("vscode.diff", expect.anything(), expect.anything(), expect.any(String));
   });
 
   it("shows error message when server returns error field", async () => {
     mockSendRequest.mockResolvedValue({ contents: "", error: "unsupported" });
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockShowErrorMessage).toHaveBeenCalledWith(expect.stringContaining("unsupported"));
     expect(mockExecuteCommand).not.toHaveBeenCalled();
@@ -130,7 +130,7 @@ describe("ConvertToFormat2Command", () => {
 
   it("shows error message when server returns no result", async () => {
     mockSendRequest.mockResolvedValue(undefined);
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockShowErrorMessage).toHaveBeenCalled();
     expect(mockExecuteCommand).not.toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe("ConvertToFormat2Command", () => {
 
   it("shows error message when sendRequest rejects", async () => {
     mockSendRequest.mockRejectedValue(new Error("network error"));
-    const cmd = new ConvertToFormat2Command(mockClient, mockProvider);
+    const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
     expect(mockShowErrorMessage).toHaveBeenCalledWith(expect.stringContaining("network error"));
     expect(mockExecuteCommand).not.toHaveBeenCalled();
@@ -149,7 +149,7 @@ describe("ConvertToFormat2Command", () => {
 // Tests: ConvertToNativeCommand
 // ---------------------------------------------------------------------------
 
-describe("ConvertToNativeCommand", () => {
+describe("PreviewConvertToNativeCommand", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     activeTextEditorOverride = null;
@@ -158,7 +158,7 @@ describe("ConvertToNativeCommand", () => {
 
   it("sends CONVERT_WORKFLOW_CONTENTS with targetFormat: native", async () => {
     mockSendRequest.mockResolvedValue({ contents: '{"a_galaxy_workflow":"true"}\n' });
-    const cmd = new ConvertToNativeCommand(mockClient, mockProvider);
+    const cmd = new PreviewConvertToNativeCommand(mockClient, mockProvider);
     await cmd.execute();
     expect(mockSendRequest).toHaveBeenCalledWith(
       "galaxy-workflows-ls.convertWorkflowContents",
@@ -168,7 +168,7 @@ describe("ConvertToNativeCommand", () => {
 
   it("sets language to galaxyworkflow before diffing", async () => {
     mockSendRequest.mockResolvedValue({ contents: '{"a_galaxy_workflow":"true"}\n' });
-    const cmd = new ConvertToNativeCommand(mockClient, mockProvider);
+    const cmd = new PreviewConvertToNativeCommand(mockClient, mockProvider);
     await cmd.execute();
     expect(mockSetTextDocumentLanguage).toHaveBeenCalledWith(expect.anything(), "galaxyworkflow");
   });

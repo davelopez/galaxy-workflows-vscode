@@ -36,7 +36,11 @@ export class ConvertWorkflowService extends ServiceBase {
     try {
       const languageId = this.detectLanguageId(params.contents);
       const languageService = this.server.getLanguageServiceById(languageId);
-      const contents = await languageService.convertWorkflowText(params.contents, params.targetFormat);
+      let source = params.contents;
+      if (params.clean) {
+        source = await languageService.cleanWorkflowText(source);
+      }
+      const contents = await languageService.convertWorkflowText(source, params.targetFormat);
       return { contents };
     } catch (error) {
       return { contents: "", error: String(error) };

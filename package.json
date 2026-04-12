@@ -161,14 +161,38 @@
         "category": "Galaxy Workflows"
       },
       {
-        "command": "galaxy-workflows.convertToFormat2",
-        "title": "Convert to Format2",
+        "command": "galaxy-workflows.previewConvertToFormat2",
+        "title": "Preview Convert to Format2",
         "enablement": "resourceLangId == galaxyworkflow",
         "category": "Galaxy Workflows"
       },
       {
-        "command": "galaxy-workflows.convertToNative",
-        "title": "Convert to Native (.ga)",
+        "command": "galaxy-workflows.previewConvertToNative",
+        "title": "Preview Convert to Native (.ga)",
+        "enablement": "resourceLangId == gxformat2",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.exportToFormat2",
+        "title": "Export as Format2 (.gxwf.yml)",
+        "enablement": "resourceLangId == galaxyworkflow",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.exportToNative",
+        "title": "Export as Native (.ga)",
+        "enablement": "resourceLangId == gxformat2",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.convertFileToFormat2",
+        "title": "Convert File to Format2",
+        "enablement": "resourceLangId == galaxyworkflow",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.convertFileToNative",
+        "title": "Convert File to Native (.ga)",
         "enablement": "resourceLangId == gxformat2",
         "category": "Galaxy Workflows"
       }
@@ -192,11 +216,27 @@
           "when": "false"
         },
         {
-          "command": "galaxy-workflows.convertToFormat2",
+          "command": "galaxy-workflows.previewConvertToFormat2",
           "when": "resourceLangId == galaxyworkflow"
         },
         {
-          "command": "galaxy-workflows.convertToNative",
+          "command": "galaxy-workflows.previewConvertToNative",
+          "when": "resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.exportToFormat2",
+          "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.exportToNative",
+          "when": "resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.convertFileToFormat2",
+          "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.convertFileToNative",
           "when": "resourceLangId == gxformat2"
         }
       ],
@@ -236,13 +276,33 @@
           "when": "resourceLangId == galaxyworkflow"
         },
         {
-          "command": "galaxy-workflows.convertToFormat2",
+          "command": "galaxy-workflows.previewConvertToFormat2",
           "group": "galaxyworkflow@3",
           "when": "resourceLangId == galaxyworkflow"
         },
         {
-          "command": "galaxy-workflows.convertToNative",
+          "command": "galaxy-workflows.previewConvertToNative",
           "group": "galaxyworkflow@3",
+          "when": "resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.exportToFormat2",
+          "group": "galaxyworkflow@4",
+          "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.exportToNative",
+          "group": "galaxyworkflow@4",
+          "when": "resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.convertFileToFormat2",
+          "group": "galaxyworkflow@5",
+          "when": "resourceLangId == galaxyworkflow"
+        },
+        {
+          "command": "galaxy-workflows.convertFileToNative",
+          "group": "galaxyworkflow@5",
           "when": "resourceLangId == gxformat2"
         }
       ]

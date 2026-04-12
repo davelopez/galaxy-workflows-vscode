@@ -1,4 +1,6 @@
 import * as assert from "assert";
+import * as crypto from "crypto";
+import * as os from "os";
 import * as path from "path";
 import * as vscode from "vscode";
 
@@ -99,6 +101,21 @@ export function closeAllEditors(): Thenable<unknown> {
 export async function updateSettings(setting: string, value: unknown): Promise<void> {
   const configuration = vscode.workspace.getConfiguration("galaxyWorkflows", null);
   return configuration.update(setting, value, true);
+}
+
+/**
+ * Copies a test fixture to a unique temp file, preserving the full filename
+ * (including compound extensions like .gxwf.yml). Returns the temp URI.
+ * Caller is responsible for deleting the temp file after use.
+ */
+export async function copyToTemp(sourceUri: vscode.Uri): Promise<vscode.Uri> {
+  const content = await vscode.workspace.fs.readFile(sourceUri);
+  const fileName = path.basename(sourceUri.path);
+  const tempName = `${crypto.randomBytes(4).toString("hex")}_${fileName}`;
+  const tempPath = path.join(os.tmpdir(), tempName);
+  const tempUri = vscode.Uri.file(tempPath);
+  await vscode.workspace.fs.writeFile(tempUri, content);
+  return tempUri;
 }
 
 export async function resetSettings(): Promise<void> {

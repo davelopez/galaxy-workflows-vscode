@@ -1,4 +1,4 @@
-import { workspace } from "vscode";
+import { Uri, workspace } from "vscode";
 import { URI } from "vscode-uri";
 
 /**
@@ -92,6 +92,17 @@ export function replaceUriPattern(uri: URI, pattern: RegExp, replacement: string
   const newUriString = uriString.replace(pattern, `$1${replacement}`);
   const result = URI.parse(newUriString);
   return result;
+}
+
+/**
+ * Returns a new URI with the file extension replaced for the target workflow format.
+ * Native (.ga) converts to format2 (.gxwf.yml); format2 (.gxwf.yml/.gxwf.yaml) converts to native (.ga).
+ */
+export function convertedFileUri(uri: Uri, targetFormat: "format2" | "native"): Uri {
+  if (targetFormat === "format2") {
+    return uri.with({ path: uri.path.replace(/\.ga$/, ".gxwf.yml") });
+  }
+  return uri.with({ path: uri.path.replace(/\.gxwf\.(yml|yaml)$/, ".ga") });
 }
 
 /**

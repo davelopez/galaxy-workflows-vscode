@@ -5,7 +5,9 @@ import { ConvertedWorkflowDocumentProvider } from "../providers/convertedWorkflo
 import { GitProvider } from "../providers/git";
 import { CleanWorkflowCommand } from "./cleanWorkflow";
 import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
-import { ConvertToFormat2Command, ConvertToNativeCommand } from "./convertWorkflow";
+import { ConvertFileToFormat2Command, ConvertFileToNativeCommand } from "./convertFile";
+import { PreviewConvertToFormat2Command, PreviewConvertToNativeCommand } from "./convertWorkflow";
+import { ExportToFormat2Command, ExportToNativeCommand } from "./exportWorkflow";
 import { PopulateToolCacheCommand } from "./populateToolCache";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
@@ -17,8 +19,18 @@ import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
  */
 export function setupCommands(context: ExtensionContext, client: BaseLanguageClient, gitProvider: GitProvider): void {
   const convertedProvider = ConvertedWorkflowDocumentProvider.register(context);
-  context.subscriptions.push(new ConvertToFormat2Command(client, convertedProvider).register());
-  context.subscriptions.push(new ConvertToNativeCommand(client, convertedProvider).register());
+
+  // Conversion: preview (diff view, no file written)
+  context.subscriptions.push(new PreviewConvertToFormat2Command(client, convertedProvider).register());
+  context.subscriptions.push(new PreviewConvertToNativeCommand(client, convertedProvider).register());
+
+  // Conversion: export (clean + convert, write new file alongside original)
+  context.subscriptions.push(new ExportToFormat2Command(client).register());
+  context.subscriptions.push(new ExportToNativeCommand(client).register());
+
+  // Conversion: convert file in-place (clean + convert, replace original)
+  context.subscriptions.push(new ConvertFileToFormat2Command(client).register());
+  context.subscriptions.push(new ConvertFileToNativeCommand(client).register());
 
   context.subscriptions.push(new PreviewCleanWorkflowCommand(client).register());
   context.subscriptions.push(new CleanWorkflowCommand(client).register());
