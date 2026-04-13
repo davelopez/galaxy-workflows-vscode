@@ -80,11 +80,11 @@ function makeMockRegistry(
 ): ToolRegistryService {
   const { cached = true, resolutionFailed = false, validateFn } = opts;
   return {
-    hasCached: () => cached,
-    listCached: () => [],
+    hasCached: async () => cached,
+    listCached: async () => [],
     async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
     configure() { /* noop */ },
-    get cacheSize() { return cached ? 1 : 0; },
+    async getCacheSize() { return cached ? 1 : 0; },
     async getToolParameters() { return null; },
     hasResolutionFailed: () => resolutionFailed,
     markResolutionFailed: () => { /* noop */ },

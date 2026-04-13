@@ -57,11 +57,11 @@ async function mockValidate(
 
 function makeMockRegistry(): ToolRegistryService {
   return {
-    hasCached: (id) => id === TOOL_ID,
-    listCached: () => [],
+    hasCached: async (id) => id === TOOL_ID,
+    listCached: async () => [],
     async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
     configure() { /* noop */ },
-    get cacheSize() { return 1; },
+    async getCacheSize() { return 1; },
     async getToolParameters() { return null; },
     hasResolutionFailed: () => false,
     markResolutionFailed: () => { /* noop */ },

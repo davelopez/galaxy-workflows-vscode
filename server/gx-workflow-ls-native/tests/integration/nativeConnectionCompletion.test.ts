@@ -41,11 +41,11 @@ const TOOL_PARAMS_BOWTIE = [
 
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
   return {
-    hasCached(id) { return id === toolId; },
-    listCached() { return []; },
+    async hasCached(id) { return id === toolId; },
+    async listCached() { return []; },
     async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
     configure() { /* noop */ },
-    get cacheSize() { return 1; },
+    async getCacheSize() { return 1; },
     async getToolParameters(id) { return id === toolId ? params : null; },
     hasResolutionFailed() { return false; },
     markResolutionFailed() { /* noop */ },

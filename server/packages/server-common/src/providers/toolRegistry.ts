@@ -1,8 +1,7 @@
-import * as os from "node:os";
 import { injectable } from "inversify";
 import { ToolInfoService } from "@galaxy-tool-util/core";
 import { ToolStateValidator } from "@galaxy-tool-util/schema";
-import type { ToolStateDiagnostic, ToolRegistryService } from "../languageTypes";
+import type { CacheStorage, ToolStateDiagnostic, ToolRegistryService } from "../languageTypes";
 import type { PopulateToolCacheResult } from "../../../../../shared/src/requestsDefinitions";
 
 const POPULATE_CONCURRENCY = 5;
@@ -14,7 +13,7 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
   private _resolutionFailed = new Set<string>();
 
   constructor() {
-    this.toolInfo = new ToolInfoService();
+    this.toolInfo = new ToolInfoService({ storage: new NullStorage() });
     this._validator = new ToolStateValidator(this.toolInfo);
   }
 
@@ -30,29 +29,28 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
     this._resolutionFailed.add(this.resolutionKey(toolId, toolVersion));
   }
 
-  configure(settings: { cacheDir: string; toolShedUrl: string }): void {
-    const cacheDir = settings.cacheDir.replace(/^~/, os.homedir());
+  configure(settings: { toolShedUrl: string; storage: CacheStorage }): void {
     this.toolInfo = new ToolInfoService({
-      cacheDir,
       defaultToolshedUrl: settings.toolShedUrl,
+      storage: settings.storage,
     });
     this._validator = new ToolStateValidator(this.toolInfo);
   }
 
-  hasCached(toolId: string, toolVersion?: string): boolean {
+  async hasCached(toolId: string, toolVersion?: string): Promise<boolean> {
     return this.toolInfo.cache.hasCached(toolId, toolVersion ?? null);
   }
 
-  listCached() {
+  async listCached() {
     return this.toolInfo.cache.listCached();
   }
 
-  get cacheSize(): number {
-    return this.toolInfo.cache.listCached().length;
+  async getCacheSize(): Promise<number> {
+    return (await this.toolInfo.cache.listCached()).length;
   }
 
   async getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null> {
-    if (!this.hasCached(toolId, toolVersion)) {
+    if (!(await this.hasCached(toolId, toolVersion))) {
       return null;
     }
     const tool = await this.toolInfo.getToolInfo(toolId, toolVersion ?? null);
@@ -75,7 +73,7 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
       const batch = tools.slice(i, i + POPULATE_CONCURRENCY);
       await Promise.all(
         batch.map(async ({ toolId, toolVersion }) => {
-          if (this.hasCached(toolId, toolVersion)) {
+          if (await this.hasCached(toolId, toolVersion)) {
             result.alreadyCached++;
             return;
           }
@@ -95,4 +93,12 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
 
     return result;
   }
+}
+
+// Placeholder storage used before configure() supplies the real backing store.
+class NullStorage implements CacheStorage {
+  async load(): Promise<null> { return null; }
+  async save(): Promise<void> {}
+  async delete(): Promise<void> {}
+  async list(): Promise<string[]> { return []; }
 }

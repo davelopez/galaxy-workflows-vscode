@@ -26,6 +26,7 @@ import { ConvertWorkflowService } from "./services/convertWorkflow";
 import { ToolCacheService } from "./services/toolCacheService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
+import type { CacheStorageFactory } from "./languageTypes";
 import type { ConfigService } from "./configService";
 import { CompletionHandler } from "./providers/completionHandler";
 import { ServerEventHandler } from "./providers/handler";
@@ -46,7 +47,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     @inject(TYPES.WorkflowDataProvider) public readonly workflowDataProvider: WorkflowDataProvider,
     @inject(TYPES.WorkflowLanguageService) public readonly workflowLanguageService: WorkflowLanguageService,
     @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService,
-    @inject(TYPES.ToolRegistryService) public readonly toolRegistryService: ToolRegistryService
+    @inject(TYPES.ToolRegistryService) public readonly toolRegistryService: ToolRegistryService,
+    @inject(TYPES.CacheStorageFactory) private readonly cacheStorageFactory: CacheStorageFactory
   ) {
     this.languageServiceMapper.set(workflowLanguageService.languageId, workflowLanguageService);
     this.languageServiceMapper.set(workflowTestsLanguageService.languageId, workflowTestsLanguageService);
@@ -85,8 +87,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
     const settings = await this.configService.getDocumentSettings("");
     this.toolRegistryService.configure({
-      cacheDir: settings.toolCache.directory,
       toolShedUrl: settings.toolShed.url,
+      storage: this.cacheStorageFactory(settings.toolCache.directory),
     });
 
     const capabilities: ServerCapabilities = {
@@ -138,7 +140,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
         docContext = languageService.parseDocument(event.document);
         this.documentsCache.addOrReplaceDocument(docContext);
       }
-      this.toolCacheService?.scheduleResolution(docContext);
+      void this.toolCacheService?.scheduleResolution(docContext);
     });
   }
 
@@ -161,8 +163,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   private onConfigurationChanged(): void {
     this.configService.getDocumentSettings("").then((settings) => {
       this.toolRegistryService.configure({
-        cacheDir: settings.toolCache.directory,
         toolShedUrl: settings.toolShed.url,
+        storage: this.cacheStorageFactory(settings.toolCache.directory),
       });
     });
     this.documentsCache.all().forEach((documentContext) => {

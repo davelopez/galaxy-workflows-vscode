@@ -29,17 +29,15 @@ const SIMPLE_PARAMS = [
 
 function makeMockRegistry(toolId: string, params: unknown[] | null): ToolRegistryService {
   return {
-    hasCached: (id) => id === toolId,
-    listCached: () => [],
+    hasCached: async (id) => id === toolId,
+    listCached: async () => [],
     async populateCache() {
       return { fetched: 0, alreadyCached: 0, failed: [] };
     },
     configure() {
       /* noop */
     },
-    get cacheSize() {
-      return params ? 1 : 0;
-    },
+    async getCacheSize() { return params ? 1 : 0; },
     async getToolParameters(id) {
       return id === toolId ? params : null;
     },

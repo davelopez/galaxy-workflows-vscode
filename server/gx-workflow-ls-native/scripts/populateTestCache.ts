@@ -1,4 +1,4 @@
-import { ToolInfoService } from "@galaxy-tool-util/core";
+import { makeNodeToolInfoService } from "@galaxy-tool-util/core/node";
 
 interface Args {
   cacheDir: string;
@@ -10,7 +10,7 @@ async function main(): Promise<void> {
   const raw = process.argv[2];
   if (!raw) throw new Error("usage: populateTestCache.js <json-args>");
   const { cacheDir, tools, toolShedUrl }: Args = JSON.parse(raw);
-  const svc = new ToolInfoService({ cacheDir, defaultToolshedUrl: toolShedUrl });
+  const svc = makeNodeToolInfoService({ cacheDir, defaultToolshedUrl: toolShedUrl });
   const failed: string[] = [];
   for (const { toolId, toolVersion } of tools) {
     try {

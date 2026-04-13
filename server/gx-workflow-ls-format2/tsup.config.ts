@@ -2,9 +2,7 @@ import { defineConfig } from "tsup";
 import path from "path";
 import { readFileSync } from "fs";
 import { parse } from "yaml";
-import { createRequire } from "module";
 
-const require = createRequire(import.meta.url);
 const schemasDir = path.resolve(__dirname, "../../workflow-languages/schemas");
 
 const yamlPlugin = {
@@ -22,22 +20,17 @@ const yamlPlugin = {
 
 const baseEsbuildOptions = (options: { alias?: Record<string, string>; mainFields?: string[]; conditions?: string[] }) => {
   options.alias = { "@schemas": schemasDir };
-  // Use ESM ("module") first so bundled packages like vscode-json-languageservice use their
-  // static-import ESM build instead of the UMD build (which uses dynamic require() calls
-  // that esbuild cannot resolve at bundle time).
-  // @galaxy-tool-util/* uses the "exports"/"import" condition and is unaffected by mainFields.
+  // Prefer ESM ("module") so bundled packages like vscode-json-languageservice use their
+  // static-import ESM build instead of the UMD build (dynamic require() calls esbuild can't resolve).
   options.mainFields = ["module", "main"];
   options.conditions = ["require", "import", "node", "default"];
 };
 
 const browserEsbuildOptions = (options: { alias?: Record<string, string>; mainFields?: string[]; conditions?: string[] }) => {
-  baseEsbuildOptions(options);
-  // Shim Node.js built-ins used by yaml's CJS dist (require('process'), require('buffer'))
-  options.alias = {
-    ...options.alias,
-    process: require.resolve("process/browser"),
-    buffer: require.resolve("buffer/"),
-  };
+  options.alias = { "@schemas": schemasDir };
+  options.mainFields = ["module", "main"];
+  // "browser" first so @galaxy-tool-util/core's universal (browser-safe) entry is selected.
+  options.conditions = ["browser", "import", "default"];
 };
 
 const sharedConfig = {

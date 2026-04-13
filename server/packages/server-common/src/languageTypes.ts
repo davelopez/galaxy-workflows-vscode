@@ -1,6 +1,9 @@
 import "reflect-metadata";
 import type { ToolStateDiagnostic } from "@galaxy-tool-util/schema";
-export type { ToolStateDiagnostic };
+import type { CacheStorage } from "@galaxy-tool-util/core";
+export type { ToolStateDiagnostic, CacheStorage };
+/** Builds a CacheStorage. Browser returns IndexedDBCacheStorage; node returns FilesystemCacheStorage(getCacheDir(cacheDir)). */
+export type CacheStorageFactory = (cacheDir?: string) => CacheStorage;
 import {
   CodeAction,
   CodeActionContext,
@@ -343,20 +346,20 @@ export interface WorkflowDataProvider {
 }
 
 export interface ToolRegistryService {
-  hasCached(toolId: string, toolVersion?: string): boolean;
-  listCached(): Array<{
+  hasCached(toolId: string, toolVersion?: string): Promise<boolean>;
+  listCached(): Promise<Array<{
     cache_key: string;
     tool_id: string;
     tool_version: string;
     source: string;
     source_url: string;
     cached_at: string;
-  }>;
+  }>>;
   populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateToolCacheResult>;
-  configure(settings: { cacheDir: string; toolShedUrl: string }): void;
+  configure(settings: { toolShedUrl: string; storage: CacheStorage }): void;
   /** Returns cached tool inputs (parameter list) without hitting the network. Returns null if not cached. */
   getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null>;
-  readonly cacheSize: number;
+  getCacheSize(): Promise<number>;
   /** Returns true if a previous auto-resolution attempt for this tool failed. */
   hasResolutionFailed(toolId: string, toolVersion?: string): boolean;
   /** Records that auto-resolution failed for this tool. */
@@ -380,6 +383,8 @@ const TYPES = {
   WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
   SymbolsProvider: Symbol.for("SymbolsProvider"),
   ToolRegistryService: Symbol.for("ToolRegistryService"),
+  /** Factory producing a CacheStorage. Browser entry binds an IndexedDB factory; node entry binds a FilesystemCacheStorage factory. */
+  CacheStorageFactory: Symbol.for("CacheStorageFactory"),
 };
 
 export { TYPES };

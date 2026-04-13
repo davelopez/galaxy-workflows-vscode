@@ -106,7 +106,7 @@ export class NativeToolStateValidationService {
       toolStateParsed,
       inputConnections,
     } of collectNativeStepsWithStringState(nodeManager)) {
-      if (!this.toolRegistryService.hasCached(toolId, toolVersion)) {
+      if (!(await this.toolRegistryService.hasCached(toolId, toolVersion))) {
         result.push(
           buildCacheMissDiagnostic(
             toolId,

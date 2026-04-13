@@ -40,7 +40,7 @@ export async function runObjectStateValidationLoop(
   const result: Diagnostic[] = [];
 
   for (const { toolId, toolVersion, toolIdNode, stateValueNode, stepNode } of collectStepsWithObjectState(nodeManager)) {
-    if (!registry.hasCached(toolId, toolVersion)) {
+    if (!(await registry.hasCached(toolId, toolVersion))) {
       result.push(
         buildCacheMissDiagnostic(
           toolId,

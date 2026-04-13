@@ -88,8 +88,8 @@ export class ToolCacheService extends ServiceBase {
       (params: PopulateToolCacheParams) => this.server.toolRegistryService.populateCache(params.tools)
     );
 
-    this.server.connection.onRequest(LSRequestIdentifiers.GET_TOOL_CACHE_STATUS, () => ({
-      cacheSize: this.server.toolRegistryService.cacheSize,
+    this.server.connection.onRequest(LSRequestIdentifiers.GET_TOOL_CACHE_STATUS, async () => ({
+      cacheSize: await this.server.toolRegistryService.getCacheSize(),
     }));
   }
 
@@ -113,12 +113,14 @@ export class ToolCacheService extends ServiceBase {
   // -------------------------------------------------------------------------
 
   /** Schedule auto-resolution for all uncached tools in `doc`. */
-  public scheduleResolution(doc: DocumentContext): void {
+  public async scheduleResolution(doc: DocumentContext): Promise<void> {
     if (!this.server.autoResolutionEnabled) return;
 
-    const uncached = extractToolRefsFromDocument(doc).filter(
-      (ref) => !this.server.toolRegistryService.hasCached(ref.toolId, ref.toolVersion)
+    const refs = extractToolRefsFromDocument(doc);
+    const cachedFlags = await Promise.all(
+      refs.map((ref) => this.server.toolRegistryService.hasCached(ref.toolId, ref.toolVersion))
     );
+    const uncached = refs.filter((_, i) => !cachedFlags[i]);
     if (uncached.length === 0) return;
 
     for (const ref of uncached) {
