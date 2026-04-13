@@ -56,6 +56,30 @@ suite("Format2 (YAML) Workflows", () => {
       const cacheMiss = diags.find(isCacheMissDiagnostic);
       assert.ok(!cacheMiss, `Cached tool should not produce cache-miss diagnostic, got: ${JSON.stringify(diags)}`);
     });
+
+    test("empty state: block offers tool parameter completions", async () => {
+      // Fixture has an empty `state:` for a cached fastp step. Trigger
+      // completions inside the block; expect fastp parameter names. Exact
+      // param set depends on fastp's xml — assert on a couple known-stable
+      // top-level params.
+      const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_completion.gxwf.yml"));
+      await activateAndOpenInEditor(docUri);
+      await sleep(500);
+      // Line 10 (0-indexed) is `      ` — inside the state block.
+      const pos = new vscode.Position(10, 6);
+      const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
+        "vscode.executeCompletionItemProvider",
+        docUri,
+        pos
+      );
+      const labels = (completions?.items ?? []).map((i) =>
+        typeof i.label === "string" ? i.label : i.label.label
+      );
+      assert.ok(
+        labels.includes("single_paired"),
+        `Expected 'single_paired' in completions, got: ${labels.join(", ")}`
+      );
+    });
   });
   suite("Validation Tests", () => {
     beforeEach(async () => {
