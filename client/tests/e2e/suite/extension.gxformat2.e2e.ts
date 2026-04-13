@@ -9,6 +9,8 @@ import {
   getDocUri,
   isCacheMissDiagnostic,
   resetSettings,
+  sleep,
+  updateSettings,
   waitForDiagnostics,
   waitForDiagnosticMatching,
 } from "./helpers";
@@ -80,6 +82,37 @@ suite("Format2 (YAML) Workflows", () => {
           severity: vscode.DiagnosticSeverity.Error,
         },
       ]);
+    });
+
+    test("Changing validation profile shows IWC diagnostics then clears on reset", async () => {
+      // Fixture satisfies schema (inputs/outputs/steps present) but omits the
+      // IWC-required release/creator/license/doc and step-level doc — so it's
+      // clean under basic and dirty under iwc. Asserts presence by message
+      // rather than exact ranges — ranges are brittle.
+      const docUri = getDocUri(path.join("yaml", "validation", "test_wf_iwc_missing.gxwf.yml"));
+      await activateAndOpenInEditor(docUri);
+      await sleep(500);
+      await assertDiagnostics(docUri, []); // clean under basic
+
+      await updateSettings("validation.profile", "iwc");
+      await waitForDiagnostics(docUri);
+      const iwcDiags = vscode.languages.getDiagnostics(docUri);
+      const find = (msg: string): vscode.Diagnostic | undefined => iwcDiags.find((d) => d.message.includes(msg));
+      const release = find("must have a release version");
+      const creator = find("does not specify a creator");
+      const license = find("does not specify a license");
+      const doc = find("is not documented");
+      assert.ok(
+        release && creator && license && doc,
+        `Expected IWC diagnostics, got: ${iwcDiags.map((d) => d.message).join(" | ")}`
+      );
+      assert.strictEqual(release!.severity, vscode.DiagnosticSeverity.Error);
+      assert.strictEqual(creator!.severity, vscode.DiagnosticSeverity.Warning);
+      assert.strictEqual(license!.severity, vscode.DiagnosticSeverity.Warning);
+
+      await resetSettings();
+      await waitForDiagnostics(docUri);
+      await assertDiagnostics(docUri, []); // clean again
     });
   });
 });
