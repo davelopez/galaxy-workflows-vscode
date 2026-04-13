@@ -29,7 +29,7 @@
   },
   "icon": "assets/galaxy-logo-icon.png",
   "engines": {
-    "vscode": "^1.81.0"
+    "vscode": "^1.96.0"
   },
   "categories": [
     "Linters",
@@ -333,7 +333,7 @@
     "@types/glob": "^8.1.0",
     "@types/jest": "^29.5.8",
     "@types/mocha": "^10.0.1",
-    "@types/vscode": "^1.81.0",
+    "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^6.5.0",
     "@typescript-eslint/parser": "^6.5.0",
     "@vscode/test-electron": "^2.3.4",
