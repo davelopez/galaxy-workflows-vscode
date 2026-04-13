@@ -63,6 +63,42 @@ export async function waitForDiagnostics(docUri: vscode.Uri, timeoutInMillisecon
   }
 }
 
+export async function waitForDiagnosticMatching(
+  docUri: vscode.Uri,
+  predicate: (d: vscode.Diagnostic) => boolean,
+  timeoutInMilliseconds = 3000
+): Promise<vscode.Diagnostic | undefined> {
+  const waitMilliseconds = 100;
+  let waitTimeout = timeoutInMilliseconds;
+  while (waitTimeout > 0) {
+    const match = vscode.languages.getDiagnostics(docUri).find(predicate);
+    if (match) return match;
+    await sleep(waitMilliseconds);
+    waitTimeout -= waitMilliseconds;
+  }
+  return undefined;
+}
+
+export async function waitForDiagnosticGone(
+  docUri: vscode.Uri,
+  predicate: (d: vscode.Diagnostic) => boolean,
+  timeoutInMilliseconds = 2000
+): Promise<boolean> {
+  const waitMilliseconds = 100;
+  let waitTimeout = timeoutInMilliseconds;
+  while (waitTimeout > 0) {
+    const match = vscode.languages.getDiagnostics(docUri).some(predicate);
+    if (!match) return true;
+    await sleep(waitMilliseconds);
+    waitTimeout -= waitMilliseconds;
+  }
+  return !vscode.languages.getDiagnostics(docUri).some(predicate);
+}
+
+export function isCacheMissDiagnostic(d: vscode.Diagnostic): boolean {
+  return d.severity === vscode.DiagnosticSeverity.Information && d.message.includes("not in the local cache");
+}
+
 export const getDocPath = (filePath: string): string => {
   return path.resolve(__dirname, path.join("..", "..", "..", "..", "..", "test-data", filePath));
 };
@@ -116,6 +152,34 @@ export async function copyToTemp(sourceUri: vscode.Uri): Promise<vscode.Uri> {
   const tempUri = vscode.Uri.file(tempPath);
   await vscode.workspace.fs.writeFile(tempUri, content);
   return tempUri;
+}
+
+async function safeDelete(uri: vscode.Uri): Promise<void> {
+  try {
+    await vscode.workspace.fs.delete(uri);
+  } catch {
+    /* already gone, or command deleted it (e.g. convertFile) */
+  }
+}
+
+/**
+ * Copies a fixture to a temp file, runs the callback with the temp URI, and
+ * always cleans up the temp file plus any extra URIs (e.g. a converted target
+ * with a different extension). Handles the case where a command (like
+ * convertFileToNative) deletes the source itself.
+ */
+export async function withTempFixture<T>(
+  sourceUri: vscode.Uri,
+  fn: (tempUri: vscode.Uri) => Promise<T>,
+  extras: (tempUri: vscode.Uri) => vscode.Uri[] = () => []
+): Promise<T> {
+  const tempUri = await copyToTemp(sourceUri);
+  try {
+    return await fn(tempUri);
+  } finally {
+    for (const extra of extras(tempUri)) await safeDelete(extra);
+    await safeDelete(tempUri);
+  }
 }
 
 export async function resetSettings(): Promise<void> {

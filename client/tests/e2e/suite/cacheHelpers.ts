@@ -3,6 +3,7 @@ import * as crypto from "crypto";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { before, beforeEach } from "mocha";
 import { sleep, updateSettings } from "./helpers";
 
 export interface ToolRef {
@@ -12,10 +13,7 @@ export interface ToolRef {
 
 // At runtime __dirname is client/out/tests/e2e/suite/ — 5 ups to repo root,
 // then into client/tests/e2e/.cache/ for a stable location across runs.
-const SHARED_CACHE_DIR = path.resolve(
-  __dirname,
-  "../../../../../client/tests/e2e/.cache/tool_info_cache"
-);
+const SHARED_CACHE_DIR = path.resolve(__dirname, "../../../../../client/tests/e2e/.cache/tool_info_cache");
 
 // At runtime __dirname is client/out/tests/e2e/suite/ — 5 ups to repo root.
 const POPULATE_SCRIPT = path.resolve(
@@ -64,6 +62,34 @@ interface SharedCacheErr {
 
 export type SharedCacheResult = SharedCacheOk | SharedCacheErr;
 
+/**
+ * Register mocha before/beforeEach hooks that prepare the shared populated
+ * cache and apply it for every test in the enclosing suite. Skips the suite
+ * if the cache cannot be populated (e.g. offline). Call from inside a
+ * `suite("...", function () { ... })` body and use the returned getter to
+ * access the cache directory from inside tests if needed.
+ */
+export function usePopulatedCache(tools: ToolRef[] = STANDARD_TOOL_SET): () => string {
+  let cacheDir: string | undefined;
+  before(async function () {
+    const result = await ensureSharedCache(tools);
+    if (!result.ok) {
+      console.warn(`Skipping populated-cache suite: ${result.reason}`);
+      this.skip();
+    } else {
+      cacheDir = result.cacheDir;
+    }
+  });
+  beforeEach(async function () {
+    if (!cacheDir) this.skip();
+    await useCacheDir(cacheDir!);
+  });
+  return () => {
+    if (!cacheDir) throw new Error("usePopulatedCache: cacheDir not initialized");
+    return cacheDir;
+  };
+}
+
 export async function ensureSharedCache(
   tools: ToolRef[] = STANDARD_TOOL_SET,
   opts: { timeoutMs?: number } = {}
@@ -108,9 +134,7 @@ function readCacheEntries(dir: string): CacheIndexEntry[] {
 
 function isToolInCache(dir: string, tool: ToolRef): boolean {
   return readCacheEntries(dir).some(
-    (e) =>
-      e.tool_id === tool.toolId &&
-      (tool.toolVersion === undefined || e.tool_version === tool.toolVersion)
+    (e) => e.tool_id === tool.toolId && (tool.toolVersion === undefined || e.tool_version === tool.toolVersion)
   );
 }
 
