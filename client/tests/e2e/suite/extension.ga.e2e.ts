@@ -1,7 +1,7 @@
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as assert from "assert";
-import { before, beforeEach } from "mocha";
+import { beforeEach } from "mocha";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
@@ -9,15 +9,19 @@ import {
   activateAndOpenInEditor,
   assertDiagnostics,
   closeAllEditors,
-  copyToTemp,
   getDocUri,
+  isCacheMissDiagnostic,
   openDocument,
   resetSettings,
   sleep,
   updateSettings,
   waitForDiagnostics,
+  waitForDiagnosticGone,
+  waitForDiagnosticMatching,
+  withTempFixture,
 } from "./helpers";
-import { ensureSharedCache, useCacheDir, useEmptyCache } from "./cacheHelpers";
+import { useEmptyCache, usePopulatedCache } from "./cacheHelpers";
+import { runConversionSuite } from "./conversionSuite";
 
 suite("Native (JSON) Workflows", () => {
   teardown(closeAllEditors);
@@ -73,23 +77,12 @@ suite("Native (JSON) Workflows", () => {
           console.warn(`Auto-population incomplete (offline?), cacheSize=${status.cacheSize} target=${target}`);
           this.skip();
         }
-        assert.ok(
-          status.cacheSize >= target,
-          `expected cacheSize >= ${target}, got ${status.cacheSize}`
-        );
+        assert.ok(status.cacheSize >= target, `expected cacheSize >= ${target}, got ${status.cacheSize}`);
       });
     });
 
     suite("Tool-aware clean (populated cache)", function () {
-      let cacheDir: string | undefined;
-      before(async function () {
-        const result = await ensureSharedCache();
-        if (!result.ok) {
-          console.warn(`Skipping tool-aware clean suite: ${result.reason}`);
-          this.skip();
-        }
-        cacheDir = result.cacheDir;
-      });
+      usePopulatedCache();
 
       test("tool-aware clean on IWC fastp/multiqc workflow modifies content", async function () {
         // With native auto-resolution enabled, opening the dirty .ga always
@@ -97,11 +90,8 @@ suite("Native (JSON) Workflows", () => {
         // pass since auto-resolution races any empty-cache setup. Just assert
         // the clean changed the document and parsed tool_state fields are
         // present (a tool-aware-only transformation).
-        if (!cacheDir) this.skip();
         const dirtyUri = getDocUri(path.join("json", "clean", "iwc_fastp_multiqc_dirty.ga"));
-        await useCacheDir(cacheDir!);
-        const source = await copyToTemp(dirtyUri);
-        try {
+        await withTempFixture(dirtyUri, async (source) => {
           const ed = await activateAndOpenInEditor(source);
           assert.ok(ed);
           const dirtyText = ed.document.getText();
@@ -111,71 +101,100 @@ suite("Native (JSON) Workflows", () => {
           const cleanedText = ed.document.getText();
           assert.ok(cleanedText.length > 0, "clean produced empty output");
           assert.notStrictEqual(cleanedText, dirtyText, "clean did not modify the document");
-        } finally {
-          try { await vscode.workspace.fs.delete(source); } catch { /* ignore */ }
-        }
+        });
       });
     });
   });
 
-  suite("Conversion Tests", () => {
-    const fixtureUri = getDocUri(path.join("json", "conversion", "simple_wf.ga"));
-
-    test("previewConvertToFormat2 opens diff view with converted content", async () => {
-      await activateAndOpenInEditor(fixtureUri);
-      await sleep(500);
-      await vscode.commands.executeCommand("galaxy-workflows.previewConvertToFormat2");
-      await sleep(1000);
-      const hasConvertedEditor = vscode.window.visibleTextEditors.some(
-        (e) => e.document.uri.scheme === "galaxy-converted-workflow"
+  suite("Validation Tests", () => {
+    beforeEach(async () => {
+      await resetSettings();
+    });
+    test("Missing required fields return diagnostics", async () => {
+      // Native JSON Schema (from @galaxy-tool-util/schema) requires
+      // a_galaxy_workflow and format-version at the top level. Fixture omits
+      // both to trigger vscode-json-languageservice "Missing required property"
+      // errors on real wiring.
+      await useEmptyCache();
+      const docUri = getDocUri(path.join("json", "validation", "test_wf_missing_fields.ga"));
+      await activateAndOpenInEditor(docUri);
+      await waitForDiagnostics(docUri);
+      const diags = vscode.languages.getDiagnostics(docUri);
+      const errors = diags.filter((d) => d.severity === vscode.DiagnosticSeverity.Error);
+      assert.ok(errors.length > 0, `Expected schema error diagnostics, got: ${JSON.stringify(diags)}`);
+      const aGw = errors.find((d) => d.message.includes('"a_galaxy_workflow"'));
+      const fmtVer = errors.find((d) => d.message.includes('"format-version"'));
+      assert.ok(
+        aGw && fmtVer,
+        `Expected missing-property errors for a_galaxy_workflow and format-version, got: ${errors
+          .map((d) => d.message)
+          .join(" | ")}`
       );
-      assert.ok(hasConvertedEditor, "Expected galaxy-converted-workflow virtual document to be open");
     });
+  });
 
-    test("exportToFormat2 creates .gxwf.yml file alongside the original", async () => {
-      const sourceUri = await copyToTemp(fixtureUri);
-      const targetUri = sourceUri.with({ path: sourceUri.path.replace(/\.ga$/, ".gxwf.yml") });
-      try {
-        await activateAndOpenInEditor(sourceUri);
-        await sleep(500);
-        await vscode.commands.executeCommand("galaxy-workflows.exportToFormat2");
-        await sleep(1000);
-        const stat = await vscode.workspace.fs.stat(targetUri);
-        assert.ok(stat.size > 0, "Exported .gxwf.yml should have content");
-        // Original should still exist
-        await vscode.workspace.fs.stat(sourceUri);
-      } finally {
-        // Swallow: convertFileToFormat2 deletes source as part of the command,
-        // so stat/delete may throw on the source. Both files may be absent on
-        // early test failure too — either way cleanup should not mask the real error.
-        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone or never created */ }
-        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* deleted by convertFile command */ }
-      }
+  suite("Tool State Validation Tests (empty cache)", () => {
+    beforeEach(async () => {
+      await useEmptyCache();
     });
+    test("uncached tool emits info diagnostic", async () => {
+      const docUri = getDocUri(path.join("json", "tool-state", "test_ts_smoke.ga"));
+      await activateAndOpenInEditor(docUri);
+      const infoDiag = await waitForDiagnosticMatching(docUri, isCacheMissDiagnostic);
+      assert.ok(
+        infoDiag,
+        `Expected info diagnostic for uncached tool, got: ${JSON.stringify(vscode.languages.getDiagnostics(docUri))}`
+      );
+    });
+  });
 
-    test("convertFileToFormat2 replaces .ga with .gxwf.yml", async () => {
-      const sourceUri = await copyToTemp(fixtureUri);
-      const targetUri = sourceUri.with({ path: sourceUri.path.replace(/\.ga$/, ".gxwf.yml") });
-      try {
-        await activateAndOpenInEditor(sourceUri);
-        await sleep(500);
-        await vscode.commands.executeCommand("galaxy-workflows.convertFileToFormat2", { confirmed: true });
-        await sleep(1000);
-        // Target should exist
-        const stat = await vscode.workspace.fs.stat(targetUri);
-        assert.ok(stat.size > 0, "Converted .gxwf.yml should have content");
-        // Source should be gone
-        let sourceGone = false;
-        try { await vscode.workspace.fs.stat(sourceUri); } catch { sourceGone = true; }
-        assert.ok(sourceGone, "Original .ga should have been deleted after conversion");
-      } finally {
-        // Swallow: convertFileToFormat2 deletes source as part of the command,
-        // so stat/delete may throw on the source. Both files may be absent on
-        // early test failure too — either way cleanup should not mask the real error.
-        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone or never created */ }
-        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* deleted by convertFile command */ }
-      }
+  suite("Code Actions", () => {
+    test("legacy tool_state hint exposes 'Clean workflow' quick fix that rewrites the document", async () => {
+      // wf_01_dirty.ga has JSON-string-encoded tool_state; content_id "wc_gnu"
+      // won't resolve via toolshed, so auto-resolution stays a no-op and can't
+      // race the test. Use a copy so the fixture isn't mutated on disk.
+      await useEmptyCache();
+      const fixtureUri = getDocUri(path.join("json", "clean", "wf_01_dirty.ga"));
+      await withTempFixture(fixtureUri, async (sourceUri) => {
+        const ed = await activateAndOpenInEditor(sourceUri);
+        assert.ok(ed);
+        const diag = await waitForDiagnosticMatching(sourceUri, (d) => d.code === "legacy-tool-state");
+        assert.ok(diag, "Expected a legacy-tool-state diagnostic on dirty workflow");
+        assert.strictEqual(diag!.severity, vscode.DiagnosticSeverity.Hint);
+
+        const actions = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+          "vscode.executeCodeActionProvider",
+          sourceUri,
+          diag!.range,
+          vscode.CodeActionKind.QuickFix.value
+        );
+        assert.ok(actions && actions.length > 0, "Expected at least one code action");
+        const cleanFix = actions.find((a) => a.title.startsWith("Clean workflow"));
+        assert.ok(cleanFix, `Expected 'Clean workflow' quick fix, got: ${actions.map((a) => a.title).join(", ")}`);
+        assert.strictEqual(cleanFix!.kind?.value, vscode.CodeActionKind.QuickFix.value);
+        assert.ok(cleanFix!.edit, "Quick fix should carry a WorkspaceEdit");
+
+        const before = ed!.document.getText();
+        const applied = await vscode.workspace.applyEdit(cleanFix!.edit!);
+        assert.ok(applied, "Expected WorkspaceEdit to apply");
+        const gone = await waitForDiagnosticGone(sourceUri, (d) => d.code === "legacy-tool-state");
+        assert.ok(gone, "legacy-tool-state hint should be gone after clean");
+        const after = ed!.document.getText();
+        assert.notStrictEqual(after, before, "Quick fix should modify the document");
+      });
     });
+  });
+
+  runConversionSuite({
+    label: "Conversion Tests",
+    fixturePath: path.join("json", "conversion", "simple_wf.ga"),
+    previewCommand: "galaxy-workflows.previewConvertToFormat2",
+    exportCommand: "galaxy-workflows.exportToFormat2",
+    convertFileCommand: "galaxy-workflows.convertFileToFormat2",
+    srcExtRegex: /\.ga$/,
+    targetExt: ".gxwf.yml",
+    sourceLabel: ".ga",
+    targetLabel: ".gxwf.yml",
   });
 
   suite("Validation Tests", () => {

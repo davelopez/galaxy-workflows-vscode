@@ -1,77 +1,32 @@
 import * as assert from "assert";
-import { before, beforeEach } from "mocha";
+import { beforeEach } from "mocha";
 import * as path from "path";
 import * as vscode from "vscode";
 import {
   activateAndOpenInEditor,
   assertDiagnostics,
   closeAllEditors,
-  copyToTemp,
   getDocUri,
+  isCacheMissDiagnostic,
   resetSettings,
-  sleep,
   waitForDiagnostics,
+  waitForDiagnosticMatching,
 } from "./helpers";
-import { ensureSharedCache, useCacheDir, useEmptyCache } from "./cacheHelpers";
+import { useEmptyCache, usePopulatedCache } from "./cacheHelpers";
+import { runConversionSuite } from "./conversionSuite";
 
 suite("Format2 (YAML) Workflows", () => {
   teardown(closeAllEditors);
-  suite("Conversion Tests", () => {
-    const fixtureUri = getDocUri(path.join("yaml", "conversion", "simple_wf.gxwf.yml"));
-
-    test("previewConvertToNative opens diff view with converted content", async () => {
-      await activateAndOpenInEditor(fixtureUri);
-      await sleep(500);
-      await vscode.commands.executeCommand("galaxy-workflows.previewConvertToNative");
-      await sleep(1000);
-      const hasConvertedEditor = vscode.window.visibleTextEditors.some(
-        (e) => e.document.uri.scheme === "galaxy-converted-workflow"
-      );
-      assert.ok(hasConvertedEditor, "Expected galaxy-converted-workflow virtual document to be open");
-    });
-
-    test("exportToNative creates .ga file alongside the original", async () => {
-      const sourceUri = await copyToTemp(fixtureUri);
-      const targetUri = sourceUri.with({ path: sourceUri.path.replace(/\.gxwf\.(yml|yaml)$/, ".ga") });
-      try {
-        await activateAndOpenInEditor(sourceUri);
-        await sleep(500);
-        await vscode.commands.executeCommand("galaxy-workflows.exportToNative");
-        await sleep(1000);
-        const stat = await vscode.workspace.fs.stat(targetUri);
-        assert.ok(stat.size > 0, "Exported .ga should have content");
-        // Original should still exist
-        await vscode.workspace.fs.stat(sourceUri);
-      } finally {
-        // Swallow: convertFileToNative deletes source as part of the command,
-        // so stat/delete may throw on the source. Both files may be absent on
-        // early test failure too — either way cleanup should not mask the real error.
-        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone or never created */ }
-        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* deleted by convertFile command */ }
-      }
-    });
-
-    test("convertFileToNative replaces .gxwf.yml with .ga", async () => {
-      const sourceUri = await copyToTemp(fixtureUri);
-      const targetUri = sourceUri.with({ path: sourceUri.path.replace(/\.gxwf\.(yml|yaml)$/, ".ga") });
-      try {
-        await activateAndOpenInEditor(sourceUri);
-        await sleep(500);
-        await vscode.commands.executeCommand("galaxy-workflows.convertFileToNative", { confirmed: true });
-        await sleep(1000);
-        const stat = await vscode.workspace.fs.stat(targetUri);
-        assert.ok(stat.size > 0, "Converted .ga should have content");
-        let sourceGone = false;
-        try { await vscode.workspace.fs.stat(sourceUri); } catch { sourceGone = true; }
-        assert.ok(sourceGone, "Original .gxwf.yml should have been deleted after conversion");
-      } finally {
-        // Swallow: convertFileToNative deletes source as part of the command,
-        // so stat/delete may throw on the source. Both files may be absent on
-        // early test failure too — either way cleanup should not mask the real error.
-        try { await vscode.workspace.fs.delete(targetUri); } catch { /* already gone or never created */ }
-        try { await vscode.workspace.fs.delete(sourceUri); } catch { /* deleted by convertFile command */ }
-      }
-    });
+  runConversionSuite({
+    label: "Conversion Tests",
+    fixturePath: path.join("yaml", "conversion", "simple_wf.gxwf.yml"),
+    previewCommand: "galaxy-workflows.previewConvertToNative",
+    exportCommand: "galaxy-workflows.exportToNative",
+    convertFileCommand: "galaxy-workflows.convertFileToNative",
+    srcExtRegex: /\.gxwf\.(yml|yaml)$/,
+    targetExt: ".ga",
+    sourceLabel: ".gxwf.yml",
+    targetLabel: ".ga",
   });
 
   suite("Tool State Validation Tests (empty cache)", () => {
@@ -81,37 +36,22 @@ suite("Format2 (YAML) Workflows", () => {
     test("uncached tool emits info diagnostic", async () => {
       const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_smoke.gxwf.yml"));
       await activateAndOpenInEditor(docUri);
-      await waitForDiagnostics(docUri);
-      const diags = vscode.languages.getDiagnostics(docUri);
-      const infoDiag = diags.find(
-        (d) =>
-          d.severity === vscode.DiagnosticSeverity.Information &&
-          d.message.includes("not in the local cache")
+      const infoDiag = await waitForDiagnosticMatching(docUri, isCacheMissDiagnostic);
+      assert.ok(
+        infoDiag,
+        `Expected info diagnostic for uncached tool, got: ${JSON.stringify(vscode.languages.getDiagnostics(docUri))}`
       );
-      assert.ok(infoDiag, `Expected info diagnostic for uncached tool, got: ${JSON.stringify(diags)}`);
     });
   });
 
   suite("Tool State Validation Tests (populated cache)", function () {
-    let cacheDir: string | undefined;
-    before(async function () {
-      const result = await ensureSharedCache();
-      if (!result.ok) {
-        console.warn(`Skipping populated-cache suite: ${result.reason}`);
-        this.skip();
-      }
-      cacheDir = result.cacheDir;
-    });
-    beforeEach(async function () {
-      if (!cacheDir) this.skip();
-      await useCacheDir(cacheDir!);
-    });
+    usePopulatedCache();
     test("cached tool produces no cache-miss diagnostic", async () => {
       const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_smoke_cached.gxwf.yml"));
       await activateAndOpenInEditor(docUri);
       await waitForDiagnostics(docUri);
       const diags = vscode.languages.getDiagnostics(docUri);
-      const cacheMiss = diags.find((d) => d.message.includes("not in the local cache"));
+      const cacheMiss = diags.find(isCacheMissDiagnostic);
       assert.ok(!cacheMiss, `Cached tool should not produce cache-miss diagnostic, got: ${JSON.stringify(diags)}`);
     });
   });

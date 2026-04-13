@@ -1,0 +1,38 @@
+{
+    "a_galaxy_workflow": "true",
+    "format-version": "0.1",
+    "name": "Tool state smoke",
+    "steps": {
+        "0": {
+            "content_id": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [{"name": "input_data"}],
+            "label": "input_data",
+            "name": "Input dataset",
+            "outputs": [],
+            "tool_id": null,
+            "tool_state": "{\"optional\": false}",
+            "type": "data_input"
+        },
+        "1": {
+            "content_id": "wc_gnu",
+            "id": 1,
+            "input_connections": {
+                "input1": {"id": 0, "output_name": "output"}
+            },
+            "inputs": [],
+            "label": null,
+            "name": "Line/Word/Character count",
+            "outputs": [],
+            "tool_id": "wc_gnu",
+            "tool_state": {
+                "include_header": "true"
+            },
+            "tool_version": "1.0.0",
+            "type": "tool"
+        }
+    },
+    "tags": [],
+    "version": 1
+}
