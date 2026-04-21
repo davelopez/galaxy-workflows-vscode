@@ -170,11 +170,7 @@ export class ToolCacheService extends ServiceBase {
     params: PopulateToolCacheForToolParams
   ): Promise<PopulateToolCacheResult> {
     const { toolId, toolVersion } = params;
-    const result = await this.server.toolRegistryService.populateCache([{ toolId, toolVersion }]);
-    if (result.failed.length === 0) {
-      this.server.toolRegistryService.clearResolutionFailed(toolId, toolVersion);
-    }
-    return result;
+    return this.server.toolRegistryService.populateCache([{ toolId, toolVersion }]);
   }
 
   private async onGetWorkflowTools(params: GetWorkflowToolsParams): Promise<GetWorkflowToolsResult> {

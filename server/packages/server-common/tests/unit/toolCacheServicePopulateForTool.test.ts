@@ -13,10 +13,8 @@ import { ToolCacheService } from "../../src/services/toolCacheService";
 function setup(registry: Partial<ToolRegistryService> = {}): {
   handler: (params: { toolId: string; toolVersion?: string }) => Promise<PopulateToolCacheResult>;
   populateSpy: ReturnType<typeof vi.fn>;
-  clearSpy: ReturnType<typeof vi.fn>;
 } {
   const populateSpy = vi.fn(async () => ({ fetched: 1, alreadyCached: 0, failed: [] }));
-  const clearSpy = vi.fn();
   const reg: ToolRegistryService = {
     async hasCached() {
       return false;
@@ -46,7 +44,9 @@ function setup(registry: Partial<ToolRegistryService> = {}): {
     markResolutionFailed() {
       /* noop */
     },
-    clearResolutionFailed: clearSpy,
+    clearResolutionFailed() {
+      /* noop */
+    },
     async validateNativeStep() {
       return [];
     },
@@ -78,7 +78,6 @@ function setup(registry: Partial<ToolRegistryService> = {}): {
   return {
     handler: handler as (params: { toolId: string; toolVersion?: string }) => Promise<PopulateToolCacheResult>,
     populateSpy,
-    clearSpy,
   };
 }
 
@@ -93,18 +92,11 @@ describe("POPULATE_TOOL_CACHE_FOR_TOOL handler", () => {
     expect(populateSpy).toHaveBeenCalledWith([{ toolId: "x", toolVersion: "1.0" }]);
   });
 
-  it("clears the resolution-failed flag on success", async () => {
-    const { handler, clearSpy } = setup();
-    await handler({ toolId: "x" });
-    expect(clearSpy).toHaveBeenCalledWith("x", undefined);
-  });
-
-  it("does NOT clear the resolution-failed flag when the retry fails", async () => {
-    const { handler, clearSpy } = setup({
+  it("returns the populateCache result to the caller", async () => {
+    const { handler } = setup({
       populateCache: async () => ({ fetched: 0, alreadyCached: 0, failed: [{ toolId: "x", error: "not found" }] }),
     });
     const result = await handler({ toolId: "x" });
     expect(result.failed).toHaveLength(1);
-    expect(clearSpy).not.toHaveBeenCalled();
   });
 });

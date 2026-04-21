@@ -93,12 +93,14 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
         batch.map(async ({ toolId, toolVersion }) => {
           if (await this.hasCached(toolId, toolVersion)) {
             result.alreadyCached++;
+            this.clearResolutionFailed(toolId, toolVersion);
             return;
           }
           try {
             const info = await this.toolInfo.getToolInfo(toolId, toolVersion ?? null);
             if (info) {
               result.fetched++;
+              this.clearResolutionFailed(toolId, toolVersion);
             } else {
               result.failed.push({ toolId, error: "not found" });
             }

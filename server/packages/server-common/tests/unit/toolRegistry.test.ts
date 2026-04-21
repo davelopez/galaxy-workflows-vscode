@@ -159,4 +159,36 @@ describe("populateCache", () => {
       globalThis.fetch = originalFetch;
     }
   });
+
+  it("clears prior resolution-failed flag for tools that succeed (alreadyCached)", async () => {
+    const dir = makeTempDir();
+    try {
+      const seeded = new FilesystemCacheStorage(dir);
+      await seedTool(seeded);
+      const r = new ToolRegistryServiceImpl();
+      r.configure({ toolShedUrl: TOOLSHED_URL, storage: new FilesystemCacheStorage(dir) });
+      r.markResolutionFailed(TOOL_ID, TOOL_VERSION);
+      expect(r.hasResolutionFailed(TOOL_ID, TOOL_VERSION)).toBe(true);
+      const result = await r.populateCache([{ toolId: TOOL_ID, toolVersion: TOOL_VERSION }]);
+      expect(result.alreadyCached).toBe(1);
+      expect(r.hasResolutionFailed(TOOL_ID, TOOL_VERSION)).toBe(false);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("leaves resolution-failed flag set for tools that still fail", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw new Error("stubbed network error");
+    }) as typeof fetch;
+    try {
+      const failingId = "toolshed.g2.bx.psu.edu/repos/iuc/notexist/notexist/9.99.9";
+      registry.markResolutionFailed(failingId, "9.99.9");
+      await registry.populateCache([{ toolId: failingId, toolVersion: "9.99.9" }]);
+      expect(registry.hasResolutionFailed(failingId, "9.99.9")).toBe(true);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
