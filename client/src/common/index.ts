@@ -44,33 +44,34 @@ export function initExtension(
 
   setupRequests(context, nativeClient, gxFormat2Client);
 
-  // Tool resolution failure notifications from the gxformat2 server
+  // Tool resolution failure notifications. Either server can emit these — the
+  // auto-resolution flow runs in whichever server owns the document — so
+  // subscribe to both.
   const toolResolutionOutputChannel = window.createOutputChannel("Galaxy Workflows — Tool Resolution");
   context.subscriptions.push(toolResolutionOutputChannel);
   // The warning toast is shown once per session to avoid repeated interruptions
   // if many documents open at startup. All failures are still logged to the
   // output channel regardless.
   let shownResolutionWarning = false;
+  const onToolResolutionFailed = (params: ToolResolutionFailedParams): void => {
+    for (const { toolId, error } of params.failures) {
+      toolResolutionOutputChannel.appendLine(`Could not resolve tool '${toolId}': ${error}`);
+    }
+    if (!shownResolutionWarning) {
+      shownResolutionWarning = true;
+      window
+        .showWarningMessage(
+          `Could not resolve ${params.failures.length} tool(s) from ToolShed. See Output for details.`,
+          "Show Output"
+        )
+        .then((choice) => {
+          if (choice === "Show Output") toolResolutionOutputChannel.show();
+        });
+    }
+  };
   context.subscriptions.push(
-    gxFormat2Client.onNotification(
-      LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED,
-      (params: ToolResolutionFailedParams) => {
-        for (const { toolId, error } of params.failures) {
-          toolResolutionOutputChannel.appendLine(`Could not resolve tool '${toolId}': ${error}`);
-        }
-        if (!shownResolutionWarning) {
-          shownResolutionWarning = true;
-          window
-            .showWarningMessage(
-              `Could not resolve ${params.failures.length} tool(s) from ToolShed. See Output for details.`,
-              "Show Output"
-            )
-            .then((choice) => {
-              if (choice === "Show Output") toolResolutionOutputChannel.show();
-            });
-        }
-      }
-    )
+    nativeClient.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, onToolResolutionFailed),
+    gxFormat2Client.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, onToolResolutionFailed)
   );
 
   // Tool cache status bar
@@ -98,6 +99,7 @@ function setupWorkflowToolsView(
     window.onDidChangeActiveTextEditor(refresh),
     workspace.onDidSaveTextDocument(refresh),
     workspace.onDidChangeTextDocument(() => provider.scheduleRefresh()),
+    nativeClient.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, refresh),
     format2Client.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, refresh)
   );
 
