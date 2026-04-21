@@ -74,8 +74,8 @@ describe("Workflow Tests Completion Service", () => {
     expect(completions?.items[0].label).toBe("- doc:");
   });
 
-  it("should suggest the `job` and `outputs` entries when the position is at the same level as `doc`", async () => {
-    const expectedLabels = ["job", "outputs"];
+  it("should suggest the sibling Test entries when the position is at the same level as `doc`", async () => {
+    const expectedLabels = ["expect_failure", "job", "outputs"];
     const template = `
 - doc: The docs
   $`;
@@ -83,13 +83,13 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    expect(completions?.items.length).toBe(2);
+    expect(completions?.items.length).toBe(expectedLabels.length);
     for (const completionItem of completions!.items) {
       expect(expectedLabels).toContain(completionItem.label);
     }
   });
 
-  it("should suggest the `job` entry as first suggestion when the position is at the Test definition level and starts with a `j`", async () => {
+  it("should include the `job` entry among suggestions when the position is at the Test definition level and starts with a `j`", async () => {
     const template = `
 - doc: The docs
   j$`;
@@ -97,8 +97,8 @@ describe("Workflow Tests Completion Service", () => {
 
     const completions = await getCompletions(contents, position);
 
-    const jobCompletion = completions!.items[0]!;
-    expect(jobCompletion.label).toBe("job");
+    const labels = completions!.items.map((item) => item.label);
+    expect(labels).toContain("job");
   });
 
   describe("Workflow Inputs Completion", () => {

@@ -20,14 +20,8 @@
             "name": "Input dataset",
             "outputs": [],
             "position": {
-                "bottom": 610.28125,
-                "height": 61.78125,
                 "left": 824,
-                "right": 1024,
-                "top": 548.5,
-                "width": 200,
-                "x": 824,
-                "y": 548.5
+                "top": 548.5
             },
             "tool_id": null,
             "tool_state": "{\"optional\": false, \"tag\": \"\"}",
@@ -66,14 +60,8 @@
                 }
             ],
             "position": {
-                "bottom": 781.453125,
-                "height": 133.953125,
                 "left": 1146,
-                "right": 1346,
-                "top": 647.5,
-                "width": 200,
-                "x": 1146,
-                "y": 647.5
+                "top": 647.5
             },
             "post_job_actions": {},
             "tool_id": "wc_gnu",

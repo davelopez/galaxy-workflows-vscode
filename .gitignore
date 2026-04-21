@@ -13,4 +13,4 @@ client/tests/e2e/.cache/
 pnpm-lock.yaml
 
 # TypeScript incremental build info
-server/tsconfig.tsbuildinfo
+*.tsbuildinfo

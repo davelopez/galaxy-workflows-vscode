@@ -6,8 +6,8 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@galaxy-tool-util/core": "file:../../../../../../galaxy-tool-util/branch/vs_code_integration/packages/core",
-    "@galaxy-tool-util/schema": "*",
+    "@galaxy-tool-util/core": "^0.3.0",
+    "@galaxy-tool-util/schema": "^0.4.0",
     "@types/node": "^20.5.7",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.2.2",
