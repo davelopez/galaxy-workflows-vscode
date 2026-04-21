@@ -13,7 +13,7 @@
 
 import { injectable } from "inversify";
 import { JSONSchema, ResolvedSchema, UnresolvedSchema } from "./jsonSchema";
-import WorkflowTestsSchema from "../../../../../workflow-languages/schemas/tests.schema.json";
+import { testsSchema as WorkflowTestsSchema } from "@galaxy-tool-util/schema";
 
 export interface WorkflowTestsSchemaProvider {
   getResolvedSchema(): ResolvedSchema;

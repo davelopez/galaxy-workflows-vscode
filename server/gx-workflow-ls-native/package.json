@@ -5,7 +5,7 @@
   "author": "davelopez",
   "license": "MIT",
   "dependencies": {
-    "@galaxy-tool-util/schema": "file:/Users/jxc755/projects/worktrees/galaxy-tool-util/branch/vs_code_branch/packages/schema/galaxy-tool-util-schema-0.2.0.tgz",
+    "@galaxy-tool-util/schema": "file:/Users/jxc755/projects/worktrees/galaxy-tool-util/branch/wf_test_schema/packages/schema/galaxy-tool-util-schema-0.2.0.tgz",
     "@gxwf/server-common": "*",
     "@gxwf/workflow-tests-language-service": "*",
     "inversify": "^6.0.2",

@@ -1,7 +1,12 @@
 import "reflect-metadata";
-import type { ToolStateDiagnostic } from "@galaxy-tool-util/schema";
+import type {
+  ToolStateDiagnostic,
+  WorkflowInput,
+  WorkflowOutput,
+  WorkflowDataType,
+} from "@galaxy-tool-util/schema";
 import type { CacheStorage } from "@galaxy-tool-util/core";
-export type { ToolStateDiagnostic, CacheStorage };
+export type { ToolStateDiagnostic, CacheStorage, WorkflowInput, WorkflowOutput, WorkflowDataType };
 /** Builds a CacheStorage. Browser returns IndexedDBCacheStorage; node returns FilesystemCacheStorage(getCacheDir(cacheDir)). */
 export type CacheStorageFactory = (cacheDir?: string) => CacheStorage;
 import {
@@ -71,9 +76,6 @@ import type {
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
   ToolRef,
-  WorkflowDataType,
-  WorkflowInput,
-  WorkflowOutput,
 } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
 import type { ConfigService } from "./configService";
@@ -144,9 +146,6 @@ export type {
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
   ToolRef,
-  WorkflowDataType,
-  WorkflowInput,
-  WorkflowOutput,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {

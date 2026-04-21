@@ -995,7 +995,7 @@ ${this.indentation}${this.indentation}$0
           label: input.name,
           insertText: `${this.quoteIfColon(input.name)}:`,
           insertTextFormat: InsertTextFormat.Snippet,
-          documentation: this.fromMarkup(input.doc),
+          documentation: this.fromMarkup(input.doc ?? ""),
         });
       });
       return;

@@ -61,13 +61,14 @@ export const workflowDataTypes = {
   text: true,
 } as const;
 
-// Extract the keys of the object to form the union type
-export type WorkflowDataType = keyof typeof workflowDataTypes;
+// `string & {}` preserves autocomplete on the known union while accepting
+// any string — mirrors `WorkflowDataType` in @galaxy-tool-util/schema.
+export type WorkflowDataType = keyof typeof workflowDataTypes | (string & {});
 
 export interface WorkflowInput {
   name: string;
   type: WorkflowDataType;
-  doc: string;
+  doc?: string;
   default?: unknown;
   optional?: boolean;
 }
