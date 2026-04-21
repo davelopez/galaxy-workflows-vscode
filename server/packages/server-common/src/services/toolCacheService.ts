@@ -1,4 +1,5 @@
 import type { Range } from "vscode-languageserver-types";
+import type { ObjectASTNode } from "../ast/types";
 import {
   DocumentContext,
   GalaxyWorkflowLanguageServer,
@@ -16,41 +17,56 @@ import {
 import { parseToolShedRepoUrl } from "../providers/hover/toolShedUrl";
 import { ServiceBase } from ".";
 
-// ---------------------------------------------------------------------------
-// Helper: extract all tool refs from a single document
-// ---------------------------------------------------------------------------
+interface StepNode {
+  stepId: string;
+  stepNode: ObjectASTNode;
+}
+
+/**
+ * Enumerate step object nodes in document order, handling both the native
+ * dict-of-steps layout (`.ga`) and the format2 array-of-steps layout
+ * (`.gxwf.yml`).
+ */
+function getStepNodes(doc: DocumentContext): StepNode[] {
+  if (!(doc instanceof WorkflowDocument)) return [];
+  const root = doc.nodeManager.root;
+  if (!root || root.type !== "object") return [];
+  const stepsProp = root.properties.find((p) => p.keyNode.value === "steps");
+  const stepsValue = stepsProp?.valueNode;
+  if (!stepsValue) return [];
+
+  const steps: StepNode[] = [];
+  if (stepsValue.type === "object") {
+    for (const prop of stepsValue.properties) {
+      if (prop.valueNode?.type === "object") {
+        steps.push({ stepId: String(prop.keyNode.value), stepNode: prop.valueNode });
+      }
+    }
+  } else if (stepsValue.type === "array") {
+    stepsValue.items.forEach((item, idx) => {
+      if (item?.type === "object") {
+        steps.push({ stepId: String(idx), stepNode: item });
+      }
+    });
+  }
+  return steps;
+}
+
+function stringProp(node: ObjectASTNode, key: string): string | undefined {
+  return node.properties.find((p) => p.keyNode.value === key)?.valueNode?.value?.toString();
+}
 
 export function extractToolRefsFromDocument(doc: DocumentContext): ToolRef[] {
-  if (!(doc instanceof WorkflowDocument)) return [];
-  const workflowDoc = doc as WorkflowDocument;
-  const root = workflowDoc.nodeManager.root;
-  if (!root || root.type !== "object") return [];
-
-  const stepsProp = root.properties.find((p) => p.keyNode.value === "steps");
-  if (!stepsProp?.valueNode) return [];
-
-  const stepsValue = stepsProp.valueNode;
-  const stepNodes =
-    stepsValue.type === "object"
-      ? stepsValue.properties.map((p) => p.valueNode).filter(Boolean)
-      : stepsValue.type === "array"
-        ? stepsValue.items
-        : [];
-
   const seen = new Set<string>();
   const tools: ToolRef[] = [];
-  for (const step of stepNodes) {
-    if (!step || step.type !== "object") continue;
-    const toolIdProp = step.properties.find((p) => p.keyNode.value === "tool_id");
-    const toolVerProp = step.properties.find((p) => p.keyNode.value === "tool_version");
-    const toolId = toolIdProp?.valueNode?.value?.toString();
+  for (const { stepNode } of getStepNodes(doc)) {
+    const toolId = stringProp(stepNode, "tool_id");
     if (!toolId) continue;
-    const toolVersion = toolVerProp?.valueNode?.value?.toString();
+    const toolVersion = stringProp(stepNode, "tool_version");
     const key = `${toolId}@${toolVersion ?? ""}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      tools.push({ toolId, toolVersion });
-    }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tools.push({ toolId, toolVersion });
   }
   return tools;
 }
@@ -67,67 +83,24 @@ interface StepSummary {
   toolIdRange?: Range;
 }
 
-/**
- * Enumerate steps in document order, pulling out `tool_id`, `tool_version`,
- * and a step label (from `label` / `annotation` / `doc`) plus the AST range
- * for the `tool_id` node (used by the tree-view reveal command).
- */
 export function extractStepSummariesFromDocument(doc: DocumentContext): StepSummary[] {
   if (!(doc instanceof WorkflowDocument)) return [];
   const nm = doc.nodeManager;
-  const root = nm.root;
-  if (!root || root.type !== "object") return [];
-  const stepsProp = root.properties.find((p) => p.keyNode.value === "steps");
-  if (!stepsProp?.valueNode) return [];
-  const stepsValue = stepsProp.valueNode;
-
-  const entries: Array<{ stepId: string; stepNode: (typeof stepsValue)["children"][number] }> = [];
-  if (stepsValue.type === "object") {
-    for (const prop of stepsValue.properties) {
-      if (prop.valueNode && prop.valueNode.type === "object") {
-        entries.push({ stepId: String(prop.keyNode.value), stepNode: prop.valueNode });
-      }
-    }
-  } else if (stepsValue.type === "array") {
-    stepsValue.items.forEach((item, idx) => {
-      if (item && item.type === "object") {
-        entries.push({ stepId: String(idx), stepNode: item });
-      }
-    });
-  }
-
   const summaries: StepSummary[] = [];
-  for (const { stepId, stepNode } of entries) {
-    if (stepNode.type !== "object") continue;
+  for (const { stepId, stepNode } of getStepNodes(doc)) {
     const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
-    const toolVerProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
-    const labelProp =
-      stepNode.properties.find((p) => p.keyNode.value === "label") ??
-      stepNode.properties.find((p) => p.keyNode.value === "annotation") ??
-      stepNode.properties.find((p) => p.keyNode.value === "doc");
-    const toolId = toolIdProp?.valueNode?.value?.toString();
-    const toolVersion = toolVerProp?.valueNode?.value?.toString();
-    const label = labelProp?.valueNode?.value?.toString();
-    const toolIdRange =
-      toolIdProp?.valueNode ? nm.getNodeRange(toolIdProp.valueNode) : undefined;
-    summaries.push({ stepId, label, toolId, toolVersion, toolIdRange });
+    const toolIdRange = toolIdProp?.valueNode ? nm.getNodeRange(toolIdProp.valueNode) : undefined;
+    summaries.push({
+      stepId,
+      label: stringProp(stepNode, "label") ?? stringProp(stepNode, "annotation") ?? stringProp(stepNode, "doc"),
+      toolId: toolIdProp?.valueNode?.value?.toString(),
+      toolVersion: stringProp(stepNode, "tool_version"),
+      toolIdRange,
+    });
   }
   return summaries;
 }
 
-// ---------------------------------------------------------------------------
-// ToolCacheService
-// ---------------------------------------------------------------------------
-
-/**
- * Service exposing tool-cache LSP requests:
- * - GET_WORKFLOW_TOOL_IDS: extract all tool refs from open workflow documents
- * - POPULATE_TOOL_CACHE: populate cache for a list of tool refs
- * - GET_TOOL_CACHE_STATUS: return current cache size
- *
- * When the server has `autoResolutionEnabled`, also proactively resolves
- * uncached tools whenever a document is opened via `scheduleResolution()`.
- */
 export class ToolCacheService extends ServiceBase {
   private _pending = new Map<string, { toolRef: ToolRef; documentUris: Set<string> }>();
   private _inFlight = new Set<string>();
