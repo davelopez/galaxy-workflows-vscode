@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 
+/**
+ * A subset of the LSP Range type — inlined here so this file stays free of
+ * vscode-languageserver-types (which isn't installed on the client).
+ */
+export interface LSPRange {
+  start: { line: number; character: number };
+  end: { line: number; character: number };
+}
+
 export namespace LSNotificationIdentifiers {
   export const TOOL_RESOLUTION_FAILED = "galaxy-workflows-ls.toolResolutionFailed";
 }
@@ -10,6 +19,7 @@ export namespace LSRequestIdentifiers {
   export const GET_WORKFLOW_INPUTS = "galaxy-workflows-ls.getWorkflowInputs";
   export const GET_WORKFLOW_OUTPUTS = "galaxy-workflows-ls.getWorkflowOutputs";
   export const GET_WORKFLOW_TOOL_IDS = "galaxy-workflows-ls.getWorkflowToolIds";
+  export const GET_WORKFLOW_TOOLS = "galaxy-workflows-ls.getWorkflowTools";
   export const POPULATE_TOOL_CACHE = "galaxy-workflows-ls.populateToolCache";
   export const GET_TOOL_CACHE_STATUS = "galaxy-workflows-ls.getToolCacheStatus";
   export const CONVERT_WORKFLOW_CONTENTS = "galaxy-workflows-ls.convertWorkflowContents";
@@ -110,6 +120,28 @@ export interface PopulateToolCacheResult {
 
 export interface GetToolCacheStatusResult {
   cacheSize: number;
+}
+
+export interface GetWorkflowToolsParams {
+  uri: string;
+}
+
+/** A single step in the workflow enriched with cached tool metadata for the tree view. */
+export interface WorkflowToolEntry {
+  stepId: string;
+  stepLabel?: string;
+  toolId: string;
+  toolVersion?: string;
+  cached: boolean;
+  resolutionFailed: boolean;
+  name?: string;
+  description?: string | null;
+  toolshedUrl?: string;
+  range: LSPRange;
+}
+
+export interface GetWorkflowToolsResult {
+  tools: WorkflowToolEntry[];
 }
 
 export interface ConvertWorkflowContentsParams {

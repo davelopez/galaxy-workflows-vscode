@@ -72,10 +72,13 @@ import type {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
   GetWorkflowToolIdsResult,
+  GetWorkflowToolsParams,
+  GetWorkflowToolsResult,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
   ToolRef,
+  WorkflowToolEntry,
 } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
 import type { ConfigService } from "./configService";
@@ -142,10 +145,13 @@ export type {
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
   GetWorkflowToolIdsResult,
+  GetWorkflowToolsParams,
+  GetWorkflowToolsResult,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
   ToolRef,
+  WorkflowToolEntry,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {

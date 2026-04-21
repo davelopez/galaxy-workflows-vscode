@@ -57,6 +57,10 @@ export function isFormat2WorkflowDocument(uri: URI): boolean {
   return format2WorkflowDocumentPattern.test(uri.path);
 }
 
+export function isWorkflowDocument(uri: URI): boolean {
+  return isNativeWorkflowDocument(uri) || isFormat2WorkflowDocument(uri);
+}
+
 export async function getAssociatedWorkflowUriFromTestsUri(workflowTestsDocumentUri: URI): Promise<URI | undefined> {
   if (!isWorkflowTestsDocument(workflowTestsDocumentUri)) {
     return undefined;

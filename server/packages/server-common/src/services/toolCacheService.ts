@@ -1,12 +1,17 @@
+import type { Range } from "vscode-languageserver-types";
 import {
   DocumentContext,
   GalaxyWorkflowLanguageServer,
+  GetWorkflowToolsParams,
+  GetWorkflowToolsResult,
   LSNotificationIdentifiers,
   LSRequestIdentifiers,
   PopulateToolCacheParams,
   ToolRef,
   WorkflowDocument,
+  WorkflowToolEntry,
 } from "../languageTypes";
+import { parseToolShedRepoUrl } from "../providers/hover/toolShedUrl";
 import { ServiceBase } from ".";
 
 // ---------------------------------------------------------------------------
@@ -52,6 +57,62 @@ function toolRefKey(ref: ToolRef): string {
   return `${ref.toolId}@${ref.toolVersion ?? ""}`;
 }
 
+interface StepSummary {
+  stepId: string;
+  label?: string;
+  toolId?: string;
+  toolVersion?: string;
+  toolIdRange?: Range;
+}
+
+/**
+ * Enumerate steps in document order, pulling out `tool_id`, `tool_version`,
+ * and a step label (from `label` / `annotation` / `doc`) plus the AST range
+ * for the `tool_id` node (used by the tree-view reveal command).
+ */
+export function extractStepSummariesFromDocument(doc: DocumentContext): StepSummary[] {
+  if (!(doc instanceof WorkflowDocument)) return [];
+  const nm = doc.nodeManager;
+  const root = nm.root;
+  if (!root || root.type !== "object") return [];
+  const stepsProp = root.properties.find((p) => p.keyNode.value === "steps");
+  if (!stepsProp?.valueNode) return [];
+  const stepsValue = stepsProp.valueNode;
+
+  const entries: Array<{ stepId: string; stepNode: (typeof stepsValue)["children"][number] }> = [];
+  if (stepsValue.type === "object") {
+    for (const prop of stepsValue.properties) {
+      if (prop.valueNode && prop.valueNode.type === "object") {
+        entries.push({ stepId: String(prop.keyNode.value), stepNode: prop.valueNode });
+      }
+    }
+  } else if (stepsValue.type === "array") {
+    stepsValue.items.forEach((item, idx) => {
+      if (item && item.type === "object") {
+        entries.push({ stepId: String(idx), stepNode: item });
+      }
+    });
+  }
+
+  const summaries: StepSummary[] = [];
+  for (const { stepId, stepNode } of entries) {
+    if (stepNode.type !== "object") continue;
+    const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
+    const toolVerProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
+    const labelProp =
+      stepNode.properties.find((p) => p.keyNode.value === "label") ??
+      stepNode.properties.find((p) => p.keyNode.value === "annotation") ??
+      stepNode.properties.find((p) => p.keyNode.value === "doc");
+    const toolId = toolIdProp?.valueNode?.value?.toString();
+    const toolVersion = toolVerProp?.valueNode?.value?.toString();
+    const label = labelProp?.valueNode?.value?.toString();
+    const toolIdRange =
+      toolIdProp?.valueNode ? nm.getNodeRange(toolIdProp.valueNode) : undefined;
+    summaries.push({ stepId, label, toolId, toolVersion, toolIdRange });
+  }
+  return summaries;
+}
+
 // ---------------------------------------------------------------------------
 // ToolCacheService
 // ---------------------------------------------------------------------------
@@ -91,6 +152,48 @@ export class ToolCacheService extends ServiceBase {
     this.server.connection.onRequest(LSRequestIdentifiers.GET_TOOL_CACHE_STATUS, async () => ({
       cacheSize: await this.server.toolRegistryService.getCacheSize(),
     }));
+
+    this.server.connection.onRequest(
+      LSRequestIdentifiers.GET_WORKFLOW_TOOLS,
+      (params: GetWorkflowToolsParams) => this.onGetWorkflowTools(params)
+    );
+  }
+
+  private async onGetWorkflowTools(params: GetWorkflowToolsParams): Promise<GetWorkflowToolsResult> {
+    const doc = this.server.documentsCache.get(params.uri);
+    if (!doc) return { tools: [] };
+    const registry = this.server.toolRegistryService;
+    const summaries = extractStepSummariesFromDocument(doc);
+
+    const tools: WorkflowToolEntry[] = [];
+    for (const summary of summaries) {
+      if (!summary.toolId || !summary.toolIdRange) continue;
+      const cached = await registry.hasCached(summary.toolId, summary.toolVersion);
+      const resolutionFailed = registry.hasResolutionFailed(summary.toolId, summary.toolVersion);
+      let name: string | undefined;
+      let description: string | null | undefined;
+      if (cached) {
+        const info = await registry.getToolInfo(summary.toolId, summary.toolVersion);
+        if (info) {
+          name = info.name;
+          description = info.description;
+        }
+      }
+      const toolshedUrl = parseToolShedRepoUrl(summary.toolId) ?? undefined;
+      tools.push({
+        stepId: summary.stepId,
+        stepLabel: summary.label,
+        toolId: summary.toolId,
+        toolVersion: summary.toolVersion,
+        cached,
+        resolutionFailed,
+        name,
+        description,
+        toolshedUrl,
+        range: summary.toolIdRange,
+      });
+    }
+    return { tools };
   }
 
   private onGetWorkflowToolIds(): { tools: ToolRef[] } {

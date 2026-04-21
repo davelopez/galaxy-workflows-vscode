@@ -1,13 +1,18 @@
-import { commands, ExtensionContext, window } from "vscode";
+import { commands, ExtensionContext, window, workspace } from "vscode";
 import { BaseLanguageClient, DocumentSelector, LanguageClientOptions } from "vscode-languageclient";
 import { setupCommands } from "../commands/setup";
 import { CleanWorkflowDocumentProvider } from "../providers/cleanWorkflowDocumentProvider";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
 import { GitProvider } from "../providers/git";
 import { BuiltinGitProvider } from "../providers/git/gitProvider";
+import {
+  openEntryInToolShed,
+  revealEntryInEditor,
+  WorkflowToolsTreeProvider,
+} from "../providers/workflowToolsTreeProvider";
 import { setupRequests } from "../requests/gxworkflows";
 import { ToolCacheStatusBar } from "../statusBar";
-import { LSNotificationIdentifiers, ToolResolutionFailedParams } from "../languageTypes";
+import { LSNotificationIdentifiers, ToolResolutionFailedParams, WorkflowToolEntry } from "../languageTypes";
 
 export function buildBasicLanguageClientOptions(
   documentSelector: DocumentSelector,
@@ -72,6 +77,47 @@ export function initExtension(
   const toolCacheStatusBar = new ToolCacheStatusBar(nativeClient);
   toolCacheStatusBar.startPolling();
   context.subscriptions.push(toolCacheStatusBar);
+
+  // Workflow Tools tree view
+  setupWorkflowToolsView(context, nativeClient, gxFormat2Client);
+}
+
+function setupWorkflowToolsView(
+  context: ExtensionContext,
+  nativeClient: BaseLanguageClient,
+  format2Client: BaseLanguageClient
+): void {
+  const provider = new WorkflowToolsTreeProvider(nativeClient, format2Client);
+  const view = window.createTreeView("galaxyWorkflows.toolsView", {
+    treeDataProvider: provider,
+  });
+  context.subscriptions.push(view);
+
+  const refresh = () => void provider.refresh();
+  context.subscriptions.push(
+    window.onDidChangeActiveTextEditor(refresh),
+    workspace.onDidSaveTextDocument(refresh),
+    workspace.onDidChangeTextDocument(() => provider.scheduleRefresh()),
+    format2Client.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, refresh)
+  );
+
+  context.subscriptions.push(
+    commands.registerCommand("galaxy-workflows.refreshToolsView", refresh),
+    commands.registerCommand("galaxy-workflows.revealToolStep", (item: WorkflowToolEntry | { entry?: WorkflowToolEntry }) => {
+      const entry = (item as { entry?: WorkflowToolEntry })?.entry ?? (item as WorkflowToolEntry);
+      if (entry?.range) revealEntryInEditor(entry);
+    }),
+    commands.registerCommand(
+      "galaxy-workflows.openToolInToolShed",
+      (item: WorkflowToolEntry | { entry?: WorkflowToolEntry }) => {
+        const entry = (item as { entry?: WorkflowToolEntry })?.entry ?? (item as WorkflowToolEntry);
+        if (entry?.toolshedUrl) openEntryInToolShed(entry);
+      }
+    )
+  );
+
+  // Initial population once the clients are up.
+  refresh();
 }
 
 function initGitProvider(context: ExtensionContext): BuiltinGitProvider {

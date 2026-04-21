@@ -195,6 +195,37 @@
         "title": "Convert File to Native (.ga)",
         "enablement": "resourceLangId == gxformat2",
         "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.refreshToolsView",
+        "title": "Refresh Workflow Tools",
+        "icon": "$(refresh)",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.revealToolStep",
+        "title": "Reveal step in workflow",
+        "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.openToolInToolShed",
+        "title": "Open tool in ToolShed",
+        "category": "Galaxy Workflows"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "galaxyWorkflows.toolsView",
+          "name": "Workflow Tools",
+          "when": "resourceExtname == .ga || resourceExtname == .yml || resourceExtname == .yaml"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "galaxyWorkflows.toolsView",
+        "contents": "Open a Galaxy workflow (.ga or .gxwf.yml) to see its tools."
       }
     ],
     "menus": {
@@ -304,6 +335,25 @@
           "command": "galaxy-workflows.convertFileToNative",
           "group": "galaxyworkflow@5",
           "when": "resourceLangId == gxformat2"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "galaxy-workflows.refreshToolsView",
+          "when": "view == galaxyWorkflows.toolsView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "galaxy-workflows.revealToolStep",
+          "when": "view == galaxyWorkflows.toolsView && viewItem == workflowTool",
+          "group": "inline@1"
+        },
+        {
+          "command": "galaxy-workflows.openToolInToolShed",
+          "when": "view == galaxyWorkflows.toolsView && viewItem == workflowTool",
+          "group": "inline@2"
         }
       ]
     }
