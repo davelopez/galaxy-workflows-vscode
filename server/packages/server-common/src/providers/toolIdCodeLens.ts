@@ -1,20 +1,21 @@
 import type { CodeLens, Command, DocumentContext, ToolRegistryService } from "../languageTypes";
 import { extractStepSummariesFromDocument } from "../services/toolCacheService";
+import {
+  OPEN_IN_TOOLSHED_ACTION,
+  RETRY_ACTION,
+  RUN_POPULATE_TOOL_CACHE_ACTION,
+  ToolState,
+  toolStateIconMarkup,
+} from "../../../../../shared/src/toolStatePresentation";
 import { parseToolShedRepoUrl } from "./hover/toolShedUrl";
 
 const CMD_OPEN_IN_TOOLSHED = "galaxy-workflows.openToolInToolShed";
 const CMD_POPULATE_CACHE = "galaxy-workflows.populateToolCache";
 const CMD_POPULATE_FOR_TOOL = "galaxy-workflows.populateToolCacheForTool";
 
-function stateIcon(state: "cached" | "uncached" | "failed"): string {
-  if (state === "cached") return "$(check)";
-  if (state === "failed") return "$(error)";
-  return "$(info)";
-}
-
-function headline(state: "cached" | "uncached" | "failed", name: string, version?: string): string {
+function headline(state: ToolState, name: string, version?: string): string {
   const suffix = version ? ` ${version}` : "";
-  return `${stateIcon(state)} ${name}${suffix}`;
+  return `${toolStateIconMarkup(state)} ${name}${suffix}`;
 }
 
 /**
@@ -36,7 +37,7 @@ export async function buildToolIdCodeLenses(doc: DocumentContext, registry: Tool
     const { toolId, toolVersion, toolIdRange } = summary;
 
     if (registry.hasResolutionFailed(toolId, toolVersion)) {
-      const title = `${headline("failed", toolId, toolVersion)} · Resolution failed — retry`;
+      const title = `${headline("failed", toolId, toolVersion)} · ${RETRY_ACTION}`;
       const command: Command = {
         title,
         command: CMD_POPULATE_FOR_TOOL,
@@ -48,7 +49,7 @@ export async function buildToolIdCodeLenses(doc: DocumentContext, registry: Tool
 
     const cached = await registry.hasCached(toolId, toolVersion);
     if (!cached) {
-      const title = `${headline("uncached", toolId, toolVersion)} · Run Populate Tool Cache`;
+      const title = `${headline("uncached", toolId, toolVersion)} · ${RUN_POPULATE_TOOL_CACHE_ACTION}`;
       const command: Command = { title, command: CMD_POPULATE_CACHE };
       lenses.push({ range: toolIdRange, command });
       continue;
@@ -59,7 +60,7 @@ export async function buildToolIdCodeLenses(doc: DocumentContext, registry: Tool
     const displayVersion = info?.version ?? toolVersion;
     const toolshedUrl = parseToolShedRepoUrl(toolId);
     if (toolshedUrl) {
-      const title = `${headline("cached", displayName, displayVersion)} · Open in ToolShed`;
+      const title = `${headline("cached", displayName, displayVersion)} · ${OPEN_IN_TOOLSHED_ACTION}`;
       const command: Command = {
         title,
         command: CMD_OPEN_IN_TOOLSHED,

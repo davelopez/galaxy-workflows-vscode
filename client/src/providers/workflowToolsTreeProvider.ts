@@ -20,6 +20,11 @@ import {
   LSRequestIdentifiers,
   WorkflowToolEntry,
 } from "../languageTypes";
+import {
+  OPEN_IN_TOOLSHED_ACTION,
+  POPULATE_TOOL_CACHE_COMMAND_NAME,
+  TOOL_STATE_ICON_NAME,
+} from "../../../shared/src/toolStatePresentation";
 import { isNativeWorkflowDocument, isWorkflowDocument } from "../common/utils";
 
 const WORKFLOW_TOOL_CONTEXT = "workflowTool";
@@ -36,9 +41,9 @@ export class WorkflowToolItem extends TreeItem {
 }
 
 function iconForEntry(entry: WorkflowToolEntry): ThemeIcon {
-  if (entry.resolutionFailed) return new ThemeIcon("error");
-  if (entry.cached) return new ThemeIcon("check");
-  return new ThemeIcon("info");
+  if (entry.resolutionFailed) return new ThemeIcon(TOOL_STATE_ICON_NAME.failed);
+  if (entry.cached) return new ThemeIcon(TOOL_STATE_ICON_NAME.cached);
+  return new ThemeIcon(TOOL_STATE_ICON_NAME.uncached);
 }
 
 function buildTooltip(entry: WorkflowToolEntry): MarkdownString {
@@ -49,9 +54,9 @@ function buildTooltip(entry: WorkflowToolEntry): MarkdownString {
   md.appendMarkdown("\n\n");
   md.appendMarkdown(`\`${entry.toolId}\``);
   if (entry.description) md.appendMarkdown(`\n\n${entry.description}`);
-  if (!entry.cached) md.appendMarkdown("\n\n_Tool not cached — run **Populate Tool Cache**._");
+  if (!entry.cached) md.appendMarkdown(`\n\n_Tool not cached — run **${POPULATE_TOOL_CACHE_COMMAND_NAME}**._`);
   if (entry.resolutionFailed) md.appendMarkdown("\n\n_Could not resolve from ToolShed._");
-  if (entry.toolshedUrl) md.appendMarkdown(`\n\n[Open in ToolShed](${entry.toolshedUrl})`);
+  if (entry.toolshedUrl) md.appendMarkdown(`\n\n[${OPEN_IN_TOOLSHED_ACTION}](${entry.toolshedUrl})`);
   return md;
 }
 

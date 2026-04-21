@@ -2,6 +2,11 @@ import type { ObjectASTNode, PropertyASTNode } from "../../ast/types";
 import type { ASTNodeManager } from "../../ast/nodeManager";
 import type { Hover, Range, ToolRegistryService } from "../../languageTypes";
 import { MarkupKind } from "../../languageTypes";
+import {
+  TOOL_NOT_CACHED_HEADLINE,
+  TOOL_NOT_CACHED_HINT,
+  TOOL_RESOLUTION_FAILED_HEADLINE,
+} from "../../../../../../shared/src/toolStatePresentation";
 import { buildToolInfoMarkdown } from "./toolInfoMarkdown";
 
 export interface BuildToolIdHoverArgs {
@@ -50,15 +55,12 @@ export async function buildToolIdHover(args: BuildToolIdHoverArgs): Promise<Hove
   const range: Range = nodeManager.getNodeRange(valueNode);
 
   if (registry.hasResolutionFailed(toolId, toolVersion)) {
-    return hover(`**Could not resolve tool from ToolShed**\n\n\`${toolId}\``, range);
+    return hover(`**${TOOL_RESOLUTION_FAILED_HEADLINE}**\n\n\`${toolId}\``, range);
   }
 
   const tool = await registry.getToolInfo(toolId, toolVersion);
   if (!tool) {
-    return hover(
-      `**Tool not cached**\n\n\`${toolId}\`\n\nRun the **Populate Tool Cache** command to fetch tool metadata.`,
-      range
-    );
+    return hover(`**${TOOL_NOT_CACHED_HEADLINE}**\n\n\`${toolId}\`\n\n${TOOL_NOT_CACHED_HINT}`, range);
   }
   return hover(buildToolInfoMarkdown(tool), range);
 }
