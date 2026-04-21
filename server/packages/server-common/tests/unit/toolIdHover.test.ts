@@ -16,6 +16,7 @@ function makeRegistry(): ToolRegistryService {
     getToolShedBaseUrl() { return undefined; },
     hasResolutionFailed() { return false; },
     markResolutionFailed() { /* noop */ },
+    clearResolutionFailed() { /* noop */ },
     async validateNativeStep() { return []; },
   };
 }

@@ -1,4 +1,5 @@
 import {
+  CodeLens,
   CompletionList,
   Diagnostic,
   DocumentSymbol,
@@ -12,6 +13,7 @@ import {
   TextDocument,
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
+import { buildToolIdCodeLenses } from "@gxwf/server-common/src/providers/toolIdCodeLens";
 import { cleanWorkflow, toFormat2Stateful, type ToolInputsResolver } from "@galaxy-tool-util/schema";
 import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import * as YAML from "yaml";
@@ -84,6 +86,10 @@ export class NativeWorkflowLanguageServiceImpl
 
   public override async doHover(workflowDocument: NativeWorkflowDocument, position: Position): Promise<Hover | null> {
     return this._hoverService.doHover(workflowDocument, position);
+  }
+
+  public override async doCodeLens(workflowDocument: NativeWorkflowDocument): Promise<CodeLens[]> {
+    return buildToolIdCodeLenses(workflowDocument, this.toolRegistryService);
   }
 
   public override async doComplete(

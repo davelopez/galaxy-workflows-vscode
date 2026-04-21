@@ -161,6 +161,11 @@
         "category": "Galaxy Workflows"
       },
       {
+        "command": "galaxy-workflows.populateToolCacheForTool",
+        "title": "Populate Tool Cache (single tool)",
+        "category": "Galaxy Workflows"
+      },
+      {
         "command": "galaxy-workflows.previewConvertToFormat2",
         "title": "Preview Convert to Format2",
         "enablement": "resourceLangId == galaxyworkflow",
@@ -269,6 +274,10 @@
         {
           "command": "galaxy-workflows.convertFileToNative",
           "when": "resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.populateToolCacheForTool",
+          "when": "false"
         }
       ],
       "timeline/item/context": [

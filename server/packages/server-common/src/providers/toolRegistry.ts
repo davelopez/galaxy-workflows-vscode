@@ -31,6 +31,10 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
     this._resolutionFailed.add(this.resolutionKey(toolId, toolVersion));
   }
 
+  clearResolutionFailed(toolId: string, toolVersion?: string): void {
+    this._resolutionFailed.delete(this.resolutionKey(toolId, toolVersion));
+  }
+
   configure(settings: { toolShedUrl: string; storage: CacheStorage }): void {
     this.toolInfo = new ToolInfoService({
       defaultToolshedUrl: settings.toolShedUrl,

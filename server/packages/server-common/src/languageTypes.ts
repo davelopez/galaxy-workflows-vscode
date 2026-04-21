@@ -13,6 +13,7 @@ import {
   CodeAction,
   CodeActionContext,
   CodeActionKind,
+  CodeLens,
   Color,
   ColorInformation,
   ColorPresentation,
@@ -74,6 +75,7 @@ import type {
   GetWorkflowToolIdsResult,
   GetWorkflowToolsParams,
   GetWorkflowToolsResult,
+  PopulateToolCacheForToolParams,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
@@ -90,6 +92,7 @@ export {
   CodeAction,
   CodeActionContext,
   CodeActionKind,
+  CodeLens,
   Color,
   ColorInformation,
   ColorPresentation,
@@ -147,6 +150,7 @@ export type {
   GetWorkflowToolIdsResult,
   GetWorkflowToolsParams,
   GetWorkflowToolsResult,
+  PopulateToolCacheForToolParams,
   PopulateToolCacheParams,
   PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
@@ -222,6 +226,7 @@ export interface LanguageService<T extends DocumentContext> {
   format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   doHover(documentContext: T, position: Position): Promise<Hover | null>;
   doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+  doCodeLens(documentContext: T): Promise<CodeLens[]>;
   getSymbols(documentContext: T): DocumentSymbol[];
 
   /**
@@ -264,6 +269,9 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;
   public abstract doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+  public async doCodeLens(_documentContext: T): Promise<CodeLens[]> {
+    return [];
+  }
   public abstract getSymbols(documentContext: T): DocumentSymbol[];
 
   /** Performs basic syntax and semantic validation based on the document schema. */
@@ -373,6 +381,8 @@ export interface ToolRegistryService {
   hasResolutionFailed(toolId: string, toolVersion?: string): boolean;
   /** Records that auto-resolution failed for this tool. */
   markResolutionFailed(toolId: string, toolVersion?: string): void;
+  /** Clears any prior resolution-failed flag for this tool (e.g. after a successful retry). */
+  clearResolutionFailed(toolId: string, toolVersion?: string): void;
   /** Validate native step tool_state against cached tool schema. */
   validateNativeStep(
     toolId: string,

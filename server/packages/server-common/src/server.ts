@@ -18,6 +18,7 @@ import type {
   WorkflowTestsLanguageService,
 } from "./languageTypes";
 import { CodeActionHandler } from "./providers/codeActionHandler";
+import { CodeLensHandler } from "./providers/codeLensHandler";
 import { FormattingHandler } from "./providers/formattingHandler";
 import { HoverHandler } from "./providers/hover/hoverHandler";
 import { SymbolsHandler } from "./providers/symbolsHandler";
@@ -100,6 +101,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
       },
       documentSymbolProvider: true,
       codeActionProvider: true,
+      codeLensProvider: { resolveProvider: false },
     };
 
     return {
@@ -117,6 +119,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     this.serverEventHandlers.push(new SymbolsHandler(this));
     this.serverEventHandlers.push(new CompletionHandler(this));
     this.serverEventHandlers.push(new CodeActionHandler(this));
+    this.serverEventHandlers.push(new CodeLensHandler(this));
   }
 
   private registerServices(): void {

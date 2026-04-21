@@ -21,6 +21,7 @@ export namespace LSRequestIdentifiers {
   export const GET_WORKFLOW_TOOL_IDS = "galaxy-workflows-ls.getWorkflowToolIds";
   export const GET_WORKFLOW_TOOLS = "galaxy-workflows-ls.getWorkflowTools";
   export const POPULATE_TOOL_CACHE = "galaxy-workflows-ls.populateToolCache";
+  export const POPULATE_TOOL_CACHE_FOR_TOOL = "galaxy-workflows-ls.populateToolCacheForTool";
   export const GET_TOOL_CACHE_STATUS = "galaxy-workflows-ls.getToolCacheStatus";
   export const CONVERT_WORKFLOW_CONTENTS = "galaxy-workflows-ls.convertWorkflowContents";
 }
@@ -110,6 +111,11 @@ export interface GetWorkflowToolIdsResult {
 
 export interface PopulateToolCacheParams {
   tools: ToolRef[];
+}
+
+export interface PopulateToolCacheForToolParams {
+  toolId: string;
+  toolVersion?: string;
 }
 
 export interface PopulateToolCacheResult {

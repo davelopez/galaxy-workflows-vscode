@@ -9,6 +9,7 @@ import { ConvertFileToFormat2Command, ConvertFileToNativeCommand } from "./conve
 import { PreviewConvertToFormat2Command, PreviewConvertToNativeCommand } from "./convertWorkflow";
 import { ExportToFormat2Command, ExportToNativeCommand } from "./exportWorkflow";
 import { PopulateToolCacheCommand } from "./populateToolCache";
+import { PopulateToolCacheForToolCommand } from "./populateToolCacheForTool";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
 
@@ -41,6 +42,7 @@ export function setupCommands(
   context.subscriptions.push(new PreviewCleanWorkflowCommand(nativeClient).register());
   context.subscriptions.push(new CleanWorkflowCommand(nativeClient).register());
   context.subscriptions.push(new PopulateToolCacheCommand(nativeClient).register());
+  context.subscriptions.push(new PopulateToolCacheForToolCommand(nativeClient, gxFormat2Client).register());
   const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(

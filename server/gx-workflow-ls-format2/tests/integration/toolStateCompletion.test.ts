@@ -227,6 +227,7 @@ function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryServic
     },
     hasResolutionFailed() { return false; },
     markResolutionFailed() { /* noop */ },
+    clearResolutionFailed() { /* noop */ },
     async getToolInfo() { return null; },
     getToolShedBaseUrl() { return undefined; },
     async validateNativeStep() { return []; },

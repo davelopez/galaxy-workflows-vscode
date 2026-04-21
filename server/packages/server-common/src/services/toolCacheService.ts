@@ -6,7 +6,9 @@ import {
   GetWorkflowToolsResult,
   LSNotificationIdentifiers,
   LSRequestIdentifiers,
+  PopulateToolCacheForToolParams,
   PopulateToolCacheParams,
+  PopulateToolCacheResult,
   ToolRef,
   WorkflowDocument,
   WorkflowToolEntry,
@@ -149,6 +151,11 @@ export class ToolCacheService extends ServiceBase {
       (params: PopulateToolCacheParams) => this.server.toolRegistryService.populateCache(params.tools)
     );
 
+    this.server.connection.onRequest(
+      LSRequestIdentifiers.POPULATE_TOOL_CACHE_FOR_TOOL,
+      (params: PopulateToolCacheForToolParams) => this.onPopulateToolCacheForTool(params)
+    );
+
     this.server.connection.onRequest(LSRequestIdentifiers.GET_TOOL_CACHE_STATUS, async () => ({
       cacheSize: await this.server.toolRegistryService.getCacheSize(),
     }));
@@ -157,6 +164,17 @@ export class ToolCacheService extends ServiceBase {
       LSRequestIdentifiers.GET_WORKFLOW_TOOLS,
       (params: GetWorkflowToolsParams) => this.onGetWorkflowTools(params)
     );
+  }
+
+  private async onPopulateToolCacheForTool(
+    params: PopulateToolCacheForToolParams
+  ): Promise<PopulateToolCacheResult> {
+    const { toolId, toolVersion } = params;
+    const result = await this.server.toolRegistryService.populateCache([{ toolId, toolVersion }]);
+    if (result.failed.length === 0) {
+      this.server.toolRegistryService.clearResolutionFailed(toolId, toolVersion);
+    }
+    return result;
   }
 
   private async onGetWorkflowTools(params: GetWorkflowToolsParams): Promise<GetWorkflowToolsResult> {

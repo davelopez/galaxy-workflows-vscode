@@ -65,6 +65,7 @@ function makeMockRegistry(): ToolRegistryService {
     async getToolParameters() { return null; },
     hasResolutionFailed: () => false,
     markResolutionFailed: () => { /* noop */ },
+    clearResolutionFailed: () => { /* noop */ },
     getToolInfo: async () => null,
     getToolShedBaseUrl: () => undefined,
     validateNativeStep: mockValidate,

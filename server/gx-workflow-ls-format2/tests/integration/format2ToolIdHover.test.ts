@@ -41,6 +41,7 @@ function makeRegistry(cached = true, failed = false): ToolRegistryService {
     getToolShedBaseUrl() { return "https://toolshed.g2.bx.psu.edu"; },
     hasResolutionFailed() { return failed; },
     markResolutionFailed() { /* noop */ },
+    clearResolutionFailed() { /* noop */ },
     async validateNativeStep() { return []; },
   };
 }
