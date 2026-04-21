@@ -5,14 +5,10 @@ import { CleanWorkflowDocumentProvider } from "../providers/cleanWorkflowDocumen
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
 import { GitProvider } from "../providers/git";
 import { BuiltinGitProvider } from "../providers/git/gitProvider";
-import {
-  openEntryInToolShed,
-  revealEntryInEditor,
-  WorkflowToolsTreeProvider,
-} from "../providers/workflowToolsTreeProvider";
+import { WorkflowToolsTreeProvider } from "../providers/workflowToolsTreeProvider";
 import { setupRequests } from "../requests/gxworkflows";
 import { ToolCacheStatusBar } from "../statusBar";
-import { LSNotificationIdentifiers, ToolResolutionFailedParams, WorkflowToolEntry } from "../languageTypes";
+import { LSNotificationIdentifiers, ToolResolutionFailedParams } from "../languageTypes";
 
 export function buildBasicLanguageClientOptions(
   documentSelector: DocumentSelector,
@@ -33,10 +29,11 @@ export function initExtension(
   gxFormat2Client: BaseLanguageClient
 ): void {
   const gitProvider = initGitProvider(context);
+  const workflowToolsProvider = new WorkflowToolsTreeProvider(nativeClient, gxFormat2Client);
 
   // Setup native workflow language features
   setupProviders(context, nativeClient, gitProvider);
-  setupCommands(context, nativeClient, gxFormat2Client, gitProvider);
+  setupCommands(context, nativeClient, gxFormat2Client, gitProvider, workflowToolsProvider);
   startLanguageClient(context, nativeClient);
 
   // Setup gxformat2 language features
@@ -79,43 +76,28 @@ export function initExtension(
   toolCacheStatusBar.startPolling();
   context.subscriptions.push(toolCacheStatusBar);
 
-  // Workflow Tools tree view
-  setupWorkflowToolsView(context, nativeClient, gxFormat2Client);
+  // Workflow Tools tree view — commands are registered via setupCommands.
+  setupWorkflowToolsView(context, workflowToolsProvider, nativeClient, gxFormat2Client);
 }
 
 function setupWorkflowToolsView(
   context: ExtensionContext,
+  provider: WorkflowToolsTreeProvider,
   nativeClient: BaseLanguageClient,
   format2Client: BaseLanguageClient
 ): void {
-  const provider = new WorkflowToolsTreeProvider(nativeClient, format2Client);
   const view = window.createTreeView("galaxyWorkflows.toolsView", {
     treeDataProvider: provider,
   });
   context.subscriptions.push(view);
 
-  const refresh = () => void provider.refresh();
+  const refresh = (): void => void provider.refresh();
   context.subscriptions.push(
     window.onDidChangeActiveTextEditor(refresh),
     workspace.onDidSaveTextDocument(refresh),
     workspace.onDidChangeTextDocument(() => provider.scheduleRefresh()),
     nativeClient.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, refresh),
     format2Client.onNotification(LSNotificationIdentifiers.TOOL_RESOLUTION_FAILED, refresh)
-  );
-
-  context.subscriptions.push(
-    commands.registerCommand("galaxy-workflows.refreshToolsView", refresh),
-    commands.registerCommand("galaxy-workflows.revealToolStep", (item: WorkflowToolEntry | { entry?: WorkflowToolEntry }) => {
-      const entry = (item as { entry?: WorkflowToolEntry })?.entry ?? (item as WorkflowToolEntry);
-      if (entry?.range) revealEntryInEditor(entry);
-    }),
-    commands.registerCommand(
-      "galaxy-workflows.openToolInToolShed",
-      (item: WorkflowToolEntry | { entry?: WorkflowToolEntry }) => {
-        const entry = (item as { entry?: WorkflowToolEntry })?.entry ?? (item as WorkflowToolEntry);
-        if (entry?.toolshedUrl) openEntryInToolShed(entry);
-      }
-    )
   );
 
   // Initial population once the clients are up.

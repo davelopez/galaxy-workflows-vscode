@@ -8,10 +8,14 @@ import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
 import { ConvertFileToFormat2Command, ConvertFileToNativeCommand } from "./convertFile";
 import { PreviewConvertToFormat2Command, PreviewConvertToNativeCommand } from "./convertWorkflow";
 import { ExportToFormat2Command, ExportToNativeCommand } from "./exportWorkflow";
+import { OpenToolInToolShedCommand } from "./openToolInToolShed";
 import { PopulateToolCacheCommand } from "./populateToolCache";
 import { PopulateToolCacheForToolCommand } from "./populateToolCacheForTool";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
+import { RefreshToolsViewCommand } from "./refreshToolsView";
+import { RevealToolStepCommand } from "./revealToolStep";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
+import { WorkflowToolsTreeProvider } from "../providers/workflowToolsTreeProvider";
 
 /**
  * Registers all custom commands declared in package.json.
@@ -23,7 +27,8 @@ export function setupCommands(
   context: ExtensionContext,
   nativeClient: BaseLanguageClient,
   gxFormat2Client: BaseLanguageClient,
-  gitProvider: GitProvider
+  gitProvider: GitProvider,
+  workflowToolsProvider: WorkflowToolsTreeProvider
 ): void {
   const convertedProvider = ConvertedWorkflowDocumentProvider.register(context);
 
@@ -43,6 +48,9 @@ export function setupCommands(
   context.subscriptions.push(new CleanWorkflowCommand(nativeClient).register());
   context.subscriptions.push(new PopulateToolCacheCommand(nativeClient).register());
   context.subscriptions.push(new PopulateToolCacheForToolCommand(nativeClient, gxFormat2Client).register());
+  context.subscriptions.push(new RefreshToolsViewCommand(nativeClient, workflowToolsProvider).register());
+  context.subscriptions.push(new RevealToolStepCommand(nativeClient).register());
+  context.subscriptions.push(new OpenToolInToolShedCommand(nativeClient).register());
   const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(
