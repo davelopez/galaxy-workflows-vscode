@@ -107,6 +107,22 @@ describe("ToolRegistryServiceImpl filesystem cache", () => {
     const inputs = await registry.getToolParameters(TOOL_ID, TOOL_VERSION);
     expect(inputs).toEqual(MINIMAL_TOOL.inputs);
   });
+
+  it("getToolInfo returns null when uncached", async () => {
+    expect(await registry.getToolInfo(TOOL_ID, TOOL_VERSION)).toBeNull();
+  });
+
+  it("getToolInfo returns the ParsedTool when cached", async () => {
+    await seedTool(storage);
+    const info = await registry.getToolInfo(TOOL_ID, TOOL_VERSION);
+    expect(info).not.toBeNull();
+    expect(info?.name).toBe(MINIMAL_TOOL.name);
+    expect(info?.version).toBe(TOOL_VERSION);
+  });
+
+  it("getToolShedBaseUrl returns the configured url", () => {
+    expect(registry.getToolShedBaseUrl()).toBe(TOOLSHED_URL);
+  });
 });
 
 describe("populateCache", () => {

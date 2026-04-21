@@ -1,5 +1,6 @@
 import { injectable } from "inversify";
 import { ToolInfoService } from "@galaxy-tool-util/core";
+import type { ParsedTool } from "@galaxy-tool-util/core";
 import { ToolStateValidator } from "@galaxy-tool-util/schema";
 import type { CacheStorage, ToolStateDiagnostic, ToolRegistryService } from "../languageTypes";
 import type { PopulateToolCacheResult } from "../../../../../shared/src/requestsDefinitions";
@@ -11,6 +12,7 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
   private toolInfo: ToolInfoService;
   private _validator: ToolStateValidator;
   private _resolutionFailed = new Set<string>();
+  private _toolShedUrl: string | undefined;
 
   constructor() {
     this.toolInfo = new ToolInfoService({ storage: new NullStorage() });
@@ -35,6 +37,11 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
       storage: settings.storage,
     });
     this._validator = new ToolStateValidator(this.toolInfo);
+    this._toolShedUrl = settings.toolShedUrl;
+  }
+
+  getToolShedBaseUrl(): string | undefined {
+    return this._toolShedUrl;
   }
 
   async hasCached(toolId: string, toolVersion?: string): Promise<boolean> {
@@ -55,6 +62,13 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
     }
     const tool = await this.toolInfo.getToolInfo(toolId, toolVersion ?? null);
     return tool?.inputs ?? null;
+  }
+
+  async getToolInfo(toolId: string, toolVersion?: string): Promise<ParsedTool | null> {
+    if (!(await this.hasCached(toolId, toolVersion))) {
+      return null;
+    }
+    return this.toolInfo.getToolInfo(toolId, toolVersion ?? null);
   }
 
   async validateNativeStep(

@@ -8,6 +8,7 @@ import {
   getObjectNodeFromStep,
   getStringPropertyFromStep,
 } from "@gxwf/server-common/src/providers/validation/toolStateAstHelpers";
+import { buildToolIdHover } from "@gxwf/server-common/src/providers/hover/toolIdHover";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
 import { findStateInPath } from "./toolStateCompletionService";
@@ -48,6 +49,15 @@ export class GxFormat2HoverService {
 
     const hoverRange = nodeManager.getNodeRange(hoverRangeNode);
     const location = nodeManager.getPathFromNode(hoverRangeNode);
+
+    if (this.toolRegistryService) {
+      const toolIdHover = await buildToolIdHover({
+        nodeManager,
+        offset,
+        registry: this.toolRegistryService,
+      });
+      if (toolIdHover) return toolIdHover;
+    }
 
     // Check if cursor is inside a step's state/tool_state block
     const stateInfo = findStateInPath(location);

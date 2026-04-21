@@ -88,6 +88,8 @@ function makeMockRegistry(
     async getToolParameters() { return null; },
     hasResolutionFailed: () => resolutionFailed,
     markResolutionFailed: () => { /* noop */ },
+    async getToolInfo() { return null; },
+    getToolShedBaseUrl() { return undefined; },
     async validateNativeStep(toolId, toolVersion, toolState, inputConnections) {
       return validateFn ? validateFn(toolId, toolVersion, toolState, inputConnections) : [];
     },

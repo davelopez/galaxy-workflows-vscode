@@ -10,6 +10,7 @@ import {
   ToolParam,
 } from "@gxwf/server-common/src/providers/validation/toolStateAstHelpers";
 import { findStateInPath, StateInPath } from "@gxwf/server-common/src/providers/toolStateCompletion";
+import { buildToolIdHover } from "@gxwf/server-common/src/providers/hover/toolIdHover";
 import {
   LanguageService as JSONLanguageService,
 } from "vscode-json-languageservice";
@@ -52,6 +53,13 @@ export class NativeHoverService {
 
     const hoverRange = nodeManager.getNodeRange(hoverRangeNode);
     const location = nodeManager.getPathFromNode(hoverRangeNode);
+
+    const toolIdHover = await buildToolIdHover({
+      nodeManager,
+      offset,
+      registry: this.toolRegistryService,
+    });
+    if (toolIdHover) return toolIdHover;
 
     // Check if cursor is inside a step's tool_state block (object-form only)
     const stateInfo = findStateInPath(location);

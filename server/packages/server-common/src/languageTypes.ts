@@ -5,8 +5,8 @@ import type {
   WorkflowOutput,
   WorkflowDataType,
 } from "@galaxy-tool-util/schema";
-import type { CacheStorage } from "@galaxy-tool-util/core";
-export type { ToolStateDiagnostic, CacheStorage, WorkflowInput, WorkflowOutput, WorkflowDataType };
+import type { CacheStorage, ParsedTool } from "@galaxy-tool-util/core";
+export type { ToolStateDiagnostic, CacheStorage, ParsedTool, WorkflowInput, WorkflowOutput, WorkflowDataType };
 /** Builds a CacheStorage. Browser returns IndexedDBCacheStorage; node returns FilesystemCacheStorage(getCacheDir(cacheDir)). */
 export type CacheStorageFactory = (cacheDir?: string) => CacheStorage;
 import {
@@ -358,6 +358,10 @@ export interface ToolRegistryService {
   configure(settings: { toolShedUrl: string; storage: CacheStorage }): void;
   /** Returns cached tool inputs (parameter list) without hitting the network. Returns null if not cached. */
   getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null>;
+  /** Returns full ParsedTool metadata from cache. Returns null if not cached. No network. */
+  getToolInfo(toolId: string, toolVersion?: string): Promise<ParsedTool | null>;
+  /** Returns the ToolShed base URL the registry was configured with, or undefined before configure(). */
+  getToolShedBaseUrl(): string | undefined;
   getCacheSize(): Promise<number>;
   /** Returns true if a previous auto-resolution attempt for this tool failed. */
   hasResolutionFailed(toolId: string, toolVersion?: string): boolean;
