@@ -1,4 +1,4 @@
-import type { ParsedTool } from "@galaxy-tool-util/core";
+import type { ParsedTool } from "@galaxy-tool-util/schema";
 import { buildToolInfoMarkdown } from "../../src/providers/hover/toolInfoMarkdown";
 
 function makeTool(overrides: Partial<ParsedTool> = {}): ParsedTool {

@@ -1,7 +1,9 @@
 import { injectable } from "inversify";
 import { ToolInfoService } from "@galaxy-tool-util/core";
-import type { ParsedTool } from "@galaxy-tool-util/core";
+import type { ToolSource } from "@galaxy-tool-util/core";
+import { ToolSearchService } from "@galaxy-tool-util/search";
 import { ToolStateValidator } from "@galaxy-tool-util/schema";
+import type { ParsedTool } from "@galaxy-tool-util/schema";
 import type { CacheStorage, ToolStateDiagnostic, ToolRegistryService } from "../languageTypes";
 import type { PopulateToolCacheResult } from "../../../../../shared/src/requestsDefinitions";
 
@@ -13,6 +15,7 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
   private _validator: ToolStateValidator;
   private _resolutionFailed = new Set<string>();
   private _toolShedUrl: string | undefined;
+  private _search: ToolSearchService | undefined;
 
   constructor() {
     this.toolInfo = new ToolInfoService({ storage: new NullStorage() });
@@ -36,12 +39,19 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
   }
 
   configure(settings: { toolShedUrl: string; storage: CacheStorage }): void {
+    const sources: ToolSource[] = [{ type: "toolshed", url: settings.toolShedUrl }];
     this.toolInfo = new ToolInfoService({
       defaultToolshedUrl: settings.toolShedUrl,
+      sources,
       storage: settings.storage,
     });
     this._validator = new ToolStateValidator(this.toolInfo);
     this._toolShedUrl = settings.toolShedUrl;
+    this._search = new ToolSearchService({ sources, info: this.toolInfo });
+  }
+
+  getSearchService(): ToolSearchService | undefined {
+    return this._search;
   }
 
   getToolShedBaseUrl(): string | undefined {

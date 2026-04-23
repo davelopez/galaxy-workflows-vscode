@@ -1,4 +1,4 @@
-import type { ParsedTool } from "@galaxy-tool-util/core";
+import type { ParsedTool } from "@galaxy-tool-util/schema";
 import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import "reflect-metadata";
 import { GxFormat2WorkflowLanguageServiceImpl } from "../../src/languageService";

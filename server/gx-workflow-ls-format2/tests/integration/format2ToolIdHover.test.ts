@@ -1,5 +1,4 @@
-import type { ParsedTool } from "@galaxy-tool-util/core";
-import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { GalaxyWorkflowSchema, type ParsedTool } from "@galaxy-tool-util/schema";
 import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import { JSONSchema } from "effect";

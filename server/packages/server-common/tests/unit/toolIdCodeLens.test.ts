@@ -1,4 +1,4 @@
-import type { ParsedTool } from "@galaxy-tool-util/core";
+import type { ParsedTool } from "@galaxy-tool-util/schema";
 import type { DocumentContext, ToolRegistryService } from "../../src/languageTypes";
 import { TextDocument } from "../../src/languageTypes";
 import { WorkflowDocument } from "../../src/models/workflowDocument";

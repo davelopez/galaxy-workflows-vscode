@@ -24,6 +24,8 @@ export namespace LSRequestIdentifiers {
   export const POPULATE_TOOL_CACHE_FOR_TOOL = "galaxy-workflows-ls.populateToolCacheForTool";
   export const GET_TOOL_CACHE_STATUS = "galaxy-workflows-ls.getToolCacheStatus";
   export const CONVERT_WORKFLOW_CONTENTS = "galaxy-workflows-ls.convertWorkflowContents";
+  export const SEARCH_TOOLS = "galaxy-workflows-ls.searchTools";
+  export const GET_STEP_SKELETON = "galaxy-workflows-ls.getStepSkeleton";
 }
 
 export interface CleanWorkflowDocumentParams {
@@ -164,4 +166,53 @@ export interface ConvertWorkflowContentsResult {
 
 export interface ToolResolutionFailedParams {
   failures: Array<{ toolId: string; error: string }>;
+}
+
+/**
+ * A tool search hit flattened for UI consumption. Structurally compatible
+ * with `NormalizedToolHit` from `@galaxy-tool-util/search` — keep field names
+ * in sync.
+ */
+export interface ToolSearchHit {
+  /** Tool Shed URL the hit came from. */
+  toolshedUrl: string;
+  toolId: string;
+  toolName: string;
+  toolDescription: string | null;
+  repoName: string;
+  repoOwnerUsername: string;
+  score: number;
+  version?: string;
+  changesetRevision?: string;
+  /** `<owner>~<repo>~<toolId>` — TRS-style id, consumable by GET_STEP_SKELETON. */
+  trsToolId: string;
+  /** `<host>/repos/<owner>/<repo>/<toolId>[/<version>]` — full Galaxy tool id. */
+  fullToolId: string;
+}
+
+export interface SearchToolsParams {
+  query: string;
+  pageSize?: number;
+  maxResults?: number;
+}
+
+export interface SearchToolsResult {
+  hits: ToolSearchHit[];
+  /** True when the result set was truncated by `maxResults`. */
+  truncated: boolean;
+}
+
+export interface GetStepSkeletonParams {
+  toolshedUrl: string;
+  trsToolId: string;
+  version?: string;
+  format: "native" | "format2";
+  stepIndex?: number;
+  label?: string;
+}
+
+export interface GetStepSkeletonResult {
+  /** The step object, ready to be serialized into the target workflow file. */
+  step: unknown;
+  error?: string;
 }

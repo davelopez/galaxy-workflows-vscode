@@ -19,6 +19,11 @@ import {
   TargetWorkflowDocumentParams,
   ToolRef,
   ToolResolutionFailedParams,
+  ToolSearchHit,
+  SearchToolsParams,
+  SearchToolsResult,
+  GetStepSkeletonParams,
+  GetStepSkeletonResult,
 } from "../../shared/src/requestsDefinitions";
 
 export {
@@ -42,4 +47,9 @@ export {
   TargetWorkflowDocumentParams,
   ToolRef,
   ToolResolutionFailedParams,
+  ToolSearchHit,
+  SearchToolsParams,
+  SearchToolsResult,
+  GetStepSkeletonParams,
+  GetStepSkeletonResult,
 };

@@ -1,4 +1,4 @@
-import type { ParsedTool } from "@galaxy-tool-util/core";
+import type { ParsedTool } from "@galaxy-tool-util/schema";
 import { parseToolShedRepoUrl } from "./toolShedUrl";
 
 export interface ToolInfoMarkdownOptions {

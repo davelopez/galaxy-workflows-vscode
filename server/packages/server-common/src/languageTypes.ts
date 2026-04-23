@@ -4,8 +4,9 @@ import type {
   WorkflowInput,
   WorkflowOutput,
   WorkflowDataType,
+  ParsedTool,
 } from "@galaxy-tool-util/schema";
-import type { CacheStorage, ParsedTool } from "@galaxy-tool-util/core";
+import type { CacheStorage } from "@galaxy-tool-util/core";
 export type { ToolStateDiagnostic, CacheStorage, ParsedTool, WorkflowInput, WorkflowOutput, WorkflowDataType };
 /** Builds a CacheStorage. Browser returns IndexedDBCacheStorage; node returns FilesystemCacheStorage(getCacheDir(cacheDir)). */
 export type CacheStorageFactory = (cacheDir?: string) => CacheStorage;
@@ -81,6 +82,11 @@ import type {
   TargetWorkflowDocumentParams,
   ToolRef,
   WorkflowToolEntry,
+  SearchToolsParams,
+  SearchToolsResult,
+  ToolSearchHit,
+  GetStepSkeletonParams,
+  GetStepSkeletonResult,
 } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
 import type { ConfigService } from "./configService";
@@ -156,6 +162,11 @@ export type {
   TargetWorkflowDocumentParams,
   ToolRef,
   WorkflowToolEntry,
+  SearchToolsParams,
+  SearchToolsResult,
+  ToolSearchHit,
+  GetStepSkeletonParams,
+  GetStepSkeletonResult,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
@@ -390,6 +401,11 @@ export interface ToolRegistryService {
     toolState: Record<string, unknown>,
     inputConnections?: Record<string, unknown>
   ): Promise<ToolStateDiagnostic[]>;
+  /**
+   * Returns the currently configured search service (rebuilt on each configure()).
+   * Undefined before configure() has been called.
+   */
+  getSearchService(): import("@galaxy-tool-util/search").ToolSearchService | undefined;
 }
 
 const TYPES = {

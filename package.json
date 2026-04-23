@@ -216,6 +216,13 @@
         "command": "galaxy-workflows.openToolInToolShed",
         "title": "Open tool in ToolShed",
         "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.insertToolStep",
+        "title": "Insert Tool Step…",
+        "enablement": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2",
+        "icon": "$(add)",
+        "category": "Galaxy Workflows"
       }
     ],
     "views": {
@@ -278,6 +285,10 @@
         {
           "command": "galaxy-workflows.populateToolCacheForTool",
           "when": "false"
+        },
+        {
+          "command": "galaxy-workflows.insertToolStep",
+          "when": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2"
         }
       ],
       "timeline/item/context": [

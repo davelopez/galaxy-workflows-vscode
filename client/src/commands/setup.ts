@@ -8,6 +8,7 @@ import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
 import { ConvertFileToFormat2Command, ConvertFileToNativeCommand } from "./convertFile";
 import { PreviewConvertToFormat2Command, PreviewConvertToNativeCommand } from "./convertWorkflow";
 import { ExportToFormat2Command, ExportToNativeCommand } from "./exportWorkflow";
+import { InsertToolStepCommand } from "./insertToolStep";
 import { OpenToolInToolShedCommand } from "./openToolInToolShed";
 import { PopulateToolCacheCommand } from "./populateToolCache";
 import { PopulateToolCacheForToolCommand } from "./populateToolCacheForTool";
@@ -51,6 +52,7 @@ export function setupCommands(
   context.subscriptions.push(new RefreshToolsViewCommand(nativeClient, workflowToolsProvider).register());
   context.subscriptions.push(new RevealToolStepCommand(nativeClient).register());
   context.subscriptions.push(new OpenToolInToolShedCommand(nativeClient).register());
+  context.subscriptions.push(new InsertToolStepCommand(nativeClient, gxFormat2Client).register());
   const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(

@@ -25,6 +25,7 @@ import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
 import { ConvertWorkflowService } from "./services/convertWorkflow";
 import { ToolCacheService } from "./services/toolCacheService";
+import { ToolSearchLspService } from "./services/toolSearchService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
 import type { CacheStorageFactory } from "./languageTypes";
@@ -126,6 +127,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     CleanWorkflowService.register(this);
     ConvertWorkflowService.register(this);
     this.toolCacheService = ToolCacheService.register(this);
+    ToolSearchLspService.register(this);
   }
 
   private trackDocumentChanges(connection: Connection): void {
