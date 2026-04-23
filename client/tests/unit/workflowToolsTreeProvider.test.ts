@@ -30,16 +30,28 @@ jest.mock(
       tooltip?: unknown;
       contextValue?: string;
       iconPath?: unknown;
-      constructor(public readonly label: string, public readonly collapsibleState?: number) {}
+      constructor(
+        public readonly label: string,
+        public readonly collapsibleState?: number
+      ) {}
     }
     class Position {
-      constructor(public readonly line: number, public readonly character: number) {}
+      constructor(
+        public readonly line: number,
+        public readonly character: number
+      ) {}
     }
     class Range {
-      constructor(public readonly start: Position, public readonly end: Position) {}
+      constructor(
+        public readonly start: Position,
+        public readonly end: Position
+      ) {}
     }
     class Selection {
-      constructor(public readonly start: Position, public readonly end: Position) {}
+      constructor(
+        public readonly start: Position,
+        public readonly end: Position
+      ) {}
     }
     const TreeItemCollapsibleState = { None: 0, Collapsed: 1, Expanded: 2 } as const;
     return {

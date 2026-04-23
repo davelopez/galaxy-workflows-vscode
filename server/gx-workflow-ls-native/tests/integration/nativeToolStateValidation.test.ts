@@ -59,13 +59,25 @@ function makeMockRegistry(): ToolRegistryService {
   return {
     hasCached: async (id) => id === TOOL_ID,
     listCached: async () => [],
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 1; },
-    async getToolParameters() { return null; },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 1;
+    },
+    async getToolParameters() {
+      return null;
+    },
     hasResolutionFailed: () => false,
-    markResolutionFailed: () => { /* noop */ },
-    clearResolutionFailed: () => { /* noop */ },
+    markResolutionFailed: () => {
+      /* noop */
+    },
+    clearResolutionFailed: () => {
+      /* noop */
+    },
     getToolInfo: async () => null,
     getToolShedBaseUrl: () => undefined,
     validateNativeStep: mockValidate,

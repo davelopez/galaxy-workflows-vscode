@@ -74,13 +74,7 @@ export class GxFormat2CompletionService {
     if (stateInfo && this.toolStateService) {
       const existing = nodeManager.getDeclaredPropertyNames(node);
       const textCtx = getCompletionTextContext(textDocument, offset);
-      result.items = await this.toolStateService.doComplete(
-        nodeManager.root,
-        nodePath,
-        stateInfo,
-        textCtx,
-        existing
-      );
+      result.items = await this.toolStateService.doComplete(nodeManager.root, nodePath, stateInfo, textCtx, existing);
       return result;
     }
 

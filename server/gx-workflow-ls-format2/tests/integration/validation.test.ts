@@ -57,7 +57,9 @@ steps:
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
-    expect(diagnostics[0].message).toBe("Type mismatch for field 'class'. Expected 'GalaxyWorkflowClass' but found 'null'.");
+    expect(diagnostics[0].message).toBe(
+      "Type mismatch for field 'class'. Expected 'GalaxyWorkflowClass' but found 'null'."
+    );
   });
 
   it("should report error for missing required properties", async () => {
@@ -142,9 +144,7 @@ steps:
     `;
     const diagnostics = await validateDocument(content);
     expect(diagnostics).toHaveLength(1);
-    expect(diagnostics[0].message).toContain(
-      "Type mismatch for field 'top'. Expected 'float' but found 'string'."
-    );
+    expect(diagnostics[0].message).toContain("Type mismatch for field 'top'. Expected 'float' but found 'string'.");
   });
 
   it("should not report error for properties with Any type", async () => {

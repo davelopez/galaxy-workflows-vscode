@@ -6,18 +6,42 @@ import { buildToolIdHover } from "../../src/providers/hover/toolIdHover";
 
 function makeRegistry(): ToolRegistryService {
   return {
-    async hasCached() { return false; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 0; },
-    async getToolParameters() { return null; },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
-    hasResolutionFailed() { return false; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async validateNativeStep() { return []; },
+    async hasCached() {
+      return false;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 0;
+    },
+    async getToolParameters() {
+      return null;
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
+    hasResolutionFailed() {
+      return false;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 

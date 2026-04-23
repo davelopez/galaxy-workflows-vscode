@@ -115,13 +115,10 @@ export class ToolCacheService extends ServiceBase {
   }
 
   protected listenToRequests(): void {
-    this.server.connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_TOOL_IDS, () =>
-      this.onGetWorkflowToolIds()
-    );
+    this.server.connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_TOOL_IDS, () => this.onGetWorkflowToolIds());
 
-    this.server.connection.onRequest(
-      LSRequestIdentifiers.POPULATE_TOOL_CACHE,
-      (params: PopulateToolCacheParams) => this.server.toolRegistryService.populateCache(params.tools)
+    this.server.connection.onRequest(LSRequestIdentifiers.POPULATE_TOOL_CACHE, (params: PopulateToolCacheParams) =>
+      this.server.toolRegistryService.populateCache(params.tools)
     );
 
     this.server.connection.onRequest(
@@ -133,15 +130,12 @@ export class ToolCacheService extends ServiceBase {
       cacheSize: await this.server.toolRegistryService.getCacheSize(),
     }));
 
-    this.server.connection.onRequest(
-      LSRequestIdentifiers.GET_WORKFLOW_TOOLS,
-      (params: GetWorkflowToolsParams) => this.onGetWorkflowTools(params)
+    this.server.connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_TOOLS, (params: GetWorkflowToolsParams) =>
+      this.onGetWorkflowTools(params)
     );
   }
 
-  private async onPopulateToolCacheForTool(
-    params: PopulateToolCacheForToolParams
-  ): Promise<PopulateToolCacheResult> {
+  private async onPopulateToolCacheForTool(params: PopulateToolCacheForToolParams): Promise<PopulateToolCacheResult> {
     const { toolId, toolVersion } = params;
     return this.server.toolRegistryService.populateCache([{ toolId, toolVersion }]);
   }

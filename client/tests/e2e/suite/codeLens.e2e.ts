@@ -15,10 +15,7 @@ suite("CodeLens on tool_id", function () {
     assert.ok(ed);
     await sleep(500);
 
-    const lenses = await vscode.commands.executeCommand<vscode.CodeLens[]>(
-      "vscode.executeCodeLensProvider",
-      docUri
-    );
+    const lenses = await vscode.commands.executeCommand<vscode.CodeLens[]>("vscode.executeCodeLensProvider", docUri);
     assert.ok(lenses, "expected CodeLens array");
     // iwc_fastp_multiqc_dirty.ga has two tool steps.
     assert.strictEqual(lenses.length, 2, `expected 2 lenses, got ${lenses.length}`);

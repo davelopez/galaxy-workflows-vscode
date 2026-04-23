@@ -29,9 +29,7 @@ abstract class ConvertFileCommandBase extends CustomCommand {
 
     if (await fileUriExistsInWorkspace(URI.parse(targetUri.toString()))) {
       const targetName = targetUri.path.split("/").pop() ?? targetUri.path;
-      window.showErrorMessage(
-        `Cannot convert: ${targetName} already exists. Remove it first or use Export instead.`
-      );
+      window.showErrorMessage(`Cannot convert: ${targetName} already exists. Remove it first or use Export instead.`);
       return;
     }
 

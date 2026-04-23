@@ -30,12 +30,7 @@ export async function buildToolIdHover(args: BuildToolIdHoverArgs): Promise<Hove
     propertyNode = node;
   } else if (node.type === "string") {
     const parent = node.parent;
-    if (
-      parent &&
-      parent.type === "property" &&
-      parent.keyNode.value === "tool_id" &&
-      parent.keyNode !== node
-    ) {
+    if (parent && parent.type === "property" && parent.keyNode.value === "tool_id" && parent.keyNode !== node) {
       propertyNode = parent;
     }
   }

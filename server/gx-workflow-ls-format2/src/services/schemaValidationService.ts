@@ -101,7 +101,12 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
         );
       }
       if (schemaFieldNode.canBeAny) return;
-      if (nodeFound && propertyNode?.valueNode?.type === "null" && schemaFieldNode.isRequired && !schemaFieldNode.canBeArray) {
+      if (
+        nodeFound &&
+        propertyNode?.valueNode?.type === "null" &&
+        schemaFieldNode.isRequired &&
+        !schemaFieldNode.canBeArray
+      ) {
         diagnostics.push(
           Diagnostic.create(
             range,
@@ -152,7 +157,13 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
             const valueType = propertyNode.valueNode.type;
             if (valueType === "object" && !schemaFieldNode.mapSubject) {
               // Object shorthand with no id-mapping: treat as a single record instance
-              this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
+              this.collectDiagnostics(
+                nodeManager,
+                propertyNode.valueNode,
+                childSchemaNode,
+                diagnostics,
+                schemaFieldNode
+              );
             } else if (valueType === "object" || valueType === "array") {
               // Map or array form: validate each item
               propertyNode.valueNode.children?.forEach((item) => {
@@ -162,7 +173,13 @@ export class GxFormat2SchemaValidationService implements WorkflowValidator {
               });
             } else if (!schemaFieldNode.matchesType(propertyNode.valueNode.type)) {
               // Simple scalar not directly accepted by this field: validate against item type
-              this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics, schemaFieldNode);
+              this.collectDiagnostics(
+                nodeManager,
+                propertyNode.valueNode,
+                childSchemaNode,
+                diagnostics,
+                schemaFieldNode
+              );
             }
           } else {
             this.collectDiagnostics(nodeManager, propertyNode.valueNode, childSchemaNode, diagnostics, schemaFieldNode);

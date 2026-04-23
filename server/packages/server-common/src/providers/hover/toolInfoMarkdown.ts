@@ -36,9 +36,7 @@ export function buildToolInfoMarkdown(tool: ParsedTool, opts: ToolInfoMarkdownOp
   const lines: string[] = [];
 
   const header =
-    tool.version != null
-      ? `**${tool.name}** (\`${tool.id}@${tool.version}\`)`
-      : `**${tool.name}** (\`${tool.id}\`)`;
+    tool.version != null ? `**${tool.name}** (\`${tool.id}@${tool.version}\`)` : `**${tool.name}** (\`${tool.id}\`)`;
   lines.push(header);
 
   if (tool.description) {

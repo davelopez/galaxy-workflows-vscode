@@ -59,10 +59,7 @@ export class CleanWorkflowService extends ServiceBase {
           label: "Clean workflow",
           edit: {
             documentChanges: [
-              TextDocumentEdit.create(
-                { uri: params.uri, version: null },
-                [TextEdit.replace(fullRange, cleanedText)]
-              ),
+              TextDocumentEdit.create({ uri: params.uri, version: null }, [TextEdit.replace(fullRange, cleanedText)]),
             ],
           },
         };
@@ -73,5 +70,4 @@ export class CleanWorkflowService extends ServiceBase {
       return { error: String(error) };
     }
   }
-
 }

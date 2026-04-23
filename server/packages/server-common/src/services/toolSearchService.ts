@@ -25,9 +25,8 @@ export class ToolSearchLspService extends ServiceBase {
     this.server.connection.onRequest(LSRequestIdentifiers.SEARCH_TOOLS, (params: SearchToolsParams) =>
       this.onSearchTools(params)
     );
-    this.server.connection.onRequest(
-      LSRequestIdentifiers.GET_STEP_SKELETON,
-      (params: GetStepSkeletonParams) => this.onGetStepSkeleton(params)
+    this.server.connection.onRequest(LSRequestIdentifiers.GET_STEP_SKELETON, (params: GetStepSkeletonParams) =>
+      this.onGetStepSkeleton(params)
     );
   }
 

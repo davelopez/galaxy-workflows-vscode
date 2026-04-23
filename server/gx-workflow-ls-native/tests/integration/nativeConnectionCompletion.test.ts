@@ -41,18 +41,42 @@ const TOOL_PARAMS_BOWTIE = [
 
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
   return {
-    async hasCached(id) { return id === toolId; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 1; },
-    async getToolParameters(id) { return id === toolId ? params : null; },
-    hasResolutionFailed() { return false; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
-    async validateNativeStep() { return []; },
+    async hasCached(id) {
+      return id === toolId;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 1;
+    },
+    async getToolParameters(id) {
+      return id === toolId ? params : null;
+    },
+    hasResolutionFailed() {
+      return false;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 
@@ -127,9 +151,7 @@ describe("Native Workflow Connection Service", () => {
   // ---------------------------------------------------------------------------
 
   it("suggests available upstream step IDs for .id field", async () => {
-    const workflow = makeMultiStepWorkflow(
-      `\n        "read1": {"id": $, "output_name": "output"}\n      `
-    );
+    const workflow = makeMultiStepWorkflow(`\n        "read1": {"id": $, "output_name": "output"}\n      `);
     const { contents, position } = parseTemplate(workflow);
     const doc = createNativeWorkflowDocument(contents);
     const completions = await service.doCompleteAt(doc, position);
@@ -142,9 +164,7 @@ describe("Native Workflow Connection Service", () => {
   });
 
   it("does not include current step ID (no self-reference)", async () => {
-    const workflow = makeMultiStepWorkflow(
-      `\n        "read1": {"id": $, "output_name": "output"}\n      `
-    );
+    const workflow = makeMultiStepWorkflow(`\n        "read1": {"id": $, "output_name": "output"}\n      `);
     const { contents, position } = parseTemplate(workflow);
     const doc = createNativeWorkflowDocument(contents);
     const completions = await service.doCompleteAt(doc, position);
@@ -204,9 +224,7 @@ describe("Native Workflow Connection Service", () => {
 
   it("falls back to 'output' for input-type steps with no outputs array", async () => {
     // Step 0 is a data_input with empty outputs array — should fall back to ["output"]
-    const workflow = makeMultiStepWorkflow(
-      `\n        "read1": {"id": 0, "output_name": $}\n      `
-    );
+    const workflow = makeMultiStepWorkflow(`\n        "read1": {"id": 0, "output_name": $}\n      `);
     const { contents, position } = parseTemplate(workflow);
     const doc = createNativeWorkflowDocument(contents);
     const completions = await service.doCompleteAt(doc, position);

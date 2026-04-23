@@ -31,10 +31,12 @@ function makeHit(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function setup(opts: {
-  search?: Partial<FakeSearchService>;
-  registry?: Partial<ToolRegistryService>;
-} = {}): {
+function setup(
+  opts: {
+    search?: Partial<FakeSearchService>;
+    registry?: Partial<ToolRegistryService>;
+  } = {}
+): {
   searchHandler: (p: SearchToolsParams) => Promise<SearchToolsResult>;
   skeletonHandler: (p: GetStepSkeletonParams) => Promise<GetStepSkeletonResult>;
   fakeSearch: FakeSearchService;

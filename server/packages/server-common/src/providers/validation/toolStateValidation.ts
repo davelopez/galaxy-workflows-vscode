@@ -39,7 +39,9 @@ export async function runObjectStateValidationLoop(
 ): Promise<Diagnostic[]> {
   const result: Diagnostic[] = [];
 
-  for (const { toolId, toolVersion, toolIdNode, stateValueNode, stepNode } of collectStepsWithObjectState(nodeManager)) {
+  for (const { toolId, toolVersion, toolIdNode, stateValueNode, stepNode } of collectStepsWithObjectState(
+    nodeManager
+  )) {
     if (!(await registry.hasCached(toolId, toolVersion))) {
       result.push(
         buildCacheMissDiagnostic(

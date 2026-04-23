@@ -31,13 +31,7 @@ describe("insertNativeStep", () => {
 
 describe("insertFormat2Step", () => {
   it("appends the step when steps is a sequence", () => {
-    const original = [
-      "class: GalaxyWorkflow",
-      "steps:",
-      "  - label: first",
-      "    tool_id: t0",
-      "",
-    ].join("\n");
+    const original = ["class: GalaxyWorkflow", "steps:", "  - label: first", "    tool_id: t0", ""].join("\n");
     const result = insertFormat2Step(original, { label: "second", tool_id: "t1" });
     expect(result).toContain("tool_id: t0");
     expect(result).toContain("tool_id: t1");

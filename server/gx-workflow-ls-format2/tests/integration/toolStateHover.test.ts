@@ -135,18 +135,42 @@ const TOOL_PARAMS = [
 
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
   return {
-    async hasCached(id) { return id === toolId; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 1; },
-    async getToolParameters(id) { return id === toolId ? params : null; },
-    hasResolutionFailed() { return false; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
-    async validateNativeStep() { return []; },
+    async hasCached(id) {
+      return id === toolId;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 1;
+    },
+    async getToolParameters(id) {
+      return id === toolId ? params : null;
+    },
+    hasResolutionFailed() {
+      return false;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 
@@ -170,8 +194,7 @@ describe("Tool State Hover Service", () => {
   }
 
   const WORKFLOW_PREFIX =
-    `class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n` +
-    `  step1:\n    tool_id: ${TOOL_ID}\n    state:\n`;
+    `class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n` + `  step1:\n    tool_id: ${TOOL_ID}\n    state:\n`;
 
   // ---------------------------------------------------------------------------
   // Parameter name hover
@@ -259,9 +282,12 @@ describe("Tool State Hover Service", () => {
 
       // sensitive_param is not in the active branch — hover should not resolve tool-state doc
       // (falls through to schema hover or null)
-      const text = hover == null
-        ? ""
-        : (typeof hover.contents === "string" ? hover.contents : (hover.contents as { value: string }).value);
+      const text =
+        hover == null
+          ? ""
+          : typeof hover.contents === "string"
+          ? hover.contents
+          : (hover.contents as { value: string }).value;
       expect(text).not.toContain("Sensitive parameter");
     });
   });

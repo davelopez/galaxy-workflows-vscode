@@ -11,8 +11,7 @@ export const LEGACY_TOOL_STATE_CODE = "legacy-tool-state";
  */
 export function buildLegacyToolStateHintDiagnostic(range: Range): Diagnostic {
   return {
-    message:
-      "tool_state is JSON-encoded string. Clean workflow to enable completions, hover, and precise diagnostics.",
+    message: "tool_state is JSON-encoded string. Clean workflow to enable completions, hover, and precise diagnostics.",
     range,
     severity: DiagnosticSeverity.Hint,
     code: LEGACY_TOOL_STATE_CODE,

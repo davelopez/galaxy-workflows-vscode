@@ -5,14 +5,7 @@
  * work identically on YAML (format2) and JSON (native) ASTs — the "yaml" in
  * legacy names was misleading; the logic has no format dependence.
  */
-import type {
-  ASTNode,
-  ArrayASTNode,
-  NodePath,
-  ObjectASTNode,
-  PropertyASTNode,
-  StringASTNode,
-} from "../../ast/types";
+import type { ASTNode, ArrayASTNode, NodePath, ObjectASTNode, PropertyASTNode, StringASTNode } from "../../ast/types";
 import { ASTNodeManager } from "../../ast/nodeManager";
 import { Range } from "vscode-languageserver-types";
 import type { GenomeBuildParameterModel, SelectParameterModel, ToolParameterModel } from "@galaxy-tool-util/schema";
@@ -41,15 +34,12 @@ export function collectStepsWithObjectState(nodeManager: ASTNodeManager): StepWi
   const result: StepWithToolState[] = [];
   for (const stepNode of nodeManager.getStepNodes()) {
     const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
-    const toolId =
-      toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
+    const toolId = toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
     if (!toolId || !toolIdProp?.valueNode) continue;
 
     const toolVersionProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
     const toolVersion =
-      toolVersionProp?.valueNode?.type === "string"
-        ? String(toolVersionProp.valueNode.value)
-        : undefined;
+      toolVersionProp?.valueNode?.type === "string" ? String(toolVersionProp.valueNode.value) : undefined;
 
     // Accept both "state" (format2) and "tool_state" (native) keys.
     const stateProp =
@@ -107,10 +97,7 @@ export function astObjectNodeToRecord(node: ObjectASTNode): Record<string, unkno
  * Handles numeric array indices as intermediate segments (e.g. repeat groups:
  * `repeat_group.0.param_name`). The final segment must be an object property key.
  */
-export function dotPathToAstProperty(
-  stateNode: ObjectASTNode,
-  dotPath: string
-): PropertyASTNode | null {
+export function dotPathToAstProperty(stateNode: ObjectASTNode, dotPath: string): PropertyASTNode | null {
   if (!dotPath) return null;
   const segments = dotPath.split(".");
   let current: ASTNode = stateNode;
@@ -124,9 +111,7 @@ export function dotPathToAstProperty(
       current = item;
     } else {
       if (current.type !== "object") return null;
-      const found = (current as ObjectASTNode).properties.find(
-        (p) => String(p.keyNode.value) === seg
-      );
+      const found = (current as ObjectASTNode).properties.find((p) => String(p.keyNode.value) === seg);
       if (!found?.valueNode) return null;
       current = found.valueNode;
     }
@@ -134,9 +119,7 @@ export function dotPathToAstProperty(
 
   if (current.type !== "object") return null;
   const lastSeg = segments[segments.length - 1];
-  return (current as ObjectASTNode).properties.find(
-    (p) => String(p.keyNode.value) === lastSeg
-  ) ?? null;
+  return (current as ObjectASTNode).properties.find((p) => String(p.keyNode.value) === lastSeg) ?? null;
 }
 
 /**
@@ -171,9 +154,7 @@ export function dotPathToAstRange(
       current = item;
     } else {
       if (current.type !== "object") return nodeManager.getNodeRange(stateNode);
-      const found = (current as ObjectASTNode).properties.find(
-        (p) => String(p.keyNode.value) === segments[i]
-      );
+      const found = (current as ObjectASTNode).properties.find((p) => String(p.keyNode.value) === segments[i]);
       if (!found?.valueNode) return nodeManager.getNodeRange(stateNode);
       current = found.valueNode;
     }

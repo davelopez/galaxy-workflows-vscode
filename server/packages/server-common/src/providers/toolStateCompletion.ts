@@ -5,7 +5,13 @@
  * and `ToolStateCompletionService` all live here so that native can use them
  * without depending on the YAML language service.
  */
-import { findParamAtPath, isBooleanParam, isConditionalParam, isRepeatParam, isSectionParam } from "@galaxy-tool-util/schema";
+import {
+  findParamAtPath,
+  isBooleanParam,
+  isConditionalParam,
+  isRepeatParam,
+  isSectionParam,
+} from "@galaxy-tool-util/schema";
 import type { ToolParameterModel } from "@galaxy-tool-util/schema";
 import type { ASTNode, NodePath } from "../ast/types";
 import { CompletionItem, CompletionItemKind } from "../languageTypes";

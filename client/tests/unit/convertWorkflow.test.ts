@@ -10,7 +10,9 @@ const mockExecuteCommand = jest.fn<() => Promise<void>>().mockResolvedValue(unde
 const mockShowErrorMessage = jest.fn<() => Promise<void>>().mockResolvedValue(undefined);
 const mockOpenTextDocument = jest.fn<() => Promise<{ languageId: string }>>().mockResolvedValue({ languageId: "text" });
 
-const mockActiveTextEditor: { document: { uri: ReturnType<typeof URI.parse>; getText: () => string; fileName: string } } | undefined = {
+const mockActiveTextEditor:
+  | { document: { uri: ReturnType<typeof URI.parse>; getText: () => string; fileName: string } }
+  | undefined = {
   document: {
     uri: URI.parse("file:///workspace/workflow.ga"),
     getText: () => '{"a_galaxy_workflow":"true","steps":{}}',
@@ -117,7 +119,12 @@ describe("PreviewConvertToFormat2Command", () => {
     mockSendRequest.mockResolvedValue({ contents: "class: GalaxyWorkflow\n" });
     const cmd = new PreviewConvertToFormat2Command(mockClient, mockProvider);
     await cmd.execute();
-    expect(mockExecuteCommand).toHaveBeenCalledWith("vscode.diff", expect.anything(), expect.anything(), expect.any(String));
+    expect(mockExecuteCommand).toHaveBeenCalledWith(
+      "vscode.diff",
+      expect.anything(),
+      expect.anything(),
+      expect.any(String)
+    );
   });
 
   it("shows error message when server returns error field", async () => {

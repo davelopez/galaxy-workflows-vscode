@@ -80,9 +80,7 @@ export function getAvailableSources(documentContext: GxFormat2WorkflowDocument, 
           sources.push(`${stepLabel}/${String(item.value)}`);
         } else if (item.type === "object") {
           // Array-of-objects form: out: [{id: "out1", hide: true}]
-          const idProp = (item as ObjectASTNode).properties.find(
-            (p) => String(p.keyNode.value) === "id"
-          );
+          const idProp = (item as ObjectASTNode).properties.find((p) => String(p.keyNode.value) === "id");
           if (idProp?.valueNode?.type === "string") {
             sources.push(`${stepLabel}/${String(idProp.valueNode.value)}`);
           }

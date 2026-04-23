@@ -31,7 +31,10 @@ describe("buildToolInfoMarkdown", () => {
   it("includes license, edam ops/topics, xrefs, citations count, toolshed link, help", () => {
     const md = buildToolInfoMarkdown(
       makeTool({
-        citations: [{ type: "doi", content: "10.1/x" }, { type: "doi", content: "10.1/y" }],
+        citations: [
+          { type: "doi", content: "10.1/x" },
+          { type: "doi", content: "10.1/y" },
+        ],
       })
     );
     expect(md).toContain("License: MIT");
@@ -68,10 +71,9 @@ describe("buildToolInfoMarkdown", () => {
   });
 
   it("truncates help to helpExcerptChars", () => {
-    const md = buildToolInfoMarkdown(
-      makeTool({ help: { format: "markdown", content: "x".repeat(600) } }),
-      { helpExcerptChars: 100 }
-    );
+    const md = buildToolInfoMarkdown(makeTool({ help: { format: "markdown", content: "x".repeat(600) } }), {
+      helpExcerptChars: 100,
+    });
     expect(md).toContain("x".repeat(100) + "…");
     expect(md).not.toContain("x".repeat(101));
   });

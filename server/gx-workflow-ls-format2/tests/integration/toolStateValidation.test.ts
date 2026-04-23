@@ -112,18 +112,42 @@ const TOOL_PARAMS = [
 
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
   return {
-    async hasCached(id) { return id === toolId; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 1; },
-    async getToolParameters(id) { return id === toolId ? params : null; },
-    hasResolutionFailed() { return false; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
-    async validateNativeStep() { return []; },
+    async hasCached(id) {
+      return id === toolId;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 1;
+    },
+    async getToolParameters(id) {
+      return id === toolId ? params : null;
+    },
+    hasResolutionFailed() {
+      return false;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 
@@ -212,8 +236,7 @@ describe("ToolStateValidationService", () => {
   });
 
   const STEP_PREFIX =
-    "class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n" +
-    `  step1:\n    tool_id: ${TOOL_ID}\n    state:\n`;
+    "class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n" + `  step1:\n    tool_id: ${TOOL_ID}\n    state:\n`;
 
   // ---------------------------------------------------------------------------
   // Tool not cached
@@ -233,8 +256,7 @@ describe("ToolStateValidationService", () => {
 
   it("emits no diagnostics when step has no state block", async () => {
     const doc = createFormat2WorkflowDocument(
-      "class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n" +
-        `  step1:\n    tool_id: ${TOOL_ID}\n    in: {}\n`
+      "class: GalaxyWorkflow\ninputs: {}\noutputs: {}\nsteps:\n" + `  step1:\n    tool_id: ${TOOL_ID}\n    in: {}\n`
     );
     const diagnostics = await service.doValidation(doc);
     expect(diagnostics).toHaveLength(0);
@@ -285,9 +307,7 @@ describe("ToolStateValidationService", () => {
   // ---------------------------------------------------------------------------
 
   it("warns on unknown parameter inside a section", async () => {
-    const doc = createFormat2WorkflowDocument(
-      STEP_PREFIX + "      advanced:\n        unknown_section_param: value\n"
-    );
+    const doc = createFormat2WorkflowDocument(STEP_PREFIX + "      advanced:\n        unknown_section_param: value\n");
     const diagnostics = await service.doValidation(doc);
 
     expect(diagnostics.some((d) => d.message.includes("Unknown tool parameter 'unknown_section_param'"))).toBe(true);
@@ -329,9 +349,7 @@ describe("ToolStateValidationService", () => {
   });
 
   it("emits no diagnostics for valid parameter inside a repeat block", async () => {
-    const doc = createFormat2WorkflowDocument(
-      STEP_PREFIX + "      iterations:\n        - seed: 42\n"
-    );
+    const doc = createFormat2WorkflowDocument(STEP_PREFIX + "      iterations:\n        - seed: 42\n");
     const diagnostics = await service.doValidation(doc);
     expect(diagnostics).toHaveLength(0);
   });
@@ -362,9 +380,7 @@ describe("ToolStateValidationService", () => {
     });
 
     it("emits no diagnostics when active branch params are clean", async () => {
-      const doc = createFormat2WorkflowDocument(
-        COND_PREFIX + "        mode_select: fast\n        fast_param: 5\n"
-      );
+      const doc = createFormat2WorkflowDocument(COND_PREFIX + "        mode_select: fast\n        fast_param: 5\n");
       const diagnostics = await condService.doValidation(doc);
 
       expect(diagnostics).toHaveLength(0);

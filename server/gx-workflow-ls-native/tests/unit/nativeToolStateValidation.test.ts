@@ -9,8 +9,8 @@ function makeWorkflow(toolState: string | Record<string, unknown> | undefined): 
     toolState === undefined
       ? undefined
       : typeof toolState === "string"
-        ? JSON.stringify(toolState) // will produce a JSON string (double-encoded)
-        : JSON.stringify(toolState);
+      ? JSON.stringify(toolState) // will produce a JSON string (double-encoded)
+      : JSON.stringify(toolState);
 
   const step: Record<string, unknown> = {
     tool_id: TOOL_ID,
@@ -82,15 +82,31 @@ function makeMockRegistry(
   return {
     hasCached: async () => cached,
     listCached: async () => [],
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return cached ? 1 : 0; },
-    async getToolParameters() { return null; },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return cached ? 1 : 0;
+    },
+    async getToolParameters() {
+      return null;
+    },
     hasResolutionFailed: () => resolutionFailed,
-    markResolutionFailed: () => { /* noop */ },
-    clearResolutionFailed: () => { /* noop */ },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
+    markResolutionFailed: () => {
+      /* noop */
+    },
+    clearResolutionFailed: () => {
+      /* noop */
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
     async validateNativeStep(toolId, toolVersion, toolState, inputConnections) {
       return validateFn ? validateFn(toolId, toolVersion, toolState, inputConnections) : [];
     },
@@ -105,9 +121,7 @@ describe("NativeToolStateValidationService", () => {
   // --- Cache-miss cases ---
 
   it("emits Information diagnostic when tool is not cached (object state)", async () => {
-    const service = new NativeToolStateValidationService(
-      makeMockRegistry({ cached: false, resolutionFailed: false })
-    );
+    const service = new NativeToolStateValidationService(makeMockRegistry({ cached: false, resolutionFailed: false }));
     const doc = createNativeWorkflowDocument(makeWorkflowWithObjectState({ key: "val" }));
     const diags = await service.doValidation(doc);
 
@@ -117,9 +131,7 @@ describe("NativeToolStateValidationService", () => {
   });
 
   it("emits Warning diagnostic when tool resolution failed (object state)", async () => {
-    const service = new NativeToolStateValidationService(
-      makeMockRegistry({ cached: false, resolutionFailed: true })
-    );
+    const service = new NativeToolStateValidationService(makeMockRegistry({ cached: false, resolutionFailed: true }));
     const doc = createNativeWorkflowDocument(makeWorkflowWithObjectState({ key: "val" }));
     const diags = await service.doValidation(doc);
 
@@ -129,9 +141,7 @@ describe("NativeToolStateValidationService", () => {
   });
 
   it("emits Information diagnostic when tool is not cached (string state)", async () => {
-    const service = new NativeToolStateValidationService(
-      makeMockRegistry({ cached: false, resolutionFailed: false })
-    );
+    const service = new NativeToolStateValidationService(makeMockRegistry({ cached: false, resolutionFailed: false }));
     const doc = createNativeWorkflowDocument(makeWorkflowWithStringState({ key: "val" }));
     const diags = await service.doValidation(doc);
 
@@ -143,9 +153,7 @@ describe("NativeToolStateValidationService", () => {
   // --- Object state: valid / invalid ---
 
   it("emits no diagnostics for object tool_state when validator returns empty", async () => {
-    const service = new NativeToolStateValidationService(
-      makeMockRegistry({ validateFn: async () => [] })
-    );
+    const service = new NativeToolStateValidationService(makeMockRegistry({ validateFn: async () => [] }));
     const doc = createNativeWorkflowDocument(makeWorkflowWithObjectState({ alignment_type: "end_to_end" }));
     const diags = await service.doValidation(doc);
     expect(diags).toHaveLength(0);
@@ -205,9 +213,7 @@ describe("NativeToolStateValidationService", () => {
   // --- String state: valid / invalid / malformed ---
 
   it("emits a hint diagnostic for string tool_state even when validator returns empty", async () => {
-    const service = new NativeToolStateValidationService(
-      makeMockRegistry({ validateFn: async () => [] })
-    );
+    const service = new NativeToolStateValidationService(makeMockRegistry({ validateFn: async () => [] }));
     const doc = createNativeWorkflowDocument(makeWorkflowWithStringState({ alignment_type: "end_to_end" }));
     const diags = await service.doValidation(doc);
     // Always emits a hint so the "Clean workflow" quick fix is discoverable

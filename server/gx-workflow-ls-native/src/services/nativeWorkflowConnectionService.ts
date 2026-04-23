@@ -172,7 +172,9 @@ export async function getConnectableParamNames(
 function flattenParamNames(params: ToolParameterModel[], prefix = ""): string[] {
   const names: string[] = [];
   for (const param of params) {
-    const name = prefix ? `${prefix}|${(param as unknown as ToolParamBase).name}` : (param as unknown as ToolParamBase).name;
+    const name = prefix
+      ? `${prefix}|${(param as unknown as ToolParamBase).name}`
+      : (param as unknown as ToolParamBase).name;
     if (isSectionParam(param) || isRepeatParam(param)) {
       names.push(...flattenParamNames(param.parameters as ToolParameterModel[], name));
     } else if (isConditionalParam(param)) {

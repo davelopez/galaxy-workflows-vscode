@@ -217,20 +217,42 @@ const FAKE_TOOL_PARAMS = [
 /** Minimal stub of ToolRegistryService that returns fake params for one tool. */
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
   return {
-    async hasCached(id) { return id === toolId; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 1; },
+    async hasCached(id) {
+      return id === toolId;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 1;
+    },
     async getToolParameters(id) {
       return id === toolId ? params : null;
     },
-    hasResolutionFailed() { return false; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
-    async validateNativeStep() { return []; },
+    hasResolutionFailed() {
+      return false;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 
@@ -300,10 +322,7 @@ steps:
   });
 
   it("excludes already-declared parameters from suggestions", async () => {
-    const template =
-      WORKFLOW_PREFIX +
-      `      read1: my_input\n` +
-      `      $`;
+    const template = WORKFLOW_PREFIX + `      read1: my_input\n` + `      $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
@@ -467,9 +486,7 @@ steps:
   });
 
   it("filters to fast branch params when mode_select is 'fast'", async () => {
-    const template =
-      WORKFLOW_PREFIX +
-      `      mode_cond:\n        mode_select: fast\n        $`;
+    const template = WORKFLOW_PREFIX + `      mode_cond:\n        mode_select: fast\n        $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
@@ -480,9 +497,7 @@ steps:
   });
 
   it("filters to sensitive branch params when mode_select is 'sensitive'", async () => {
-    const template =
-      WORKFLOW_PREFIX +
-      `      mode_cond:\n        mode_select: sensitive\n        $`;
+    const template = WORKFLOW_PREFIX + `      mode_cond:\n        mode_select: sensitive\n        $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);

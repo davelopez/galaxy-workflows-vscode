@@ -34,13 +34,7 @@ export class NativeToolStateCompletionService {
 
     const textCtx = getCompletionTextContext(textDocument, offset);
     const existing = nodeManager.getDeclaredPropertyNames(node);
-    const items = await this.toolStateService.doComplete(
-      nodeManager.root,
-      nodePath,
-      stateInfo,
-      textCtx,
-      existing
-    );
+    const items = await this.toolStateService.doComplete(nodeManager.root, nodePath, stateInfo, textCtx, existing);
 
     return { items, isIncomplete: false };
   }

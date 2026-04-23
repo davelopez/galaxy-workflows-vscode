@@ -117,7 +117,7 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
           } catch {
             result.failed.push({ toolId, error: "not found" });
           }
-        }),
+        })
       );
     }
 
@@ -127,8 +127,12 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
 
 // Placeholder storage used before configure() supplies the real backing store.
 class NullStorage implements CacheStorage {
-  async load(): Promise<null> { return null; }
+  async load(): Promise<null> {
+    return null;
+  }
   async save(): Promise<void> {}
   async delete(): Promise<void> {}
-  async list(): Promise<string[]> { return []; }
+  async list(): Promise<string[]> {
+    return [];
+  }
 }

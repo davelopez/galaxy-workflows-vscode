@@ -33,15 +33,12 @@ function collectNativeStepsWithStringState(nodeManager: ASTNodeManager): NativeS
   const result: NativeStringStateContext[] = [];
   for (const stepNode of nodeManager.getStepNodes()) {
     const toolIdProp = stepNode.properties.find((p) => p.keyNode.value === "tool_id");
-    const toolId =
-      toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
+    const toolId = toolIdProp?.valueNode?.type === "string" ? String(toolIdProp.valueNode.value) : undefined;
     if (!toolId || !toolIdProp?.valueNode) continue;
 
     const toolVersionProp = stepNode.properties.find((p) => p.keyNode.value === "tool_version");
     const toolVersion =
-      toolVersionProp?.valueNode?.type === "string"
-        ? String(toolVersionProp.valueNode.value)
-        : undefined;
+      toolVersionProp?.valueNode?.type === "string" ? String(toolVersionProp.valueNode.value) : undefined;
 
     const stateProp = stepNode.properties.find((p) => p.keyNode.value === "tool_state");
     if (!stateProp?.valueNode || stateProp.valueNode.type !== "string") continue;

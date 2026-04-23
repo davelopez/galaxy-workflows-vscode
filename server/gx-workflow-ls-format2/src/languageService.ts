@@ -157,7 +157,6 @@ export class GxFormat2WorkflowLanguageServiceImpl
     }
 
     if (prefetched.size === 0) return undefined;
-    return (toolId, toolVersion) =>
-      prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
+    return (toolId, toolVersion) => prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
   }
 }

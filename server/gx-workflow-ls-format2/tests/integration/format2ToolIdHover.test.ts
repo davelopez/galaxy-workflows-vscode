@@ -30,18 +30,42 @@ function makeParsedTool(): ParsedTool {
 
 function makeRegistry(cached = true, failed = false): ToolRegistryService {
   return {
-    async hasCached(id) { return cached && id === TOOL_ID; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return cached ? 1 : 0; },
-    async getToolParameters() { return null; },
-    async getToolInfo(id) { return cached && id === TOOL_ID ? makeParsedTool() : null; },
-    getToolShedBaseUrl() { return "https://toolshed.g2.bx.psu.edu"; },
-    hasResolutionFailed() { return failed; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async validateNativeStep() { return []; },
+    async hasCached(id) {
+      return cached && id === TOOL_ID;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return cached ? 1 : 0;
+    },
+    async getToolParameters() {
+      return null;
+    },
+    async getToolInfo(id) {
+      return cached && id === TOOL_ID ? makeParsedTool() : null;
+    },
+    getToolShedBaseUrl() {
+      return "https://toolshed.g2.bx.psu.edu";
+    },
+    hasResolutionFailed() {
+      return failed;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 

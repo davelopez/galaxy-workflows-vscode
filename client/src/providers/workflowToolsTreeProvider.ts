@@ -96,10 +96,7 @@ export class WorkflowToolsTreeProvider implements TreeDataProvider<WorkflowToolI
     const client = isNativeWorkflowDocument(editor.document.uri) ? this.nativeClient : this.format2Client;
     const params: GetWorkflowToolsParams = { uri: editor.document.uri.toString() };
     try {
-      const result = await client.sendRequest<GetWorkflowToolsResult>(
-        LSRequestIdentifiers.GET_WORKFLOW_TOOLS,
-        params
-      );
+      const result = await client.sendRequest<GetWorkflowToolsResult>(LSRequestIdentifiers.GET_WORKFLOW_TOOLS, params);
       this._entries = result?.tools ?? [];
     } catch {
       this._entries = [];

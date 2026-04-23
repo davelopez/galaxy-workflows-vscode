@@ -27,11 +27,7 @@ abstract class ExportWorkflowCommandBase extends CustomCommand {
 
     if (await fileUriExistsInWorkspace(URI.parse(targetUri.toString()))) {
       const targetName = targetUri.path.split("/").pop() ?? targetUri.path;
-      const choice = await window.showWarningMessage(
-        `${targetName} already exists. Overwrite?`,
-        "Overwrite",
-        "Cancel"
-      );
+      const choice = await window.showWarningMessage(`${targetName} already exists. Overwrite?`, "Overwrite", "Cancel");
       if (choice !== "Overwrite") return;
     }
 

@@ -34,18 +34,42 @@ interface RegistryOpts {
 function makeRegistry(opts: RegistryOpts = {}): ToolRegistryService {
   const { cached = true, failed = false } = opts;
   return {
-    async hasCached(id) { return cached && id === TOOL_ID; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return cached ? 1 : 0; },
-    async getToolParameters() { return null; },
-    async getToolInfo(id) { return cached && id === TOOL_ID ? makeParsedTool() : null; },
-    getToolShedBaseUrl() { return "https://toolshed.g2.bx.psu.edu"; },
-    hasResolutionFailed() { return failed; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async validateNativeStep() { return []; },
+    async hasCached(id) {
+      return cached && id === TOOL_ID;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return cached ? 1 : 0;
+    },
+    async getToolParameters() {
+      return null;
+    },
+    async getToolInfo(id) {
+      return cached && id === TOOL_ID ? makeParsedTool() : null;
+    },
+    getToolShedBaseUrl() {
+      return "https://toolshed.g2.bx.psu.edu";
+    },
+    hasResolutionFailed() {
+      return failed;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 
@@ -109,7 +133,9 @@ describe("Native tool_id hover", () => {
   it("short (built-in) tool id → no /view/ link", async () => {
     const svc = new NativeHoverService({
       ...makeRegistry(),
-      async hasCached(id) { return id === "Cut1"; },
+      async hasCached(id) {
+        return id === "Cut1";
+      },
       async getToolInfo(id) {
         if (id !== "Cut1") return null;
         return { ...makeParsedTool(), id: "Cut1", name: "Cut", version: "1.0" };

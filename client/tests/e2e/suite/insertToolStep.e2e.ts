@@ -6,14 +6,7 @@ import { before } from "mocha";
 import * as path from "path";
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import {
-  activate,
-  activateAndOpenInEditor,
-  closeAllEditors,
-  getDocUri,
-  sleep,
-  withTempFixture,
-} from "./helpers";
+import { activate, activateAndOpenInEditor, closeAllEditors, getDocUri, sleep, withTempFixture } from "./helpers";
 import { useEmptyCache } from "./cacheHelpers";
 
 const SEARCH_TOOLS = "galaxy-workflows-ls.searchTools";

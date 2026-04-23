@@ -47,7 +47,11 @@ describe("ConvertWorkflowService", () => {
       let capturedLanguageId = "";
 
       const server = {
-        connection: { onRequest: (_id: string, fn: unknown) => { (server as Record<string, unknown>)._handler = fn; } },
+        connection: {
+          onRequest: (_id: string, fn: unknown) => {
+            (server as Record<string, unknown>)._handler = fn;
+          },
+        },
         getLanguageServiceById: (id: string) => {
           capturedLanguageId = id;
           return { convertWorkflowText: async () => "converted" };
@@ -66,7 +70,11 @@ describe("ConvertWorkflowService", () => {
       let capturedLanguageId = "";
 
       const server = {
-        connection: { onRequest: (_id: string, fn: unknown) => { (server as Record<string, unknown>)._handler = fn; } },
+        connection: {
+          onRequest: (_id: string, fn: unknown) => {
+            (server as Record<string, unknown>)._handler = fn;
+          },
+        },
         getLanguageServiceById: (id: string) => {
           capturedLanguageId = id;
           return { convertWorkflowText: async () => "converted" };
@@ -84,7 +92,7 @@ describe("ConvertWorkflowService", () => {
   describe("result passing", () => {
     it("returns converted contents on success", async () => {
       const handler = registerAndGetHandler(async () => "converted output");
-      const result = await handler({ contents: MINIMAL_FORMAT2_YAML, targetFormat: "native" }) as {
+      const result = (await handler({ contents: MINIMAL_FORMAT2_YAML, targetFormat: "native" })) as {
         contents: string;
         error?: string;
       };
@@ -96,7 +104,7 @@ describe("ConvertWorkflowService", () => {
       const handler = registerAndGetHandler(async () => {
         throw new Error("unsupported conversion");
       });
-      const result = await handler({ contents: MINIMAL_FORMAT2_YAML, targetFormat: "native" }) as {
+      const result = (await handler({ contents: MINIMAL_FORMAT2_YAML, targetFormat: "native" })) as {
         contents: string;
         error?: string;
       };
@@ -110,10 +118,20 @@ describe("ConvertWorkflowService", () => {
       const callOrder: string[] = [];
 
       const server = {
-        connection: { onRequest: (_id: string, fn: unknown) => { (server as Record<string, unknown>)._handler = fn; } },
+        connection: {
+          onRequest: (_id: string, fn: unknown) => {
+            (server as Record<string, unknown>)._handler = fn;
+          },
+        },
         getLanguageServiceById: () => ({
-          cleanWorkflowText: async (text: string) => { callOrder.push("clean"); return text; },
-          convertWorkflowText: async (_text: string) => { callOrder.push("convert"); return "converted"; },
+          cleanWorkflowText: async (text: string) => {
+            callOrder.push("clean");
+            return text;
+          },
+          convertWorkflowText: async (_text: string) => {
+            callOrder.push("convert");
+            return "converted";
+          },
         }),
       } as unknown as GalaxyWorkflowLanguageServer;
 
@@ -128,10 +146,20 @@ describe("ConvertWorkflowService", () => {
       const callOrder: string[] = [];
 
       const server = {
-        connection: { onRequest: (_id: string, fn: unknown) => { (server as Record<string, unknown>)._handler = fn; } },
+        connection: {
+          onRequest: (_id: string, fn: unknown) => {
+            (server as Record<string, unknown>)._handler = fn;
+          },
+        },
         getLanguageServiceById: () => ({
-          cleanWorkflowText: async (text: string) => { callOrder.push("clean"); return text; },
-          convertWorkflowText: async (_text: string) => { callOrder.push("convert"); return "converted"; },
+          cleanWorkflowText: async (text: string) => {
+            callOrder.push("clean");
+            return text;
+          },
+          convertWorkflowText: async (_text: string) => {
+            callOrder.push("convert");
+            return "converted";
+          },
         }),
       } as unknown as GalaxyWorkflowLanguageServer;
 
@@ -147,7 +175,11 @@ describe("ConvertWorkflowService", () => {
     it("registers under CONVERT_WORKFLOW_CONTENTS identifier", () => {
       let registeredId = "";
       const server = {
-        connection: { onRequest: (id: string) => { registeredId = id; } },
+        connection: {
+          onRequest: (id: string) => {
+            registeredId = id;
+          },
+        },
         getLanguageServiceById: () => ({ convertWorkflowText: async () => "" }),
       } as unknown as GalaxyWorkflowLanguageServer;
 

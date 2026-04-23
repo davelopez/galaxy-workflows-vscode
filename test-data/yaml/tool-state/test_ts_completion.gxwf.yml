@@ -8,4 +8,3 @@ steps:
     tool_id: toolshed.g2.bx.psu.edu/repos/iuc/fastp/fastp
     tool_version: 1.1.0+galaxy0
     state:
-      

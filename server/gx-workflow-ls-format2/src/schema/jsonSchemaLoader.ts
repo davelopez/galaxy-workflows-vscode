@@ -28,7 +28,7 @@ function anyOf(s: JSchema): JSchema[] | undefined {
 }
 
 function hasNullAlt(s: JSchema): boolean {
-  return !!(anyOf(s)?.some((a) => (a as JSchema).type === "null"));
+  return !!anyOf(s)?.some((a) => (a as JSchema).type === "null");
 }
 
 /** Return non-null alternatives from anyOf, or [s] when there is no anyOf. */
@@ -123,9 +123,24 @@ function buildGalaxyWorkflowRecord(): SchemaRecord {
     // inputs/outputs/steps use abstract names so ignoredSchemaRefs in CompletionService
     // suppresses completions at the key-definition level (e.g. `inputs:\n  $`).
     // jsonldPredicate tells the validator these are id-maps (key = entry id).
-    { name: "inputs", type: [{ type: "array", items: "InputParameter" }], doc: "Workflow input parameters.", jsonldPredicate: { mapSubject: "id" } },
-    { name: "outputs", type: [{ type: "array", items: "OutputParameter" }], doc: "Workflow output parameters.", jsonldPredicate: { mapSubject: "id" } },
-    { name: "steps", type: [{ type: "array", items: "WorkflowStep" }], doc: "The individual steps that make up the workflow.", jsonldPredicate: { mapSubject: "id" } },
+    {
+      name: "inputs",
+      type: [{ type: "array", items: "InputParameter" }],
+      doc: "Workflow input parameters.",
+      jsonldPredicate: { mapSubject: "id" },
+    },
+    {
+      name: "outputs",
+      type: [{ type: "array", items: "OutputParameter" }],
+      doc: "Workflow output parameters.",
+      jsonldPredicate: { mapSubject: "id" },
+    },
+    {
+      name: "steps",
+      type: [{ type: "array", items: "WorkflowStep" }],
+      doc: "The individual steps that make up the workflow.",
+      jsonldPredicate: { mapSubject: "id" },
+    },
     optNamedField("report", "Report", "Workflow invocation report template."),
     optStringArrayField("tags", "Tags for the workflow."),
     { name: "creator", type: "Any?", doc: "Workflow creators (Person or Organization)." },
@@ -150,7 +165,12 @@ function buildGalaxyWorkflowRecord(): SchemaRecord {
 
 function buildWorkflowInputParameterRecord(): SchemaRecord {
   const fields: SchemaField[] = [
-    { name: "type", type: ["null", "GalaxyType", { type: "array", items: "GalaxyType" }], doc: "Specify valid types of data.", default: "data" },
+    {
+      name: "type",
+      type: ["null", "GalaxyType", { type: "array", items: "GalaxyType" }],
+      doc: "Specify valid types of data.",
+      default: "data",
+    },
     optNamedField("optional", "boolean", "If true, parameter is not required to submit the workflow."),
     optStringArrayField("format", "Specify datatype extension for valid input datasets."),
     optStringField("collection_type", "Collection type."),
@@ -210,7 +230,11 @@ function buildWorkflowStepRecord(): SchemaRecord {
       jsonldPredicate: { mapSubject: "id", mapPredicate: "source" },
     },
     // out: optional array that can be WorkflowStepOutput or string
-    { name: "out", type: ["null", { type: "array", items: "WorkflowStepOutput" }, { type: "array", items: "string" }], doc: "Workflow step outputs." },
+    {
+      name: "out",
+      type: ["null", { type: "array", items: "WorkflowStepOutput" }, { type: "array", items: "string" }],
+      doc: "Workflow step outputs.",
+    },
     // state / tool_state → Any
     anyField("state", "Structured tool state."),
     anyField("tool_state", "Unstructured tool state (JSON-encoded string or map)."),
@@ -234,7 +258,11 @@ function buildWorkflowStepRecord(): SchemaRecord {
 function buildWorkflowStepInputRecord(): SchemaRecord {
   const fields: SchemaField[] = [
     optStringField("id", "Unique identifier for this object."),
-    { name: "source", type: ["null", "string", { type: "array", items: "string" }], doc: "Upstream step or input providing the value." },
+    {
+      name: "source",
+      type: ["null", "string", { type: "array", items: "string" }],
+      doc: "Upstream step or input providing the value.",
+    },
     optStringField("label", "Short label."),
     anyField("default", "Default value if source is absent or null."),
   ];
@@ -379,18 +407,29 @@ function buildDefinitions(rootJsonSchema: JSchema): {
       name: "GalaxyType",
       type: "enum",
       doc: "Galaxy data types.",
-      symbols: galaxyTypeSymbols.length > 0 ? galaxyTypeSymbols : [
-        "null", "boolean", "int", "long", "float", "double", "string",
-        "integer", "text", "File", "data", "collection",
-      ],
+      symbols:
+        galaxyTypeSymbols.length > 0
+          ? galaxyTypeSymbols
+          : [
+              "null",
+              "boolean",
+              "int",
+              "long",
+              "float",
+              "double",
+              "string",
+              "integer",
+              "text",
+              "File",
+              "data",
+              "collection",
+            ],
     },
     {
       name: "WorkflowStepType",
       type: "enum",
       doc: "Workflow step module types.",
-      symbols: stepTypeSymbols.length > 0 ? stepTypeSymbols : [
-        "tool", "subworkflow", "pause", "pick_value",
-      ],
+      symbols: stepTypeSymbols.length > 0 ? stepTypeSymbols : ["tool", "subworkflow", "pause", "pick_value"],
     },
   ];
 

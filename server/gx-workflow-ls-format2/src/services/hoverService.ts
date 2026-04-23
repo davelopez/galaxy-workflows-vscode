@@ -125,4 +125,3 @@ export class GxFormat2HoverService {
     return result;
   }
 }
-

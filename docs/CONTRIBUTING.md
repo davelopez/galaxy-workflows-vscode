@@ -67,11 +67,13 @@ If you have installed the recommended extensions in [extensions.json](../.vscode
 To install the extension into VS Code as a regular (non-debug) extension:
 
 1. Install the packaging tool (once):
+
    ```sh
    npm install -g @vscode/vsce
    ```
 
 2. Build the `.vsix` package:
+
    ```sh
    vsce package
    ```

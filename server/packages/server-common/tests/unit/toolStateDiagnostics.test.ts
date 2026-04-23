@@ -44,9 +44,7 @@ describe("mapToolStateDiagnosticsToLSP", () => {
   });
 
   it("maps excess-property diagnostic to Warning at key range", () => {
-    const raw: ToolStateDiagnostic[] = [
-      { path: "bad_param", message: "bad_param is unexpected", severity: "warning" },
-    ];
+    const raw: ToolStateDiagnostic[] = [{ path: "bad_param", message: "bad_param is unexpected", severity: "warning" }];
     const diags = mapToolStateDiagnosticsToLSP(raw, resolver);
     expect(diags).toHaveLength(1);
     expect(diags[0].severity).toBe(DiagnosticSeverity.Warning);
@@ -55,9 +53,7 @@ describe("mapToolStateDiagnosticsToLSP", () => {
   });
 
   it("maps value-error diagnostic to Error at value range", () => {
-    const raw: ToolStateDiagnostic[] = [
-      { path: "mode", message: 'Expected "fast", actual "slow"', severity: "error" },
-    ];
+    const raw: ToolStateDiagnostic[] = [{ path: "mode", message: 'Expected "fast", actual "slow"', severity: "error" }];
     const diags = mapToolStateDiagnosticsToLSP(raw, resolver);
     expect(diags).toHaveLength(1);
     expect(diags[0].severity).toBe(DiagnosticSeverity.Error);

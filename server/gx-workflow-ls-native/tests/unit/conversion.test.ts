@@ -37,7 +37,9 @@ function makeMockRegistry(toolId: string, params: unknown[] | null): ToolRegistr
     configure() {
       /* noop */
     },
-    async getCacheSize() { return params ? 1 : 0; },
+    async getCacheSize() {
+      return params ? 1 : 0;
+    },
     async getToolParameters(id) {
       return id === toolId ? params : null;
     },

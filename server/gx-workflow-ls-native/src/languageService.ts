@@ -105,11 +105,7 @@ export class NativeWorkflowLanguageServiceImpl
     if (connResult) return connResult;
 
     // Fallback: JSON schema completions
-    return this._jsonLanguageService.doComplete(
-      workflowDocument.textDocument,
-      position,
-      workflowDocument.jsonDocument
-    );
+    return this._jsonLanguageService.doComplete(workflowDocument.textDocument, position, workflowDocument.jsonDocument);
   }
 
   protected override initializeValidationProfiles(): void {
@@ -168,8 +164,8 @@ export class NativeWorkflowLanguageServiceImpl
     const stepValues = Array.isArray(steps)
       ? steps
       : steps && typeof steps === "object"
-        ? Object.values(steps as Record<string, unknown>)
-        : [];
+      ? Object.values(steps as Record<string, unknown>)
+      : [];
 
     const prefetched = new Map<string, unknown[]>();
 
@@ -186,8 +182,7 @@ export class NativeWorkflowLanguageServiceImpl
     }
 
     if (prefetched.size === 0) return undefined;
-    return (toolId, toolVersion) =>
-      prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
+    return (toolId, toolVersion) => prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
   }
 
   private getLanguageSettings(): LanguageSettings {

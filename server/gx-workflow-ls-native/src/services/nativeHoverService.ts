@@ -11,9 +11,7 @@ import {
 } from "@gxwf/server-common/src/providers/validation/toolStateAstHelpers";
 import { findStateInPath, StateInPath } from "@gxwf/server-common/src/providers/toolStateCompletion";
 import { buildToolIdHover } from "@gxwf/server-common/src/providers/hover/toolIdHover";
-import {
-  LanguageService as JSONLanguageService,
-} from "vscode-json-languageservice";
+import { LanguageService as JSONLanguageService } from "vscode-json-languageservice";
 import { NativeWorkflowDocument } from "../nativeWorkflowDocument";
 
 export class NativeHoverService {

@@ -72,13 +72,8 @@ suite("Format2 (YAML) Workflows", () => {
         docUri,
         pos
       );
-      const labels = (completions?.items ?? []).map((i) =>
-        typeof i.label === "string" ? i.label : i.label.label
-      );
-      assert.ok(
-        labels.includes("single_paired"),
-        `Expected 'single_paired' in completions, got: ${labels.join(", ")}`
-      );
+      const labels = (completions?.items ?? []).map((i) => (typeof i.label === "string" ? i.label : i.label.label));
+      assert.ok(labels.includes("single_paired"), `Expected 'single_paired' in completions, got: ${labels.join(", ")}`);
     });
   });
   suite("Validation Tests", () => {

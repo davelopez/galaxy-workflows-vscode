@@ -1,11 +1,4 @@
-import {
-  CodeAction,
-  CodeActionKind,
-  CodeActionParams,
-  Range,
-  TextDocumentEdit,
-  TextEdit,
-} from "vscode-languageserver";
+import { CodeAction, CodeActionKind, CodeActionParams, Range, TextDocumentEdit, TextEdit } from "vscode-languageserver";
 import { GalaxyWorkflowLanguageServer } from "../languageTypes";
 import { LEGACY_TOOL_STATE_CODE } from "./validation/toolStateDiagnostics";
 import { ServerEventHandler } from "./handler";
@@ -36,10 +29,9 @@ export class CodeActionHandler extends ServerEventHandler {
         diagnostics: legacyDiags,
         edit: {
           documentChanges: [
-            TextDocumentEdit.create(
-              { uri: params.textDocument.uri, version: document.version },
-              [TextEdit.replace(fullRange, cleanedText)]
-            ),
+            TextDocumentEdit.create({ uri: params.textDocument.uri, version: document.version }, [
+              TextEdit.replace(fullRange, cleanedText),
+            ]),
           ],
         },
       },

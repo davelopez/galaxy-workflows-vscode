@@ -212,18 +212,42 @@ const FAKE_TOOL_PARAMS = [
 
 function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryService {
   return {
-    async hasCached(id) { return id === toolId; },
-    async listCached() { return []; },
-    async populateCache() { return { fetched: 0, alreadyCached: 0, failed: [] }; },
-    configure() { /* noop */ },
-    async getCacheSize() { return 1; },
-    async getToolParameters(id) { return id === toolId ? params : null; },
-    hasResolutionFailed() { return false; },
-    markResolutionFailed() { /* noop */ },
-    clearResolutionFailed() { /* noop */ },
-    async getToolInfo() { return null; },
-    getToolShedBaseUrl() { return undefined; },
-    async validateNativeStep() { return []; },
+    async hasCached(id) {
+      return id === toolId;
+    },
+    async listCached() {
+      return [];
+    },
+    async populateCache() {
+      return { fetched: 0, alreadyCached: 0, failed: [] };
+    },
+    configure() {
+      /* noop */
+    },
+    async getCacheSize() {
+      return 1;
+    },
+    async getToolParameters(id) {
+      return id === toolId ? params : null;
+    },
+    hasResolutionFailed() {
+      return false;
+    },
+    markResolutionFailed() {
+      /* noop */
+    },
+    clearResolutionFailed() {
+      /* noop */
+    },
+    async getToolInfo() {
+      return null;
+    },
+    getToolShedBaseUrl() {
+      return undefined;
+    },
+    async validateNativeStep() {
+      return [];
+    },
   };
 }
 
@@ -384,7 +408,8 @@ describe("Native Tool State Completion Service", () => {
   });
 
   it("filters to fast branch params when mode_select is 'fast'", async () => {
-    const template = STEP_PREFIX + `"mode_cond": {\n          "mode_select": "fast",\n          $\n        }` + STEP_SUFFIX;
+    const template =
+      STEP_PREFIX + `"mode_cond": {\n          "mode_select": "fast",\n          $\n        }` + STEP_SUFFIX;
     const completions = await getCompletions(template);
     const labels = getCompletionItemsLabels(completions);
 
@@ -393,7 +418,8 @@ describe("Native Tool State Completion Service", () => {
   });
 
   it("filters to sensitive branch params when mode_select is 'sensitive'", async () => {
-    const template = STEP_PREFIX + `"mode_cond": {\n          "mode_select": "sensitive",\n          $\n        }` + STEP_SUFFIX;
+    const template =
+      STEP_PREFIX + `"mode_cond": {\n          "mode_select": "sensitive",\n          $\n        }` + STEP_SUFFIX;
     const completions = await getCompletions(template);
     const labels = getCompletionItemsLabels(completions);
 

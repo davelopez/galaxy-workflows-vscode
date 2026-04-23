@@ -371,14 +371,16 @@ export interface WorkflowDataProvider {
 
 export interface ToolRegistryService {
   hasCached(toolId: string, toolVersion?: string): Promise<boolean>;
-  listCached(): Promise<Array<{
-    cache_key: string;
-    tool_id: string;
-    tool_version: string;
-    source: string;
-    source_url: string;
-    cached_at: string;
-  }>>;
+  listCached(): Promise<
+    Array<{
+      cache_key: string;
+      tool_id: string;
+      tool_version: string;
+      source: string;
+      source_url: string;
+      cached_at: string;
+    }>
+  >;
   populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateToolCacheResult>;
   configure(settings: { toolShedUrl: string; storage: CacheStorage }): void;
   /** Returns cached tool inputs (parameter list) without hitting the network. Returns null if not cached. */

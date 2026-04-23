@@ -106,15 +106,12 @@ export class InsertToolStepCommand extends CustomCommand {
         return;
       }
 
-      const skeleton = await client.sendRequest<GetStepSkeletonResult>(
-        LSRequestIdentifiers.GET_STEP_SKELETON,
-        {
-          toolshedUrl: pick.toolshedUrl,
-          trsToolId: pick.trsToolId,
-          version: pick.version,
-          format,
-        } as GetStepSkeletonParams
-      );
+      const skeleton = await client.sendRequest<GetStepSkeletonResult>(LSRequestIdentifiers.GET_STEP_SKELETON, {
+        toolshedUrl: pick.toolshedUrl,
+        trsToolId: pick.trsToolId,
+        version: pick.version,
+        format,
+      } as GetStepSkeletonParams);
       if (!skeleton?.step || skeleton.error) {
         window.showErrorMessage(skeleton?.error ?? "Failed to build step skeleton.");
         return;
@@ -160,20 +157,12 @@ export class InsertToolStepCommand extends CustomCommand {
     });
   }
 
-  private async applyInsertEdit(
-    uri: Uri,
-    format: "native" | "format2",
-    step: Record<string, unknown>
-  ): Promise<void> {
+  private async applyInsertEdit(uri: Uri, format: "native" | "format2", step: Record<string, unknown>): Promise<void> {
     const document = await workspace.openTextDocument(uri);
     const originalText = document.getText();
-    const newText =
-      format === "native" ? insertNativeStep(originalText, step) : insertFormat2Step(originalText, step);
+    const newText = format === "native" ? insertNativeStep(originalText, step) : insertFormat2Step(originalText, step);
     const edit = new WorkspaceEdit();
-    const fullRange = new Range(
-      document.positionAt(0),
-      document.positionAt(originalText.length)
-    );
+    const fullRange = new Range(document.positionAt(0), document.positionAt(originalText.length));
     edit.replace(uri, fullRange, newText);
     const applied = await workspace.applyEdit(edit);
     if (!applied) {
@@ -181,9 +170,10 @@ export class InsertToolStepCommand extends CustomCommand {
       return;
     }
     // Move cursor to the inserted tool_id line if we can find it.
-    const toolIdMatch = newText.indexOf(`"tool_id": "${step.tool_id}"`) !== -1
-      ? newText.indexOf(`"tool_id": "${step.tool_id}"`)
-      : newText.indexOf(`tool_id: ${step.tool_id}`);
+    const toolIdMatch =
+      newText.indexOf(`"tool_id": "${step.tool_id}"`) !== -1
+        ? newText.indexOf(`"tool_id": "${step.tool_id}"`)
+        : newText.indexOf(`tool_id: ${step.tool_id}`);
     if (toolIdMatch >= 0) {
       const pos = document.positionAt(toolIdMatch);
       const editor = window.activeTextEditor;
@@ -196,9 +186,7 @@ export class InsertToolStepCommand extends CustomCommand {
 }
 
 function autoPickHit(hits: ToolSearchHit[], needle: string): ToolSearchHit | undefined {
-  return hits.find(
-    (h) => h.toolId.includes(needle) || h.trsToolId.includes(needle) || h.fullToolId.includes(needle)
-  );
+  return hits.find((h) => h.toolId.includes(needle) || h.trsToolId.includes(needle) || h.fullToolId.includes(needle));
 }
 
 function resolveFormat(uri: Uri): "native" | "format2" | undefined {

@@ -46,5 +46,4 @@ export class ConvertWorkflowService extends ServiceBase {
       return { contents: "", error: String(error) };
     }
   }
-
 }

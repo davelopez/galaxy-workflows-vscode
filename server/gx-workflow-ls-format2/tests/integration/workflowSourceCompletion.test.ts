@@ -57,11 +57,7 @@ describe("Workflow Connection Source Completions", () => {
   // ---------------------------------------------------------------------------
 
   it("suggests workflow inputs in explicit source field", async () => {
-    const template =
-      WORKFLOW_WITH_STEPS +
-      `    in:\n` +
-      `      - id: query\n` +
-      `        source: $`;
+    const template = WORKFLOW_WITH_STEPS + `    in:\n` + `      - id: query\n` + `        source: $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
@@ -72,11 +68,7 @@ describe("Workflow Connection Source Completions", () => {
   });
 
   it("suggests upstream step outputs in explicit source field", async () => {
-    const template =
-      WORKFLOW_WITH_STEPS +
-      `    in:\n` +
-      `      - id: query\n` +
-      `        source: $`;
+    const template = WORKFLOW_WITH_STEPS + `    in:\n` + `      - id: query\n` + `        source: $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
@@ -150,11 +142,7 @@ steps:
   });
 
   it("filters source suggestions by current word prefix", async () => {
-    const template =
-      WORKFLOW_WITH_STEPS +
-      `    in:\n` +
-      `      - id: query\n` +
-      `        source: first$`;
+    const template = WORKFLOW_WITH_STEPS + `    in:\n` + `      - id: query\n` + `        source: first$`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
@@ -173,10 +161,7 @@ steps:
   it("suggests sources in map shorthand in: form", async () => {
     // Confirms the YAML parser produces ["steps","second_step","in","query"] for the
     // shorthand `in: { key: value }` form, so findSourceInPath detects it correctly.
-    const template =
-      WORKFLOW_WITH_STEPS +
-      `    in:\n` +
-      `      query: $`;
+    const template = WORKFLOW_WITH_STEPS + `    in:\n` + `      query: $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
@@ -190,10 +175,7 @@ steps:
 
   it("does not offer source completions at a map shorthand in: key position", async () => {
     // Cursor is at the key (input parameter name), not the value — no source completions expected
-    const template =
-      WORKFLOW_WITH_STEPS +
-      `    in:\n` +
-      `      $`;
+    const template = WORKFLOW_WITH_STEPS + `    in:\n` + `      $`;
     const { contents, position } = parseTemplate(template);
 
     const completions = await getCompletions(contents, position);
