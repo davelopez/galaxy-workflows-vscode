@@ -17,7 +17,8 @@ export default defineConfig([
     format: ["cjs"],
     platform: "browser",
     external: ["vscode"],
-    noExternal: [/^vscode-/],
+    // Browser host has no node module resolution — bundle everything except `vscode`.
+    noExternal: [/^(?!vscode$).*/],
     sourcemap: true,
     bundle: true,
   },
