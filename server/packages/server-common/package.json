@@ -6,9 +6,9 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@galaxy-tool-util/core": "^1.0.0",
-    "@galaxy-tool-util/schema": "^1.0.0",
-    "@galaxy-tool-util/search": "^0.2.0",
+    "@galaxy-tool-util/core": "^1.1.0",
+    "@galaxy-tool-util/schema": "^1.1.0",
+    "@galaxy-tool-util/search": "^1.1.0",
     "@types/node": "^20.5.7",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.2.2",

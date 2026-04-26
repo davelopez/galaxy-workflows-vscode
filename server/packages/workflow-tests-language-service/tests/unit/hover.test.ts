@@ -48,7 +48,7 @@ describe("Workflow Tests Hover Service", () => {
     expect(hover).not.toBeNull();
 
     expectHoverToContainContents(hover!, "Job");
-    expectHoverToContainContents(hover!, "Defines job to execute");
+    expectHoverToContainContents(hover!, "Defines the job to execute");
   });
 
   it("should return the documentation of the `outputs` property when hovering over it", async () => {
