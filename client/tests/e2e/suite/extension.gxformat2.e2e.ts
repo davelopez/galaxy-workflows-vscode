@@ -63,10 +63,14 @@ suite("Format2 (YAML) Workflows", () => {
       // param set depends on fastp's xml — assert on a couple known-stable
       // top-level params.
       const docUri = getDocUri(path.join("yaml", "tool-state", "test_ts_completion.gxwf.yml"));
-      await activateAndOpenInEditor(docUri);
+      const opened = await activateAndOpenInEditor(docUri);
+      assert.ok(opened, "Failed to open fixture");
+      const { editor, document: doc } = opened;
+      // Append an indented blank line inside the state block at runtime so the
+      // fixture stays format-stable (Prettier strips trailing whitespace).
+      await editor.edit((eb) => eb.insert(doc.lineAt(doc.lineCount - 1).range.end, "\n      "));
       await sleep(500);
-      // Line 10 (0-indexed) is `      ` — inside the state block.
-      const pos = new vscode.Position(10, 6);
+      const pos = new vscode.Position(doc.lineCount - 1, 6);
       const completions = await vscode.commands.executeCommand<vscode.CompletionList>(
         "vscode.executeCompletionItemProvider",
         docUri,
