@@ -16,12 +16,12 @@
     "vscode": "^1.96.0"
   },
   "dependencies": {
+    "mermaid": "^11.14.0",
     "vscode-languageclient": "^9.0.1",
     "vscode-uri": "^3.1.0",
     "yaml": "^2.8.3"
   },
   "scripts": {
     "test": "jest"
-  },
-  "devDependencies": {}
+  }
 }

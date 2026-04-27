@@ -22,4 +22,13 @@ export default defineConfig([
     sourcemap: true,
     bundle: true,
   },
+  {
+    // Webview bundles — loaded inside the WebviewPanel iframe, not by the extension host.
+    entry: { "media/diagram/mermaid": "src/webview/diagram/mermaid.ts" },
+    outDir: "dist",
+    format: ["iife"],
+    platform: "browser",
+    sourcemap: true,
+    bundle: true,
+  },
 ]);

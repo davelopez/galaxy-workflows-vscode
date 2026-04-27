@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src {{cspSource}} 'unsafe-inline'; script-src {{cspSource}}; font-src {{cspSource}}; img-src {{cspSource}} data:;"
+    />
+    <link rel="stylesheet" href="{{sharedCss}}" />
+    <title>Workflow Diagram</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="{{mainJs}}"></script>
+  </body>
+</html>
