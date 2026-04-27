@@ -14,6 +14,7 @@ import { PopulateToolCacheCommand } from "./populateToolCache";
 import { PopulateToolCacheForToolCommand } from "./populateToolCacheForTool";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
 import { PreviewMermaidDiagramCommand } from "./previewWorkflowDiagram";
+import { ExportMermaidDiagramCommand } from "./exportWorkflowDiagram";
 import { DiagramPreviewPanelManager } from "../providers/diagramPreviewPanelManager";
 import { RefreshToolsViewCommand } from "./refreshToolsView";
 import { RevealToolStepCommand } from "./revealToolStep";
@@ -59,6 +60,7 @@ export function setupCommands(
   const diagramPanelManager = new DiagramPreviewPanelManager(context, nativeClient, gxFormat2Client);
   context.subscriptions.push(diagramPanelManager);
   context.subscriptions.push(new PreviewMermaidDiagramCommand(nativeClient, diagramPanelManager).register());
+  context.subscriptions.push(new ExportMermaidDiagramCommand(nativeClient, gxFormat2Client).register());
 
   const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());

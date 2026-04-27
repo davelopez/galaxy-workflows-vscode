@@ -1,6 +1,14 @@
 import * as assert from "assert";
 import * as path from "path";
-import { activate, closeAllEditors, getDocUri, openDocument } from "./helpers";
+import * as vscode from "vscode";
+import {
+  activate,
+  activateAndOpenInEditor,
+  closeAllEditors,
+  getDocUri,
+  openDocument,
+  withTempFixture,
+} from "./helpers";
 
 interface RenderResult {
   contents: string;
@@ -72,5 +80,30 @@ suite("Diagram Preview — LSP wire", () => {
     assert.ok(result, "no result returned");
     assert.strictEqual(result.contents, "");
     assert.ok(result.error && /not yet implemented/i.test(result.error), `expected stub error, got: ${result.error}`);
+  });
+
+  // File-modifying test runs last — opening a temp .gxwf.yml + closeAllEditors
+  // teardown can disturb language client state for subsequent tests in the same suite.
+  test("exportMermaid writes <stem>.mmd alongside the source (format2)", async () => {
+    const fixtureUri = getDocUri(path.join("yaml", "conversion", "simple_wf.gxwf.yml"));
+    await withTempFixture(
+      fixtureUri,
+      async (sourceUri) => {
+        await activateAndOpenInEditor(sourceUri);
+        await new Promise((r) => setTimeout(r, 500));
+        await vscode.commands.executeCommand("galaxy-workflows.exportMermaid");
+        await new Promise((r) => setTimeout(r, 1000));
+
+        const exportedUri = sourceUri.with({
+          path: sourceUri.path.replace(/\.gxwf\.(yml|yaml)$/, ".mmd"),
+        });
+        const stat = await vscode.workspace.fs.stat(exportedUri);
+        assert.ok(stat.size > 0, "exported .mmd should have content");
+        const bytes = await vscode.workspace.fs.readFile(exportedUri);
+        const content = new TextDecoder().decode(bytes);
+        assert.ok(content.startsWith("graph LR"), `expected mermaid output, got: ${content.slice(0, 80)}`);
+      },
+      (sourceUri) => [sourceUri.with({ path: sourceUri.path.replace(/\.gxwf\.(yml|yaml)$/, ".mmd") })]
+    );
   });
 });

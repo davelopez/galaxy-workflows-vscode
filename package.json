@@ -230,6 +230,12 @@
         "enablement": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2",
         "icon": "$(graph)",
         "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.exportMermaid",
+        "title": "Export as Mermaid (.mmd)",
+        "enablement": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2",
+        "category": "Galaxy Workflows"
       }
     ],
     "views": {
@@ -299,6 +305,10 @@
         },
         {
           "command": "galaxy-workflows.previewMermaidDiagram",
+          "when": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.exportMermaid",
           "when": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2"
         }
       ],
