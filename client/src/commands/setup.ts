@@ -13,6 +13,8 @@ import { OpenToolInToolShedCommand } from "./openToolInToolShed";
 import { PopulateToolCacheCommand } from "./populateToolCache";
 import { PopulateToolCacheForToolCommand } from "./populateToolCacheForTool";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
+import { PreviewMermaidDiagramCommand } from "./previewWorkflowDiagram";
+import { DiagramPreviewPanelManager } from "../providers/diagramPreviewPanelManager";
 import { RefreshToolsViewCommand } from "./refreshToolsView";
 import { RevealToolStepCommand } from "./revealToolStep";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
@@ -53,6 +55,11 @@ export function setupCommands(
   context.subscriptions.push(new RevealToolStepCommand(nativeClient).register());
   context.subscriptions.push(new OpenToolInToolShedCommand(nativeClient).register());
   context.subscriptions.push(new InsertToolStepCommand(nativeClient, gxFormat2Client).register());
+
+  const diagramPanelManager = new DiagramPreviewPanelManager(context, nativeClient, gxFormat2Client);
+  context.subscriptions.push(diagramPanelManager);
+  context.subscriptions.push(new PreviewMermaidDiagramCommand(nativeClient, diagramPanelManager).register());
+
   const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(

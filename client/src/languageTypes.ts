@@ -24,6 +24,9 @@ import {
   SearchToolsResult,
   GetStepSkeletonParams,
   GetStepSkeletonResult,
+  DiagramFormat,
+  RenderWorkflowDiagramParams,
+  RenderWorkflowDiagramResult,
 } from "../../shared/src/requestsDefinitions";
 
 export {
@@ -52,4 +55,7 @@ export {
   SearchToolsResult,
   GetStepSkeletonParams,
   GetStepSkeletonResult,
+  DiagramFormat,
+  RenderWorkflowDiagramParams,
+  RenderWorkflowDiagramResult,
 };

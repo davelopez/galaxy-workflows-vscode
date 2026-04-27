@@ -223,6 +223,13 @@
         "enablement": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2",
         "icon": "$(add)",
         "category": "Galaxy Workflows"
+      },
+      {
+        "command": "galaxy-workflows.previewMermaidDiagram",
+        "title": "Preview Diagram (Mermaid)",
+        "enablement": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2",
+        "icon": "$(graph)",
+        "category": "Galaxy Workflows"
       }
     ],
     "views": {
@@ -288,6 +295,10 @@
         },
         {
           "command": "galaxy-workflows.insertToolStep",
+          "when": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2"
+        },
+        {
+          "command": "galaxy-workflows.previewMermaidDiagram",
           "when": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2"
         }
       ],
@@ -355,6 +366,13 @@
           "command": "galaxy-workflows.convertFileToNative",
           "group": "galaxyworkflow@5",
           "when": "resourceLangId == gxformat2"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "galaxy-workflows.previewMermaidDiagram",
+          "when": "resourceLangId == galaxyworkflow || resourceLangId == gxformat2",
+          "group": "navigation"
         }
       ],
       "view/title": [
