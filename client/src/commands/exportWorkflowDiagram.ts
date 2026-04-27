@@ -29,8 +29,13 @@ function diagramFileUri(sourceUri: Uri, extension: string): Uri {
 }
 
 abstract class ExportDiagramCommandBase extends CustomCommand {
-  constructor(client: BaseLanguageClient, private readonly fallbackClient: BaseLanguageClient) {
-    super(client);
+  // `nativeClient` doubles as the parent's `this.client`; matches the
+  // InsertToolStepCommand convention for dual-language commands.
+  private readonly format2Client: BaseLanguageClient;
+
+  constructor(nativeClient: BaseLanguageClient, format2Client: BaseLanguageClient) {
+    super(nativeClient);
+    this.format2Client = format2Client;
   }
 
   protected abstract readonly spec: DiagramExportSpec;
@@ -40,7 +45,7 @@ abstract class ExportDiagramCommandBase extends CustomCommand {
     if (!editor) return;
     const { document } = editor;
     const client =
-      document.languageId === Constants.NATIVE_WORKFLOW_LANGUAGE_ID ? this.client : this.fallbackClient;
+      document.languageId === Constants.NATIVE_WORKFLOW_LANGUAGE_ID ? this.client : this.format2Client;
 
     const params: RenderWorkflowDiagramParams = {
       contents: document.getText(),

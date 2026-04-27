@@ -23,6 +23,9 @@ interface PanelEntry {
   document: TextDocument;
   format: DiagramFormat;
   disposables: Disposable[];
+  /** Monotonic counter incremented per render() call; used to drop stale
+   *  in-flight LSP responses so we never post older output after newer. */
+  renderSeq: number;
 }
 
 const RENDER_DEBOUNCE_MS = 400;
@@ -71,7 +74,7 @@ export class DiagramPreviewPanelManager implements Disposable {
     );
     panel.webview.html = await this.buildHtml(panel, format);
 
-    const entry: PanelEntry = { panel, document, format, disposables: [] };
+    const entry: PanelEntry = { panel, document, format, disposables: [], renderSeq: 0 };
     this.panels.set(key, entry);
 
     entry.disposables.push(
@@ -119,11 +122,13 @@ export class DiagramPreviewPanelManager implements Disposable {
       format: entry.format,
       options: { comments: true },
     };
+    const seq = ++entry.renderSeq;
     try {
       const result = await client.sendRequest<RenderWorkflowDiagramResult>(
         LSRequestIdentifiers.RENDER_WORKFLOW_DIAGRAM,
         params
       );
+      if (seq !== entry.renderSeq) return; // a newer render() superseded us
       entry.panel.webview.postMessage({
         type: "render",
         format: entry.format,
@@ -131,6 +136,7 @@ export class DiagramPreviewPanelManager implements Disposable {
         error: result?.error,
       });
     } catch (err) {
+      if (seq !== entry.renderSeq) return;
       entry.panel.webview.postMessage({
         type: "render",
         format: entry.format,
