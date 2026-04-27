@@ -16,6 +16,7 @@ import {
   RenderWorkflowDiagramParams,
   RenderWorkflowDiagramResult,
 } from "../languageTypes";
+import { RenderScheduler } from "./renderScheduler";
 
 interface PanelEntry {
   panel: WebviewPanel;
@@ -23,6 +24,8 @@ interface PanelEntry {
   format: DiagramFormat;
   disposables: Disposable[];
 }
+
+const RENDER_DEBOUNCE_MS = 400;
 
 const FORMAT_LABEL: Record<DiagramFormat, string> = {
   mermaid: "Mermaid",
@@ -36,12 +39,15 @@ const FORMAT_LABEL: Record<DiagramFormat, string> = {
  */
 export class DiagramPreviewPanelManager implements Disposable {
   private readonly panels = new Map<string, PanelEntry>();
+  private readonly scheduler: RenderScheduler;
 
   constructor(
     private readonly context: ExtensionContext,
     private readonly nativeClient: BaseLanguageClient,
     private readonly gxFormat2Client: BaseLanguageClient
-  ) {}
+  ) {
+    this.scheduler = new RenderScheduler(RENDER_DEBOUNCE_MS);
+  }
 
   public async openOrFocus(document: TextDocument, format: DiagramFormat): Promise<void> {
     const key = this.keyFor(document.uri, format);
@@ -75,12 +81,22 @@ export class DiagramPreviewPanelManager implements Disposable {
         } else if (msg?.type === "error") {
           console.error(`[diagramPreview:${format}] webview error:`, msg.message);
         }
+      }),
+      workspace.onDidChangeTextDocument((event) => {
+        if (event.document.uri.toString() !== entry.document.uri.toString()) return;
+        this.scheduler.schedule(key, () => void this.render(entry));
+      }),
+      workspace.onDidCloseTextDocument((doc) => {
+        if (doc.uri.toString() === entry.document.uri.toString()) {
+          entry.panel.dispose();
+        }
       })
     );
     panel.onDidDispose(() => this.cleanup(key), undefined, this.context.subscriptions);
   }
 
   public dispose(): void {
+    this.scheduler.dispose();
     for (const entry of this.panels.values()) {
       entry.disposables.forEach((d) => d.dispose());
       entry.panel.dispose();
@@ -91,6 +107,7 @@ export class DiagramPreviewPanelManager implements Disposable {
   private cleanup(key: string): void {
     const entry = this.panels.get(key);
     if (!entry) return;
+    this.scheduler.cancel(key);
     entry.disposables.forEach((d) => d.dispose());
     this.panels.delete(key);
   }
