@@ -26,7 +26,7 @@ export function insertNativeStep(originalText: string, step: Record<string, unkn
  */
 export function insertFormat2Step(originalText: string, step: Record<string, unknown>): string {
   const doc = YAML.parseDocument(originalText);
-  let stepsNode = doc.get("steps");
+  const stepsNode = doc.get("steps");
   if (!stepsNode || !YAML.isCollection(stepsNode)) {
     doc.set("steps", [step]);
   } else if (YAML.isSeq(stepsNode)) {

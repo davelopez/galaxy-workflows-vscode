@@ -1,3 +1,5 @@
+import { describe, it, expect, vi } from "vitest";
+
 import type {
   GalaxyWorkflowLanguageServer,
   PopulateToolCacheResult,
@@ -55,7 +57,6 @@ function setup(registry: Partial<ToolRegistryService> = {}): {
 
   const handlers = new Map<string, (params: unknown) => unknown>();
   const server = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     connection: {
       onRequest: (name: string, cb: (params: unknown) => unknown) => {
         handlers.set(name, cb);
@@ -63,9 +64,9 @@ function setup(registry: Partial<ToolRegistryService> = {}): {
       sendNotification: () => {
         /* noop */
       },
-    } as any,
+    },
     toolRegistryService: reg,
-    documentsCache: { get: () => undefined, all: () => [] } as any,
+    documentsCache: { get: () => undefined, all: () => [] },
     autoResolutionEnabled: false,
     revalidateDocument: () => {
       /* noop */
@@ -80,9 +81,6 @@ function setup(registry: Partial<ToolRegistryService> = {}): {
     populateSpy,
   };
 }
-
-// vitest globals via tsconfig
-import { describe, it, expect, vi } from "vitest";
 
 describe("POPULATE_TOOL_CACHE_FOR_TOOL handler", () => {
   it("delegates to populateCache with a single-element batch", async () => {
