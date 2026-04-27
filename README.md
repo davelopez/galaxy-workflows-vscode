@@ -69,6 +69,7 @@ The following table shows all the implemented features and the current support f
 | [Formatting](#formatting)                                           |           ✔️           |               ✔️               |
 | [Custom Outline](#custom-outline)                                   |           ✔️           |               ✔️               |
 | [Workflow Cleanup Command](#workflow-cleanup-command)               |           ✔️           |               ❔               |
+| [Workflow Diagram Preview](#workflow-diagram-preview)               |           ✔️           |               ✔️               |
 | [Simplified Workflow Diffs](#simplified-workflow-diffs)             |           🔶           |               ❔               |
 | [Workflow Tests Document Support](#workflow-tests-document-support) |           ✔️           |               ✔️               |
 
@@ -165,6 +166,16 @@ You can clean up the non-essential properties of a (legacy .ga) workflow with th
 #### Legacy (ga)
 
 <img alt="Cleanup Command Demo" src="https://raw.githubusercontent.com/davelopez/galaxy-workflows-vscode/main/images/clean-up-command-native.gif" width=1024 height=auto>
+
+[Back to Features ⬆️](#features)
+
+### Workflow Diagram Preview
+
+Render the active workflow as an interactive diagram via the **Galaxy Workflows: Preview Diagram (Mermaid)** command (also available from the editor title bar — the `$(graph)` icon). The preview opens in a side panel and re-renders as you edit the document (debounced ~400 ms). Both formats are supported.
+
+You can also write the diagram to disk as a `.mmd` companion file via **Galaxy Workflows: Export as Mermaid (.mmd)**; the file is written alongside the source workflow and a "Reveal in Explorer" toast surfaces the result.
+
+The diagram source is produced server-side by `workflowToMermaid()` from `@galaxy-tool-util/schema` and shipped to a webview that renders it locally with [Mermaid.js](https://mermaid.js.org/) — no network calls from the panel.
 
 [Back to Features ⬆️](#features)
 
