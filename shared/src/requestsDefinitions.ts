@@ -26,6 +26,22 @@ export namespace LSRequestIdentifiers {
   export const CONVERT_WORKFLOW_CONTENTS = "galaxy-workflows-ls.convertWorkflowContents";
   export const SEARCH_TOOLS = "galaxy-workflows-ls.searchTools";
   export const GET_STEP_SKELETON = "galaxy-workflows-ls.getStepSkeleton";
+  export const RENDER_WORKFLOW_DIAGRAM = "galaxy-workflows-ls.renderWorkflowDiagram";
+}
+
+export type DiagramFormat = "mermaid" | "cytoscape";
+
+export interface RenderWorkflowDiagramParams {
+  contents: string;
+  format: DiagramFormat;
+  /** Renderer-specific options; serialized as-is. Mermaid: { comments?: boolean }. */
+  options?: Record<string, unknown>;
+}
+
+export interface RenderWorkflowDiagramResult {
+  /** mermaid → "graph LR ..."; cytoscape → JSON.stringify(elements) */
+  contents: string;
+  error?: string;
 }
 
 export interface CleanWorkflowDocumentParams {

@@ -87,6 +87,9 @@ import type {
   ToolSearchHit,
   GetStepSkeletonParams,
   GetStepSkeletonResult,
+  DiagramFormat,
+  RenderWorkflowDiagramParams,
+  RenderWorkflowDiagramResult,
 } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
 import type { ConfigService } from "./configService";
@@ -167,6 +170,9 @@ export type {
   ToolSearchHit,
   GetStepSkeletonParams,
   GetStepSkeletonResult,
+  DiagramFormat,
+  RenderWorkflowDiagramParams,
+  RenderWorkflowDiagramResult,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
@@ -261,6 +267,12 @@ export interface LanguageService<T extends DocumentContext> {
    * Throws if the targetFormat is not supported by this language service.
    */
   convertWorkflowText(text: string, targetFormat: "format2" | "native"): Promise<string>;
+
+  /**
+   * Renders the workflow as a diagram in the requested format.
+   * Throws if the format is not supported by this language service.
+   */
+  renderDiagram(text: string, format: DiagramFormat, options?: Record<string, unknown>): Promise<string>;
 }
 
 /**
@@ -336,6 +348,14 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
 
   public async convertWorkflowText(_text: string, targetFormat: "format2" | "native"): Promise<string> {
     throw new Error(`Conversion to ${targetFormat} is not supported by this language service.`);
+  }
+
+  public async renderDiagram(
+    _text: string,
+    _format: DiagramFormat,
+    _options?: Record<string, unknown>
+  ): Promise<string> {
+    throw new Error("renderDiagram is not implemented for this language service.");
   }
 }
 

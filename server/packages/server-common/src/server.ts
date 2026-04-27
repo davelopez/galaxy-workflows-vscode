@@ -24,6 +24,7 @@ import { HoverHandler } from "./providers/hover/hoverHandler";
 import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
 import { ConvertWorkflowService } from "./services/convertWorkflow";
+import { RenderDiagramService } from "./services/renderDiagramService";
 import { ToolCacheService } from "./services/toolCacheService";
 import { ToolSearchLspService } from "./services/toolSearchService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
@@ -126,6 +127,7 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   private registerServices(): void {
     CleanWorkflowService.register(this);
     ConvertWorkflowService.register(this);
+    RenderDiagramService.register(this);
     this.toolCacheService = ToolCacheService.register(this);
     ToolSearchLspService.register(this);
   }

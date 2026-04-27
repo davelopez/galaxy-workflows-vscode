@@ -2,6 +2,7 @@ import {
   CodeLens,
   CompletionList,
   Diagnostic,
+  DiagramFormat,
   DocumentSymbol,
   FormattingOptions,
   Hover,
@@ -15,7 +16,13 @@ import {
 } from "@gxwf/server-common/src/languageTypes";
 import { buildToolIdCodeLenses } from "@gxwf/server-common/src/providers/toolIdCodeLens";
 import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
-import { cleanWorkflow, toNativeStateful, type ToolInputsResolver } from "@galaxy-tool-util/schema";
+import {
+  cleanWorkflow,
+  toNativeStateful,
+  workflowToMermaid,
+  type MermaidOptions,
+  type ToolInputsResolver,
+} from "@galaxy-tool-util/schema";
 import * as YAML from "yaml";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
 import type { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
@@ -128,6 +135,20 @@ export class GxFormat2WorkflowLanguageServiceImpl
     const noopResolver: ToolInputsResolver = (_toolId: string, _toolVersion: string | null) => undefined;
     const { workflow } = toNativeStateful(dict, toolInputsResolver ?? noopResolver);
     return JSON.stringify(workflow, null, 4) + "\n";
+  }
+
+  public override async renderDiagram(
+    text: string,
+    format: DiagramFormat,
+    options?: Record<string, unknown>
+  ): Promise<string> {
+    const dict = YAML.parse(text) as Record<string, unknown>;
+    switch (format) {
+      case "mermaid":
+        return workflowToMermaid(dict, (options as MermaidOptions) ?? {});
+      case "cytoscape":
+        throw new Error("Cytoscape rendering is not yet implemented.");
+    }
   }
 
   /**
