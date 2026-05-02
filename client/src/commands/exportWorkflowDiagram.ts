@@ -44,8 +44,7 @@ abstract class ExportDiagramCommandBase extends CustomCommand {
     const editor = window.activeTextEditor;
     if (!editor) return;
     const { document } = editor;
-    const client =
-      document.languageId === Constants.NATIVE_WORKFLOW_LANGUAGE_ID ? this.client : this.format2Client;
+    const client = document.languageId === Constants.NATIVE_WORKFLOW_LANGUAGE_ID ? this.client : this.format2Client;
 
     const params: RenderWorkflowDiagramParams = {
       contents: document.getText(),

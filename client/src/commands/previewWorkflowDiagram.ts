@@ -12,7 +12,10 @@ export class PreviewMermaidDiagramCommand extends CustomCommand {
   // so the inherited `this.client` is unused here. We pass nativeClient to
   // satisfy the parent constructor and keep the convention used by other
   // dual-language commands (e.g. InsertToolStepCommand).
-  constructor(nativeClient: BaseLanguageClient, private readonly panelManager: DiagramPreviewPanelManager) {
+  constructor(
+    nativeClient: BaseLanguageClient,
+    private readonly panelManager: DiagramPreviewPanelManager
+  ) {
     super(nativeClient);
   }
 

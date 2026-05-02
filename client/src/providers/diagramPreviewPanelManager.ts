@@ -1,13 +1,4 @@
-import {
-  Disposable,
-  ExtensionContext,
-  TextDocument,
-  Uri,
-  ViewColumn,
-  WebviewPanel,
-  window,
-  workspace,
-} from "vscode";
+import { Disposable, ExtensionContext, TextDocument, Uri, ViewColumn, WebviewPanel, window, workspace } from "vscode";
 import { BaseLanguageClient } from "vscode-languageclient";
 import { Constants } from "../common/constants";
 import {
