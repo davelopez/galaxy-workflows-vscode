@@ -453,6 +453,10 @@
     "vitest": "^4.1.2",
     "yaml": "^2.3.2"
   },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-gnu": "1.0.0-rc.12",
+    "@rolldown/binding-win32-x64-msvc": "1.0.0-rc.12"
+  },
   "pnpm": {
     "onlyBuiltDependencies": [
       "@playwright/browser-chromium",
