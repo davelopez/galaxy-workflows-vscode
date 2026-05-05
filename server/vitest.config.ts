@@ -30,7 +30,7 @@ export default defineConfig({
       "@gxwf/server-common/tests": path.resolve(__dirname, "packages/server-common/tests"),
       "@gxwf/workflow-tests-language-service/src": path.resolve(
         __dirname,
-        "packages/workflow-tests-language-service/src",
+        "packages/workflow-tests-language-service/src"
       ),
       "@gxwf/yaml-language-service/src": path.resolve(__dirname, "packages/yaml-language-service/src"),
     },
