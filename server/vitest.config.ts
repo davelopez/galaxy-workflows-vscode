@@ -26,6 +26,13 @@ export default defineConfig({
   resolve: {
     alias: {
       "@schemas": path.resolve(__dirname, "../workflow-languages/schemas"),
+      "@gxwf/server-common/src": path.resolve(__dirname, "packages/server-common/src"),
+      "@gxwf/server-common/tests": path.resolve(__dirname, "packages/server-common/tests"),
+      "@gxwf/workflow-tests-language-service/src": path.resolve(
+        __dirname,
+        "packages/workflow-tests-language-service/src",
+      ),
+      "@gxwf/yaml-language-service/src": path.resolve(__dirname, "packages/yaml-language-service/src"),
     },
   },
 });
