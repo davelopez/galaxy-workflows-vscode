@@ -119,6 +119,9 @@ importers:
 
   server/gx-workflow-ls-format2:
     dependencies:
+      '@galaxy-tool-util/core':
+        specifier: 1.1.0
+        version: 1.1.0
       '@galaxy-tool-util/schema':
         specifier: 1.1.0
         version: 1.1.0
@@ -162,6 +165,9 @@ importers:
 
   server/gx-workflow-ls-native:
     dependencies:
+      '@galaxy-tool-util/core':
+        specifier: 1.1.0
+        version: 1.1.0
       '@galaxy-tool-util/schema':
         specifier: 1.1.0
         version: 1.1.0
@@ -171,6 +177,9 @@ importers:
       '@gxwf/workflow-tests-language-service':
         specifier: workspace:*
         version: link:../packages/workflow-tests-language-service
+      '@gxwf/yaml-language-service':
+        specifier: workspace:*
+        version: link:../packages/yaml-language-service
       effect:
         specifier: ^3.21.0
         version: 3.21.2

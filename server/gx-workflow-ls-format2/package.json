@@ -5,6 +5,7 @@
   "author": "davelopez",
   "license": "MIT",
   "dependencies": {
+    "@galaxy-tool-util/core": "^1.1.0",
     "@galaxy-tool-util/schema": "^1.1.0",
     "yaml": "^2.8.3",
     "@gxwf/server-common": "workspace:*",

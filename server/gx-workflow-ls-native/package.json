@@ -5,9 +5,11 @@
   "author": "davelopez",
   "license": "MIT",
   "dependencies": {
+    "@galaxy-tool-util/core": "^1.1.0",
     "@galaxy-tool-util/schema": "^1.1.0",
     "@gxwf/server-common": "workspace:*",
     "@gxwf/workflow-tests-language-service": "workspace:*",
+    "@gxwf/yaml-language-service": "workspace:*",
     "inversify": "^6.0.2",
     "jsonc-parser": "^3.2.0",
     "effect": "^3.21.0",
