@@ -4,8 +4,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "npm",
-      "script": "compile",
+      "label": "compile",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "compile"],
       "group": "build",
       "presentation": {
         "panel": "dedicated",
@@ -14,8 +16,10 @@
       "problemMatcher": ["$ts-webpack", "$tslint-webpack"]
     },
     {
-      "type": "npm",
-      "script": "watch",
+      "label": "watch",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "watch"],
       "isBackground": true,
       "group": {
         "kind": "build",
@@ -26,6 +30,17 @@
         "reveal": "never"
       },
       "problemMatcher": ["$ts-webpack-watch", "$tslint-webpack-watch"]
+    },
+    {
+      "label": "test-compile",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["run", "test-compile"],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "never"
+      },
+      "problemMatcher": ["$ts-webpack", "$tslint-webpack"]
     }
   ]
 }

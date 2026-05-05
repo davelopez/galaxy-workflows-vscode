@@ -6,8 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@galaxy-tool-util/schema": "^1.1.0",
-    "@gxwf/server-common": "*",
-    "@gxwf/workflow-tests-language-service": "*",
+    "@gxwf/server-common": "workspace:*",
+    "@gxwf/workflow-tests-language-service": "workspace:*",
     "inversify": "^6.0.2",
     "jsonc-parser": "^3.2.0",
     "effect": "^3.21.0",

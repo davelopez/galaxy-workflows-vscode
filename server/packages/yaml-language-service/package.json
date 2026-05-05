@@ -5,7 +5,7 @@
   "author": "davelopez",
   "license": "MIT",
   "dependencies": {
-    "@gxwf/server-common": "*",
+    "@gxwf/server-common": "workspace:*",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.2.2",
     "vscode-languageserver-textdocument": "^1.0.12",

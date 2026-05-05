@@ -20,6 +20,7 @@ Happy coding! 🎉
 
 - [Git](https://git-scm.com/)
 - [NodeJS](https://nodejs.org/)
+- [pnpm](https://pnpm.io/)
 - [Visual Studio Code](https://code.visualstudio.com/)
 
 ### Getting the code
@@ -35,7 +36,7 @@ Happy coding! 🎉
 From a terminal, where you have cloned the repository, execute the following command to install the required dependencies:
 
 ```
-npm install
+pnpm install
 ```
 
 ### Build
@@ -43,7 +44,7 @@ npm install
 From a terminal, where you have cloned the repository, execute the following command to re-build the project from scratch:
 
 ```
-npm run compile
+pnpm run compile
 ```
 
 ### Code Style
@@ -51,16 +52,16 @@ npm run compile
 Once you are happy with your changes you can lint the code using:
 
 ```
-npm run lint
+pnpm run lint
 ```
 
 or fix the formatting style using:
 
 ```
-npm run format
+pnpm run format
 ```
 
-If you have installed the recommended extensions in [extensions.json](../.vscode/extensions.json) the code style will be automatically enforced every time you save a file, so you probably won't need to run `npm run format`.
+If you have installed the recommended extensions in [extensions.json](../.vscode/extensions.json) the code style will be automatically enforced every time you save a file, so you probably won't need to run `pnpm run format`.
 
 ### Install the extension locally
 
@@ -69,7 +70,7 @@ To install the extension into VS Code as a regular (non-debug) extension:
 1. Install the packaging tool (once):
 
    ```sh
-   npm install -g @vscode/vsce
+   pnpm add -g @vscode/vsce
    ```
 
 2. Build the `.vsix` package:
@@ -99,13 +100,13 @@ After you get your extension working locally, follow the [instructions here](htt
 You can run all the unit tests with:
 
 ```
-npm test
+pnpm test
 ```
 
-Alternatively, you can choose to run only the [server](../server/) or the [client](../client/tests/unit/) tests using `npm run test-server` or `npm run test-client` respectively.
+Alternatively, you can choose to run only the [server](../server/) or the [client](../client/tests/unit/) tests using `pnpm run test-server` or `pnpm run test-client` respectively.
 
 The [integration or end to end (e2e) tests](../client/tests/e2e/suite/) will download (the first time) and launch a testing version of VSCode and then run the tests on it. You can run these tests with:
 
 ```
-npm run test:e2e
+pnpm run test:e2e
 ```

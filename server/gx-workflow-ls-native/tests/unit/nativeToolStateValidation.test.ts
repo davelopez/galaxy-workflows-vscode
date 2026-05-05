@@ -242,6 +242,22 @@ describe("NativeToolStateValidationService", () => {
     expect(diags[0].range).toEqual(diags[1].range);
   });
 
+  it("keeps legacy string tool_state validation exceptions from crashing diagnostics", async () => {
+    const service = new NativeToolStateValidationService(
+      makeMockRegistry({
+        validateFn: async () => {
+          throw new Error("legacy nested container state");
+        },
+      })
+    );
+    const doc = createNativeWorkflowDocument(makeWorkflowWithStringState({ queries: "[]" }));
+    const diags = await service.doValidation(doc);
+
+    expect(diags).toHaveLength(1);
+    expect(diags[0].severity).toBe(4);
+    expect(diags[0].code).toBe("legacy-tool-state");
+  });
+
   it("silently skips steps with malformed JSON string tool_state", async () => {
     const wf = JSON.stringify({
       a_galaxy_workflow: "true",

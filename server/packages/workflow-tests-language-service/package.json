@@ -6,8 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@galaxy-tool-util/schema": "^1.1.0",
-    "@gxwf/server-common": "*",
-    "@gxwf/yaml-language-service": "*",
+    "@gxwf/server-common": "workspace:*",
+    "@gxwf/yaml-language-service": "workspace:*",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.2.2",
     "vscode-languageserver": "^9.0.1",

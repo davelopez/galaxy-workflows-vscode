@@ -1,5 +1,6 @@
 {
   "name": "galaxy-workflows",
+  "packageManager": "pnpm@10.33.0",
   "displayName": "Galaxy Workflows",
   "description": "Utilities to assist in the edition of Galaxy (https://galaxyproject.org/) Workflow files.",
   "version": "0.5.0",
@@ -407,22 +408,21 @@
     }
   },
   "scripts": {
-    "postinstall": "cd client && npm install && cd ../server && npm install && cd ..",
     "lint": "eslint ./client/src ./server --ext .ts,.tsx",
     "format": "prettier --write .",
-    "clean": "rimraf client/dist && rimraf client/out && cd server && npm run clean && cd ..",
+    "clean": "rimraf client/dist && rimraf client/out && pnpm --dir server run clean",
     "compile-client": "cd client && tsup",
-    "compile-servers": "cd server && npm run compile",
-    "compile": "npm run clean && npm run compile-client && npm run compile-servers",
-    "vscode:prepublish": "npm run compile",
-    "watch": "concurrently --kill-others \"npm run watch-server\" \"npm run watch-client\"",
-    "watch-server": "cd server && npm run watch",
+    "compile-servers": "pnpm --dir server run compile",
+    "compile": "pnpm run clean && pnpm run compile-client && pnpm run compile-servers",
+    "vscode:prepublish": "pnpm run compile",
+    "watch": "concurrently --kill-others \"pnpm run watch-server\" \"pnpm run watch-client\"",
+    "watch-server": "pnpm --dir server run watch",
     "watch-client": "cd client && tsup --watch",
-    "test": "npm run test-client && npm run test-server",
-    "test-client": "cd client && npm test",
-    "test-server": "cd server && npm test",
+    "test": "pnpm run test-client && pnpm run test-server",
+    "test-client": "pnpm --dir client test",
+    "test-server": "pnpm --dir server test",
     "test-compile": "tsc --project ./client/tests/e2e --outDir client/out/tests/e2e",
-    "pretest:e2e": "npm run clean && npm run compile && npm run test-compile",
+    "pretest:e2e": "pnpm run clean && pnpm run compile && pnpm run test-compile",
     "test:e2e": "node ./client/out/tests/e2e/runTests.js",
     "test-browser": "vscode-test-web --extensionDevelopmentPath=. ./test-data"
   },
@@ -452,6 +452,18 @@
     "unplugin-swc": "^1.5.9",
     "vitest": "^4.1.2",
     "yaml": "^2.3.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@playwright/browser-chromium",
+      "@swc/core",
+      "esbuild"
+    ],
+    "overrides": {
+      "@galaxy-tool-util/core": "1.1.0",
+      "@galaxy-tool-util/schema": "1.1.0",
+      "@galaxy-tool-util/search": "1.1.0"
+    }
   },
   "__metadata": {
     "id": "2306ad21-fa2c-46f9-bba8-a22e32c7cb9a",

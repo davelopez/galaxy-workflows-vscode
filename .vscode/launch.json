@@ -12,10 +12,7 @@
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "smartStep": true,
       "sourceMaps": true,
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "watch"
-      },
+      "preLaunchTask": "watch",
       "resolveSourceMapLocations": ["${workspaceFolder}/client/dist/**/*.js"],
       "sourceMapPathOverrides": {
         "webpack://?:*/*": "${workspaceFolder}/client/*"
@@ -29,10 +26,7 @@
       "args": ["--extensionDevelopmentPath=${workspaceRoot}", "--extensionDevelopmentKind=web"],
       "smartStep": true,
       "sourceMaps": true,
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "watch"
-      },
+      "preLaunchTask": "watch",
       "resolveSourceMapLocations": ["${workspaceFolder}/client/dist/**/*.js"],
       "sourceMapPathOverrides": {
         "webpack://?:*/*": "${workspaceFolder}/client/*"
@@ -69,10 +63,7 @@
       "request": "launch",
       "args": ["-i"],
       "internalConsoleOptions": "openOnSessionStart",
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "watch"
-      }
+      "preLaunchTask": "watch"
     },
     {
       "name": "Debug e2e Tests",
@@ -85,10 +76,7 @@
         "--extensionTestsPath=${workspaceFolder}/client/out/tests/e2e/suite/index"
       ],
       "outFiles": ["${workspaceFolder}client/out/tests/e2e/**/*.js"],
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "test-compile"
-      }
+      "preLaunchTask": "test-compile"
     }
   ],
   "compounds": [

@@ -147,8 +147,10 @@ export class NativeWorkflowLanguageServiceImpl
 
   public override async cleanWorkflowText(text: string): Promise<string> {
     const dict = JSON.parse(text) as Record<string, unknown>;
+    const legacyToolStateKeyOrder = collectLegacyToolStateKeyOrder(dict);
     const toolInputsResolver = await this.buildToolInputsResolver(dict);
     const { workflow } = await cleanWorkflow(dict, { toolInputsResolver });
+    restoreParsedToolStateKeyOrder(legacyToolStateKeyOrder, workflow as Record<string, unknown>);
     return JSON.stringify(workflow, null, 4) + "\n";
   }
 
@@ -220,4 +222,62 @@ export class NativeWorkflowLanguageServiceImpl
       schema: this.schema,
     };
   }
+}
+
+function collectLegacyToolStateKeyOrder(workflow: Record<string, unknown>): Map<string, string[]> {
+  const orders = new Map<string, string[]>();
+  const entries = getStepEntries(workflow.steps);
+
+  for (const [stepKey, sourceStep] of entries) {
+    const rawToolState = sourceStep.tool_state;
+    if (typeof rawToolState !== "string") continue;
+
+    try {
+      const parsedToolState = JSON.parse(rawToolState) as unknown;
+      if (isRecord(parsedToolState)) {
+        orders.set(stepKey, Object.keys(parsedToolState));
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return orders;
+}
+
+function restoreParsedToolStateKeyOrder(
+  legacyToolStateKeyOrder: Map<string, string[]>,
+  cleanedWorkflow: Record<string, unknown>
+): void {
+  for (const [stepKey, cleanedStep] of getStepEntries(cleanedWorkflow.steps)) {
+    const keyOrder = legacyToolStateKeyOrder.get(stepKey);
+    const cleanedToolState = cleanedStep.tool_state;
+    if (!keyOrder || !isRecord(cleanedToolState)) continue;
+    cleanedStep.tool_state = orderRecordLike(cleanedToolState, keyOrder);
+  }
+}
+
+function getStepEntries(steps: unknown): Array<[string, Record<string, unknown>]> {
+  if (Array.isArray(steps)) {
+    return steps.flatMap((step, i) => (isRecord(step) ? [[String(i), step]] : []));
+  }
+  if (isRecord(steps)) {
+    return Object.entries(steps).flatMap(([stepKey, step]) => (isRecord(step) ? [[stepKey, step]] : []));
+  }
+  return [];
+}
+
+function orderRecordLike(record: Record<string, unknown>, keyOrder: string[]): Record<string, unknown> {
+  const ordered: Record<string, unknown> = {};
+  for (const key of keyOrder) {
+    if (key in record) ordered[key] = record[key];
+  }
+  for (const key of Object.keys(record)) {
+    if (!(key in ordered)) ordered[key] = record[key];
+  }
+  return ordered;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

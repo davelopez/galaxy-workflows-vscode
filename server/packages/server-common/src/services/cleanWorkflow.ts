@@ -63,7 +63,7 @@ export class CleanWorkflowService extends ServiceBase {
             ],
           },
         };
-        this.server.connection.workspace.applyEdit(editParams);
+        await this.server.connection.workspace.applyEdit(editParams);
       }
       return { error: "" };
     } catch (error) {

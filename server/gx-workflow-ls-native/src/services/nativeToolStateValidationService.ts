@@ -1,6 +1,6 @@
 import type { ASTNode, ObjectASTNode, StringASTNode } from "@gxwf/server-common/src/ast/types";
 import { ASTNodeManager } from "@gxwf/server-common/src/ast/nodeManager";
-import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import type { ToolRegistryService, ToolStateDiagnostic } from "@gxwf/server-common/src/languageTypes";
 import {
   LEGACY_TOOL_STATE_CODE,
   buildCacheMissDiagnostic,
@@ -114,12 +114,17 @@ export class NativeToolStateValidationService {
         continue;
       }
 
-      const rawDiags = await this.toolRegistryService.validateNativeStep(
-        toolId,
-        toolVersion,
-        toolStateParsed,
-        inputConnections
-      );
+      let rawDiags: ToolStateDiagnostic[] = [];
+      try {
+        rawDiags = await this.toolRegistryService.validateNativeStep(
+          toolId,
+          toolVersion,
+          toolStateParsed,
+          inputConnections
+        );
+      } catch {
+        rawDiags = [];
+      }
       // Flat resolver: all diagnostics for a string-encoded tool_state point at the whole string.
       const stringRange = nodeManager.getNodeRange(toolStateStringNode);
       const passBDiags = mapToolStateDiagnosticsToLSP(rawDiags, () => stringRange).map((d) => ({
