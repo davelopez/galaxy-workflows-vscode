@@ -21,6 +21,7 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "mermaid": "^11.14.0"
   },
   "scripts": {
