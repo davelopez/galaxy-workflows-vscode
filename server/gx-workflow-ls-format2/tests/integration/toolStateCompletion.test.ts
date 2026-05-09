@@ -1,5 +1,5 @@
 import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { CompletionList, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import { JSONSchema } from "effect";
 import "reflect-metadata";
@@ -271,7 +271,10 @@ describe("Tool State Completion Service", () => {
     service = new GxFormat2CompletionService(schemaNodeResolver, registry);
   });
 
-  async function getCompletions(contents: string, position: { line: number; character: number }) {
+  async function getCompletions(
+    contents: string,
+    position: { line: number; character: number }
+  ): Promise<CompletionList> {
     const documentContext = createFormat2WorkflowDocument(contents);
     return await service.doComplete(documentContext, position);
   }

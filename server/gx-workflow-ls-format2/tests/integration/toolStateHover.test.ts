@@ -1,5 +1,5 @@
 import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { Hover, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import { JSONSchema } from "effect";
 import "reflect-metadata";
@@ -188,7 +188,7 @@ describe("Tool State Hover Service", () => {
     service = new GxFormat2HoverService(schemaNodeResolver, makeMockRegistry(TOOL_ID, TOOL_PARAMS));
   });
 
-  async function getHover(contents: string, position: { line: number; character: number }) {
+  async function getHover(contents: string, position: { line: number; character: number }): Promise<Hover | null> {
     const doc = createFormat2WorkflowDocument(contents);
     return service.doHover(doc, position);
   }

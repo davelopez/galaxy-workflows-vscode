@@ -1,5 +1,5 @@
 import { GalaxyWorkflowSchema, type ParsedTool } from "@galaxy-tool-util/schema";
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { Hover, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import { JSONSchema } from "effect";
 import "reflect-metadata";
@@ -83,7 +83,7 @@ steps:
 `;
 }
 
-async function hoverOnToolId(svc: GxFormat2HoverService, yaml: string) {
+async function hoverOnToolId(svc: GxFormat2HoverService, yaml: string): Promise<Hover | null> {
   // Place cursor inside the tool_id value
   const template = yaml.replace(TOOL_ID, TOOL_ID.slice(0, 3) + "$" + TOOL_ID.slice(3));
   const { contents, position } = parseTemplate(template);

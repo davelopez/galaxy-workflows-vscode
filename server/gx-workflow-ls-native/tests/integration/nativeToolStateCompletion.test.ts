@@ -1,4 +1,4 @@
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { CompletionList, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import "reflect-metadata";
 import { NativeToolStateCompletionService } from "../../src/services/nativeToolStateCompletionService";
@@ -262,7 +262,7 @@ describe("Native Tool State Completion Service", () => {
     service = new NativeToolStateCompletionService(makeMockRegistry(TOOL_ID, FAKE_TOOL_PARAMS));
   });
 
-  async function getCompletions(template: string) {
+  async function getCompletions(template: string): Promise<CompletionList | null> {
     const { contents, position } = parseTemplate(template);
     const doc = createNativeWorkflowDocument(contents);
     return service.doCompleteAt(doc, position);

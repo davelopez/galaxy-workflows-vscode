@@ -1,4 +1,5 @@
 import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { CompletionList } from "@gxwf/server-common/src/languageTypes";
 import { getCompletionItemsLabels, parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import { JSONSchema } from "effect";
 import "reflect-metadata";
@@ -47,7 +48,10 @@ describe("Workflow Connection Source Completions", () => {
     service = new GxFormat2CompletionService(schemaNodeResolver);
   });
 
-  async function getCompletions(contents: string, position: { line: number; character: number }) {
+  async function getCompletions(
+    contents: string,
+    position: { line: number; character: number }
+  ): Promise<CompletionList> {
     const documentContext = createFormat2WorkflowDocument(contents);
     return service.doComplete(documentContext, position);
   }
