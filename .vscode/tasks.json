@@ -13,7 +13,7 @@
         "panel": "dedicated",
         "reveal": "never"
       },
-      "problemMatcher": ["$ts-webpack", "$tslint-webpack"]
+      "problemMatcher": ["$tsc"]
     },
     {
       "label": "watch",
@@ -29,7 +29,26 @@
         "panel": "dedicated",
         "reveal": "never"
       },
-      "problemMatcher": ["$ts-webpack-watch", "$tslint-webpack-watch"]
+      "problemMatcher": [
+        "$tsc-watch",
+        {
+          "owner": "tsup",
+          "source": "tsup",
+          "applyTo": "allDocuments",
+          "fileLocation": ["relative", "${workspaceFolder}"],
+          "pattern": {
+            "regexp": ".",
+            "file": 1,
+            "location": 2,
+            "message": 3
+          },
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "CJS Build start|IIFE Build start",
+            "endsPattern": "Build success"
+          }
+        }
+      ]
     },
     {
       "label": "test-compile",
@@ -40,7 +59,7 @@
         "panel": "dedicated",
         "reveal": "never"
       },
-      "problemMatcher": ["$ts-webpack", "$tslint-webpack"]
+      "problemMatcher": ["$tsc"]
     }
   ]
 }
