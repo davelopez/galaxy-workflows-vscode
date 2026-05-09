@@ -1,14 +1,14 @@
 import { findParamAtPath } from "@galaxy-tool-util/schema";
-import type { ASTNode, NodePath } from "@gxwf/server-common/src/ast/types";
-import { Hover, MarkupContent, MarkupKind, Position, Range } from "@gxwf/server-common/src/languageTypes";
+import type { NodePath } from "@gxwf/server-common/src/ast/types";
 import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { Hover, MarkupContent, MarkupKind, Position, Range } from "@gxwf/server-common/src/languageTypes";
+import { buildToolIdHover } from "@gxwf/server-common/src/providers/hover/toolIdHover";
 import {
   astObjectNodeToRecord,
   buildParamHoverMarkdown,
   getObjectNodeFromStep,
   getStringPropertyFromStep,
 } from "@gxwf/server-common/src/providers/validation/toolStateAstHelpers";
-import { buildToolIdHover } from "@gxwf/server-common/src/providers/hover/toolIdHover";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { SchemaNode, SchemaNodeResolver } from "../schema";
 import { findStateInPath } from "./toolStateCompletionService";
