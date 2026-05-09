@@ -42,7 +42,10 @@ suite("Diagram Preview — LSP wire", () => {
     });
     assert.ok(result, "no result returned");
     assert.strictEqual(result.error, undefined, `unexpected error: ${result.error}`);
-    assert.ok(result.contents.startsWith("graph LR"), `expected 'graph LR' prefix, got: ${result.contents.slice(0, 80)}`);
+    assert.ok(
+      result.contents.startsWith("graph LR"),
+      `expected 'graph LR' prefix, got: ${result.contents.slice(0, 80)}`
+    );
   });
 
   test("format2 .gxwf.yml renders as mermaid 'graph LR' via the format2 client", async () => {
@@ -55,7 +58,10 @@ suite("Diagram Preview — LSP wire", () => {
     });
     assert.ok(result, "no result returned");
     assert.strictEqual(result.error, undefined, `unexpected error: ${result.error}`);
-    assert.ok(result.contents.startsWith("graph LR"), `expected 'graph LR' prefix, got: ${result.contents.slice(0, 80)}`);
+    assert.ok(
+      result.contents.startsWith("graph LR"),
+      `expected 'graph LR' prefix, got: ${result.contents.slice(0, 80)}`
+    );
     assert.ok(result.contents.includes("input_"), "expected at least one input node");
   });
 
