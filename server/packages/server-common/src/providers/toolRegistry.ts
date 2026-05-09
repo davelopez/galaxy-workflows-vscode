@@ -62,7 +62,16 @@ export class ToolRegistryServiceImpl implements ToolRegistryService {
     return this.toolInfo.cache.hasCached(toolId, toolVersion ?? null);
   }
 
-  async listCached() {
+  async listCached(): Promise<
+    Array<{
+      cache_key: string;
+      tool_id: string;
+      tool_version: string;
+      source: string;
+      source_url: string;
+      cached_at: string;
+    }>
+  > {
     return this.toolInfo.cache.listCached();
   }
 
