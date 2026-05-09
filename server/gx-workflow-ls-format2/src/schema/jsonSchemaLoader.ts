@@ -1,3 +1,5 @@
+import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
+import { JSONSchema as EffectJSONSchema } from "effect";
 import {
   EnumSchemaNode,
   FieldSchemaNode,
@@ -8,8 +10,6 @@ import {
   SchemaRecord,
 } from "./definitions";
 import { SchemaNodeResolver, SchemaNodeResolverImpl } from "./schemaNodeResolver";
-import { GalaxyWorkflowSchema } from "@galaxy-tool-util/schema";
-import { JSONSchema as EffectJSONSchema } from "effect";
 
 export interface GalaxyWorkflowSchemaLoader {
   readonly definitions: SchemaDefinitions;
@@ -25,10 +25,6 @@ type JSchema = Record<string, unknown>;
 
 function anyOf(s: JSchema): JSchema[] | undefined {
   return s.anyOf as JSchema[] | undefined;
-}
-
-function hasNullAlt(s: JSchema): boolean {
-  return !!anyOf(s)?.some((a) => (a as JSchema).type === "null");
 }
 
 /** Return non-null alternatives from anyOf, or [s] when there is no anyOf. */
@@ -93,12 +89,12 @@ function optStringArrayField(name: string, doc?: string): SchemaField {
 }
 
 /** Required array with a named item type. canBeArray=true, typeRef=itemType. */
-function namedArrayField(name: string, itemType: string, doc?: string): SchemaField {
+function _namedArrayField(name: string, itemType: string, doc?: string): SchemaField {
   return { name, type: [{ type: "array", items: itemType }], doc };
 }
 
 /** Optional array with a named item type. isOptional=true, canBeArray=true. */
-function optNamedArrayField(name: string, itemType: string, doc?: string): SchemaField {
+function _optNamedArrayField(name: string, itemType: string, doc?: string): SchemaField {
   return { name, type: ["null", { type: "array", items: itemType }], doc };
 }
 
