@@ -1,11 +1,14 @@
+import "reflect-metadata";
 import {
   createConnection,
   BrowserMessageReader,
   BrowserMessageWriter,
   Connection,
 } from "vscode-languageserver/browser";
+import { IndexedDBCacheStorage } from "@galaxy-tool-util/core";
 import { container } from "../inversify.config";
 import { GalaxyWorkflowLanguageServer, TYPES } from "@gxwf/server-common/src/languageTypes";
+import type { CacheStorageFactory } from "@gxwf/server-common/src/languageTypes";
 
 function createBrowserConnection(): Connection {
   const messageReader = new BrowserMessageReader(self);
@@ -16,6 +19,7 @@ function createBrowserConnection(): Connection {
 }
 
 container.bind<Connection>(TYPES.Connection).toConstantValue(createBrowserConnection());
+container.bind<CacheStorageFactory>(TYPES.CacheStorageFactory).toConstantValue(() => new IndexedDBCacheStorage());
 
 const server = container.get<GalaxyWorkflowLanguageServer>(TYPES.GalaxyWorkflowLanguageServer);
 server.start();

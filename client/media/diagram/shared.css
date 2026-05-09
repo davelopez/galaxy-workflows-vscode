@@ -1,0 +1,31 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+  font-family: var(--vscode-font-family);
+}
+
+#root {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: 12px;
+  overflow: auto;
+}
+
+#root svg {
+  max-width: 100%;
+  height: auto;
+}
+
+pre.error {
+  white-space: pre-wrap;
+  color: var(--vscode-errorForeground);
+  background: var(--vscode-inputValidation-errorBackground, transparent);
+  border: 1px solid var(--vscode-inputValidation-errorBorder, var(--vscode-errorForeground));
+  padding: 8px;
+  border-radius: 2px;
+}

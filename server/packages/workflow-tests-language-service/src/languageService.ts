@@ -7,19 +7,19 @@ import {
   LanguageServiceBase,
   Position,
   Range,
-  SymbolsProvider,
   TextDocument,
   TextEdit,
   WorkflowTestsDocument,
 } from "@gxwf/server-common/src/languageTypes";
+import type { SymbolsProvider } from "@gxwf/server-common/src/languageTypes";
 import { TYPES as YAML_TYPES } from "@gxwf/yaml-language-service/src/inversify.config";
-import { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
+import type { YAMLLanguageService } from "@gxwf/yaml-language-service/src/yamlLanguageService";
 import { inject, injectable } from "inversify";
 import { GxWorkflowTestsDocument } from "./document";
 import { TestDocumentBasicValidationProfile, TestDocumentIWCValidationProfile } from "./profiles";
-import { WorkflowTestsCompletionService } from "./services/completion";
-import { WorkflowTestsHoverService } from "./services/hover";
-import { WorkflowTestsValidationService } from "./services/validation";
+import type { WorkflowTestsCompletionService } from "./services/completion";
+import type { WorkflowTestsHoverService } from "./services/hover";
+import type { WorkflowTestsValidationService } from "./services/validation";
 import { TYPES } from "./types";
 
 const LANGUAGE_ID = "gxwftests";

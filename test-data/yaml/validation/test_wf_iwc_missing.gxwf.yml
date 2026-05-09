@@ -1,0 +1,11 @@
+class: GalaxyWorkflow
+inputs:
+  - label: input1
+    type: data
+outputs: []
+steps:
+  - tool_id: cat1
+    label: first_cat
+    state:
+      input1:
+        $link: input1

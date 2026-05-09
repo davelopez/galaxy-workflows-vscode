@@ -1,11 +1,11 @@
 # Projects in this monorepo
 
-This monorepo uses [_NPM Workspaces_](https://docs.npmjs.com/cli/v8/using-npm/workspaces) and contains both language servers for Galaxy workflows, `gxformat2` and `native (legacy)` along with some local dependencies.
+This monorepo uses [_pnpm Workspaces_](https://pnpm.io/workspaces) and contains both language servers for Galaxy workflows, `gxformat2` and `native (legacy)` along with some local dependencies.
 
-To install dependencies in any of the contained projects you need run the `npm install` command in this root directory and provide the `-w` parameter with the name of the target workspace. For example to install a new dependency called `my-dep` for the `gxformat2 language server` you should use:
+To install dependencies in any contained project, run `pnpm add` in this root directory with the `--filter` parameter for the target workspace. For example to install a new dependency called `my-dep` for the `gxformat2 language server` you should use:
 
 ```
-npm install my-dep -w gx-workflow-ls-format2
+pnpm --filter gx-workflow-ls-format2 add my-dep
 ```
 
 ## Galaxy Workflow Language Servers

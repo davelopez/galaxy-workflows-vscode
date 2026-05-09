@@ -1,4 +1,4 @@
-import {
+import type {
   ASTNode,
   ArrayASTNode,
   BaseASTNode,
@@ -11,7 +11,7 @@ import {
 } from "@gxwf/server-common/src/ast/types";
 import { Node, Pair } from "yaml";
 
-export {
+export type {
   ASTNode,
   ArrayASTNode,
   BooleanASTNode,

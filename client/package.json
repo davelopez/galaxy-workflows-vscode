@@ -13,18 +13,18 @@
     "url": "https://github.com/davelopez/galaxy-workflows-vscode"
   },
   "engines": {
-    "vscode": "^1.63.0"
+    "vscode": "^1.96.0"
   },
   "dependencies": {
-    "vscode-languageclient": "^8.1.0",
-    "vscode-uri": "^3.0.8"
-  },
-  "scripts": {
-    "webpack": "webpack",
-    "watch": "webpack --watch --progress",
-    "test": "jest"
+    "vscode-languageclient": "^9.0.1",
+    "vscode-uri": "^3.1.0",
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0"
+    "@jest/globals": "^29.7.0",
+    "mermaid": "^11.14.0"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }

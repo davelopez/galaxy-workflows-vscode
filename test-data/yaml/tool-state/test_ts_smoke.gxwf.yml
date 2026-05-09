@@ -1,0 +1,12 @@
+class: GalaxyWorkflow
+inputs:
+  input_data:
+    type: data
+outputs: {}
+steps:
+  wc_step:
+    tool_id: wc_gnu
+    in:
+      input1: input_data
+    state:
+      include_header: "true"

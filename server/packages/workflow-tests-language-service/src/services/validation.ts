@@ -1,8 +1,8 @@
 import { Diagnostic, DiagnosticSeverity, DocumentContext } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
 import { ResolvedSchema } from "../schema/jsonSchema";
-import { WorkflowTestsSchemaProvider } from "../schema/provider";
-import { WorkflowTestsSchemaService } from "../schema/service";
+import type { WorkflowTestsSchemaProvider } from "../schema/provider";
+import type { WorkflowTestsSchemaService } from "../schema/service";
 import { TYPES } from "../types";
 
 export interface WorkflowTestsValidationService {

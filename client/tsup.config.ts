@@ -1,0 +1,34 @@
+import { defineConfig } from "tsup";
+
+export default defineConfig([
+  {
+    entry: { extension: "src/extension.ts" },
+    outDir: "dist",
+    format: ["cjs"],
+    platform: "node",
+    external: ["vscode"],
+    noExternal: [/^vscode-/],
+    sourcemap: true,
+    bundle: true,
+  },
+  {
+    entry: { extension: "src/browser/extension.ts" },
+    outDir: "dist/web",
+    format: ["cjs"],
+    platform: "browser",
+    external: ["vscode"],
+    // Browser host has no node module resolution — bundle everything except `vscode`.
+    noExternal: [/^(?!vscode$).*/],
+    sourcemap: true,
+    bundle: true,
+  },
+  {
+    // Webview bundles — loaded inside the WebviewPanel iframe, not by the extension host.
+    entry: { "media/diagram/mermaid": "src/webview/diagram/mermaid.ts" },
+    outDir: "dist",
+    format: ["iife"],
+    platform: "browser",
+    sourcemap: true,
+    bundle: true,
+  },
+]);

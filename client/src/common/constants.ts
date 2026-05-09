@@ -4,4 +4,5 @@ export namespace Constants {
   export const GXFORMAT2_WORKFLOW_LANGUAGE_ID = "gxformat2";
   export const GXFORMAT2_WORKFLOW_TESTS_LANGUAGE_ID = "gxwftests";
   export const CLEAN_WORKFLOW_DOCUMENT_SCHEME = "galaxy-clean-workflow";
+  export const CONVERTED_WORKFLOW_DOCUMENT_SCHEME = "galaxy-converted-workflow";
 }

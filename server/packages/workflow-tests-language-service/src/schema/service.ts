@@ -1,10 +1,10 @@
-import { DocumentContext } from "@gxwf/server-common/src/languageTypes";
+import type { DocumentContext } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
 import { Diagnostic, DiagnosticSeverity } from "vscode-languageserver-types";
 import { TYPES } from "../types";
-import { IApplicableSchema, JSONSchemaService } from "./adapter";
+import type { IApplicableSchema, JSONSchemaService } from "./adapter";
 import { ResolvedSchema } from "./jsonSchema";
-import { WorkflowTestsSchemaProvider } from "./provider";
+import type { WorkflowTestsSchemaProvider } from "./provider";
 
 export interface WorkflowTestsSchemaService {
   schema: ResolvedSchema;

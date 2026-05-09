@@ -11,12 +11,21 @@ import { TYPES } from "./languageTypes";
 interface ExtensionSettings {
   cleaning: CleaningSettings;
   validation: ValidationSettings;
+  toolCache: ToolCacheSettings;
+  toolShed: ToolShedSettings;
 }
 
 /** Contains settings for workflow cleaning. */
-interface CleaningSettings {
-  /** A list of property names that will be removed from the workflow document when cleaning. */
-  cleanableProperties: string[];
+interface CleaningSettings {}
+
+/** Contains settings for the tool cache. */
+interface ToolCacheSettings {
+  directory: string;
+}
+
+/** Contains settings for the ToolShed. */
+interface ToolShedSettings {
+  url: string;
 }
 
 /** Contains settings for validating workflows. */
@@ -30,11 +39,15 @@ interface ValidationSettings {
 }
 
 const defaultSettings: ExtensionSettings = {
-  cleaning: {
-    cleanableProperties: ["position", "uuid", "errors", "version"],
-  },
+  cleaning: {},
   validation: {
     profile: "basic",
+  },
+  toolCache: {
+    directory: "~/.galaxy/tool_info_cache",
+  },
+  toolShed: {
+    url: "https://toolshed.g2.bx.psu.edu",
   },
 };
 
@@ -53,6 +66,7 @@ export interface ConfigService {
 @injectable()
 export class ConfigServiceImpl implements ConfigService {
   protected hasConfigurationCapability = false;
+  private isInitialized = false;
   private onConfigurationChanged: () => void = () => {
     return;
   };
@@ -68,7 +82,7 @@ export class ConfigServiceImpl implements ConfigService {
   }
 
   public async getDocumentSettings(uri: string): Promise<ExtensionSettings> {
-    if (!this.hasConfigurationCapability) {
+    if (!this.hasConfigurationCapability || !this.isInitialized) {
       return Promise.resolve(globalSettings);
     }
     let result = documentSettingsCache.get(uri);
@@ -88,9 +102,12 @@ export class ConfigServiceImpl implements ConfigService {
   }
 
   private onInitialized(): void {
+    this.isInitialized = true;
     if (this.hasConfigurationCapability) {
       this.connection.client.register(DidChangeConfigurationNotification.type);
     }
+    // Now that initialization is complete, fetch real settings from client
+    this.onConfigurationChanged();
   }
 
   private onDidChangeConfiguration(params: DidChangeConfigurationParams): void {

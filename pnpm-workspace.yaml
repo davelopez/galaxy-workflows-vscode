@@ -1,0 +1,6 @@
+packages:
+  - client
+  - server
+  - server/gx-workflow-ls-format2
+  - server/gx-workflow-ls-native
+  - server/packages/*

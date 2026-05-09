@@ -1,4 +1,5 @@
-import { TextDocument, WorkflowDataProvider, WorkflowTestsDocument } from "@gxwf/server-common/src/languageTypes";
+import { TextDocument, WorkflowTestsDocument } from "@gxwf/server-common/src/languageTypes";
+import type { WorkflowDataProvider } from "@gxwf/server-common/src/languageTypes";
 import { YAMLDocument } from "@gxwf/yaml-language-service/src";
 
 /**

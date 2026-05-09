@@ -8,17 +8,20 @@ import { Constants } from "./common/constants";
 let nativeLanguageClient: LanguageClient;
 let gxFormat2LanguageClient: LanguageClient;
 
-export function activate(context: ExtensionContext): void {
+export function activate(context: ExtensionContext): { nativeClient: LanguageClient; gxFormat2Client: LanguageClient } {
   nativeLanguageClient = buildNodeLanguageClient(
     [Constants.NATIVE_WORKFLOW_LANGUAGE_ID],
-    buildNativeServerOptions(context)
+    buildNativeServerOptions(context),
+    { toolAutoResolution: true }
   );
   gxFormat2LanguageClient = buildNodeLanguageClient(
     [Constants.GXFORMAT2_WORKFLOW_LANGUAGE_ID, Constants.GXFORMAT2_WORKFLOW_TESTS_LANGUAGE_ID],
-    buildGxFormat2ServerOptions(context)
+    buildGxFormat2ServerOptions(context),
+    { toolAutoResolution: true }
   );
 
   initExtension(context, nativeLanguageClient, gxFormat2LanguageClient);
+  return { nativeClient: nativeLanguageClient, gxFormat2Client: gxFormat2LanguageClient };
 }
 
 export async function deactivate(): Promise<void> {
@@ -26,9 +29,13 @@ export async function deactivate(): Promise<void> {
   await gxFormat2LanguageClient?.stop();
 }
 
-function buildNodeLanguageClient(languageIds: string[], serverOptions: ServerOptions): LanguageClient {
+function buildNodeLanguageClient(
+  languageIds: string[],
+  serverOptions: ServerOptions,
+  initializationOptions: Record<string, unknown> = {}
+): LanguageClient {
   const documentSelector = languageIds.map((languageId) => ({ language: languageId }));
-  const clientOptions: LanguageClientOptions = buildBasicLanguageClientOptions(documentSelector);
+  const clientOptions: LanguageClientOptions = buildBasicLanguageClientOptions(documentSelector, initializationOptions);
   return new LanguageClient(
     `${languageIds}-language-client`,
     `Galaxy Workflows (${languageIds})`,

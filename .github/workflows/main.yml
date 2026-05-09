@@ -17,19 +17,21 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 21
-      - run: npm install
+          node-version: 22
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
       - name: Compile
-        run: npm run compile
+        run: pnpm run compile
       - name: Lint Code
-        run: npm run lint
+        run: pnpm run lint
       - name: Run server unit tests
-        run: npm run test-server
+        run: pnpm run test-server
       - name: Run client unit tests
-        run: npm run test-client
+        run: pnpm run test-client
       - name: Run integration tests
-        run: xvfb-run -a npm run test:e2e
+        run: xvfb-run -a pnpm run test:e2e
         if: runner.os == 'Linux'
       - name: Run integration tests
-        run: npm run test:e2e
+        run: pnpm run test:e2e
         if: runner.os != 'Linux'

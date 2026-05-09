@@ -1,6 +1,6 @@
 import { CompletionList, DocumentContext, Position } from "@gxwf/server-common/src/languageTypes";
 import { inject, injectable } from "inversify";
-import { WorkflowTestsSchemaService } from "../../schema/service";
+import type { WorkflowTestsSchemaService } from "../../schema/service";
 import { TYPES } from "../../types";
 import { YAMLCompletionHelper } from "./helper";
 

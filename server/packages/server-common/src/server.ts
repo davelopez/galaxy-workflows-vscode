@@ -6,33 +6,42 @@ import {
   TextDocuments,
   WorkspaceFolder,
 } from "vscode-languageserver";
-import {
+import { TYPES, TextDocument } from "./languageTypes";
+import type {
   DocumentContext,
   DocumentsCache,
   GalaxyWorkflowLanguageServer,
   LanguageService,
-  TYPES,
-  TextDocument,
+  ToolRegistryService,
   WorkflowDataProvider,
   WorkflowLanguageService,
   WorkflowTestsLanguageService,
 } from "./languageTypes";
+import { CodeActionHandler } from "./providers/codeActionHandler";
+import { CodeLensHandler } from "./providers/codeLensHandler";
 import { FormattingHandler } from "./providers/formattingHandler";
 import { HoverHandler } from "./providers/hover/hoverHandler";
 import { SymbolsHandler } from "./providers/symbolsHandler";
 import { CleanWorkflowService } from "./services/cleanWorkflow";
+import { ConvertWorkflowService } from "./services/convertWorkflow";
+import { RenderDiagramService } from "./services/renderDiagramService";
+import { ToolCacheService } from "./services/toolCacheService";
+import { ToolSearchLspService } from "./services/toolSearchService";
 // import { DebugHoverContentContributor } from "./providers/hover/debugHoverContentContributor";
 import { inject, injectable } from "inversify";
-import { ConfigService } from "./configService";
+import type { CacheStorageFactory } from "./languageTypes";
+import type { ConfigService } from "./configService";
 import { CompletionHandler } from "./providers/completionHandler";
 import { ServerEventHandler } from "./providers/handler";
 
 @injectable()
 export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageServer {
   public readonly documents = new TextDocuments(TextDocument);
+  public autoResolutionEnabled = false;
   protected workspaceFolders: WorkspaceFolder[] | null | undefined;
   private languageServiceMapper: Map<string, LanguageService<DocumentContext>> = new Map();
   private serverEventHandlers: ServerEventHandler[] = [];
+  private toolCacheService: ToolCacheService | undefined;
 
   constructor(
     @inject(TYPES.Connection) public readonly connection: Connection,
@@ -40,7 +49,9 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     @inject(TYPES.ConfigService) public readonly configService: ConfigService,
     @inject(TYPES.WorkflowDataProvider) public readonly workflowDataProvider: WorkflowDataProvider,
     @inject(TYPES.WorkflowLanguageService) public readonly workflowLanguageService: WorkflowLanguageService,
-    @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService
+    @inject(TYPES.WorkflowTestsLanguageService) workflowTestsLanguageService: WorkflowTestsLanguageService,
+    @inject(TYPES.ToolRegistryService) public readonly toolRegistryService: ToolRegistryService,
+    @inject(TYPES.CacheStorageFactory) private readonly cacheStorageFactory: CacheStorageFactory
   ) {
     this.languageServiceMapper.set(workflowLanguageService.languageId, workflowLanguageService);
     this.languageServiceMapper.set(workflowTestsLanguageService.languageId, workflowTestsLanguageService);
@@ -74,6 +85,14 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   private async initialize(params: InitializeParams): Promise<InitializeResult> {
     this.configService.initialize(params.capabilities, () => this.onConfigurationChanged());
     this.workspaceFolders = params.workspaceFolders;
+    const initOpts = params.initializationOptions as Record<string, unknown> | undefined;
+    this.autoResolutionEnabled = !!initOpts?.toolAutoResolution;
+
+    const settings = await this.configService.getDocumentSettings("");
+    this.toolRegistryService.configure({
+      toolShedUrl: settings.toolShed.url,
+      storage: this.cacheStorageFactory(settings.toolCache.directory),
+    });
 
     const capabilities: ServerCapabilities = {
       documentFormattingProvider: true,
@@ -83,6 +102,8 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
         triggerCharacters: ['"', ":"],
       },
       documentSymbolProvider: true,
+      codeActionProvider: true,
+      codeLensProvider: { resolveProvider: false },
     };
 
     return {
@@ -99,16 +120,35 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
     );
     this.serverEventHandlers.push(new SymbolsHandler(this));
     this.serverEventHandlers.push(new CompletionHandler(this));
+    this.serverEventHandlers.push(new CodeActionHandler(this));
+    this.serverEventHandlers.push(new CodeLensHandler(this));
   }
 
   private registerServices(): void {
     CleanWorkflowService.register(this);
+    ConvertWorkflowService.register(this);
+    RenderDiagramService.register(this);
+    this.toolCacheService = ToolCacheService.register(this);
+    ToolSearchLspService.register(this);
   }
 
   private trackDocumentChanges(connection: Connection): void {
     this.documents.listen(connection);
     this.documents.onDidChangeContent((event) => this.onDidChangeContent(event.document));
     this.documents.onDidClose((event) => this.onDidClose(event.document));
+    // onDidOpen fires BEFORE onDidChangeContent in vscode-languageserver, so
+    // documentsCache hasn't been populated yet. Parse on demand.
+    // TODO: also trigger resolution when a new tool_id is added to an already-open
+    // document (requires diffing tool ID sets between validation runs).
+    this.documents.onDidOpen((event) => {
+      let docContext = this.documentsCache.get(event.document.uri);
+      if (!docContext) {
+        const languageService = this.getLanguageServiceById(event.document.languageId);
+        docContext = languageService.parseDocument(event.document);
+        this.documentsCache.addOrReplaceDocument(docContext);
+      }
+      void this.toolCacheService?.scheduleResolution(docContext);
+    });
   }
 
   /**
@@ -128,6 +168,12 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
   }
 
   private onConfigurationChanged(): void {
+    this.configService.getDocumentSettings("").then((settings) => {
+      this.toolRegistryService.configure({
+        toolShedUrl: settings.toolShed.url,
+        storage: this.cacheStorageFactory(settings.toolCache.directory),
+      });
+    });
     this.documentsCache.all().forEach((documentContext) => {
       this.validateDocument(documentContext);
     });
@@ -151,5 +197,12 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
 
   private clearValidation(textDocument: TextDocument): void {
     this.connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [] });
+  }
+
+  public revalidateDocument(uri: string): void {
+    const docContext = this.documentsCache.get(uri);
+    if (docContext) {
+      this.validateDocument(docContext);
+    }
   }
 }

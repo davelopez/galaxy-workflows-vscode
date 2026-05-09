@@ -1,6 +1,8 @@
 import {
+  CodeLens,
   CompletionList,
   Diagnostic,
+  DiagramFormat,
   DocumentSymbol,
   FormattingOptions,
   Hover,
@@ -8,11 +10,20 @@ import {
   LanguageServiceBase,
   Position,
   Range,
-  SymbolsProvider,
   TYPES,
   TextDocument,
   TextEdit,
 } from "@gxwf/server-common/src/languageTypes";
+import { buildToolIdCodeLenses } from "@gxwf/server-common/src/providers/toolIdCodeLens";
+import {
+  cleanWorkflow,
+  toFormat2Stateful,
+  workflowToMermaid,
+  type MermaidOptions,
+  type ToolInputsResolver,
+} from "@galaxy-tool-util/schema";
+import type { SymbolsProvider, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import * as YAML from "yaml";
 import { inject, injectable } from "inversify";
 import {
   DocumentLanguageSettings,
@@ -23,9 +34,13 @@ import {
   SchemaConfiguration,
   getLanguageService,
 } from "vscode-json-languageservice";
-import NativeWorkflowSchema from "../../../workflow-languages/schemas/native.schema.json";
 import { NativeWorkflowDocument } from "./nativeWorkflowDocument";
 import { NativeBasicValidationProfile, NativeIWCValidationProfile } from "./profiles";
+import { JsonSchemaNativeWorkflowLoader } from "./schema/jsonSchemaLoader";
+import { NativeToolStateValidationService } from "./services/nativeToolStateValidationService";
+import { NativeHoverService } from "./services/nativeHoverService";
+import { NativeToolStateCompletionService } from "./services/nativeToolStateCompletionService";
+import { NativeWorkflowConnectionService } from "./services/nativeWorkflowConnectionService";
 
 const LANGUAGE_ID = "galaxyworkflow";
 
@@ -42,17 +57,29 @@ export class NativeWorkflowLanguageServiceImpl
 {
   private _jsonLanguageService: JSONLanguageService;
   private _documentSettings: DocumentLanguageSettings = { schemaValidation: "error" };
+  private _schemaLoader = new JsonSchemaNativeWorkflowLoader();
+  private _toolStateValidationService: NativeToolStateValidationService;
+  private _hoverService: NativeHoverService;
+  private _toolStateCompletionService: NativeToolStateCompletionService;
+  private _connectionService: NativeWorkflowConnectionService;
 
-  constructor(@inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider) {
+  constructor(
+    @inject(TYPES.SymbolsProvider) private symbolsProvider: SymbolsProvider,
+    @inject(TYPES.ToolRegistryService) private toolRegistryService: ToolRegistryService
+  ) {
     super(LANGUAGE_ID);
     const params: LanguageServiceParams = {};
     const settings = this.getLanguageSettings();
     this._jsonLanguageService = getLanguageService(params);
     this._jsonLanguageService.configure(settings);
+    this._toolStateValidationService = new NativeToolStateValidationService(this.toolRegistryService);
+    this._hoverService = new NativeHoverService(this.toolRegistryService, this._jsonLanguageService);
+    this._toolStateCompletionService = new NativeToolStateCompletionService(this.toolRegistryService);
+    this._connectionService = new NativeWorkflowConnectionService(this.toolRegistryService);
   }
 
   public get schema(): JSONSchema {
-    return NativeWorkflowSchema;
+    return this._schemaLoader.jsonSchema;
   }
 
   public override parseDocument(document: TextDocument): NativeWorkflowDocument {
@@ -65,26 +92,27 @@ export class NativeWorkflowLanguageServiceImpl
   }
 
   public override async doHover(workflowDocument: NativeWorkflowDocument, position: Position): Promise<Hover | null> {
-    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
-    const hover = await this._jsonLanguageService.doHover(
-      nativeWorkflowDocument.textDocument,
-      position,
-      nativeWorkflowDocument.jsonDocument
-    );
-    return hover;
+    return this._hoverService.doHover(workflowDocument, position);
+  }
+
+  public override async doCodeLens(workflowDocument: NativeWorkflowDocument): Promise<CodeLens[]> {
+    return buildToolIdCodeLenses(workflowDocument, this.toolRegistryService);
   }
 
   public override async doComplete(
     workflowDocument: NativeWorkflowDocument,
     position: Position
   ): Promise<CompletionList | null> {
-    const nativeWorkflowDocument = workflowDocument as NativeWorkflowDocument;
-    const completionResult = await this._jsonLanguageService.doComplete(
-      nativeWorkflowDocument.textDocument,
-      position,
-      nativeWorkflowDocument.jsonDocument
-    );
-    return completionResult;
+    // Try tool_state parameter completions first
+    const toolStateResult = await this._toolStateCompletionService.doCompleteAt(workflowDocument, position);
+    if (toolStateResult) return toolStateResult;
+
+    // Try input_connections completions
+    const connResult = await this._connectionService.doCompleteAt(workflowDocument, position);
+    if (connResult) return connResult;
+
+    // Fallback: JSON schema completions
+    return this._jsonLanguageService.doComplete(workflowDocument.textDocument, position, workflowDocument.jsonDocument);
   }
 
   protected override initializeValidationProfiles(): void {
@@ -104,11 +132,80 @@ export class NativeWorkflowLanguageServiceImpl
     schemaValidationResults.forEach((diagnostic) => {
       diagnostic.source = "Native Workflow Schema";
     });
-    return schemaValidationResults;
+
+    const toolStateDiagnostics = await this._toolStateValidationService.doValidation(nativeWorkflowDocument);
+    toolStateDiagnostics.forEach((diagnostic) => {
+      diagnostic.source = "Tool State";
+    });
+
+    return [...schemaValidationResults, ...toolStateDiagnostics];
   }
 
   public override getSymbols(documentContext: NativeWorkflowDocument): DocumentSymbol[] {
     return this.symbolsProvider.getSymbols(documentContext);
+  }
+
+  public override async cleanWorkflowText(text: string): Promise<string> {
+    const dict = JSON.parse(text) as Record<string, unknown>;
+    const legacyToolStateKeyOrder = collectLegacyToolStateKeyOrder(dict);
+    const toolInputsResolver = await this.buildToolInputsResolver(dict);
+    const { workflow } = await cleanWorkflow(dict, { toolInputsResolver });
+    restoreParsedToolStateKeyOrder(legacyToolStateKeyOrder, workflow as Record<string, unknown>);
+    return JSON.stringify(workflow, null, 4) + "\n";
+  }
+
+  public override async convertWorkflowText(text: string, targetFormat: "format2" | "native"): Promise<string> {
+    if (targetFormat !== "format2") {
+      throw new Error(`Native service only supports conversion to format2; got '${targetFormat}'.`);
+    }
+    const dict = JSON.parse(text) as Record<string, unknown>;
+    const toolInputsResolver = await this.buildToolInputsResolver(dict);
+    const noopResolver: ToolInputsResolver = (_toolId: string, _toolVersion: string | null) => undefined;
+    const { workflow } = toFormat2Stateful(dict, toolInputsResolver ?? noopResolver);
+    return YAML.stringify(workflow, { lineWidth: 0 });
+  }
+
+  public override async renderDiagram(
+    text: string,
+    format: DiagramFormat,
+    options?: Record<string, unknown>
+  ): Promise<string> {
+    const dict = JSON.parse(text) as Record<string, unknown>;
+    switch (format) {
+      case "mermaid":
+        return workflowToMermaid(dict, (options as MermaidOptions) ?? {});
+      case "cytoscape":
+        throw new Error("Cytoscape rendering is not yet implemented.");
+    }
+  }
+
+  private async buildToolInputsResolver(
+    workflowDict: Record<string, unknown>
+  ): Promise<ToolInputsResolver | undefined> {
+    const steps = workflowDict.steps;
+    // Native .ga steps can be an object keyed by step index or an array
+    const stepValues = Array.isArray(steps)
+      ? steps
+      : steps && typeof steps === "object"
+      ? Object.values(steps as Record<string, unknown>)
+      : [];
+
+    const prefetched = new Map<string, unknown[]>();
+
+    for (const step of stepValues) {
+      if (!step || typeof step !== "object" || Array.isArray(step)) continue;
+      const stepObj = step as Record<string, unknown>;
+      const toolId = typeof stepObj.tool_id === "string" ? stepObj.tool_id : null;
+      const toolVersion = typeof stepObj.tool_version === "string" ? stepObj.tool_version : null;
+      if (!toolId) continue;
+      const params = await this.toolRegistryService.getToolParameters(toolId, toolVersion ?? undefined);
+      if (params) {
+        prefetched.set(`${toolId}|${toolVersion ?? ""}`, params);
+      }
+    }
+
+    if (prefetched.size === 0) return undefined;
+    return (toolId, toolVersion) => prefetched.get(`${toolId}|${toolVersion ?? ""}`) as ReturnType<ToolInputsResolver>;
   }
 
   private getLanguageSettings(): LanguageSettings {
@@ -125,4 +222,62 @@ export class NativeWorkflowLanguageServiceImpl
       schema: this.schema,
     };
   }
+}
+
+function collectLegacyToolStateKeyOrder(workflow: Record<string, unknown>): Map<string, string[]> {
+  const orders = new Map<string, string[]>();
+  const entries = getStepEntries(workflow.steps);
+
+  for (const [stepKey, sourceStep] of entries) {
+    const rawToolState = sourceStep.tool_state;
+    if (typeof rawToolState !== "string") continue;
+
+    try {
+      const parsedToolState = JSON.parse(rawToolState) as unknown;
+      if (isRecord(parsedToolState)) {
+        orders.set(stepKey, Object.keys(parsedToolState));
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return orders;
+}
+
+function restoreParsedToolStateKeyOrder(
+  legacyToolStateKeyOrder: Map<string, string[]>,
+  cleanedWorkflow: Record<string, unknown>
+): void {
+  for (const [stepKey, cleanedStep] of getStepEntries(cleanedWorkflow.steps)) {
+    const keyOrder = legacyToolStateKeyOrder.get(stepKey);
+    const cleanedToolState = cleanedStep.tool_state;
+    if (!keyOrder || !isRecord(cleanedToolState)) continue;
+    cleanedStep.tool_state = orderRecordLike(cleanedToolState, keyOrder);
+  }
+}
+
+function getStepEntries(steps: unknown): Array<[string, Record<string, unknown>]> {
+  if (Array.isArray(steps)) {
+    return steps.flatMap((step, i) => (isRecord(step) ? [[String(i), step]] : []));
+  }
+  if (isRecord(steps)) {
+    return Object.entries(steps).flatMap(([stepKey, step]) => (isRecord(step) ? [[stepKey, step]] : []));
+  }
+  return [];
+}
+
+function orderRecordLike(record: Record<string, unknown>, keyOrder: string[]): Record<string, unknown> {
+  const ordered: Record<string, unknown> = {};
+  for (const key of keyOrder) {
+    if (key in record) ordered[key] = record[key];
+  }
+  for (const key of Object.keys(record)) {
+    if (!(key in ordered)) ordered[key] = record[key];
+  }
+  return ordered;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

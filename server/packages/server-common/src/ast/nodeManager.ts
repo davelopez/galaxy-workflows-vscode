@@ -1,5 +1,5 @@
 import { Position, Range, TextDocument } from "../languageTypes";
-import { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment, ValueTypes } from "./types";
+import type { ASTNode, NodePath, ObjectASTNode, ParsedDocument, PropertyASTNode, Segment, ValueTypes } from "./types";
 import { getPropertyNodeFromPath } from "./utils";
 
 export class ASTNodeManager {

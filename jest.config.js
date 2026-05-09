@@ -9,6 +9,8 @@ module.exports = {
   preset: "ts-jest",
   // The glob patterns Jest uses to detect test files
   testMatch: ["**/__tests__/*.+(ts|tsx|js)", "**/*.test.ts"],
+  // Server tests are handled by Vitest (server/vitest.config.ts)
+  testPathIgnorePatterns: ["/node_modules/", "/server/"],
 
   // An array of file extensions your modules use
   moduleFileExtensions: ["ts", "tsx", "js", "yaml"],
@@ -18,7 +20,7 @@ module.exports = {
     "^.+.tsx?$": [
       "ts-jest",
       {
-        tsconfig: compilerOptions,
+        tsconfig: { ...compilerOptions, module: "commonjs", moduleResolution: "node" },
       },
     ],
   },

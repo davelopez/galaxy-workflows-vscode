@@ -1,5 +1,6 @@
-import { FieldSchemaNode, RecordSchemaNode, SchemaNode } from "./definitions";
-import { GalaxyWorkflowFormat2SchemaLoader } from "./schemaLoader";
-import { SchemaNodeResolver } from "./schemaNodeResolver";
+import { FieldSchemaNode, RecordSchemaNode } from "./definitions";
+import type { SchemaNode } from "./definitions";
+import type { SchemaNodeResolver } from "./schemaNodeResolver";
 
-export { FieldSchemaNode, GalaxyWorkflowFormat2SchemaLoader, RecordSchemaNode, SchemaNode, SchemaNodeResolver };
+export { FieldSchemaNode, RecordSchemaNode };
+export type { SchemaNode, SchemaNodeResolver };

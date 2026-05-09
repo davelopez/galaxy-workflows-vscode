@@ -1,8 +1,20 @@
 import "reflect-metadata";
+import type {
+  ToolStateDiagnostic,
+  WorkflowInput,
+  WorkflowOutput,
+  WorkflowDataType,
+  ParsedTool,
+} from "@galaxy-tool-util/schema";
+import type { CacheStorage } from "@galaxy-tool-util/core";
+export type { ToolStateDiagnostic, CacheStorage, ParsedTool, WorkflowInput, WorkflowOutput, WorkflowDataType };
+/** Builds a CacheStorage. Browser returns IndexedDBCacheStorage; node returns FilesystemCacheStorage(getCacheDir(cacheDir)). */
+export type CacheStorageFactory = (cacheDir?: string) => CacheStorage;
 import {
   CodeAction,
   CodeActionContext,
   CodeActionKind,
+  CodeLens,
   Color,
   ColorInformation,
   ColorPresentation,
@@ -11,7 +23,6 @@ import {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
-  DefinitionLink,
   Diagnostic,
   DiagnosticSeverity,
   DocumentHighlight,
@@ -38,6 +49,7 @@ import {
   VersionedTextDocumentIdentifier,
   WorkspaceEdit,
 } from "vscode-languageserver-types";
+import type { DefinitionLink } from "vscode-languageserver-types";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 
@@ -50,33 +62,46 @@ import {
   HoverParams,
 } from "vscode-languageserver/browser";
 import { URI } from "vscode-uri";
-import {
+import { LSNotificationIdentifiers, LSRequestIdentifiers } from "../../../../shared/src/requestsDefinitions";
+import type {
   CleanWorkflowContentsParams,
   CleanWorkflowContentsResult,
   CleanWorkflowDocumentParams,
   CleanWorkflowDocumentResult,
+  ConvertWorkflowContentsParams,
+  ConvertWorkflowContentsResult,
+  GetToolCacheStatusResult,
   GetWorkflowInputsResult,
   GetWorkflowOutputsResult,
-  LSRequestIdentifiers,
+  GetWorkflowToolIdsResult,
+  GetWorkflowToolsParams,
+  GetWorkflowToolsResult,
+  PopulateToolCacheForToolParams,
+  PopulateToolCacheParams,
+  PopulateToolCacheResult,
   TargetWorkflowDocumentParams,
-  WorkflowDataType,
-  WorkflowInput,
-  WorkflowOutput,
+  ToolRef,
+  WorkflowToolEntry,
+  SearchToolsParams,
+  SearchToolsResult,
+  ToolSearchHit,
+  GetStepSkeletonParams,
+  GetStepSkeletonResult,
+  DiagramFormat,
+  RenderWorkflowDiagramParams,
+  RenderWorkflowDiagramResult,
 } from "../../../../shared/src/requestsDefinitions";
 import { ASTNodeManager } from "./ast/nodeManager";
-import { ConfigService } from "./configService";
+import type { ConfigService } from "./configService";
 import { WorkflowDocument } from "./models/workflowDocument";
 import { WorkflowTestsDocument } from "./models/workflowTestsDocument";
 import { NoOpValidationProfile } from "./providers/validation/profiles";
 
 export {
-  CleanWorkflowContentsParams,
-  CleanWorkflowContentsResult,
-  CleanWorkflowDocumentParams,
-  CleanWorkflowDocumentResult,
   CodeAction,
   CodeActionContext,
   CodeActionKind,
+  CodeLens,
   Color,
   ColorInformation,
   ColorPresentation,
@@ -85,7 +110,6 @@ export {
   CompletionItemKind,
   CompletionItemTag,
   CompletionList,
-  DefinitionLink,
   Diagnostic,
   DiagnosticSeverity,
   DocumentFormattingParams,
@@ -98,11 +122,10 @@ export {
   DocumentUri,
   FoldingRange,
   FoldingRangeKind,
-  GetWorkflowInputsResult,
-  GetWorkflowOutputsResult,
   Hover,
   HoverParams,
   InsertTextFormat,
+  LSNotificationIdentifiers,
   LSRequestIdentifiers,
   Location,
   MarkedString,
@@ -113,17 +136,43 @@ export {
   SelectionRange,
   SymbolInformation,
   SymbolKind,
-  TargetWorkflowDocumentParams,
   TextDocument,
   TextDocumentEdit,
   TextEdit,
   VersionedTextDocumentIdentifier,
-  WorkflowDataType,
   WorkflowDocument,
-  WorkflowInput,
-  WorkflowOutput,
   WorkflowTestsDocument,
   WorkspaceEdit,
+};
+
+export type {
+  DefinitionLink,
+  CleanWorkflowContentsParams,
+  CleanWorkflowContentsResult,
+  CleanWorkflowDocumentParams,
+  CleanWorkflowDocumentResult,
+  ConvertWorkflowContentsParams,
+  ConvertWorkflowContentsResult,
+  GetToolCacheStatusResult,
+  GetWorkflowInputsResult,
+  GetWorkflowOutputsResult,
+  GetWorkflowToolIdsResult,
+  GetWorkflowToolsParams,
+  GetWorkflowToolsResult,
+  PopulateToolCacheForToolParams,
+  PopulateToolCacheParams,
+  PopulateToolCacheResult,
+  TargetWorkflowDocumentParams,
+  ToolRef,
+  WorkflowToolEntry,
+  SearchToolsParams,
+  SearchToolsResult,
+  ToolSearchHit,
+  GetStepSkeletonParams,
+  GetStepSkeletonResult,
+  DiagramFormat,
+  RenderWorkflowDiagramParams,
+  RenderWorkflowDiagramResult,
 };
 
 export interface FormattingOptions extends LSPFormattingOptions {
@@ -194,6 +243,7 @@ export interface LanguageService<T extends DocumentContext> {
   format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   doHover(documentContext: T, position: Position): Promise<Hover | null>;
   doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+  doCodeLens(documentContext: T): Promise<CodeLens[]>;
   getSymbols(documentContext: T): DocumentSymbol[];
 
   /**
@@ -204,6 +254,25 @@ export interface LanguageService<T extends DocumentContext> {
   getValidationProfile(profileId: ValidationProfileIdentifier): ValidationProfile;
 
   setServer(server: GalaxyWorkflowLanguageServer): void;
+
+  /**
+   * Returns the cleaned text for the given workflow document text.
+   * Delegates to the galaxy-tool-util cleanWorkflow() implementation.
+   */
+  cleanWorkflowText(text: string): Promise<string>;
+
+  /**
+   * Converts workflow text to the target format.
+   * Format2 service converts to native; native service converts to format2.
+   * Throws if the targetFormat is not supported by this language service.
+   */
+  convertWorkflowText(text: string, targetFormat: "format2" | "native"): Promise<string>;
+
+  /**
+   * Renders the workflow as a diagram in the requested format.
+   * Throws if the format is not supported by this language service.
+   */
+  renderDiagram(text: string, format: DiagramFormat, options?: Record<string, unknown>): Promise<string>;
 }
 
 /**
@@ -223,6 +292,9 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
   public abstract format(document: TextDocument, range: Range, options: FormattingOptions): TextEdit[];
   public abstract doHover(documentContext: T, position: Position): Promise<Hover | null>;
   public abstract doComplete(documentContext: T, position: Position): Promise<CompletionList | null>;
+  public async doCodeLens(_documentContext: T): Promise<CodeLens[]> {
+    return [];
+  }
   public abstract getSymbols(documentContext: T): DocumentSymbol[];
 
   /** Performs basic syntax and semantic validation based on the document schema. */
@@ -269,6 +341,22 @@ export abstract class LanguageServiceBase<T extends DocumentContext> implements 
   public setServer(server: GalaxyWorkflowLanguageServer): void {
     this.server = server;
   }
+
+  public async cleanWorkflowText(text: string): Promise<string> {
+    return text;
+  }
+
+  public async convertWorkflowText(_text: string, targetFormat: "format2" | "native"): Promise<string> {
+    throw new Error(`Conversion to ${targetFormat} is not supported by this language service.`);
+  }
+
+  public async renderDiagram(
+    _text: string,
+    _format: DiagramFormat,
+    _options?: Record<string, unknown>
+  ): Promise<string> {
+    throw new Error("renderDiagram is not implemented for this language service.");
+  }
 }
 
 export interface WorkflowLanguageService extends LanguageService<WorkflowDocument> {}
@@ -279,8 +367,11 @@ export interface GalaxyWorkflowLanguageServer {
   documentsCache: DocumentsCache;
   configService: ConfigService;
   workflowDataProvider: WorkflowDataProvider;
+  toolRegistryService: ToolRegistryService;
+  autoResolutionEnabled: boolean;
   start(): void;
   getLanguageServiceById(languageId: string): LanguageService<DocumentContext>;
+  revalidateDocument(uri: string): void;
 }
 
 export interface DocumentsCache {
@@ -298,6 +389,47 @@ export interface WorkflowDataProvider {
   getWorkflowOutputs(workflowDocumentUri: string): Promise<GetWorkflowOutputsResult>;
 }
 
+export interface ToolRegistryService {
+  hasCached(toolId: string, toolVersion?: string): Promise<boolean>;
+  listCached(): Promise<
+    Array<{
+      cache_key: string;
+      tool_id: string;
+      tool_version: string;
+      source: string;
+      source_url: string;
+      cached_at: string;
+    }>
+  >;
+  populateCache(tools: Array<{ toolId: string; toolVersion?: string }>): Promise<PopulateToolCacheResult>;
+  configure(settings: { toolShedUrl: string; storage: CacheStorage }): void;
+  /** Returns cached tool inputs (parameter list) without hitting the network. Returns null if not cached. */
+  getToolParameters(toolId: string, toolVersion?: string): Promise<unknown[] | null>;
+  /** Returns full ParsedTool metadata from cache. Returns null if not cached. No network. */
+  getToolInfo(toolId: string, toolVersion?: string): Promise<ParsedTool | null>;
+  /** Returns the ToolShed base URL the registry was configured with, or undefined before configure(). */
+  getToolShedBaseUrl(): string | undefined;
+  getCacheSize(): Promise<number>;
+  /** Returns true if a previous auto-resolution attempt for this tool failed. */
+  hasResolutionFailed(toolId: string, toolVersion?: string): boolean;
+  /** Records that auto-resolution failed for this tool. */
+  markResolutionFailed(toolId: string, toolVersion?: string): void;
+  /** Clears any prior resolution-failed flag for this tool (e.g. after a successful retry). */
+  clearResolutionFailed(toolId: string, toolVersion?: string): void;
+  /** Validate native step tool_state against cached tool schema. */
+  validateNativeStep(
+    toolId: string,
+    toolVersion: string | undefined,
+    toolState: Record<string, unknown>,
+    inputConnections?: Record<string, unknown>
+  ): Promise<ToolStateDiagnostic[]>;
+  /**
+   * Returns the currently configured search service (rebuilt on each configure()).
+   * Undefined before configure() has been called.
+   */
+  getSearchService(): import("@galaxy-tool-util/search").ToolSearchService | undefined;
+}
+
 const TYPES = {
   DocumentsCache: Symbol.for("DocumentsCache"),
   ConfigService: Symbol.for("ConfigService"),
@@ -307,6 +439,9 @@ const TYPES = {
   GalaxyWorkflowLanguageServer: Symbol.for("GalaxyWorkflowLanguageServer"),
   WorkflowDataProvider: Symbol.for("WorkflowDataProvider"),
   SymbolsProvider: Symbol.for("SymbolsProvider"),
+  ToolRegistryService: Symbol.for("ToolRegistryService"),
+  /** Factory producing a CacheStorage. Browser entry binds an IndexedDB factory; node entry binds a FilesystemCacheStorage factory. */
+  CacheStorageFactory: Symbol.for("CacheStorageFactory"),
 };
 
 export { TYPES };

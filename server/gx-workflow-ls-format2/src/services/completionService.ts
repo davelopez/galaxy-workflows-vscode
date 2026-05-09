@@ -1,9 +1,11 @@
-import { ASTNode } from "@gxwf/server-common/src/ast/types";
 import { CompletionItem, CompletionItemKind, CompletionList, Position } from "@gxwf/server-common/src/languageTypes";
+import type { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { TextBuffer } from "@gxwf/yaml-language-service/src/utils/textBuffer";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 import { FieldSchemaNode, RecordSchemaNode, SchemaNode, SchemaNodeResolver } from "../schema";
 import { EnumSchemaNode } from "../schema/definitions";
+import { ToolStateCompletionService, findStateInPath, getCompletionTextContext } from "./toolStateCompletionService";
+import { SourceInPath, findSourceInPath, getAvailableSources } from "./workflowConnectionService";
 
 export class GxFormat2CompletionService {
   /**
@@ -12,9 +14,18 @@ export class GxFormat2CompletionService {
    */
   private readonly ignoredSchemaRefs = new Set(["InputParameter", "OutputParameter", "WorkflowStep"]);
 
-  constructor(protected readonly schemaNodeResolver: SchemaNodeResolver) {}
+  private readonly toolStateService?: ToolStateCompletionService;
 
-  public doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
+  constructor(
+    protected readonly schemaNodeResolver: SchemaNodeResolver,
+    toolRegistryService?: ToolRegistryService
+  ) {
+    if (toolRegistryService) {
+      this.toolStateService = new ToolStateCompletionService(toolRegistryService);
+    }
+  }
+
+  public async doComplete(documentContext: GxFormat2WorkflowDocument, position: Position): Promise<CompletionList> {
     const textDocument = documentContext.textDocument;
     const nodeManager = documentContext.nodeManager;
     const result: CompletionList = {
@@ -28,10 +39,45 @@ export class GxFormat2CompletionService {
     if (node === undefined && !textBuffer.isEmpty()) {
       // Do not suggest completions if we cannot find a node at the current position
       // If the document is empty, we can still suggest the root properties
-      return Promise.resolve(result);
+      return result;
     }
 
     const nodePath = nodeManager.getPathFromNode(node);
+
+    // Check if cursor is inside a step's in: source field
+    const sourceInfo: SourceInPath | undefined = findSourceInPath(nodePath);
+    if (sourceInfo) {
+      const position = textBuffer.getPosition(offset);
+      const afterColon = textBuffer.isPositionAfterToken(position, ":");
+      // For the map shorthand form, path[n-1] is the input name, not "source".
+      // Only offer source completions when cursor is after the colon (value position).
+      const pathEndsWithSource = nodePath[nodePath.length - 1] === "source";
+      if (pathEndsWithSource || afterColon) {
+        const currentWord = textBuffer.getCurrentWord(offset);
+        const overwriteRange = textBuffer.getCurrentWordRange(offset);
+        const sources = getAvailableSources(documentContext, sourceInfo.stepName);
+        result.items = sources
+          .filter((s) => s.startsWith(currentWord))
+          .map((s) => ({
+            label: s,
+            kind: CompletionItemKind.Reference,
+            sortText: `_${s}`,
+            insertText: s,
+            textEdit: { range: overwriteRange, newText: s },
+          }));
+        return result;
+      }
+    }
+
+    // Check if cursor is inside a step's state/tool_state block
+    const stateInfo = findStateInPath(nodePath);
+    if (stateInfo && this.toolStateService) {
+      const existing = nodeManager.getDeclaredPropertyNames(node);
+      const textCtx = getCompletionTextContext(textDocument, offset);
+      result.items = await this.toolStateService.doComplete(nodeManager.root, nodePath, stateInfo, textCtx, existing);
+      return result;
+    }
+
     let schemaNode = this.schemaNodeResolver.resolveSchemaContext(nodePath);
     if (schemaNode === undefined) {
       // Try parent node
@@ -44,7 +90,7 @@ export class GxFormat2CompletionService {
       const existing = nodeManager.getDeclaredPropertyNames(node);
       result.items = this.getProposedItems(schemaNode, textBuffer, existing, offset);
     }
-    return Promise.resolve(result);
+    return result;
   }
 
   private getProposedItems(
@@ -135,20 +181,5 @@ export class GxFormat2CompletionService {
       }
     }
     return result;
-  }
-}
-
-function _DEBUG_printNodeName(node: ASTNode): void {
-  let nodeName = "_root_";
-  if (node?.type === "property") {
-    nodeName = node.keyNode.value;
-    console.debug("COMPLETION NODE PROPERTY", nodeName);
-  } else if (node?.type === "object") {
-    console.debug(`COMPLETION NODE OBJECT:`);
-    node.properties.forEach((p) => {
-      console.debug(`  ${p.keyNode.value}`);
-    });
-  } else {
-    console.debug("UNKNOWN");
   }
 }

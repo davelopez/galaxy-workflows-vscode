@@ -1,4 +1,4 @@
-import { ASTNode } from "@gxwf/server-common/src/ast/types";
+import type { ASTNode } from "@gxwf/server-common/src/ast/types";
 import { SymbolKind } from "@gxwf/server-common/src/languageTypes";
 import { SymbolsProviderBase } from "@gxwf/server-common/src/providers/symbolsProvider";
 import { injectable } from "inversify";

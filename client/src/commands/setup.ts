@@ -1,27 +1,74 @@
 import { ExtensionContext } from "vscode";
 import { BaseLanguageClient } from "vscode-languageclient";
 import { CleanWorkflowProvider } from "../providers/cleanWorkflowProvider";
+import { ConvertedWorkflowDocumentProvider } from "../providers/convertedWorkflowDocumentProvider";
 import { GitProvider } from "../providers/git";
 import { CleanWorkflowCommand } from "./cleanWorkflow";
 import { CompareCleanWithWorkflowsCommand } from "./compareCleanWith";
+import { ConvertFileToFormat2Command, ConvertFileToNativeCommand } from "./convertFile";
+import { PreviewConvertToFormat2Command, PreviewConvertToNativeCommand } from "./convertWorkflow";
+import { ExportToFormat2Command, ExportToNativeCommand } from "./exportWorkflow";
+import { InsertToolStepCommand } from "./insertToolStep";
+import { OpenToolInToolShedCommand } from "./openToolInToolShed";
+import { PopulateToolCacheCommand } from "./populateToolCache";
+import { PopulateToolCacheForToolCommand } from "./populateToolCacheForTool";
 import { PreviewCleanWorkflowCommand } from "./previewCleanWorkflow";
+import { PreviewMermaidDiagramCommand } from "./previewWorkflowDiagram";
+import { ExportMermaidDiagramCommand } from "./exportWorkflowDiagram";
+import { DiagramPreviewPanelManager } from "../providers/diagramPreviewPanelManager";
+import { RefreshToolsViewCommand } from "./refreshToolsView";
+import { RevealToolStepCommand } from "./revealToolStep";
 import { SelectForCleanCompareCommand } from "./selectForCleanCompare";
+import { WorkflowToolsTreeProvider } from "../providers/workflowToolsTreeProvider";
 
 /**
- * Registers all custom commands declared in package.json
- * @param context The extension context
- * @param client The language client
+ * Registers all custom commands declared in package.json.
+ * Conversion commands route to the server that owns the source format:
+ * toFormat2 → nativeClient (native .ga source), toNative → gxFormat2Client
+ * (format2 .gxwf.yml source).
  */
-export function setupCommands(context: ExtensionContext, client: BaseLanguageClient, gitProvider: GitProvider): void {
-  context.subscriptions.push(new PreviewCleanWorkflowCommand(client).register());
-  context.subscriptions.push(new CleanWorkflowCommand(client).register());
-  const selectForCompareProvider = new SelectForCleanCompareCommand(client);
+export function setupCommands(
+  context: ExtensionContext,
+  nativeClient: BaseLanguageClient,
+  gxFormat2Client: BaseLanguageClient,
+  gitProvider: GitProvider,
+  workflowToolsProvider: WorkflowToolsTreeProvider
+): void {
+  const convertedProvider = ConvertedWorkflowDocumentProvider.register(context);
+
+  // Conversion: preview (diff view, no file written)
+  context.subscriptions.push(new PreviewConvertToFormat2Command(nativeClient, convertedProvider).register());
+  context.subscriptions.push(new PreviewConvertToNativeCommand(gxFormat2Client, convertedProvider).register());
+
+  // Conversion: export (clean + convert, write new file alongside original)
+  context.subscriptions.push(new ExportToFormat2Command(nativeClient).register());
+  context.subscriptions.push(new ExportToNativeCommand(gxFormat2Client).register());
+
+  // Conversion: convert file in-place (clean + convert, replace original)
+  context.subscriptions.push(new ConvertFileToFormat2Command(nativeClient).register());
+  context.subscriptions.push(new ConvertFileToNativeCommand(gxFormat2Client).register());
+
+  context.subscriptions.push(new PreviewCleanWorkflowCommand(nativeClient).register());
+  context.subscriptions.push(new CleanWorkflowCommand(nativeClient).register());
+  context.subscriptions.push(new PopulateToolCacheCommand(nativeClient).register());
+  context.subscriptions.push(new PopulateToolCacheForToolCommand(nativeClient, gxFormat2Client).register());
+  context.subscriptions.push(new RefreshToolsViewCommand(nativeClient, workflowToolsProvider).register());
+  context.subscriptions.push(new RevealToolStepCommand(nativeClient).register());
+  context.subscriptions.push(new OpenToolInToolShedCommand(nativeClient).register());
+  context.subscriptions.push(new InsertToolStepCommand(nativeClient, gxFormat2Client).register());
+
+  const diagramPanelManager = new DiagramPreviewPanelManager(context, nativeClient, gxFormat2Client);
+  context.subscriptions.push(diagramPanelManager);
+  context.subscriptions.push(new PreviewMermaidDiagramCommand(nativeClient, diagramPanelManager).register());
+  context.subscriptions.push(new ExportMermaidDiagramCommand(nativeClient, gxFormat2Client).register());
+
+  const selectForCompareProvider = new SelectForCleanCompareCommand(nativeClient);
   context.subscriptions.push(selectForCompareProvider.register());
   context.subscriptions.push(
     new CompareCleanWithWorkflowsCommand(
-      client,
+      nativeClient,
       selectForCompareProvider,
-      new CleanWorkflowProvider(client, gitProvider)
+      new CleanWorkflowProvider(nativeClient, gitProvider)
     ).register()
   );
 }

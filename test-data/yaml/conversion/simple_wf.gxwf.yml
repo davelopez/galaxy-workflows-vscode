@@ -1,0 +1,7 @@
+class: GalaxyWorkflow
+inputs:
+  input1:
+    label: input1
+    type: data
+outputs: {}
+steps: {}

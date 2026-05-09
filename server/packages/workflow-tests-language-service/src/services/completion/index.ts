@@ -1,3 +1,5 @@
-import { WorkflowTestsCompletionService, WorkflowTestsCompletionServiceImpl } from "./completion";
+import type { WorkflowTestsCompletionService } from "./completion";
+import { WorkflowTestsCompletionServiceImpl } from "./completion";
 
-export { WorkflowTestsCompletionService, WorkflowTestsCompletionServiceImpl };
+export type { WorkflowTestsCompletionService };
+export { WorkflowTestsCompletionServiceImpl };
