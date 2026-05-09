@@ -25,6 +25,8 @@ jobs:
         run: pnpm run compile
       - name: Lint Code
         run: pnpm run lint
+      - name: Check Formatting
+        run: pnpm run format:check
       - name: Run server unit tests
         run: pnpm run test-server
       - name: Run client unit tests
