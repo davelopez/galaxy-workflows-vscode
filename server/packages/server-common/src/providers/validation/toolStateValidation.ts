@@ -8,7 +8,7 @@ import type { ToolStateDiagnostic } from "@galaxy-tool-util/schema";
 import type { ToolRegistryService } from "../../languageTypes";
 import type { ObjectASTNode } from "../../ast/types";
 import { ASTNodeManager } from "../../ast/nodeManager";
-import { Diagnostic } from "vscode-languageserver-types";
+import { Diagnostic, Range } from "vscode-languageserver-types";
 import { collectStepsWithObjectState, dotPathToAstRange } from "./toolStateAstHelpers";
 import { buildCacheMissDiagnostic, mapToolStateDiagnosticsToLSP } from "./toolStateDiagnostics";
 
@@ -54,7 +54,7 @@ export async function runObjectStateValidationLoop(
     }
 
     const rawDiags = await validator(toolId, toolVersion, stateValueNode, stepNode);
-    const resolver = (path: string, target: "key" | "value") =>
+    const resolver = (path: string, target: "key" | "value"): Range | undefined =>
       dotPathToAstRange(stateValueNode, path, nodeManager, target);
     result.push(...mapToolStateDiagnosticsToLSP(rawDiags, resolver));
   }

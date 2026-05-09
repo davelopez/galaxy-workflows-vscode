@@ -5,7 +5,7 @@
  * work identically on YAML (format2) and JSON (native) ASTs — the "yaml" in
  * legacy names was misleading; the logic has no format dependence.
  */
-import type { ASTNode, ArrayASTNode, NodePath, ObjectASTNode, PropertyASTNode, StringASTNode } from "../../ast/types";
+import type { ASTNode, ArrayASTNode, NodePath, ObjectASTNode, PropertyASTNode } from "../../ast/types";
 import { ASTNodeManager } from "../../ast/nodeManager";
 import { Range } from "vscode-languageserver-types";
 import type { GenomeBuildParameterModel, SelectParameterModel, ToolParameterModel } from "@galaxy-tool-util/schema";
