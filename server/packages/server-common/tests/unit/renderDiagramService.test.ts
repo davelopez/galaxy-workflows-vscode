@@ -4,7 +4,10 @@ import type { DiagramFormat, GalaxyWorkflowLanguageServer } from "../../src/lang
 
 type RenderImpl = (text: string, format: DiagramFormat, options?: Record<string, unknown>) => Promise<string>;
 
-function registerAndGetHandler(renderImpl: RenderImpl, captureLanguageId?: (id: string) => void) {
+function registerAndGetHandler(
+  renderImpl: RenderImpl,
+  captureLanguageId?: (id: string) => void
+): (params: unknown) => Promise<unknown> {
   let handler!: (params: unknown) => Promise<unknown>;
   const server = {
     connection: {

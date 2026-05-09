@@ -5,7 +5,7 @@ import { createNativeWorkflowDocument } from "../testHelpers";
 const TOOL_ID = "toolshed.g2.bx.psu.edu/repos/devteam/bowtie2/bowtie2/2.4.4";
 
 function makeWorkflow(toolState: string | Record<string, unknown> | undefined): string {
-  const toolStateJson =
+  const _toolStateJson =
     toolState === undefined
       ? undefined
       : typeof toolState === "string"

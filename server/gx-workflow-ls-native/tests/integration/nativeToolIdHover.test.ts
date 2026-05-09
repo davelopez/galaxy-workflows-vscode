@@ -1,5 +1,5 @@
 import type { ParsedTool } from "@galaxy-tool-util/schema";
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { Hover, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import "reflect-metadata";
 import { NativeHoverService } from "../../src/services/nativeHoverService";
@@ -94,7 +94,7 @@ function makeWorkflow(toolId = TOOL_ID): string {
   );
 }
 
-async function hoverAt(service: NativeHoverService, contents: string, cursorTarget: string) {
+async function hoverAt(service: NativeHoverService, contents: string, cursorTarget: string): Promise<Hover | null> {
   // Insert $ marker inside the target string value to simulate cursor.
   const template = contents.replace(cursorTarget, cursorTarget.slice(0, 2) + "$" + cursorTarget.slice(2));
   const { contents: finalContents, position } = parseTemplate(template);

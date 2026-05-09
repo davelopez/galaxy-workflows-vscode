@@ -1,4 +1,4 @@
-import { DiagnosticSeverity } from "vscode-languageserver-types";
+import { DiagnosticSeverity, type Range } from "vscode-languageserver-types";
 import type { ToolStateDiagnostic } from "../../src/languageTypes";
 import {
   buildCacheMissDiagnostic,
@@ -35,7 +35,7 @@ describe("buildCacheMissDiagnostic", () => {
 // ---------------------------------------------------------------------------
 
 describe("mapToolStateDiagnosticsToLSP", () => {
-  function resolver(path: string, target: "key" | "value") {
+  function resolver(_path: string, target: "key" | "value"): Range {
     return target === "key" ? KEY_RANGE : VALUE_RANGE;
   }
 

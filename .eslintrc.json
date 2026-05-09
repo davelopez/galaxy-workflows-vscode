@@ -24,7 +24,9 @@
     "/scripts/**/*.js",
     "/scripts/**/*.d.*",
     "/internal/**",
-    "/coverage/**"
+    "/coverage/**",
+    "**/dist/**",
+    "**/out/**"
   ],
   "rules": {
     "prettier/prettier": "error",

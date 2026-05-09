@@ -1,4 +1,4 @@
-import { ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
+import { Hover, ToolRegistryService } from "@gxwf/server-common/src/languageTypes";
 import { parseTemplate } from "@gxwf/server-common/tests/testHelpers";
 import "reflect-metadata";
 import { NativeHoverService } from "../../src/services/nativeHoverService";
@@ -176,7 +176,7 @@ function makeMockRegistry(toolId: string, params: unknown[]): ToolRegistryServic
 // ---------------------------------------------------------------------------
 
 /** Build a minimal native workflow JSON with object-form tool_state (Pass A). */
-function makeWorkflow(toolStateBody: string): string {
+function _makeWorkflow(toolStateBody: string): string {
   return JSON.stringify(
     {
       a_galaxy_workflow: "true",
@@ -208,7 +208,7 @@ describe("Native Tool State Hover Service", () => {
     service = new NativeHoverService(makeMockRegistry(TOOL_ID, TOOL_PARAMS));
   });
 
-  async function getHover(template: string) {
+  async function _getHover(template: string): Promise<Hover | null> {
     const { contents, position } = parseTemplate(template);
     const doc = createNativeWorkflowDocument(contents);
     return service.doHover(doc, position);

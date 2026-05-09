@@ -244,7 +244,8 @@
         {
           "id": "galaxyWorkflows.toolsView",
           "name": "Workflow Tools",
-          "when": "resourceExtname == .ga || resourceExtname == .yml || resourceExtname == .yaml"
+          "when": "resourceExtname == .ga || resourceExtname == .yml || resourceExtname == .yaml",
+          "icon": "$(tools)"
         }
       ]
     },
@@ -410,6 +411,7 @@
   "scripts": {
     "lint": "eslint ./client/src ./server --ext .ts,.tsx",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "clean": "rimraf client/dist && rimraf client/out && pnpm --dir server run clean",
     "compile-client": "cd client && tsup",
     "compile-servers": "pnpm --dir server run compile",

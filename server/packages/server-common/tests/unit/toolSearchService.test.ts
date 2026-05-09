@@ -16,7 +16,7 @@ interface FakeSearchService {
   getLatestVersionForToolId: ReturnType<typeof vi.fn>;
 }
 
-function makeHit(overrides: Record<string, unknown> = {}) {
+function makeHit(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     source: { type: "toolshed" as const, url: "https://toolshed.g2.bx.psu.edu" },
     toolId: "fastp",
