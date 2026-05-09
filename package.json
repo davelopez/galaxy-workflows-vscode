@@ -244,7 +244,8 @@
         {
           "id": "galaxyWorkflows.toolsView",
           "name": "Workflow Tools",
-          "when": "resourceExtname == .ga || resourceExtname == .yml || resourceExtname == .yaml"
+          "when": "resourceExtname == .ga || resourceExtname == .yml || resourceExtname == .yaml",
+          "icon": "$(tools)"
         }
       ]
     },
