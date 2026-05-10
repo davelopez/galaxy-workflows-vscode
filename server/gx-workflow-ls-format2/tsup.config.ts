@@ -1,9 +1,6 @@
-import { defineConfig } from "tsup";
-import path from "path";
 import { readFileSync } from "fs";
+import { defineConfig } from "tsup";
 import { parse } from "yaml";
-
-const schemasDir = path.resolve(__dirname, "../../workflow-languages/schemas");
 
 const yamlPlugin = {
   name: "yaml",
@@ -23,7 +20,6 @@ const baseEsbuildOptions = (options: {
   mainFields?: string[];
   conditions?: string[];
 }): void => {
-  options.alias = { "@schemas": schemasDir };
   // Prefer ESM ("module") so bundled packages like vscode-json-languageservice use their
   // static-import ESM build instead of the UMD build (dynamic require() calls esbuild can't resolve).
   options.mainFields = ["module", "main"];
@@ -35,7 +31,6 @@ const browserEsbuildOptions = (options: {
   mainFields?: string[];
   conditions?: string[];
 }): void => {
-  options.alias = { "@schemas": schemasDir };
   options.mainFields = ["module", "main"];
   // "browser" first so @galaxy-tool-util/core's universal (browser-safe) entry is selected.
   options.conditions = ["browser", "import", "default"];

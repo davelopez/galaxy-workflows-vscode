@@ -10,9 +10,6 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "sourceMap": true,
-    "strict": true,
-    "paths": {
-      "@schemas/*": ["../../workflow-languages/schemas/*"]
-    }
+    "strict": true
   }
 }
