@@ -120,7 +120,7 @@
           },
           "galaxyWorkflows.toolShed.url": {
             "markdownDescription": "ToolShed URL used to fetch tool definitions on cache miss.",
-            "scope": "machine",
+            "scope": "window",
             "type": "string",
             "default": "https://toolshed.g2.bx.psu.edu"
           }
@@ -462,9 +462,9 @@
       "esbuild"
     ],
     "overrides": {
-      "@galaxy-tool-util/core": "1.8.0",
-      "@galaxy-tool-util/schema": "1.8.0",
-      "@galaxy-tool-util/search": "1.8.0"
+      "@galaxy-tool-util/core": "1.9.0",
+      "@galaxy-tool-util/schema": "1.9.0",
+      "@galaxy-tool-util/search": "1.9.0"
     }
   },
   "__metadata": {

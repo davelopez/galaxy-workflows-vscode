@@ -57,27 +57,42 @@ suite("Native (JSON) Workflows", () => {
         // A prior test may have an in-flight auto-resolution whose completion
         // races useEmptyCache() and lands in the fresh cache dir — so don't
         // assert `initial === 0`. Record the baseline and assert growth.
-        const initial = await api.nativeClient.sendRequest<{ cacheSize: number }>(
+        const initial = await api.nativeClient.sendRequest<{ cacheSize: number; autoResolutionEnabled: boolean }>(
           "galaxy-workflows-ls.getToolCacheStatus"
         );
 
-        const dirtyUri = getDocUri(path.join("json", "clean", "iwc_fastp_multiqc_dirty.ga"));
-        await activateAndOpenInEditor(dirtyUri);
+        // Network-independent guard: if the gate is off, auto-resolution can
+        // never fire and the test below would silently skip as "offline",
+        // masking the real bug. Fail loudly instead.
+        assert.strictEqual(
+          initial.autoResolutionEnabled,
+          true,
+          "auto-resolution gate is off — the native client must send toolAutoResolution:true"
+        );
 
-        // Auto-resolution: onDidOpen → scheduleResolution → 300ms debounce →
-        // populateCache → ToolShed fetch → cacheSize grows by the 2 IWC tools.
-        const target = initial.cacheSize + 2;
-        const deadline = Date.now() + 30_000;
-        let status = initial;
-        while (Date.now() < deadline && status.cacheSize < target) {
-          await sleep(500);
-          status = await api.nativeClient.sendRequest("galaxy-workflows-ls.getToolCacheStatus");
-        }
-        if (status.cacheSize < target) {
-          console.warn(`Auto-population incomplete (offline?), cacheSize=${status.cacheSize} target=${target}`);
-          this.skip();
-        }
-        assert.ok(status.cacheSize >= target, `expected cacheSize >= ${target}, got ${status.cacheSize}`);
+        // Open a fresh temp copy, not the shared fixture URI. Auto-resolution is
+        // driven by onDidOpen, which VS Code only fires for a genuinely new
+        // document — reopening an already-open URI reuses it silently and the
+        // resolution never runs (that was the original "silently skips" symptom).
+        const dirtyUri = getDocUri(path.join("json", "clean", "iwc_fastp_multiqc_dirty.ga"));
+        await withTempFixture(dirtyUri, async (tempUri) => {
+          await activateAndOpenInEditor(tempUri);
+
+          // Auto-resolution: onDidOpen → scheduleResolution → 300ms debounce →
+          // populateCache → ToolShed fetch → cacheSize grows by the 2 IWC tools.
+          const target = initial.cacheSize + 2;
+          const deadline = Date.now() + 30_000;
+          let status = initial;
+          while (Date.now() < deadline && status.cacheSize < target) {
+            await sleep(500);
+            status = await api.nativeClient.sendRequest("galaxy-workflows-ls.getToolCacheStatus");
+          }
+          if (status.cacheSize < target) {
+            console.warn(`Auto-population incomplete (offline?), cacheSize=${status.cacheSize} target=${target}`);
+            this.skip();
+          }
+          assert.ok(status.cacheSize >= target, `expected cacheSize >= ${target}, got ${status.cacheSize}`);
+        });
       });
     });
 

@@ -128,6 +128,7 @@ export class ToolCacheService extends ServiceBase {
 
     this.server.connection.onRequest(LSRequestIdentifiers.GET_TOOL_CACHE_STATUS, async () => ({
       cacheSize: await this.server.toolRegistryService.getCacheSize(),
+      autoResolutionEnabled: this.server.autoResolutionEnabled,
     }));
 
     this.server.connection.onRequest(LSRequestIdentifiers.GET_WORKFLOW_TOOLS, (params: GetWorkflowToolsParams) =>

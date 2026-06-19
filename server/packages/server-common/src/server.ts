@@ -147,7 +147,11 @@ export class GalaxyWorkflowLanguageServerImpl implements GalaxyWorkflowLanguageS
         docContext = languageService.parseDocument(event.document);
         this.documentsCache.addOrReplaceDocument(docContext);
       }
-      void this.toolCacheService?.scheduleResolution(docContext);
+      // Don't let a rejected resolution vanish silently — auto-resolution
+      // failures here are otherwise invisible (no diagnostic, no log).
+      this.toolCacheService?.scheduleResolution(docContext).catch((error) => {
+        this.connection.console.error(`Tool auto-resolution failed on open: ${String(error)}`);
+      });
     });
   }
 

@@ -27,7 +27,9 @@ export async function deactivate(): Promise<void> {
 
 function createWebWorkerLanguageClient(languageIds: string[], serverUri: Uri): LanguageClient {
   const documentSelector = languageIds.map((languageId) => ({ language: languageId }));
-  const clientOptions: LanguageClientOptions = buildBasicLanguageClientOptions(documentSelector);
+  const clientOptions: LanguageClientOptions = buildBasicLanguageClientOptions(documentSelector, {
+    toolAutoResolution: true,
+  });
   const worker = new Worker(serverUri.toString());
   return new LanguageClient(
     `${languageIds}-language-client`,

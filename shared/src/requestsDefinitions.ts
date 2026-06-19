@@ -144,6 +144,8 @@ export interface PopulateToolCacheResult {
 
 export interface GetToolCacheStatusResult {
   cacheSize: number;
+  /** Whether the server will auto-resolve uncached tools when a workflow opens. */
+  autoResolutionEnabled: boolean;
 }
 
 export interface GetWorkflowToolsParams {
