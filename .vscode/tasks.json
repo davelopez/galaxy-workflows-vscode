@@ -6,7 +6,7 @@
     {
       "label": "compile",
       "type": "shell",
-      "command": "pnpm",
+      "command": "${workspaceFolder}/scripts/run-pnpm.sh",
       "args": ["run", "compile"],
       "group": "build",
       "presentation": {
@@ -18,7 +18,7 @@
     {
       "label": "watch",
       "type": "shell",
-      "command": "pnpm",
+      "command": "${workspaceFolder}/scripts/run-pnpm.sh",
       "args": ["run", "watch"],
       "isBackground": true,
       "group": {
@@ -53,7 +53,7 @@
     {
       "label": "test-compile",
       "type": "shell",
-      "command": "pnpm",
+      "command": "${workspaceFolder}/scripts/run-pnpm.sh",
       "args": ["run", "test-compile"],
       "presentation": {
         "panel": "dedicated",
