@@ -462,9 +462,9 @@
       "esbuild"
     ],
     "overrides": {
-      "@galaxy-tool-util/core": "1.1.0",
-      "@galaxy-tool-util/schema": "1.1.0",
-      "@galaxy-tool-util/search": "1.1.0"
+      "@galaxy-tool-util/core": "1.8.0",
+      "@galaxy-tool-util/schema": "1.8.0",
+      "@galaxy-tool-util/search": "1.8.0"
     }
   },
   "__metadata": {

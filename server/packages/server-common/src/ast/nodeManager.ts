@@ -122,7 +122,8 @@ export class ASTNodeManager {
     let current = node;
     while (current) {
       const segment = this.getNodeSegment(current);
-      if (segment) {
+      // Note: `segment` can be the numeric array index 0, which is falsy — guard against undefined explicitly.
+      if (segment !== undefined) {
         path.push(segment);
       }
       current = current.parent;
@@ -157,9 +158,20 @@ export class ASTNodeManager {
       stepsPropertyNodes = mainStepsProperty ? [mainStepsProperty] : [];
     }
     for (const stepsNode of stepsPropertyNodes) {
-      if (stepsNode && stepsNode.valueNode && stepsNode.valueNode.type === "object") {
-        stepsNode.valueNode.properties.forEach((stepProperty) => {
+      const stepsValue = stepsNode?.valueNode;
+      if (!stepsValue) {
+        continue;
+      }
+      // gxformat2 allows `steps` as a map (keyed by label) or a list (array of step objects).
+      if (stepsValue.type === "object") {
+        stepsValue.properties.forEach((stepProperty) => {
           const stepNode = stepProperty.valueNode;
+          if (stepNode && stepNode.type === "object") {
+            result.push(stepNode);
+          }
+        });
+      } else if (stepsValue.type === "array") {
+        stepsValue.items.forEach((stepNode) => {
           if (stepNode && stepNode.type === "object") {
             result.push(stepNode);
           }

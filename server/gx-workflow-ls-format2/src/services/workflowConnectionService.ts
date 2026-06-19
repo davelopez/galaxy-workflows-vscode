@@ -1,8 +1,23 @@
 import { NodePath, ObjectASTNode, ArrayASTNode } from "@gxwf/server-common/src/ast/types";
+import { getNodeValue } from "@gxwf/server-common/src/ast/utils";
+import { normalizeStepIn, normalizeStepOut, type NormalizedFormat2StepInput } from "@galaxy-tool-util/schema";
 import { GxFormat2WorkflowDocument } from "../gxFormat2WorkflowDocument";
 
 export interface SourceInPath {
   stepName: string;
+}
+
+/**
+ * Expand a step's `in:` block into normalized {id, source, ...} connection
+ * entries, delegating to the canonical gxformat2 shorthand expander so every
+ * accepted form is covered (explicit list, map-to-string, map-to-object, and
+ * map-to-list multi-source). Used to tell the native tool_state validator which
+ * required params are satisfied by a connection rather than an inline value.
+ */
+export function getFormat2StepInputs(stepNode: ObjectASTNode): NormalizedFormat2StepInput[] {
+  const inNode = stepNode.properties.find((p) => String(p.keyNode.value) === "in")?.valueNode;
+  if (!inNode) return [];
+  return normalizeStepIn(getNodeValue(inNode));
 }
 
 /**
@@ -36,19 +51,50 @@ export function findSourceInPath(path: NodePath): SourceInPath | undefined {
   return undefined;
 }
 
+interface OrderedStep {
+  /** Step label — the map key (map form) or the `label:` property (list form). */
+  label: string | undefined;
+  stepNode: ObjectASTNode;
+}
+
+/**
+ * Return workflow steps in document order, regardless of whether `steps` is a
+ * map (keyed by label) or a list (array of step objects with a `label:`).
+ */
+function getOrderedSteps(stepsValue: ObjectASTNode | ArrayASTNode): OrderedStep[] {
+  const steps: OrderedStep[] = [];
+  if (stepsValue.type === "object") {
+    for (const stepProp of stepsValue.properties) {
+      if (stepProp.valueNode?.type === "object") {
+        steps.push({ label: String(stepProp.keyNode.value), stepNode: stepProp.valueNode as ObjectASTNode });
+      }
+    }
+  } else {
+    for (const item of stepsValue.items) {
+      if (item.type !== "object") continue;
+      const labelProp = (item as ObjectASTNode).properties.find((p) => String(p.keyNode.value) === "label");
+      const label = labelProp?.valueNode?.type === "string" ? String(labelProp.valueNode.value) : undefined;
+      steps.push({ label, stepNode: item as ObjectASTNode });
+    }
+  }
+  return steps;
+}
+
 /**
  * Returns all source strings available at the cursor step:
  *   - Workflow-level input names (e.g. "my_input")
- *   - Outputs from steps defined BEFORE `currentStepName` in YAML order,
+ *   - Outputs from steps defined BEFORE the current step in document order,
  *     in "step_label/output_name" form
  *
- * YAML property order is the authoritative step order in gxformat2, so
- * iteration stops at the current step to prevent forward references.
+ * Document order is the authoritative step order in gxformat2, so iteration
+ * stops at the current step to prevent forward references. `currentStep`
+ * identifies that step as either its label (map form) or its array index as a
+ * string (list form) — whichever `findSourceInPath` extracted from the path.
  *
  * Handles all `out:` forms: array of strings, array of objects (with `id`),
  * and object/mapping (keys are output names).
  */
-export function getAvailableSources(documentContext: GxFormat2WorkflowDocument, currentStepName: string): string[] {
+export function getAvailableSources(documentContext: GxFormat2WorkflowDocument, currentStep: string): string[] {
   const sources: string[] = [];
   const nodeManager = documentContext.nodeManager;
 
@@ -57,40 +103,30 @@ export function getAvailableSources(documentContext: GxFormat2WorkflowDocument, 
     sources.push(String(inputNode.keyNode.value));
   }
 
-  // Step outputs from steps defined before the current step (YAML order)
+  // Step outputs from steps defined before the current step (document order)
   const stepsProperty = nodeManager.getNodeFromPath("steps");
-  if (stepsProperty?.type !== "property" || stepsProperty.valueNode?.type !== "object") {
+  if (
+    stepsProperty?.type !== "property" ||
+    (stepsProperty.valueNode?.type !== "object" && stepsProperty.valueNode?.type !== "array")
+  ) {
     return sources;
   }
 
-  for (const stepProp of (stepsProperty.valueNode as ObjectASTNode).properties) {
-    const stepLabel = String(stepProp.keyNode.value);
-    if (stepLabel === currentStepName) break; // stop at current step — no forward references
-
-    const stepNode = stepProp.valueNode;
-    if (!stepNode || stepNode.type !== "object") continue;
+  const orderedSteps = getOrderedSteps(stepsProperty.valueNode as ObjectASTNode | ArrayASTNode);
+  for (let i = 0; i < orderedSteps.length; i++) {
+    const { label, stepNode } = orderedSteps[i];
+    // Stop at the current step — no forward references. Match by label (map
+    // form) or array index (list form, where currentStep is the index string).
+    if (label === currentStep || String(i) === currentStep) break;
+    if (!label) continue; // an unlabeled list step can't be referenced as a source
 
     const outProp = stepNode.properties.find((p) => String(p.keyNode.value) === "out");
     if (!outProp?.valueNode) continue;
 
-    const outNode = outProp.valueNode;
-    if (outNode.type === "array") {
-      for (const item of (outNode as ArrayASTNode).items) {
-        if (item.type === "string") {
-          sources.push(`${stepLabel}/${String(item.value)}`);
-        } else if (item.type === "object") {
-          // Array-of-objects form: out: [{id: "out1", hide: true}]
-          const idProp = (item as ObjectASTNode).properties.find((p) => String(p.keyNode.value) === "id");
-          if (idProp?.valueNode?.type === "string") {
-            sources.push(`${stepLabel}/${String(idProp.valueNode.value)}`);
-          }
-        }
-      }
-    } else if (outNode.type === "object") {
-      // Object/mapping form: out: {out_file1: {hide: true}, out_file2: {}}
-      for (const prop of (outNode as ObjectASTNode).properties) {
-        sources.push(`${stepLabel}/${String(prop.keyNode.value)}`);
-      }
+    // Delegate every `out:` shorthand (array-of-strings, array-of-objects,
+    // mapping) to the canonical expander rather than re-deriving the rules.
+    for (const out of normalizeStepOut(getNodeValue(outProp.valueNode))) {
+      if (out.id) sources.push(`${label}/${out.id}`);
     }
   }
 

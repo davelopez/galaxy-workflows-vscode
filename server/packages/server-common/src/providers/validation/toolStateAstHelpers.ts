@@ -20,6 +20,8 @@ export interface StepWithToolState {
   toolVersion?: string;
   /** The string-valued tool_id AST node — used for "not cached" diagnostics. */
   toolIdNode: ASTNode;
+  /** Which key the state came from: schema-aware `state` vs raw native `tool_state`. */
+  stateKey: "state" | "tool_state";
   /** The object-valued tool_state/state node. */
   stateValueNode: ObjectASTNode;
   /** The containing step object node (for sibling properties like input_connections). */
@@ -51,6 +53,7 @@ export function collectStepsWithObjectState(nodeManager: ASTNodeManager): StepWi
       toolId,
       toolVersion,
       toolIdNode: toolIdProp.valueNode,
+      stateKey: stateProp.keyNode.value as "state" | "tool_state",
       stateValueNode: stateProp.valueNode as ObjectASTNode,
       stepNode,
     });
@@ -173,6 +176,27 @@ export function dotPathToAstRange(
 // ---------------------------------------------------------------------------
 
 /**
+ * Walk the AST from `root` along `stepPath` segments. Segments are object
+ * property names or numeric array indices, so this resolves steps whether
+ * gxformat2 `steps` is a map (e.g. `[steps, my_step]`) or a list (`[steps, 0]`).
+ */
+function navigateStepPath(root: ASTNode | undefined, stepPath: NodePath): ASTNode | undefined {
+  let current: ASTNode | undefined = root;
+  for (const seg of stepPath) {
+    if (!current) return undefined;
+    if (typeof seg === "number") {
+      if (current.type !== "array") return undefined;
+      current = (current as ArrayASTNode).items[seg];
+    } else {
+      if (current.type !== "object") return undefined;
+      const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
+      current = prop?.valueNode;
+    }
+  }
+  return current;
+}
+
+/**
  * Navigate the AST from root along `stepPath` segments and return the string
  * value of `propertyName` on the resulting step object, or undefined.
  */
@@ -181,12 +205,7 @@ export function getStringPropertyFromStep(
   stepPath: NodePath,
   propertyName: string
 ): string | undefined {
-  let current: ASTNode | undefined = root;
-  for (const seg of stepPath) {
-    if (!current || current.type !== "object") return undefined;
-    const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
-    current = prop?.valueNode;
-  }
+  const current = navigateStepPath(root, stepPath);
   if (!current || current.type !== "object") return undefined;
   const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
   const val = prop?.valueNode;
@@ -203,12 +222,7 @@ export function getObjectNodeFromStep(
   stepPath: NodePath,
   propertyName: string
 ): ObjectASTNode | undefined {
-  let current: ASTNode | undefined = root;
-  for (const seg of stepPath) {
-    if (!current || current.type !== "object") return undefined;
-    const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === seg);
-    current = prop?.valueNode;
-  }
+  const current = navigateStepPath(root, stepPath);
   if (!current || current.type !== "object") return undefined;
   const prop = (current as ObjectASTNode).properties.find((p) => p.keyNode.value === propertyName);
   const val = prop?.valueNode;

@@ -140,14 +140,20 @@ describe("NativeToolStateValidationService", () => {
     expect(diags[0].message).toContain("Could not resolve tool");
   });
 
-  it("emits Information diagnostic when tool is not cached (string state)", async () => {
+  it("emits Information diagnostic plus legacy hint when tool is not cached (string state)", async () => {
     const service = new NativeToolStateValidationService(makeMockRegistry({ cached: false, resolutionFailed: false }));
     const doc = createNativeWorkflowDocument(makeWorkflowWithStringState({ key: "val" }));
     const diags = await service.doValidation(doc);
 
-    expect(diags).toHaveLength(1);
-    expect(diags[0].severity).toBe(3);
-    expect(diags[0].message).toContain("not in the local cache");
+    // The "Clean workflow" quick fix re-encodes string state without needing the tool,
+    // so the hint is offered even when the tool is uncached.
+    expect(diags).toHaveLength(2);
+    const cacheMiss = diags.find((d) => d.severity === 3); // Information
+    expect(cacheMiss).toBeDefined();
+    expect(cacheMiss!.message).toContain("not in the local cache");
+    const hint = diags.find((d) => d.severity === 4); // Hint
+    expect(hint).toBeDefined();
+    expect(hint!.code).toBe("legacy-tool-state");
   });
 
   // --- Object state: valid / invalid ---

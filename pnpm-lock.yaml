@@ -5,9 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@galaxy-tool-util/core': 1.1.0
-  '@galaxy-tool-util/schema': 1.1.0
-  '@galaxy-tool-util/search': 1.1.0
+  '@galaxy-tool-util/core': 1.8.0
+  '@galaxy-tool-util/schema': 1.8.0
+  '@galaxy-tool-util/search': 1.8.0
 
 importers:
 
@@ -126,11 +126,11 @@ importers:
   server/gx-workflow-ls-format2:
     dependencies:
       '@galaxy-tool-util/core':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@galaxy-tool-util/schema':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@gxwf/server-common':
         specifier: workspace:*
         version: link:../packages/server-common
@@ -172,11 +172,11 @@ importers:
   server/gx-workflow-ls-native:
     dependencies:
       '@galaxy-tool-util/core':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@galaxy-tool-util/schema':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@gxwf/server-common':
         specifier: workspace:*
         version: link:../packages/server-common
@@ -224,14 +224,14 @@ importers:
   server/packages/server-common:
     dependencies:
       '@galaxy-tool-util/core':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@galaxy-tool-util/schema':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@galaxy-tool-util/search':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@types/node':
         specifier: ^20.5.7
         version: 20.19.39
@@ -260,8 +260,8 @@ importers:
   server/packages/workflow-tests-language-service:
     dependencies:
       '@galaxy-tool-util/schema':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.8.0
+        version: 1.8.0
       '@gxwf/server-common':
         specifier: workspace:*
         version: link:../server-common
@@ -685,14 +685,14 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@galaxy-tool-util/core@1.1.0':
-    resolution: {integrity: sha512-aOCt4s3bW8OYRrt2JPjtkS8pn2yTPJy86eED6lh3Nfy/KaFWMDUcXBjTm+5/7BgmcfW9x/d/6FVazsekH07OVg==}
+  '@galaxy-tool-util/core@1.8.0':
+    resolution: {integrity: sha512-R5Hu9qAW2+QyQd0q7wFDm6kSwzoIMMQx1IZXjIg1Nh/waftqL45j+fSgNxUT3AjYvmczBDhobinuGK2WSbo/Ow==}
 
-  '@galaxy-tool-util/schema@1.1.0':
-    resolution: {integrity: sha512-D0dMtBaTyRJhoAxH1Djx/42WnxQDAk3yuMhTd3k+MCez1jiGL1kFeYDQEk8yWSgY5Z4d+u24wbhaWG4Q2GTG1w==}
+  '@galaxy-tool-util/schema@1.8.0':
+    resolution: {integrity: sha512-aFkaG/tde24nfY7XgjHouSGHwdi2wGlOuGNoIdxWssxbDwqkCg902DabkL8L4fVnj3JKjrduGz/FzgE/t66p+A==}
 
-  '@galaxy-tool-util/search@1.1.0':
-    resolution: {integrity: sha512-VSLDCUE68u/2+zKWH8J+wf0N080vOUDJd/nVFr5v7F81TJURjdC4oHRsl2YYs2Uwb8JkpWIvs9EAbtSB2rzF2g==}
+  '@galaxy-tool-util/search@1.8.0':
+    resolution: {integrity: sha512-vYSPKUgZBdtZg+fvrboUdi38NWrRRHm7kdzsAcgqAe5MTDyQ23x+rJYcNn+5f4sRxCo0pTSmZ9xA4e5FrYj+5g==}
 
   '@humanwhocodes/config-array@0.13.0':
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
@@ -4330,23 +4330,23 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@galaxy-tool-util/core@1.1.0':
+  '@galaxy-tool-util/core@1.8.0':
     dependencies:
-      '@galaxy-tool-util/schema': 1.1.0
+      '@galaxy-tool-util/schema': 1.8.0
       effect: 3.21.2
       yaml: 2.8.3
 
-  '@galaxy-tool-util/schema@1.1.0':
+  '@galaxy-tool-util/schema@1.8.0':
     dependencies:
       ajv: 8.20.0
       ajv-formats: 3.0.1(ajv@8.20.0)
       effect: 3.21.2
       yaml: 2.8.3
 
-  '@galaxy-tool-util/search@1.1.0':
+  '@galaxy-tool-util/search@1.8.0':
     dependencies:
-      '@galaxy-tool-util/core': 1.1.0
-      '@galaxy-tool-util/schema': 1.1.0
+      '@galaxy-tool-util/core': 1.8.0
+      '@galaxy-tool-util/schema': 1.8.0
 
   '@humanwhocodes/config-array@0.13.0':
     dependencies:

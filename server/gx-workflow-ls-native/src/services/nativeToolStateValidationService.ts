@@ -103,7 +103,27 @@ export class NativeToolStateValidationService {
       toolStateParsed,
       inputConnections,
     } of collectNativeStepsWithStringState(nodeManager)) {
-      if (!(await this.toolRegistryService.hasCached(toolId, toolVersion))) {
+      // Flat resolver: all diagnostics for a string-encoded tool_state point at the whole string.
+      const stringRange = nodeManager.getNodeRange(toolStateStringNode);
+
+      if (await this.toolRegistryService.hasCached(toolId, toolVersion)) {
+        let rawDiags: ToolStateDiagnostic[] = [];
+        try {
+          rawDiags = await this.toolRegistryService.validateNativeStep(
+            toolId,
+            toolVersion,
+            toolStateParsed,
+            inputConnections
+          );
+        } catch {
+          rawDiags = [];
+        }
+        const passBDiags = mapToolStateDiagnosticsToLSP(rawDiags, () => stringRange).map((d) => ({
+          ...d,
+          code: LEGACY_TOOL_STATE_CODE,
+        }));
+        result.push(...passBDiags);
+      } else {
         result.push(
           buildCacheMissDiagnostic(
             toolId,
@@ -111,29 +131,11 @@ export class NativeToolStateValidationService {
             nodeManager.getNodeRange(toolIdNode)
           )
         );
-        continue;
       }
 
-      let rawDiags: ToolStateDiagnostic[] = [];
-      try {
-        rawDiags = await this.toolRegistryService.validateNativeStep(
-          toolId,
-          toolVersion,
-          toolStateParsed,
-          inputConnections
-        );
-      } catch {
-        rawDiags = [];
-      }
-      // Flat resolver: all diagnostics for a string-encoded tool_state point at the whole string.
-      const stringRange = nodeManager.getNodeRange(toolStateStringNode);
-      const passBDiags = mapToolStateDiagnosticsToLSP(rawDiags, () => stringRange).map((d) => ({
-        ...d,
-        code: LEGACY_TOOL_STATE_CODE,
-      }));
-      result.push(...passBDiags);
-      // Always emit a hint so the "Clean workflow" quick fix is discoverable even when
-      // there are no param validation errors.
+      // The string encoding alone marks this state as legacy; the "Clean workflow" quick
+      // fix re-encodes it to object form without needing the tool, so emit the hint
+      // regardless of cache status or param validation outcome.
       result.push(buildLegacyToolStateHintDiagnostic(stringRange));
     }
 

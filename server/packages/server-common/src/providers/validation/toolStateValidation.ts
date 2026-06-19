@@ -14,14 +14,17 @@ import { buildCacheMissDiagnostic, mapToolStateDiagnosticsToLSP } from "./toolSt
 
 /**
  * Format-specific validation for a single step. Receives the tool ID, version,
- * object-valued state node, and the parent step node (for siblings such as
- * `input_connections`). Returns raw ToolStateDiagnostics.
+ * object-valued state node, the parent step node (for siblings such as
+ * `input_connections`), and which key the state came from (`state` vs
+ * `tool_state`) so callers can pick a validator by state shape. Returns raw
+ * ToolStateDiagnostics.
  */
 export type StepStateValidator = (
   toolId: string,
   toolVersion: string | undefined,
   stateValueNode: ObjectASTNode,
-  stepNode: ObjectASTNode
+  stepNode: ObjectASTNode,
+  stateKey: "state" | "tool_state"
 ) => Promise<ToolStateDiagnostic[]>;
 
 /**
@@ -39,7 +42,7 @@ export async function runObjectStateValidationLoop(
 ): Promise<Diagnostic[]> {
   const result: Diagnostic[] = [];
 
-  for (const { toolId, toolVersion, toolIdNode, stateValueNode, stepNode } of collectStepsWithObjectState(
+  for (const { toolId, toolVersion, toolIdNode, stateKey, stateValueNode, stepNode } of collectStepsWithObjectState(
     nodeManager
   )) {
     if (!(await registry.hasCached(toolId, toolVersion))) {
@@ -53,7 +56,7 @@ export async function runObjectStateValidationLoop(
       continue;
     }
 
-    const rawDiags = await validator(toolId, toolVersion, stateValueNode, stepNode);
+    const rawDiags = await validator(toolId, toolVersion, stateValueNode, stepNode, stateKey);
     const resolver = (path: string, target: "key" | "value"): Range | undefined =>
       dotPathToAstRange(stateValueNode, path, nodeManager, target);
     result.push(...mapToolStateDiagnosticsToLSP(rawDiags, resolver));

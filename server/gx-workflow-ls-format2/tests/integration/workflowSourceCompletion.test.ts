@@ -291,6 +291,72 @@ steps:
   });
 
   // ---------------------------------------------------------------------------
+  // List-form steps  (steps: [ {label: ..., ...} ])
+  // ---------------------------------------------------------------------------
+
+  it("suggests upstream step outputs when steps are a LIST", async () => {
+    const workflow = `\
+class: GalaxyWorkflow
+inputs:
+  input_data:
+    type: data
+steps:
+  - label: first_step
+    tool_id: cat1
+    in: {}
+    out:
+      - out_file1
+      - out_file2
+    state: {}
+  - label: second_step
+    tool_id: cat1
+    in:
+      - id: query
+        source: $
+    state: {}
+`;
+    const { contents, position } = parseTemplate(workflow);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("input_data");
+    expect(labels).toContain("first_step/out_file1");
+    expect(labels).toContain("first_step/out_file2");
+  });
+
+  it("does not suggest forward references when steps are a LIST", async () => {
+    // second_step comes BEFORE first_step in list order — first_step must not appear.
+    const workflow = `\
+class: GalaxyWorkflow
+inputs:
+  input_data:
+    type: data
+steps:
+  - label: second_step
+    tool_id: cat1
+    in:
+      - id: query
+        source: $
+    out: []
+    state: {}
+  - label: first_step
+    tool_id: cat1
+    in: {}
+    out:
+      - out_file1
+    state: {}
+`;
+    const { contents, position } = parseTemplate(workflow);
+
+    const completions = await getCompletions(contents, position);
+    const labels = getCompletionItemsLabels(completions);
+
+    expect(labels).toContain("input_data");
+    expect(labels).not.toContain("first_step/out_file1");
+  });
+
+  // ---------------------------------------------------------------------------
   // No upstream steps / no inputs
   // ---------------------------------------------------------------------------
 

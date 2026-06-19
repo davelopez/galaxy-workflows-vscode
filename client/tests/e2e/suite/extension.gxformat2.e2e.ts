@@ -12,6 +12,7 @@ import {
   sleep,
   updateSettings,
   waitForDiagnostics,
+  waitForDiagnosticGone,
   waitForDiagnosticMatching,
 } from "./helpers";
 import { useEmptyCache, usePopulatedCache } from "./cacheHelpers";
@@ -106,6 +107,17 @@ suite("Format2 (YAML) Workflows", () => {
         },
       ]);
     });
+  });
+
+  suite("IWC validation profile (populated cache)", function () {
+    // The fixture's cat1 step resolves against the populated cache, so the only
+    // diagnostics under each profile come from the profile rules themselves.
+    usePopulatedCache([{ toolId: "cat1", toolVersion: "1.0.0" }]);
+    beforeEach(async () => {
+      // usePopulatedCache sets the cache dir; only the profile needs resetting here.
+      await updateSettings("validation.profile", undefined);
+      await sleep(500);
+    });
 
     test("Changing validation profile shows IWC diagnostics then clears on reset", async () => {
       // Fixture satisfies schema (inputs/outputs/steps present) but omits the
@@ -133,8 +145,9 @@ suite("Format2 (YAML) Workflows", () => {
       assert.strictEqual(creator!.severity, vscode.DiagnosticSeverity.Warning);
       assert.strictEqual(license!.severity, vscode.DiagnosticSeverity.Warning);
 
-      await resetSettings();
-      await waitForDiagnostics(docUri);
+      // Reset only the profile; keep the populated cache so the step stays resolved.
+      await updateSettings("validation.profile", undefined);
+      await waitForDiagnosticGone(docUri, (d) => d.message.includes("must have a release version"));
       await assertDiagnostics(docUri, []); // clean again
     });
   });
